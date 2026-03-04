@@ -1,0 +1,632 @@
+"use client";
+
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { Bill, PaymentRun, PaymentMethod, AppUser } from "@/types";
+import { getBills, getPaymentHistory, processBillPayment, scheduleBill, voidBill } from "@/lib/payments";
+import { formatCurrency } from "@/lib/currencies";
+import { useAuth } from "@/context/AuthContext";
+import { useModal } from "@/context/ModalContext";
+
+// ─── Status styles ────────────────────────────────────────────────────────────
+const BILL_STATUS_STYLES: Record<string, { bg: string; color: string; dot: string }> = {
+    UNPAID: { bg: "#FFF7CD", color: "#B76E00", dot: "#B76E00" },
+    SCHEDULED: { bg: "#CAFDF5", color: "#006098", dot: "#006098" },
+    PROCESSING: { bg: "#E8EAF6", color: "#5C6AC4", dot: "#5C6AC4" },
+    PAID: { bg: "#E9FBF0", color: "#00AB55", dot: "#00AB55" },
+    FAILED: { bg: "#FFE7D9", color: "#B72136", dot: "#B72136" },
+    VOID: { bg: "#F4F6F8", color: "#919EAB", dot: "#919EAB" },
+};
+
+const PAYMENT_METHODS: { value: PaymentMethod; label: string; desc: string }[] = [
+    { value: "ACH", label: "ACH Transfer", desc: "1-3 business days" },
+    { value: "WIRE", label: "Wire Transfer", desc: "Same day (before 2pm EST)" },
+    { value: "EFT", label: "EFT", desc: "Electronic Funds Transfer (Canada)" },
+    { value: "CHECK", label: "Paper Check", desc: "5-7 business days" },
+    { value: "CREDIT_CARD", label: "Credit Card", desc: "Instant, card fees apply" },
+];
+
+export default function PaymentsPage() {
+    const { user } = useAuth();
+    const { showConfirm, showError, showAlert } = useModal();
+
+    const [bills, setBills] = useState<Bill[]>([]);
+    const [history, setHistory] = useState<PaymentRun[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [tab, setTab] = useState<"bills" | "history">("bills");
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState<string>("ALL");
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+    // ── Pay Modal state ──────────────────────────────────────────────────────
+    const [showPayModal, setShowPayModal] = useState(false);
+    const [payMethod, setPayMethod] = useState<PaymentMethod>("ACH");
+    const [scheduleDate, setScheduleDate] = useState("");
+    const [isScheduling, setIsScheduling] = useState(false);
+    const [payNotes, setPayNotes] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+
+    // ── Schedule single bill ─────────────────────────────────────────────────
+    const [scheduleTarget, setScheduleTarget] = useState<Bill | null>(null);
+    const [showScheduleModal, setShowScheduleModal] = useState(false);
+
+    const fetchData = useCallback(async () => {
+        if (!user) return;
+        setLoading(true);
+        const [billsData, histData] = await Promise.all([
+            getBills(user),
+            getPaymentHistory(user.tenantId),
+        ]);
+        setBills(billsData);
+        setHistory(histData);
+        setLoading(false);
+    }, [user]);
+
+    useEffect(() => { fetchData(); }, [fetchData]);
+
+    // ── Stats ─────────────────────────────────────────────────────────────────
+    const stats = useMemo(() => {
+        const today = new Date();
+        const weekEnd = new Date(today); weekEnd.setDate(today.getDate() + 7);
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+        const outstanding = bills
+            .filter(b => ["UNPAID", "SCHEDULED"].includes(b.status))
+            .reduce((s, b) => s + b.amount, 0);
+
+        const dueThisWeek = bills
+            .filter(b => b.status === "UNPAID" && new Date(b.dueDate) <= weekEnd)
+            .reduce((s, b) => s + b.amount, 0);
+
+        const overdue = bills
+            .filter(b => b.status === "UNPAID" && new Date(b.dueDate) < today)
+            .reduce((s, b) => s + b.amount, 0);
+
+        const paidThisMonth = bills
+            .filter(b => b.status === "PAID" && b.paymentDate && new Date(b.paymentDate) >= monthStart)
+            .reduce((s, b) => s + b.amount, 0);
+
+        return { outstanding, dueThisWeek, overdue, paidThisMonth };
+    }, [bills]);
+
+    // ── Filtered bills ────────────────────────────────────────────────────────
+    const filteredBills = useMemo(() => {
+        const q = search.toLowerCase();
+        return bills.filter(b => {
+            const matchSearch = !q || b.vendorName.toLowerCase().includes(q) || b.invoiceNumber.toLowerCase().includes(q) || (b.poNumber || "").toLowerCase().includes(q);
+            const matchStatus = statusFilter === "ALL" || b.status === statusFilter;
+            return matchSearch && matchStatus;
+        });
+    }, [bills, search, statusFilter]);
+
+    // ── Selection utils ───────────────────────────────────────────────────────
+    const toggleSelect = (id: string) => {
+        setSelectedIds(prev => {
+            const next = new Set(prev);
+            next.has(id) ? next.delete(id) : next.add(id);
+            return next;
+        });
+    };
+
+    const selectAll = () => {
+        const payable = filteredBills.filter(b => b.status === "UNPAID");
+        if (selectedIds.size === payable.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(payable.map(b => b.id)));
+        }
+    };
+
+    const selectedBills = bills.filter(b => selectedIds.has(b.id));
+    const selectedTotal = selectedBills.reduce((s, b) => s + b.amount, 0);
+
+    const isOverdue = (bill: Bill) =>
+        bill.status === "UNPAID" && new Date(bill.dueDate) < new Date();
+
+    // ── Process payment ───────────────────────────────────────────────────────
+    const handlePayBills = async () => {
+        if (selectedIds.size === 0) {
+            await showAlert("No bills selected", "Please select at least one unpaid bill to pay.");
+            return;
+        }
+        if (isScheduling && !scheduleDate) {
+            await showAlert("Schedule date required", "Please pick a future payment date.");
+            return;
+        }
+        const confirmed = await showConfirm(
+            isScheduling ? "Schedule Payment" : "Confirm Payment",
+            `${isScheduling ? "Schedule" : "Process"} payment of ${formatCurrency(selectedTotal, "USD")} for ${selectedIds.size} bill(s) via ${payMethod}?`
+        );
+        if (!confirmed) return;
+
+        setSubmitting(true);
+        try {
+            await processBillPayment(
+                user!.tenantId,
+                Array.from(selectedIds),
+                payMethod,
+                user!.uid,
+                user!.displayName,
+                isScheduling ? scheduleDate : undefined,
+                payNotes || undefined
+            );
+            setShowPayModal(false);
+            setSelectedIds(new Set());
+            setScheduleDate("");
+            setPayNotes("");
+            await fetchData();
+        } catch (e: any) {
+            await showError("Payment Failed", e.message || "Payment processing failed.");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    // ── Schedule single bill ──────────────────────────────────────────────────
+    const handleScheduleSingle = async () => {
+        if (!scheduleTarget || !scheduleDate) return;
+        setSubmitting(true);
+        try {
+            await scheduleBill(user!.tenantId, scheduleTarget.id, scheduleDate, payMethod);
+            setShowScheduleModal(false);
+            setScheduleTarget(null);
+            setScheduleDate("");
+            await fetchData();
+        } catch (e: any) {
+            await showError("Error", e.message);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    // ── Void bill ─────────────────────────────────────────────────────────────
+    const handleVoidBill = async (bill: Bill) => {
+        const confirmed = await showConfirm("Void Bill", `Void invoice ${bill.invoiceNumber} from ${bill.vendorName}?`);
+        if (!confirmed) return;
+        try {
+            await voidBill(user!.tenantId, bill.id);
+            await fetchData();
+        } catch (e: any) {
+            await showError("Error", e.message);
+        }
+    };
+
+    if (loading) return (
+        <div className="page-container">
+            <div style={{ textAlign: "center", padding: "4rem", color: "#637381" }}>Loading payments...</div>
+        </div>
+    );
+
+    const payableCount = filteredBills.filter(b => b.status === "UNPAID").length;
+
+    return (
+        <div className="page-container">
+            {/* ── Header ──────────────────────────────────────────────────── */}
+            <div className="page-header">
+                <div>
+                    <h1 className="page-title">Payments</h1>
+                    <p className="page-subtitle">Manage bills, process vendor payments, and track AP runs</p>
+                </div>
+                {selectedIds.size > 0 && (
+                    <button className="btn btn-primary" onClick={() => setShowPayModal(true)}>
+                        💳 Pay {selectedIds.size} Bill{selectedIds.size !== 1 ? "s" : ""} · {formatCurrency(selectedTotal, "USD")}
+                    </button>
+                )}
+            </div>
+
+            {/* ── Stats Strip ─────────────────────────────────────────────── */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+                {[
+                    { label: "Total Outstanding", value: formatCurrency(stats.outstanding, "USD"), color: "#5C6AC4", bg: "#E8EAF6", icon: "📊" },
+                    { label: "Due This Week", value: formatCurrency(stats.dueThisWeek, "USD"), color: "#B76E00", bg: "#FFF7CD", icon: "📅" },
+                    { label: "Overdue", value: formatCurrency(stats.overdue, "USD"), color: "#B72136", bg: "#FFE7D9", icon: "⚠️" },
+                    { label: "Paid This Month", value: formatCurrency(stats.paidThisMonth, "USD"), color: "#00AB55", bg: "#E9FBF0", icon: "✅" },
+                ].map(s => (
+                    <div key={s.label} style={{ background: "white", border: "1px solid #DFE3E8", borderRadius: 12, padding: "1.25rem" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
+                            <span style={{ fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#637381" }}>{s.label}</span>
+                            <div style={{ width: 32, height: 32, background: s.bg, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>{s.icon}</div>
+                        </div>
+                        <div style={{ fontSize: "1.3rem", fontWeight: 800, color: s.color }}>{s.value}</div>
+                    </div>
+                ))}
+            </div>
+
+            {/* ── Tab Bar ─────────────────────────────────────────────────── */}
+            <div style={{ display: "flex", gap: "0.25rem", background: "#F4F6F8", padding: "0.25rem", borderRadius: 10, width: "fit-content", marginBottom: "1rem" }}>
+                {(["bills", "history"] as const).map(t => (
+                    <button key={t} onClick={() => setTab(t)} style={{
+                        padding: "0.5rem 1.25rem", borderRadius: 8, border: "none", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", transition: "all 0.15s",
+                        background: tab === t ? "white" : "transparent",
+                        color: tab === t ? "#5C6AC4" : "#637381",
+                        boxShadow: tab === t ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+                    }}>
+                        {t === "bills" ? `Bills (${payableCount})` : "Payment History"}
+                    </button>
+                ))}
+            </div>
+
+            {/* ════════════════════════════════════════════════════════════════
+                TAB: Bills
+            ════════════════════════════════════════════════════════════════ */}
+            {tab === "bills" && (
+                <>
+                    {/* ── Toolbar ────────────────────────────────────────── */}
+                    <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap" }}>
+                        <div style={{ position: "relative", flex: 1, minWidth: 220 }}>
+                            <span style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "#919EAB" }}>🔍</span>
+                            <input type="text" placeholder="Search vendor, invoice #, PO..."
+                                value={search} onChange={e => setSearch(e.target.value)}
+                                className="form-input" style={{ paddingLeft: "2.25rem" }} />
+                        </div>
+                        <div style={{ display: "flex", gap: "0.25rem" }}>
+                            {["ALL", "UNPAID", "SCHEDULED", "PROCESSING", "PAID", "FAILED"].map(s => (
+                                <button key={s} onClick={() => setStatusFilter(s)} style={{
+                                    padding: "0.4rem 0.875rem", borderRadius: 8, border: "none", fontWeight: 600, fontSize: "0.8rem", cursor: "pointer",
+                                    background: statusFilter === s ? "#5C6AC4" : "#F4F6F8",
+                                    color: statusFilter === s ? "white" : "#637381",
+                                }}>
+                                    {s === "ALL" ? "All" : s.charAt(0) + s.slice(1).toLowerCase()}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* ── Batch Action Bar ──────────────────────────────── */}
+                    {selectedIds.size > 0 && (
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#E8EAF6", border: "1px solid #C5CAE9", borderRadius: 10, padding: "0.75rem 1.25rem", marginBottom: "1rem" }}>
+                            <span style={{ fontWeight: 700, color: "#5C6AC4" }}>
+                                {selectedIds.size} bill{selectedIds.size !== 1 ? "s" : ""} selected · {formatCurrency(selectedTotal, "USD")} total
+                            </span>
+                            <div style={{ display: "flex", gap: "0.5rem" }}>
+                                <button className="btn btn-secondary btn-sm" onClick={() => setSelectedIds(new Set())}>Clear</button>
+                                <button className="btn btn-primary" onClick={() => { setIsScheduling(false); setShowPayModal(true); }}>
+                                    💳 Pay Now
+                                </button>
+                                <button className="btn btn-secondary" onClick={() => { setIsScheduling(true); setShowPayModal(true); }}>
+                                    📅 Schedule
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {filteredBills.length === 0 ? (
+                        <div className="card">
+                            <div className="empty-state">
+                                <div className="empty-state-icon">💳</div>
+                                <h3>No bills to display</h3>
+                                <p>Approved invoices will appear here as bills ready for payment.</p>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="table-wrapper">
+                            <table className="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style={{ width: 36 }}>
+                                            <input type="checkbox"
+                                                checked={selectedIds.size === filteredBills.filter(b => b.status === "UNPAID").length && payableCount > 0}
+                                                onChange={selectAll}
+                                                style={{ accentColor: "#5C6AC4" }}
+                                            />
+                                        </th>
+                                        <th>Invoice #</th>
+                                        <th>Vendor</th>
+                                        <th>PO #</th>
+                                        <th>Department</th>
+                                        <th>Issue Date</th>
+                                        <th>Due Date</th>
+                                        <th style={{ textAlign: "right" }}>Amount</th>
+                                        <th>Status</th>
+                                        <th>Method</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredBills.map(bill => {
+                                        const style = BILL_STATUS_STYLES[bill.status] || BILL_STATUS_STYLES.UNPAID;
+                                        const overdue = isOverdue(bill);
+                                        const isSelected = selectedIds.has(bill.id);
+                                        return (
+                                            <tr key={bill.id} style={{ background: isSelected ? "#F3F4FD" : undefined }}>
+                                                <td>
+                                                    {bill.status === "UNPAID" && (
+                                                        <input type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={() => toggleSelect(bill.id)}
+                                                            style={{ accentColor: "#5C6AC4" }}
+                                                        />
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    <div style={{ fontFamily: "monospace", fontWeight: 700, color: "#5C6AC4", fontSize: "0.875rem" }}>
+                                                        {bill.invoiceNumber}
+                                                    </div>
+                                                </td>
+                                                <td style={{ fontWeight: 600 }}>{bill.vendorName}</td>
+                                                <td style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#637381" }}>{bill.poNumber || "—"}</td>
+                                                <td>
+                                                    <span style={{ fontSize: "0.8rem", background: "#E8EAF6", color: "#5C6AC4", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>
+                                                        {bill.department}
+                                                    </span>
+                                                </td>
+                                                <td style={{ color: "#637381", fontSize: "0.875rem" }}>
+                                                    {new Date(bill.issueDate).toLocaleDateString()}
+                                                </td>
+                                                <td style={{ fontSize: "0.875rem" }}>
+                                                    <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                                        <span style={{ color: overdue ? "#B72136" : "#637381", fontWeight: overdue ? 700 : 400 }}>
+                                                            {new Date(bill.dueDate).toLocaleDateString()}
+                                                        </span>
+                                                        {overdue && (
+                                                            <span style={{ background: "#FFE7D9", color: "#B72136", fontSize: "0.65rem", fontWeight: 800, padding: "1px 6px", borderRadius: 4, letterSpacing: "0.04em" }}>OVERDUE</span>
+                                                        )}
+                                                        {bill.scheduledDate && bill.status === "SCHEDULED" && (
+                                                            <span style={{ background: "#CAFDF5", color: "#006098", fontSize: "0.65rem", fontWeight: 800, padding: "1px 6px", borderRadius: 4 }}>
+                                                                → {new Date(bill.scheduledDate).toLocaleDateString()}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td style={{ textAlign: "right", fontWeight: 800, color: overdue ? "#B72136" : "#212B36" }}>
+                                                    {formatCurrency(bill.amount, bill.currency || "USD")}
+                                                </td>
+                                                <td>
+                                                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 10px", borderRadius: 9999, fontSize: "0.75rem", fontWeight: 700, background: style.bg, color: style.color }}>
+                                                        ● {bill.status}
+                                                    </span>
+                                                </td>
+                                                <td style={{ color: "#637381", fontSize: "0.8rem" }}>
+                                                    {bill.paymentMethod || "—"}
+                                                </td>
+                                                <td>
+                                                    <div style={{ display: "flex", gap: "0.375rem" }}>
+                                                        {bill.status === "UNPAID" && (
+                                                            <>
+                                                                <button
+                                                                    className="btn btn-primary btn-sm"
+                                                                    onClick={() => { setSelectedIds(new Set([bill.id])); setIsScheduling(false); setShowPayModal(true); }}>
+                                                                    Pay
+                                                                </button>
+                                                                <button
+                                                                    style={{ fontSize: "0.75rem", padding: "3px 10px", borderRadius: 6, border: "1px solid #DFE3E8", background: "white", color: "#637381", cursor: "pointer" }}
+                                                                    onClick={() => { setScheduleTarget(bill); setShowScheduleModal(true); }}>
+                                                                    📅
+                                                                </button>
+                                                                <button
+                                                                    style={{ fontSize: "0.75rem", padding: "3px 10px", borderRadius: 6, border: "1px solid #FFE7D9", background: "white", color: "#B72136", cursor: "pointer" }}
+                                                                    onClick={() => handleVoidBill(bill)}>
+                                                                    Void
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                        {bill.paymentRef && (
+                                                            <span style={{ fontSize: "0.7rem", fontFamily: "monospace", color: "#919EAB" }} title="Bank Reference">
+                                                                {bill.paymentRef.slice(0, 12)}…
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </>
+            )}
+
+            {/* ════════════════════════════════════════════════════════════════
+                TAB: Payment History
+            ════════════════════════════════════════════════════════════════ */}
+            {tab === "history" && (
+                history.length === 0 ? (
+                    <div className="card">
+                        <div className="empty-state">
+                            <div className="empty-state-icon">🧾</div>
+                            <h3>No payment runs yet</h3>
+                            <p>Completed and scheduled payment runs will appear here.</p>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="table-wrapper">
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Reference #</th>
+                                    <th>Bills</th>
+                                    <th style={{ textAlign: "right" }}>Total</th>
+                                    <th>Method</th>
+                                    <th>Status</th>
+                                    <th>Created By</th>
+                                    <th>Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {history.map(run => {
+                                    const runStyle = {
+                                        COMPLETED: { bg: "#E9FBF0", color: "#00AB55" },
+                                        PENDING: { bg: "#FFF7CD", color: "#B76E00" },
+                                        PROCESSING: { bg: "#E8EAF6", color: "#5C6AC4" },
+                                        FAILED: { bg: "#FFE7D9", color: "#B72136" },
+                                    }[run.status] || { bg: "#F4F6F8", color: "#637381" };
+
+                                    return (
+                                        <tr key={run.id}>
+                                            <td style={{ color: "#637381", fontSize: "0.8125rem" }}>
+                                                <div>{new Date(run.createdAt).toLocaleDateString()}</div>
+                                                {run.processedAt && (
+                                                    <div style={{ fontSize: "0.75rem", color: "#919EAB" }}>
+                                                        Processed: {new Date(run.processedAt).toLocaleDateString()}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td style={{ fontFamily: "monospace", fontWeight: 700, color: "#5C6AC4", fontSize: "0.8rem" }}>
+                                                {run.referenceNumber}
+                                            </td>
+                                            <td>
+                                                <span style={{ fontWeight: 700 }}>{run.billIds.length}</span>
+                                                <span style={{ color: "#919EAB", fontSize: "0.8rem" }}> bill{run.billIds.length !== 1 ? "s" : ""}</span>
+                                            </td>
+                                            <td style={{ textAlign: "right", fontWeight: 800 }}>
+                                                {formatCurrency(run.totalAmount, run.currency || "USD")}
+                                            </td>
+                                            <td style={{ color: "#637381" }}>{run.paymentMethod}</td>
+                                            <td>
+                                                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 10px", borderRadius: 9999, fontSize: "0.75rem", fontWeight: 700, background: runStyle.bg, color: runStyle.color }}>
+                                                    ● {run.status}
+                                                </span>
+                                                {run.status === "PENDING" && run.paymentDate && (
+                                                    <div style={{ fontSize: "0.7rem", color: "#006098", marginTop: 2 }}>
+                                                        Scheduled: {new Date(run.paymentDate).toLocaleDateString()}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td style={{ color: "#637381", fontSize: "0.875rem" }}>{run.createdByName}</td>
+                                            <td style={{ color: "#919EAB", fontSize: "0.8rem" }}>{run.notes || "—"}</td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                )
+            )}
+
+            {/* ════════════════════════════════════════════════════════════════
+                PAY BILLS MODAL
+            ════════════════════════════════════════════════════════════════ */}
+            {showPayModal && (
+                <div className="modal-backdrop">
+                    <div className="modal" style={{ maxWidth: 560, width: "95%" }}>
+                        <div className="modal-header">
+                            <h2 className="modal-title">
+                                {isScheduling ? "📅 Schedule Payment" : "💳 Pay Bills"}
+                            </h2>
+                            <button onClick={() => setShowPayModal(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#637381", cursor: "pointer" }}>×</button>
+                        </div>
+
+                        <div className="modal-body">
+                            {/* Selected Bills Summary */}
+                            <div style={{ background: "#F4F6F8", borderRadius: 10, padding: "0.875rem 1rem", marginBottom: "1.25rem" }}>
+                                <div style={{ fontWeight: 700, color: "#212B36", marginBottom: "0.5rem" }}>
+                                    {selectedBills.length} bill{selectedBills.length !== 1 ? "s" : ""} selected
+                                </div>
+                                {selectedBills.map(b => (
+                                    <div key={b.id} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.8rem", color: "#637381", paddingTop: "0.25rem" }}>
+                                        <span>{b.vendorName} · {b.invoiceNumber}</span>
+                                        <span style={{ fontWeight: 600 }}>{formatCurrency(b.amount, b.currency)}</span>
+                                    </div>
+                                ))}
+                                <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #DFE3E8", marginTop: "0.5rem", paddingTop: "0.5rem", fontWeight: 800, color: "#212B36" }}>
+                                    <span>Total</span>
+                                    <span style={{ color: "#5C6AC4" }}>{formatCurrency(selectedTotal, "USD")}</span>
+                                </div>
+                            </div>
+
+                            {/* Payment Method */}
+                            <div style={{ marginBottom: "1.25rem" }}>
+                                <label className="form-label">Payment Method</label>
+                                <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                                    {PAYMENT_METHODS.map(pm => (
+                                        <label key={pm.value} style={{
+                                            display: "flex", alignItems: "center", gap: "0.75rem",
+                                            padding: "0.75rem 1rem", border: `2px solid ${payMethod === pm.value ? "#5C6AC4" : "#DFE3E8"}`,
+                                            borderRadius: 10, cursor: "pointer",
+                                            background: payMethod === pm.value ? "#F3F4FD" : "white",
+                                            transition: "all 0.15s"
+                                        }}>
+                                            <input type="radio" name="payMethod" value={pm.value}
+                                                checked={payMethod === pm.value}
+                                                onChange={() => setPayMethod(pm.value)}
+                                                style={{ accentColor: "#5C6AC4" }}
+                                            />
+                                            <div>
+                                                <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{pm.label}</div>
+                                                <div style={{ fontSize: "0.75rem", color: "#637381" }}>{pm.desc}</div>
+                                            </div>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Schedule date (always shown if isScheduling) */}
+                            {isScheduling && (
+                                <div style={{ marginBottom: "1rem" }}>
+                                    <label className="form-label">Payment Date *</label>
+                                    <input type="date"
+                                        className="form-input"
+                                        min={new Date(Date.now() + 86400000).toISOString().split("T")[0]}
+                                        value={scheduleDate}
+                                        onChange={e => setScheduleDate(e.target.value)}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Notes */}
+                            <div>
+                                <label className="form-label">Notes (optional)</label>
+                                <textarea rows={2} className="form-input"
+                                    placeholder="Batch reference, remittance info..."
+                                    value={payNotes}
+                                    onChange={e => setPayNotes(e.target.value)}
+                                    style={{ resize: "vertical" }}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="modal-footer">
+                            <button className="btn btn-secondary" onClick={() => setShowPayModal(false)} disabled={submitting}>Cancel</button>
+                            <button className="btn btn-primary" onClick={handlePayBills} disabled={submitting}>
+                                {submitting ? "Processing..." : isScheduling ? "📅 Schedule Payment" : "💳 Process Payment"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ════════════════════════════════════════════════════════════════
+                SCHEDULE SINGLE BILL MODAL
+            ════════════════════════════════════════════════════════════════ */}
+            {showScheduleModal && scheduleTarget && (
+                <div className="modal-backdrop">
+                    <div className="modal" style={{ maxWidth: 440, width: "95%" }}>
+                        <div className="modal-header">
+                            <h2 className="modal-title">📅 Schedule Bill</h2>
+                            <button onClick={() => setShowScheduleModal(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#637381", cursor: "pointer" }}>×</button>
+                        </div>
+                        <div className="modal-body">
+                            <p style={{ color: "#637381", marginBottom: "1rem", fontSize: "0.875rem" }}>
+                                Schedule payment for <strong>{scheduleTarget.invoiceNumber}</strong> from{" "}
+                                <strong>{scheduleTarget.vendorName}</strong> — {formatCurrency(scheduleTarget.amount, scheduleTarget.currency)}
+                            </p>
+                            <div style={{ marginBottom: "1rem" }}>
+                                <label className="form-label">Payment Date *</label>
+                                <input type="date" className="form-input"
+                                    min={new Date(Date.now() + 86400000).toISOString().split("T")[0]}
+                                    value={scheduleDate}
+                                    onChange={e => setScheduleDate(e.target.value)}
+                                />
+                            </div>
+                            <div>
+                                <label className="form-label">Payment Method</label>
+                                <select className="form-input" value={payMethod} onChange={e => setPayMethod(e.target.value as PaymentMethod)}>
+                                    {PAYMENT_METHODS.map(pm => (
+                                        <option key={pm.value} value={pm.value}>{pm.label}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-secondary" onClick={() => setShowScheduleModal(false)}>Cancel</button>
+                            <button className="btn btn-primary" onClick={handleScheduleSingle} disabled={submitting || !scheduleDate}>
+                                {submitting ? "Saving..." : "Schedule Payment"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}

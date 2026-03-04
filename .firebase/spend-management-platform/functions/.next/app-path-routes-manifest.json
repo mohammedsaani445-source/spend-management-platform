@@ -1,0 +1,20 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/dashboard/analytics/page": "/dashboard/analytics",
+  "/dashboard/approvals/page": "/dashboard/approvals",
+  "/dashboard/budgets/page": "/dashboard/budgets",
+  "/dashboard/invoices/page": "/dashboard/invoices",
+  "/dashboard/notifications/page": "/dashboard/notifications",
+  "/dashboard/page": "/dashboard",
+  "/dashboard/purchase-orders/page": "/dashboard/purchase-orders",
+  "/dashboard/requisitions/new/page": "/dashboard/requisitions/new",
+  "/dashboard/requisitions/page": "/dashboard/requisitions",
+  "/dashboard/settings/page": "/dashboard/settings",
+  "/dashboard/support/page": "/dashboard/support",
+  "/dashboard/vendors/page": "/dashboard/vendors",
+  "/favicon.ico/route": "/favicon.ico",
+  "/login/page": "/login",
+  "/page": "/",
+  "/public/po/[id]/page": "/public/po/[id]"
+}

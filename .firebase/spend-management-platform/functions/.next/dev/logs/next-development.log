@@ -1,0 +1,146 @@
+[00:00:06.426] Server  LOG     ✓ Ready in 4.9s
+[00:00:17.460] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:18.015] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:54.618] Browser WARN    [2026-02-13T20:43:14.570Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:00:55.009] Browser WARN    [2026-02-13T20:43:14.749Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:23:49.472] Server  LOG     ✓ Compiled in 1024ms
+[00:26:30.023] Browser WARN    [2026-02-13T21:08:49.963Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:26:39.056] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:26:41.477] Browser WARN    [2026-02-13T21:09:01.318Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:26:41.477] Browser WARN    [2026-02-13T21:09:01.418Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:27:10.573] Browser WARN    [2026-02-13T21:09:30.513Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:27:10.866] Browser WARN    [2026-02-13T21:09:30.793Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:31:51.950] Server  LOG     ✓ Compiled in 184ms
+[00:32:24.654] Server  LOG     ✓ Compiled in 40ms
+[00:32:25.075] Browser ERROR   ./src/components/dashboard/ExecutiveDashboard.tsx:277:1
+Parsing ecmascript source code failed
+  275 |             </div>
+  276 |             );
+> 277 | }
+      | ^
+  278 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+[00:32:25.096] Browser ERROR   ./src/components/dashboard/ExecutiveDashboard.tsx:277:1
+Parsing ecmascript source code failed
+  275 |             </div>
+  276 |             );
+> 277 | }
+      | ^
+  278 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+[00:32:26.970] Browser ERROR   ./src/components/dashboard/ExecutiveDashboard.tsx:279:1
+Parsing ecmascript source code failed
+  277 |             </div>
+  278 |             );
+> 279 | }
+      | ^
+  280 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+[00:32:26.984] Browser ERROR   ./src/components/dashboard/ExecutiveDashboard.tsx:279:1
+Parsing ecmascript source code failed
+  277 |             </div>
+  278 |             );
+> 279 | }
+      | ^
+  280 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Client Component Browser]
+    ./src/app/dashboard/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Client Component SSR]
+    ./src/app/dashboard/page.tsx [Server Component]
+[00:33:10.327] Server  LOG     ✓ Compiled in 61ms
+[00:33:10.973] Browser ERROR   uncaughtError: TypeError: Cannot read properties of undefined (reading 'slice')
+[00:33:39.209] Server  WARN    ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[00:33:39.237] Server  LOG     ✓ Compiled in 162ms
+[00:33:40.719] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:33:43.972] Browser WARN    [2026-02-13T21:16:03.247Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:33:43.972] Browser WARN    [2026-02-13T21:16:03.565Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:36:11.874] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:36:14.986] Browser WARN    [2026-02-13T21:18:34.933Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:36:15.245] Browser WARN    [2026-02-13T21:18:35.198Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:40:50.136] Server  LOG     ✓ Compiled in 353ms
+[00:42:38.511] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:42:40.930] Browser WARN    [2026-02-13T21:25:00.882Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:42:41.080] Browser WARN    [2026-02-13T21:25:01.032Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:47:31.060] Server  LOG     ✓ Compiled in 39ms
+[00:47:32.850] Server  LOG     ✓ Compiled in 93ms
+[00:47:46.787] Server  LOG     ✓ Compiled in 45ms
+[00:47:59.543] Server  LOG     ✓ Compiled in 34ms
+[00:48:01.066] Server  LOG     ✓ Compiled in 43ms
+[00:48:11.824] Server  LOG     ✓ Compiled in 689ms
+[00:48:20.997] Server  LOG     ✓ Compiled in 48ms
+[00:49:01.689] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:49:04.151] Browser WARN    [2026-02-13T21:31:24.063Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:49:04.252] Browser WARN    [2026-02-13T21:31:24.207Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:49:06.938] Browser ERROR   React has detected a change in the order of Hooks called by %s. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+
+   Previous render            Next render
+   ------------------------------------------------------
+%s   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ Dashboard 1. useContext                 useContext
+2. useState                   useState
+3. useState                   useState
+4. useState                   useState
+5. useState                   useState
+6. useEffect                  useEffect
+7. undefined                  useContext
+
+[00:49:06.938] Browser ERROR   uncaughtError: Error: Rendered more hooks than during the previous render.
+[00:49:44.273] Server  WARN    ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+[00:49:44.274] Server  LOG     ✓ Compiled in 193ms
+[00:49:45.371] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:49:45.825] Server  LOG     ✓ Compiled in 131ms
+[00:49:48.973] Browser WARN    [2026-02-13T21:32:08.072Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:49:48.973] Browser WARN    [2026-02-13T21:32:08.215Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:50:02.493] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:50:04.557] Browser WARN    [2026-02-13T21:32:24.507Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[00:50:04.811] Browser WARN    [2026-02-13T21:32:24.764Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[01:03:46.974] Browser WARN    [2026-02-13T21:46:06.338Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[01:24:43.565] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:24:46.132] Browser WARN    [2026-02-13T22:07:06.071Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[01:24:46.482] Browser WARN    [2026-02-13T22:07:06.423Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+[49:37:16.140] Browser WARN    [2026-02-15T22:19:29.012Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 

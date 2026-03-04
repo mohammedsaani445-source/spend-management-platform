@@ -1,0 +1,138 @@
+{
+  "rules": {
+    "v2_production": {
+      "userTenants": {
+        ".read": "auth != null",
+        "$uid": {
+          ".write": "auth != null"
+        }
+      },
+      "users": {
+        "$uid": {
+          ".read": "auth != null && $uid === auth.uid",
+          ".write": "auth != null && $uid === auth.uid"
+        }
+      },
+      "tenants": {
+        "$tenantId": {
+          ".write": "auth != null && !data.exists()",
+          "name": {
+            ".write": "auth != null && (!data.exists() || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
+          },
+          "currency": {
+            ".write": "auth != null && (!data.exists() || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
+          },
+          "size": {
+            ".write": "auth != null && (!data.exists() || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
+          },
+          "country": {
+            ".write": "auth != null && (!data.exists() || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
+          },
+          "users": {
+            ".read": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')",
+            "$uid": {
+              ".read": "auth != null && ($uid === auth.uid || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN')",
+              ".write": "auth != null && ((!root.child('v2_production').child('tenants').child($tenantId).child('users').exists() && $uid === auth.uid) || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')",
+              "role": {
+                ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
+              },
+              "$other": {
+                ".write": "auth != null && $uid === auth.uid"
+              }
+            }
+          },
+          "locations": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
+          },
+          "departments": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
+          },
+          "requisitions": {
+            ".indexOn": [
+              "requesterId",
+              "approverId"
+            ],
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            "$reqId": {
+              ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'REQUESTER' || newData.child('requesterId').val() === auth.uid)"
+            }
+          },
+          "purchase_orders": {
+            ".indexOn": [
+              "vendorId",
+              "issuedBy"
+            ],
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            "$poId": {
+              ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'PURCHASER' || newData.child('issuedBy').val() === auth.uid)"
+            }
+          },
+          "receipts": {
+            ".indexOn": [
+              "poId"
+            ],
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'RECEIVER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'PURCHASER')"
+          },
+          "vendors": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'PURCHASER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || (newData.hasChildren(['portalToken', 'portalTokenExpiry']) && auth.uid != null))"
+          },
+          "budgets": {
+            ".indexOn": "department",
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'FINANCE')"
+          },
+          "invoices": {
+            ".indexOn": [
+              "status",
+              "vendorId"
+            ],
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'FINANCE' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'AP_CLERK')"
+          },
+          "workflows": {
+            ".indexOn": "isActive",
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
+          },
+          "audit": {
+            ".read": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')",
+            ".write": "auth != null"
+          },
+          "communications": {
+            ".indexOn": [
+              "poId",
+              "vendorId"
+            ],
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null"
+          },
+          "vendorActions": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null"
+          },
+          "notifications": {
+            ".indexOn": "userId",
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
+          },
+          "portalSessions": {
+            "$token": {
+              ".read": "true",
+              ".write": "auth != null || !data.exists()"
+            }
+          }
+        }
+      },
+      "portalSessions": {
+        "$token": {
+          ".read": "true",
+          ".write": "auth != null || !data.exists()"
+        }
+      }
+    }
+  }
+}

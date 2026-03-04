@@ -1,0 +1,174 @@
+/* Procurify-aligned Assets CSS */
+.container {
+    /* Use the global page-container padding */
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #212B36;
+    margin: 0;
+}
+
+.subtitle {
+    font-size: 0.875rem;
+    color: #637381;
+    margin: 0.125rem 0 0;
+}
+
+.filters {
+    display: flex;
+    gap: 0.625rem;
+    flex-wrap: wrap;
+}
+
+.select {
+    height: 36px;
+    padding: 0 0.875rem;
+    border-radius: 8px;
+    border: 1px solid #DFE3E8;
+    font-size: 0.875rem;
+    background: #FFFFFF;
+    color: #212B36;
+    cursor: pointer;
+    outline: none;
+}
+
+.select:focus {
+    border-color: #5C6AC4;
+    box-shadow: 0 0 0 3px rgba(92, 106, 196, 0.12);
+}
+
+.tableWrapper {
+    overflow-x: auto;
+    border: 1px solid #DFE3E8;
+    border-radius: 12px;
+    background: white;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #637381;
+    background: #F9FAFB;
+    border-bottom: 1px solid #DFE3E8;
+    white-space: nowrap;
+}
+
+.table td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #DFE3E8;
+    color: #212B36;
+    vertical-align: middle;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.row:hover td {
+    background: #F3F4FD;
+}
+
+.nameCell {
+    min-width: 200px;
+}
+
+.assetName {
+    font-weight: 600;
+    color: #212B36;
+}
+
+.assetSubtext {
+    font-size: 0.75rem;
+    color: #637381;
+    margin-top: 0.125rem;
+}
+
+.categoryBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    background: #CAFDF5;
+    color: #006C9C;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.statusBadge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.IN_USE {
+    background: #E9FBF0;
+    color: #00AB55;
+}
+
+.STORAGE {
+    background: #FFF7CD;
+    color: #B76E00;
+}
+
+.MAINTENANCE {
+    background: #FFE7D9;
+    color: #B72136;
+}
+
+.DISPOSED {
+    background: #F4F6F8;
+    color: #637381;
+}
+
+.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.75rem;
+    color: #5C6AC4;
+}
+
+.actionSelect {
+    height: 30px;
+    padding: 0 0.625rem;
+    border-radius: 6px;
+    border: 1px solid #DFE3E8;
+    font-size: 0.8125rem;
+    cursor: pointer;
+    background: white;
+    color: #212B36;
+}
+
+.empty {
+    text-align: center;
+    padding: 3rem;
+    color: #919EAB;
+    font-size: 0.875rem;
+}
+
+.loading {
+    padding: 2rem;
+    text-align: center;
+    color: #637381;
+    font-size: 0.875rem;
+}

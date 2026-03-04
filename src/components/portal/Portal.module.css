@@ -1,0 +1,126 @@
+.portalWrapper {
+    min-height: 100vh;
+    background: radial-gradient(circle at top right, #1e293b, #0f172a);
+    color: #f8fafc;
+    font-family: 'Inter', system-ui, sans-serif;
+    padding: 2rem;
+}
+
+.portalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+.brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    background: linear-gradient(to right, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.glassCard {
+    background: rgba(30, 41, 59, 0.7);
+    /* Darker, more opaque for better contrast */
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.4);
+}
+
+.kpiGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.kpiCard {
+    padding: 1.5rem;
+}
+
+.kpiLabel {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.kpiValue {
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.statusTimeline {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 2rem 0;
+}
+
+.statusStep {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+}
+
+.statusIcon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    border: 2px solid transparent;
+}
+
+.statusIconActive {
+    background: #0ea5e9;
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.5);
+}
+
+.statusLabel {
+    font-size: 0.7rem;
+    color: #94a3b8;
+}
+
+.portalTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.portalTable th {
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.portalTable td {
+    padding: 1.25rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #cbd5e1;
+    /* Brighter text for readability */
+}
+
+.portalTable tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 99px;
+    font-size: 0.7rem;
+    font-weight: 600;
+}

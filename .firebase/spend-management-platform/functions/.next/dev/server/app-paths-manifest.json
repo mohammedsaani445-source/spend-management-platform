@@ -1,0 +1,14 @@
+{
+  "/dashboard/analytics/page": "app/dashboard/analytics/page.js",
+  "/dashboard/approvals/page": "app/dashboard/approvals/page.js",
+  "/dashboard/budgets/page": "app/dashboard/budgets/page.js",
+  "/dashboard/invoices/page": "app/dashboard/invoices/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/purchase-orders/page": "app/dashboard/purchase-orders/page.js",
+  "/dashboard/requisitions/new/page": "app/dashboard/requisitions/new/page.js",
+  "/dashboard/requisitions/page": "app/dashboard/requisitions/page.js",
+  "/dashboard/support/page": "app/dashboard/support/page.js",
+  "/dashboard/vendors/page": "app/dashboard/vendors/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js"
+}
