@@ -1033,3 +1033,77 @@
     border-radius: 12px;
     border: 1px dashed #00AB55;
 }
+
+/* =============================================
+   MOBILE OVERRIDES & LAYOUT WRAPPERS
+   ============================================= */
+
+.mainWrapper {
+    flex: 1;
+    margin-left: 260px;
+    transition: margin-left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.mainWrapperCollapsed {
+    margin-left: 80px;
+}
+
+.mobileMenuToggle {
+    display: none;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobileOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(33, 43, 54, 0.4);
+    z-index: 90;
+    backdrop-filter: blur(2px);
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        width: 260px !important;
+    }
+
+    /* When open on mobile, it slides in */
+    .sidebarMobileOpen {
+        transform: translateX(0);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .mainWrapper,
+    .mainWrapperCollapsed {
+        margin-left: 0 !important;
+    }
+
+    .mobileMenuToggle {
+        display: flex;
+        margin-right: 0.75rem;
+    }
+
+    .mobileOverlayOpen {
+        display: block;
+    }
+
+    /* Hide the collapse arrow on mobile since it's an overlay */
+    .collapseToggle {
+        display: none !important;
+    }
+
+    /* Fix topbar padding */
+    .topbar {
+        padding: 0 1rem;
+    }
+
+    .breadcrumbs {
+        display: none;
+        /* Optionally hide breadcrumbs on very small screens to save space */
+    }
+}

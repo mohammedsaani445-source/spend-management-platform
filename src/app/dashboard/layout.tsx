@@ -3,9 +3,10 @@
 import Sidebar from "@/components/layout/Sidebar";
 import Topbar from "@/components/layout/Topbar";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createUserProfile } from "@/lib/db";
+import styles from "@/components/layout/Layout.module.css";
 
 export default function DashboardLayout({
     children,
@@ -26,7 +27,14 @@ export default function DashboardLayout({
         }
     }, [user, loading, router]);
 
+    const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    // Close mobile menu when navigating
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [pathname]);
 
     if (loading) return null; // Or a loading spinner
 
@@ -34,15 +42,21 @@ export default function DashboardLayout({
 
     return (
         <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--background)' }}>
-            <Sidebar isCollapsed={isCollapsed} onToggle={() => setIsCollapsed(!isCollapsed)} />
-            <div style={{
-                flex: 1,
-                marginLeft: isCollapsed ? '80px' : '260px',
-                transition: 'margin-left 0.3s ease',
-                display: 'flex',
-                flexDirection: 'column'
-            }}>
-                <Topbar />
+
+            {/* Mobile Overlay */}
+            <div
+                className={`${styles.mobileOverlay} ${isMobileMenuOpen ? styles.mobileOverlayOpen : ''}`}
+                onClick={() => setIsMobileMenuOpen(false)}
+            />
+
+            <Sidebar
+                isCollapsed={isCollapsed}
+                onToggle={() => setIsCollapsed(!isCollapsed)}
+                isMobileMenuOpen={isMobileMenuOpen}
+            />
+
+            <div className={`${styles.mainWrapper} ${isCollapsed ? styles.mainWrapperCollapsed : ''}`}>
+                <Topbar onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
                 <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
                     {children}
                 </main>

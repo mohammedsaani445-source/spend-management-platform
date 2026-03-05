@@ -54,9 +54,10 @@ const ADMIN_ITEMS = [
 interface SidebarProps {
     isCollapsed?: boolean;
     onToggle?: () => void;
+    isMobileMenuOpen?: boolean;
 }
 
-export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
+export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpen = false }: SidebarProps) {
     const pathname = usePathname();
     const { user } = useAuth();
 
@@ -68,7 +69,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
         exact ? pathname === href : pathname.startsWith(href);
 
     return (
-        <aside className={`${styles.sidebar} ${isCollapsed ? styles.sidebarCollapsed : ''}`}>
+        <aside className={`${styles.sidebar} ${isCollapsed ? styles.sidebarCollapsed : ''} ${isMobileMenuOpen ? styles.sidebarMobileOpen : ''}`}>
             {/* Logo */}
             <div className={styles.logoContainer} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
                 <div className={styles.logoIcon} title="Megapex">M</div>

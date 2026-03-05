@@ -30,7 +30,11 @@ const ROUTE_TITLES: Record<string, string> = {
     '/dashboard/settings': 'Settings',
 };
 
-export default function Topbar() {
+interface TopbarProps {
+    onMobileMenuToggle?: () => void;
+}
+
+export default function Topbar({ onMobileMenuToggle }: TopbarProps) {
     const { user } = useAuth();
     const pathname = usePathname();
     const [search, setSearch] = useState('');
@@ -40,6 +44,13 @@ export default function Topbar() {
 
     return (
         <header className={styles.topbar}>
+            {/* Mobile Menu Toggle */}
+            {onMobileMenuToggle && (
+                <div className={styles.mobileMenuToggle} onClick={onMobileMenuToggle} title="Open Menu">
+                    <div className={styles.logoIcon} style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>M</div>
+                </div>
+            )}
+
             {/* Breadcrumbs */}
             <div className={styles.breadcrumbs}>
                 {parentSection && (
