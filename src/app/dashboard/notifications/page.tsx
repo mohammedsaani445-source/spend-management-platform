@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Notification } from "@/types";
 import { subscribeToNotifications, markNotificationAsRead, markAllAsRead, clearNotifications } from "@/lib/notifications";
-import { formatCurrency } from "@/lib/currencies";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Bell, FileSignature, CheckCircle2, Eye, AlertTriangle, Trash2, CheckCheck, Inbox } from "lucide-react";
+import styles from "./Notifications.module.css";
 
 export default function NotificationsPage() {
     const { user } = useAuth();
@@ -17,14 +17,10 @@ export default function NotificationsPage() {
 
     useEffect(() => {
         if (!user) return;
-
-        const targetId = user.uid;
-
         const unsubscribe = subscribeToNotifications(user.tenantId, user.uid, (data) => {
             setNotifications(data);
             setLoading(false);
         });
-
         return () => unsubscribe();
     }, [user]);
 
@@ -34,138 +30,91 @@ export default function NotificationsPage() {
 
     const getIcon = (type: Notification['type']) => {
         switch (type) {
-            case 'APPROVAL_REQUEST': return '📝';
-            case 'PO_ACKNOWLEDGED': return '✅';
-            case 'PO_OPENED': return '👁️';
-            case 'BUDGET_ALERT': return '⚠️';
-            default: return '🔔';
+            case 'APPROVAL_REQUEST': return <FileSignature size={24} color="var(--brand)" />;
+            case 'PO_ACKNOWLEDGED': return <CheckCircle2 size={24} color="var(--success, #10b981)" />;
+            case 'PO_OPENED': return <Eye size={24} color="var(--info, #3b82f6)" />;
+            case 'BUDGET_ALERT': return <AlertTriangle size={24} color="var(--warning, #f59e0b)" />;
+            default: return <Bell size={24} color="#6B7280" />;
         }
     };
 
-    if (loading) return <div style={{ padding: '2rem' }}>Loading Notifications...</div>;
+    if (loading) return <div style={{ padding: '2rem', textAlign: 'center', color: '#6B7280' }}>Loading Notification Center...</div>;
 
     return (
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div className={styles.container}>
+            <div className={styles.header}>
                 <div>
-                    <h1 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem' }}>Notification Center</h1>
-                    <p style={{ color: 'var(--text-secondary)' }}>Manage your alerts and system communications.</p>
+                    <h1 className={styles.title}>Notification Center</h1>
+                    <p className={styles.subtitle}>Manage your alerts, approvals, and system communications.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
+                <div className={styles.actions}>
                     <button
-                        className="btn"
-                        style={{ backgroundColor: 'white', border: '1px solid var(--border)' }}
+                        className={styles.secondaryButton}
                         onClick={() => markAllAsRead(user!.tenantId, user!.uid, notifications)}
                     >
-                        Mark all as read
+                        <CheckCheck size={18} /> Mark all as read
                     </button>
                     <button
-                        className="btn btn-primary"
-                        style={{ backgroundColor: 'var(--error)', borderColor: 'var(--error)' }}
+                        className={styles.dangerButton}
                         onClick={() => clearNotifications(user!.tenantId, user!.uid, notifications)}
                     >
-                        Clear history
+                        <Trash2 size={18} /> Clear history
                     </button>
                 </div>
             </div>
 
-            <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                <div style={{
-                    display: 'flex',
-                    borderBottom: '1px solid var(--border)',
-                    padding: '0 1.5rem'
-                }}>
+            <div className={styles.card}>
+                <div className={styles.tabs}>
                     <button
                         onClick={() => setFilter('ALL')}
-                        style={{
-                            padding: '1.25rem 1.5rem',
-                            background: 'none',
-                            border: 'none',
-                            borderBottom: filter === 'ALL' ? '2px solid var(--primary)' : '2px solid transparent',
-                            color: filter === 'ALL' ? 'var(--primary)' : 'var(--text-secondary)',
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                        }}
+                        className={`${styles.tab} ${filter === 'ALL' ? styles.tabActive : ''}`}
                     >
-                        All Updates ({notifications.length})
+                        All Updates <span style={{ opacity: 0.6, fontSize: '0.8rem', marginLeft: '4px' }}>{notifications.length}</span>
                     </button>
                     <button
                         onClick={() => setFilter('UNREAD')}
-                        style={{
-                            padding: '1.25rem 1.5rem',
-                            background: 'none',
-                            border: 'none',
-                            borderBottom: filter === 'UNREAD' ? '2px solid var(--primary)' : '2px solid transparent',
-                            color: filter === 'UNREAD' ? 'var(--primary)' : 'var(--text-secondary)',
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                        }}
+                        className={`${styles.tab} ${filter === 'UNREAD' ? styles.tabActive : ''}`}
                     >
-                        Unread ({notifications.filter(n => !n.read).length})
+                        Unread <span style={{ opacity: 0.6, fontSize: '0.8rem', marginLeft: '4px' }}>{notifications.filter(n => !n.read).length}</span>
                     </button>
                 </div>
 
-                <div style={{ minHeight: '400px' }}>
+                <div className={styles.list}>
                     {filteredNotifications.length === 0 ? (
-                        <div style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                            <div style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>📭</div>
-                            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: '0.5rem' }}>
-                                No notifications found
+                        <div className={styles.emptyState}>
+                            <div className={styles.emptyIconWrapper}>
+                                {filter === 'UNREAD' ? <CheckCircle2 size={32} /> : <Inbox size={32} />}
+                            </div>
+                            <h3 className={styles.emptyTitle}>
+                                You're all caught up!
                             </h3>
-                            <p>You have no {filter === 'UNREAD' ? 'unread' : ''} alerts at this time.</p>
+                            <p className={styles.emptyText}>You have no {filter === 'UNREAD' ? 'unread' : ''} alerts at this time.</p>
                         </div>
                     ) : (
                         filteredNotifications.map(notif => (
                             <div
                                 key={notif.id}
-                                style={{
-                                    padding: '1.5rem',
-                                    borderBottom: '1px solid var(--border)',
-                                    display: 'flex',
-                                    gap: '1.5rem',
-                                    backgroundColor: notif.read ? 'transparent' : 'rgba(4, 156, 99, 0.02)',
-                                    cursor: 'pointer',
-                                    transition: 'background 0.2s'
-                                }}
+                                className={`${styles.notificationItem} ${!notif.read ? styles.unread : ''}`}
                                 onClick={() => {
                                     markNotificationAsRead(user!.tenantId, notif.id);
                                     if (notif.link) router.push(notif.link);
                                 }}
                             >
-                                <div style={{
-                                    width: '48px',
-                                    height: '48px',
-                                    borderRadius: '12px',
-                                    backgroundColor: 'var(--background)',
-                                    border: '1px solid var(--border)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    fontSize: '1.5rem'
-                                }}>
+                                <div className={styles.iconWrapper}>
                                     {getIcon(notif.type)}
                                 </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.25rem' }}>
-                                        <h4 style={{ fontSize: '1rem', fontWeight: 700, margin: 0 }}>{notif.title}</h4>
-                                        <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                <div className={styles.content}>
+                                    <div className={styles.headerRow}>
+                                        <h4 className={styles.itemTitle}>{notif.title}</h4>
+                                        <span className={styles.itemTime}>
                                             {new Date(notif.createdAt).toLocaleDateString()} at {new Date(notif.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                     </div>
-                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 0.5rem 0', lineHeight: 1.5 }}>
+                                    <p className={styles.itemMessage}>
                                         {notif.message}
                                     </p>
                                     {!notif.read && (
-                                        <span style={{
-                                            padding: '0.2rem 0.6rem',
-                                            backgroundColor: 'var(--primary)',
-                                            color: 'white',
-                                            borderRadius: '12px',
-                                            fontSize: '0.7rem',
-                                            fontWeight: 700
-                                        }}>
-                                            NEW
-                                        </span>
+                                        <span className={styles.badge}>New</span>
                                     )}
                                 </div>
                             </div>
@@ -173,6 +122,6 @@ export default function NotificationsPage() {
                     )}
                 </div>
             </div>
-        </div >
+        </div>
     );
 }

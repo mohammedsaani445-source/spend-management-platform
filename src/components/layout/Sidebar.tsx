@@ -3,52 +3,58 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import {
+    Home, ShieldCheck, ShoppingBag, FileText, Package,
+    ReceiptText, CreditCard,
+    Store, Handshake, Wallet, Boxes, Server,
+    LineChart, Target, ClipboardCheck,
+    Blocks, LifeBuoy, Settings as SettingsIcon
+} from "lucide-react";
 import styles from "./Layout.module.css";
 
 const NAV_GROUPS = [
     {
         label: "Procure",
         items: [
-            { name: "Dashboard", href: "/dashboard", icon: "⊞", exact: true },
-            { name: "Approvals", href: "/dashboard/approvals", icon: "✓" },
-            { name: "Requisitions", href: "/dashboard/requisitions", icon: "≡" },
-            { name: "Purchase Orders", href: "/dashboard/purchase-orders", icon: "◫" },
-            { name: "Receiving", href: "/dashboard/receiving", icon: "📦" },
+            { name: "Dashboard", href: "/dashboard", icon: <Home size={20} />, exact: true },
+            { name: "Approvals", href: "/dashboard/approvals", icon: <ShieldCheck size={20} /> },
+            { name: "Requisitions", href: "/dashboard/requisitions", icon: <ShoppingBag size={20} /> },
+            { name: "Purchase Orders", href: "/dashboard/purchase-orders", icon: <FileText size={20} /> },
+            { name: "Receiving", href: "/dashboard/receiving", icon: <Package size={20} /> },
         ]
     },
     {
         label: "Pay",
         items: [
-            { name: "Invoices", href: "/dashboard/invoices", icon: "◻" },
-            { name: "Payments", href: "/dashboard/payments", icon: "💳" },
+            { name: "Invoices", href: "/dashboard/invoices", icon: <ReceiptText size={20} /> },
+            { name: "Payments", href: "/dashboard/payments", icon: <CreditCard size={20} /> },
         ]
     },
     {
         label: "Manage",
         items: [
-            { name: "Vendors", href: "/dashboard/vendors", icon: "⬡" },
-            { name: "Contracts", href: "/dashboard/contracts", icon: "⊕" },
-            { name: "Budgets", href: "/dashboard/budgets", icon: "◑" },
-            { name: "Inventory", href: "/dashboard/inventory", icon: "⊟" },
-            { name: "Assets", href: "/dashboard/assets", icon: "⬖" },
+            { name: "Vendors", href: "/dashboard/vendors", icon: <Store size={20} /> },
+            { name: "Contracts", href: "/dashboard/contracts", icon: <Handshake size={20} /> },
+            { name: "Budgets", href: "/dashboard/budgets", icon: <Wallet size={20} /> },
+            { name: "Inventory", href: "/dashboard/inventory", icon: <Boxes size={20} /> },
+            { name: "Assets", href: "/dashboard/assets", icon: <Server size={20} /> },
         ]
     },
     {
         label: "Insights",
         items: [
-            { name: "Analytics", href: "/dashboard/analytics", icon: "◕" },
-            { name: "Sourcing", href: "/dashboard/sourcing", icon: "◎" },
-            { name: "Compliance", href: "/dashboard/compliance", icon: "◉" },
+            { name: "Analytics", href: "/dashboard/analytics", icon: <LineChart size={20} /> },
+            { name: "Sourcing", href: "/dashboard/sourcing", icon: <Target size={20} /> },
+            { name: "Compliance", href: "/dashboard/compliance", icon: <ClipboardCheck size={20} /> },
         ]
     }
 ];
 
 
 const ADMIN_ITEMS = [
-    { name: "Notifications", href: "/dashboard/notifications", icon: "◌" },
-    { name: "Integrations", href: "/dashboard/integrations", icon: "⌘" },
-    { name: "Support", href: "/dashboard/support", icon: "?" },
-    { name: "Settings", href: "/dashboard/settings", icon: "⚙" },
+    { name: "Integrations", href: "/dashboard/integrations", icon: <Blocks size={20} /> },
+    { name: "Support", href: "/dashboard/support", icon: <LifeBuoy size={20} /> },
+    { name: "Settings", href: "/dashboard/settings", icon: <SettingsIcon size={20} /> },
 ];
 
 interface SidebarProps {
@@ -95,7 +101,7 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                                         title={isCollapsed ? item.name : undefined}
                                         style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '0' : '0 1rem' }}
                                     >
-                                        <span className={styles.navIcon} style={{ fontFamily: 'monospace', fontSize: '1.25rem' }}>
+                                        <span className={styles.navIcon} style={typeof item.icon === 'string' ? { fontFamily: 'monospace', fontSize: '1.25rem' } : { display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                             {item.icon}
                                         </span>
                                         {!isCollapsed && item.name}
@@ -123,7 +129,7 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                                         title={isCollapsed ? item.name : undefined}
                                         style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '0' : '0 1rem' }}
                                     >
-                                        <span className={styles.navIcon} style={{ fontFamily: 'monospace', fontSize: '1.25rem' }}>
+                                        <span className={styles.navIcon} style={typeof item.icon === 'string' ? { fontFamily: 'monospace', fontSize: '1.25rem' } : { display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                             {item.icon}
                                         </span>
                                         {!isCollapsed && item.name}
@@ -135,18 +141,6 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                 </div>
             </nav>
 
-            {/* Bottom user profile */}
-            <div className={styles.bottomSection}>
-                <div className={styles.userProfile} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '0.5rem 0' : '0.5rem 0.625rem' }}>
-                    <div className={styles.userAvatar} title={isCollapsed ? user?.displayName || 'User' : undefined}>{initials}</div>
-                    {!isCollapsed && (
-                        <div className={styles.userInfo}>
-                            <div className={styles.userName}>{user?.displayName || 'User'}</div>
-                            <div className={styles.userRole}>{user?.role || 'Member'}</div>
-                        </div>
-                    )}
-                </div>
-            </div>
         </aside>
     );
 }

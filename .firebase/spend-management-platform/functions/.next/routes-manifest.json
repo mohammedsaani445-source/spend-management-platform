@@ -22,12 +22,28 @@
   },
   "dynamicRoutes": [
     {
+      "page": "/portal/[token]",
+      "regex": "^/portal/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtoken": "nxtPtoken"
+      },
+      "namedRegex": "^/portal/(?<nxtPtoken>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/public/po/[id]",
       "regex": "^/public/po/([^/]+?)(?:/)?$",
       "routeKeys": {
         "nxtPid": "nxtPid"
       },
       "namedRegex": "^/public/po/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/public/rfp/[id]",
+      "regex": "^/public/rfp/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/public/rfp/(?<nxtPid>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [
@@ -50,6 +66,48 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/api/admin/reset",
+      "regex": "^/api/admin/reset(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/reset(?:/)?$"
+    },
+    {
+      "page": "/api/communications/send-email",
+      "regex": "^/api/communications/send\\-email(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/communications/send\\-email(?:/)?$"
+    },
+    {
+      "page": "/api/erp/sync",
+      "regex": "^/api/erp/sync(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/erp/sync(?:/)?$"
+    },
+    {
+      "page": "/api/invitations",
+      "regex": "^/api/invitations(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/invitations(?:/)?$"
+    },
+    {
+      "page": "/api/invoices/ocr",
+      "regex": "^/api/invoices/ocr(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/invoices/ocr(?:/)?$"
+    },
+    {
+      "page": "/api/v1/po",
+      "regex": "^/api/v1/po(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/v1/po(?:/)?$"
+    },
+    {
+      "page": "/api/v1/requisitions",
+      "regex": "^/api/v1/requisitions(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/v1/requisitions(?:/)?$"
+    },
+    {
       "page": "/dashboard",
       "regex": "^/dashboard(?:/)?$",
       "routeKeys": {},
@@ -68,10 +126,40 @@
       "namedRegex": "^/dashboard/approvals(?:/)?$"
     },
     {
+      "page": "/dashboard/assets",
+      "regex": "^/dashboard/assets(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/assets(?:/)?$"
+    },
+    {
       "page": "/dashboard/budgets",
       "regex": "^/dashboard/budgets(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/dashboard/budgets(?:/)?$"
+    },
+    {
+      "page": "/dashboard/compliance",
+      "regex": "^/dashboard/compliance(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/compliance(?:/)?$"
+    },
+    {
+      "page": "/dashboard/contracts",
+      "regex": "^/dashboard/contracts(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/contracts(?:/)?$"
+    },
+    {
+      "page": "/dashboard/integrations",
+      "regex": "^/dashboard/integrations(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/integrations(?:/)?$"
+    },
+    {
+      "page": "/dashboard/inventory",
+      "regex": "^/dashboard/inventory(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/inventory(?:/)?$"
     },
     {
       "page": "/dashboard/invoices",
@@ -86,10 +174,22 @@
       "namedRegex": "^/dashboard/notifications(?:/)?$"
     },
     {
+      "page": "/dashboard/payments",
+      "regex": "^/dashboard/payments(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/payments(?:/)?$"
+    },
+    {
       "page": "/dashboard/purchase-orders",
       "regex": "^/dashboard/purchase\\-orders(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/dashboard/purchase\\-orders(?:/)?$"
+    },
+    {
+      "page": "/dashboard/receiving",
+      "regex": "^/dashboard/receiving(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/receiving(?:/)?$"
     },
     {
       "page": "/dashboard/requisitions",
@@ -108,6 +208,12 @@
       "regex": "^/dashboard/settings(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/dashboard/settings(?:/)?$"
+    },
+    {
+      "page": "/dashboard/sourcing",
+      "regex": "^/dashboard/sourcing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/sourcing(?:/)?$"
     },
     {
       "page": "/dashboard/support",
@@ -132,6 +238,12 @@
       "regex": "^/login(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/signup",
+      "regex": "^/signup(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/signup(?:/)?$"
     }
   ],
   "dataRoutes": [],

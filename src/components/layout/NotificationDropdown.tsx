@@ -7,6 +7,7 @@ import { subscribeToNotifications, markNotificationAsRead, markAllAsRead, clearN
 import styles from "./Layout.module.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Bell, FileSignature, CheckCircle2, Eye, AlertTriangle, Inbox } from "lucide-react";
 
 export default function NotificationDropdown() {
     const { user } = useAuth();
@@ -40,11 +41,11 @@ export default function NotificationDropdown() {
 
     const getIcon = (type: Notification['type']) => {
         switch (type) {
-            case 'APPROVAL_REQUEST': return '📝';
-            case 'PO_ACKNOWLEDGED': return '✅';
-            case 'PO_OPENED': return '👁️';
-            case 'BUDGET_ALERT': return '⚠️';
-            default: return '🔔';
+            case 'APPROVAL_REQUEST': return <FileSignature size={18} color="var(--brand)" />;
+            case 'PO_ACKNOWLEDGED': return <CheckCircle2 size={18} color="var(--success, #10b981)" />;
+            case 'PO_OPENED': return <Eye size={18} color="var(--info, #3b82f6)" />;
+            case 'BUDGET_ALERT': return <AlertTriangle size={18} color="var(--warning, #f59e0b)" />;
+            default: return <Bell size={18} color="var(--text-secondary)" />;
         }
     };
 
@@ -55,17 +56,17 @@ export default function NotificationDropdown() {
                 title="Notifications"
                 onClick={() => setIsOpen(!isOpen)}
             >
-                🔔
-                {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
+                <Bell size={20} strokeWidth={1.5} />
+                {unreadCount > 0 && <span className={styles.badge}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
             </button>
 
             {isOpen && (
                 <div className={styles.notificationDropdown}>
                     <div className={styles.notificationHeader}>
                         <h3>Notifications</h3>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <div className={styles.headerActions}>
                             <button onClick={() => markAllAsRead(user!.tenantId, user!.uid, notifications)}>Mark all as read</button>
-                            <span>•</span>
+                            <span className={styles.notificationSeparator}>•</span>
                             <button onClick={() => clearNotifications(user!.tenantId, user!.uid, notifications)}>Clear all</button>
                         </div>
                     </div>
@@ -73,7 +74,9 @@ export default function NotificationDropdown() {
                     <div className={styles.notificationList}>
                         {notifications.length === 0 ? (
                             <div className={styles.emptyNotifications}>
-                                <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📭</div>
+                                <div className={styles.emptyNotificationsIcon}>
+                                    <CheckCircle2 size={24} strokeWidth={1.5} />
+                                </div>
                                 <p>You're all caught up!</p>
                             </div>
                         ) : (

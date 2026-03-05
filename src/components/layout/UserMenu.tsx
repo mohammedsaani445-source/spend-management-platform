@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import styles from "./Layout.module.css";
 import LogoutModal from "./LogoutModal";
 import Link from "next/link";
+import { ChevronDown, ChevronUp, User as UserIcon, Settings, HelpCircle, Shield, LogOut } from "lucide-react";
 
 export default function UserMenu() {
     const { user } = useAuth();
@@ -38,7 +39,9 @@ export default function UserMenu() {
                     <div className={styles.userName}>{user.displayName}</div>
                     <div className={styles.userRole}>{user.role}</div>
                 </div>
-                <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>{isOpen ? '▲' : '▼'}</span>
+                <div style={{ opacity: 0.5, display: 'flex' }}>
+                    {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </div>
             </button>
 
             {isOpen && (
@@ -51,19 +54,19 @@ export default function UserMenu() {
                     </div>
 
                     <Link href="/dashboard/settings" className={styles.menuItem} onClick={() => setIsOpen(false)}>
-                        <span>👤</span> My Profile
+                        <UserIcon size={16} className="text-cool-slate" style={{ marginRight: '8px' }} /> My Profile
                     </Link>
                     <Link href="/dashboard/settings" className={styles.menuItem} onClick={() => setIsOpen(false)}>
-                        <span>⚙️</span> Account Settings
+                        <Settings size={16} className="text-cool-slate" style={{ marginRight: '8px' }} /> Account Settings
                     </Link>
                     <div className={styles.menuItem} onClick={() => {
                         window.dispatchEvent(new CustomEvent('open-help-center'));
                         setIsOpen(false);
                     }}>
-                        <span>❓</span> Help & Support
+                        <HelpCircle size={16} className="text-cool-slate" style={{ marginRight: '8px' }} /> Help & Support
                     </div>
                     <div className={styles.menuItem}>
-                        <span>🛡️</span> Security & Privacy
+                        <Shield size={16} className="text-cool-slate" style={{ marginRight: '8px' }} /> Security & Privacy
                     </div>
 
 
@@ -77,7 +80,7 @@ export default function UserMenu() {
                             setIsLogoutModalOpen(true);
                         }}
                     >
-                        <span>↪️</span> Secure Sign Out
+                        <LogOut size={16} style={{ marginRight: '8px' }} /> Secure Sign Out
                     </div>
                 </div>
             )}

@@ -17,10 +17,11 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$firebase$2f$
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/@firebase/database/dist/index.esm.js [app-client] (ecmascript)");
 ;
 ;
-const COLLECTION_NAME = "vendors";
-const addVendor = async (vendor)=>{
+const getVendorsRef = (tenantId)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], `${__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DB_PREFIX"]}/tenants/${tenantId}/vendors`);
+const getVendorRef = (tenantId, id)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], `${__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DB_PREFIX"]}/tenants/${tenantId}/vendors/${id}`);
+const addVendor = async (tenantId, vendor)=>{
     try {
-        const vendorsRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], COLLECTION_NAME);
+        const vendorsRef = getVendorsRef(tenantId);
         const newVendorRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["push"])(vendorsRef);
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["set"])(newVendorRef, {
             ...vendor,
@@ -33,13 +34,12 @@ const addVendor = async (vendor)=>{
         throw error;
     }
 };
-const getVendors = async ()=>{
+const getVendors = async (tenantId)=>{
     try {
-        const dbRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"]);
-        const snapshot = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["get"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["child"])(dbRef, COLLECTION_NAME));
+        const vendorsRef = getVendorsRef(tenantId);
+        const snapshot = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["get"])(vendorsRef);
         if (snapshot.exists()) {
             const data = snapshot.val();
-            // Convert object of objects to array
             return Object.values(data).map((v)=>({
                     ...v,
                     createdAt: new Date(v.createdAt)
@@ -51,15 +51,15 @@ const getVendors = async ()=>{
         return [];
     }
 };
-const updateVendorStatus = async (vendorId, status)=>{
-    const vendorRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], `${COLLECTION_NAME}/${vendorId}`);
+const updateVendorStatus = async (tenantId, vendorId, status)=>{
+    const vendorRef = getVendorRef(tenantId, vendorId);
     await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["update"])(vendorRef, {
         status
     });
 };
-const getVendor = async (id)=>{
-    const dbRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"]);
-    const snapshot = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["get"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["child"])(dbRef, `${COLLECTION_NAME}/${id}`));
+const getVendor = async (tenantId, id)=>{
+    const vendorRef = getVendorRef(tenantId, id);
+    const snapshot = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["get"])(vendorRef);
     if (snapshot.exists()) {
         return {
             ...snapshot.val(),
@@ -94,20 +94,22 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$vendors$2e$ts_
 ;
 ;
 ;
-const COLLECTION_NAME = "purchase_orders";
+const getPOsRef = (tenantId)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], `${__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DB_PREFIX"]}/tenants/${tenantId}/purchase_orders`);
+const getPORef = (tenantId, id)=>(0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], `${__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DB_PREFIX"]}/tenants/${tenantId}/purchase_orders/${id}`);
 const generatePONumber = async ()=>{
     // Simple autoincrement logic or timestamp based
     // Ideally use a transaction counter in DB
     const timestamp = Date.now().toString().slice(-6);
     return `PO-2026-${timestamp}`;
 };
-const createPOFromRequisition = async (requisition, userId)=>{
+const createPOFromRequisition = async (tenantId, requisition, userId)=>{
     try {
         const poNumber = await generatePONumber();
-        const vendor = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$vendors$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getVendor"])(requisition.vendorId);
-        const poRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], COLLECTION_NAME);
+        const vendor = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$vendors$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getVendor"])(tenantId, requisition.vendorId); // Note: Vendor lookup might need tenant isolation too in complex apps, but keeping simple for now
+        const poRef = getPOsRef(tenantId);
         const newPORef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["push"])(poRef);
         const newPO = {
+            tenantId,
             poNumber,
             requisitionId: requisition.id,
             vendorId: requisition.vendorId,
@@ -118,11 +120,13 @@ const createPOFromRequisition = async (requisition, userId)=>{
             currency: requisition.currency,
             status: 'ISSUED',
             issuedAt: new Date().toISOString(),
-            issuedBy: userId
+            expectedDeliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+            issuedBy: userId,
+            department: requisition.department
         };
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["set"])(newPORef, newPO);
         // Update Requisition status
-        const reqRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], `requisitions/${requisition.id}`);
+        const reqRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], `${__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DB_PREFIX"]}/tenants/${tenantId}/requisitions/${requisition.id}`);
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["update"])(reqRef, {
             status: 'ORDERED'
         });
@@ -132,10 +136,26 @@ const createPOFromRequisition = async (requisition, userId)=>{
         throw error;
     }
 };
-const getPurchaseOrders = async ()=>{
+const getPurchaseOrders = async (user)=>{
     try {
-        const dbRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"]);
-        const snapshot = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["get"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["child"])(dbRef, COLLECTION_NAME));
+        const tenantId = user.tenantId;
+        const poRef = getPOsRef(tenantId);
+        // Production Oversight: Admins, Finance, and Superusers can see all for the tenant
+        if (user.role === 'ADMIN' || user.role === 'FINANCE' || user.role === 'SUPERUSER') {
+            const snapshot = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["get"])(poRef);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                return Object.entries(data).map(([key, v])=>({
+                        id: key,
+                        ...v,
+                        issuedAt: new Date(v.issuedAt)
+                    }));
+            }
+            return [];
+        }
+        // Requester/Issuer Isolation
+        const isolationQuery = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["query"])(poRef, (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["orderByChild"])('issuedBy'), (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["equalTo"])(user.uid));
+        const snapshot = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["get"])(isolationQuery);
         if (snapshot.exists()) {
             const data = snapshot.val();
             return Object.entries(data).map(([key, v])=>({
@@ -150,8 +170,8 @@ const getPurchaseOrders = async ()=>{
         return [];
     }
 };
-const updatePOStatus = async (poId, status)=>{
-    const poRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], `${COLLECTION_NAME}/${poId}`);
+const updatePOStatus = async (tenantId, poId, status)=>{
+    const poRef = getPORef(tenantId, poId);
     const updates = {
         status
     };
@@ -166,9 +186,9 @@ const updatePOStatus = async (poId, status)=>{
     }
     await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["update"])(poRef, updates);
 };
-const logDeliveryEvent = async (poId, action, performer)=>{
+const logDeliveryEvent = async (tenantId, poId, action, performer)=>{
     try {
-        const poRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], `${COLLECTION_NAME}/${poId}`);
+        const poRef = getPORef(tenantId, poId);
         const snapshot = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["get"])(poRef);
         if (!snapshot.exists()) return;
         const currentData = snapshot.val();
@@ -195,14 +215,13 @@ const logDeliveryEvent = async (poId, action, performer)=>{
             updates.lastViewedAt = newEvent.timestamp;
         }
         await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["update"])(poRef, updates);
-        // Trigger Notifications for Admin/Stakeholders
+        // Trigger Notifications for stakeholders
         const { createNotification } = await __turbopack_context__.A("[project]/src/lib/notifications.ts [app-client] (ecmascript, async loader)");
-        // Notify the person who issued the PO (not a global admin)
         const recipientId = currentData.issuedBy;
         if (!recipientId) return;
-        // Notify of "OPENED" (Read Receipt)
         if (action === 'OPENED') {
             await createNotification({
+                tenantId,
                 userId: recipientId,
                 type: 'PO_OPENED',
                 title: 'PO Viewed by Vendor',
@@ -210,9 +229,9 @@ const logDeliveryEvent = async (poId, action, performer)=>{
                 link: '/dashboard/purchase-orders'
             });
         }
-        // Notify of "ACKNOWLEDGED"
         if (action === 'ACKNOWLEDGED') {
             await createNotification({
+                tenantId,
                 userId: recipientId,
                 type: 'PO_ACKNOWLEDGED',
                 title: 'PO Acknowledged',
@@ -224,10 +243,10 @@ const logDeliveryEvent = async (poId, action, performer)=>{
         console.error("Error logging delivery event", error);
     }
 };
-const getPurchaseOrderById = async (id)=>{
+const getPurchaseOrderById = async (tenantId, id)=>{
     try {
-        const dbRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["ref"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"]);
-        const snapshot = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["get"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["child"])(dbRef, `${COLLECTION_NAME}/${id}`));
+        const poRef = getPORef(tenantId, id);
+        const snapshot = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$database$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["get"])(poRef);
         if (snapshot.exists()) {
             const v = snapshot.val();
             return {

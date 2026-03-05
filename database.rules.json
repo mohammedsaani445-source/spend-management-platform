@@ -98,7 +98,10 @@
             ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
             ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
           },
-          "audit": {
+          "auditLogs": {
+            ".indexOn": [
+              "timestamp"
+            ],
             ".read": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')",
             ".write": "auth != null"
           },

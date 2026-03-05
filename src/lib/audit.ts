@@ -57,8 +57,13 @@ export const logAction = async (params: LogActionParams) => {
 
 export const getAuditLogs = async (tenantId: string, limitCount: number = 50) => {
     try {
+        if (!tenantId) {
+            console.warn("[Audit] getAuditLogs called with empty tenantId.");
+            return [];
+        }
+
         const auditRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/auditLogs`);
-        const auditQuery = query(auditRef, limitToLast(limitCount));
+        const auditQuery = query(auditRef, orderByChild('timestamp'), limitToLast(limitCount));
         const snapshot = await get(auditQuery);
 
         if (snapshot.exists()) {
@@ -67,7 +72,7 @@ export const getAuditLogs = async (tenantId: string, limitCount: number = 50) =>
         }
         return [];
     } catch (error) {
-        console.error("Error fetching audit logs:", error);
+        console.error(`[Audit] Error fetching audit logs for tenant ${tenantId}:`, error);
         return [];
     }
 };

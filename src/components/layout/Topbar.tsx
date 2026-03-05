@@ -6,6 +6,7 @@ import styles from "./Layout.module.css";
 import NotificationDropdown from "./NotificationDropdown";
 import UserMenu from "./UserMenu";
 import { useState } from "react";
+import { Search } from "lucide-react";
 
 const ROUTE_TITLES: Record<string, string> = {
     '/dashboard': 'Dashboard',
@@ -64,7 +65,7 @@ export default function Topbar({ onMobileMenuToggle }: TopbarProps) {
 
             {/* Search bar */}
             <div className={styles.searchBar}>
-                <span className={styles.searchIcon} style={{ fontSize: '0.9rem' }}>🔍</span>
+                <Search className={styles.searchIcon} size={16} color="#6B7280" />
                 <input
                     type="text"
                     className={styles.searchInput}
@@ -72,6 +73,9 @@ export default function Topbar({ onMobileMenuToggle }: TopbarProps) {
                     value={search}
                     onChange={e => setSearch(e.target.value)}
                 />
+                <div className={styles.searchShortcut}>
+                    <span>⌘</span>K
+                </div>
             </div>
 
             {/* Actions */}

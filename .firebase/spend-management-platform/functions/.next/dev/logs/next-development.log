@@ -1,146 +1,225 @@
-[00:00:06.426] Server  LOG     ✓ Ready in 4.9s
-[00:00:17.460] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:18.015] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:00:54.618] Browser WARN    [2026-02-13T20:43:14.570Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:00:55.009] Browser WARN    [2026-02-13T20:43:14.749Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:23:49.472] Server  LOG     ✓ Compiled in 1024ms
-[00:26:30.023] Browser WARN    [2026-02-13T21:08:49.963Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:26:39.056] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:26:41.477] Browser WARN    [2026-02-13T21:09:01.318Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:26:41.477] Browser WARN    [2026-02-13T21:09:01.418Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:27:10.573] Browser WARN    [2026-02-13T21:09:30.513Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:27:10.866] Browser WARN    [2026-02-13T21:09:30.793Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:31:51.950] Server  LOG     ✓ Compiled in 184ms
-[00:32:24.654] Server  LOG     ✓ Compiled in 40ms
-[00:32:25.075] Browser ERROR   ./src/components/dashboard/ExecutiveDashboard.tsx:277:1
+[00:00:02.917] Server  LOG     ✓ Ready in 2.2s
+[00:00:16.016] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:16.209] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:16.266] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:16.396] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:16.702] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:16.832] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:17.666] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:00:36.372] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:01:31.843] Server  LOG     [DEBUG] generating password reset link for "mohammedsani0505@gmail.com"
+[00:01:31.845] Server  LOG     [DEBUG] FIREBASE_PROJECT_ID: "spend-management-platform"
+[00:01:31.849] Server  LOG     [DEBUG] FIREBASE_CLIENT_EMAIL exists? true
+[00:01:31.852] Server  LOG     [DEBUG] FIREBASE_PRIVATE_KEY exists? true
+[00:01:32.665] Server  LOG     [DEV MODE] Invitation generated. Send this link to the user to setup password: https://spend-management-platform.firebaseapp.com/__/auth/action?apiKey=AIzaSyBTj9jFKQlLuJD7U_Pu8BKXC_iVni7dzPY&mode=resetPassword&oobCode=09Z_TSh4Aj_eAJut26d00S4P_PQ3yFBUZChYJaoZGZUAAAGcuyivnw&continueUrl=http://localhost:3000/login&lang=en
+[00:42:54.779] Server  LOG     ✓ Compiled in 798ms
+[00:43:09.814] Server  LOG     ✓ Compiled in 638ms
+[00:43:35.554] Server  LOG     ✓ Compiled in 183ms
+[00:43:47.657] Server  LOG     ✓ Compiled in 100ms
+[00:45:03.596] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:51:26.824] Server  LOG     ✓ Compiled in 160ms
+[00:51:41.256] Server  LOG     ✓ Compiled in 281ms
+[00:51:41.470] Browser ERROR   Uncaught error: {} {"componentStack":"\n    at DashboardLayout (http://localhost:3000/_next/static/chunks/_c546e00d._.js?id=%255Bproject%255D%252Fsrc%252Fapp%252Fdashboard%252Flayout.tsx+%255Bapp-client%255D+%2528ecmascript%2529:24:28)\n    at ClientSegmentRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:2433:30)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at InnerLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:351:34)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at LoadingBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:433:32)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at InnerScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:251:9)\n    at ScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:334:34)\n    at RenderFromTemplateContext (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:696:44)\n    at SegmentStateProvider (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3325:33)\n    at OuterLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:469:30)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/src_682327d5._.js:1991:1)\n    at ModalProvider (http://localhost:3000/_next/static/chunks/src_682327d5._.js:233:26)\n    at ThemeProvider (http://localhost:3000/_next/static/chunks/src_682327d5._.js:434:26)\n    at AuthProvider (http://localhost:3000/_next/static/chunks/src_682327d5._.js:82:25)\n    at Providers [Server] (<anonymous>)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout (about://React/Server/C:%5CUsers%5Cmoham%5COneDrive%5CDesktop%5Cspend-management-platform%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__48df4ee6._.js?1:312:274)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)"}
+[00:51:54.575] Server  LOG     ✓ Compiled in 146ms
+[00:52:06.193] Server  LOG     ✓ Compiled in 47ms
+[00:52:19.127] Server  LOG     ✓ Compiled in 289ms
+[00:52:45.426] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[01:00:38.575] Server  LOG     ✓ Compiled in 210ms
+[01:00:54.641] Server  LOG     ✓ Compiled in 231ms
+[01:01:20.062] Server  LOG     ✓ Compiled in 184ms
+[11:14:24.665] Server  LOG     ✓ Finished filesystem cache database compaction in 14.5s
+[11:15:00.793] Server  LOG     ✓ Compiled in 1693ms
+[11:15:05.461] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[11:17:08.484] Server  LOG     ✓ Compiled in 1252ms
+[11:17:12.435] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[11:20:28.851] Server  LOG     ✓ Compiled in 421ms
+[11:20:34.655] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[11:21:04.636] Server  LOG     ✓ Compiled in 696ms
+[11:21:07.257] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[11:21:31.155] Server  LOG     ✓ Compiled in 1273ms
+[11:21:34.323] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[11:21:48.654] Server  LOG     ✓ Finished filesystem cache database compaction in 12.9s
+[11:21:49.018] Server  LOG     ✓ Finished writing to filesystem cache in 11.3s
+[11:24:20.596] Server  LOG     ✓ Compiled in 252ms
+[11:24:46.397] Server  LOG     ✓ Compiled in 144ms
+[11:31:40.900] Server  LOG     ✓ Compiled in 781ms
+[11:33:48.425] Server  LOG     ✓ Compiled in 96ms
+[11:33:49.307] Browser ERROR   Uncaught error: {} {"componentStack":"\n    at Topbar (http://localhost:3000/_next/static/chunks/src_d437e439._.js?id=%255Bproject%255D%252Fsrc%252Fcomponents%252Flayout%252FTopbar.tsx+%255Bapp-client%255D+%2528ecmascript%2529:46:19)\n    at div (<anonymous>)\n    at div (<anonymous>)\n    at DashboardLayout (http://localhost:3000/_next/static/chunks/src_d437e439._.js:1650:28)\n    at ClientSegmentRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:2433:30)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at InnerLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:351:34)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at LoadingBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:433:32)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at InnerScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:251:9)\n    at ScrollAndFocusHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:334:34)\n    at RenderFromTemplateContext (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:696:44)\n    at SegmentStateProvider (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3325:33)\n    at OuterLayoutRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_be32b49c._.js:469:30)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/src_682327d5._.js:1997:1)\n    at ModalProvider (http://localhost:3000/_next/static/chunks/src_682327d5._.js:233:26)\n    at ThemeProvider (http://localhost:3000/_next/static/chunks/src_682327d5._.js:434:26)\n    at AuthProvider (http://localhost:3000/_next/static/chunks/src_682327d5._.js:82:25)\n    at Providers [Server] (<anonymous>)\n    at body (<anonymous>)\n    at html (<anonymous>)\n    at RootLayout (about://React/Server/C:%5CUsers%5Cmoham%5COneDrive%5CDesktop%5Cspend-management-platform%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C%5Broot-of-the-server%5D__48df4ee6._.js?1:312:274)\n    at SegmentViewNode (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3309:28)\n    at __next_root_layout_boundary__ (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:1681:64)\n    at RedirectErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10149:9)\n    at RedirectBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10191:29)\n    at HTTPAccessFallbackErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10577:9)\n    at HTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10652:39)\n    at DevRootHTTPAccessFallbackBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10721:46)\n    at AppDevOverlayErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_f3530cac._.js:3420:9)\n    at HotReload (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11750:22)\n    at Router (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:11906:23)\n    at ErrorBoundaryHandler (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1030:9)\n    at ErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:1096:26)\n    at RootErrorBoundary (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:10403:30)\n    at AppRouter (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12225:22)\n    at ServerRoot (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12584:23)\n    at Root (http://localhost:3000/_next/static/chunks/node_modules_next_dist_client_17643121._.js:12602:17)"}
+[11:34:17.477] Server  LOG     ✓ Compiled in 490ms
+[11:34:20.814] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[11:36:14.324] Server  LOG     ✓ Compiled in 238ms
+[11:48:40.197] Server  LOG     ✓ Compiled in 1537ms
+[11:50:05.276] Browser ERROR   Error fetching audit logs: {}
+[11:50:05.276] Browser ERROR   Error fetching audit logs: {}
+[11:57:40.387] Server  LOG     ✓ Compiled in 4.4s
+[11:59:43.712] Server  LOG     ✓ Compiled in 4.2s
+[11:59:46.977] Browser ERROR   ./src/components/admin/WorkflowBuilder.tsx:68:18
 Parsing ecmascript source code failed
-  275 |             </div>
-  276 |             );
-> 277 | }
-      | ^
-  278 |
+  66 |         
+  67 |         const newStep: WorkflowStep = {
+> 68 |             id: `step_${ Date.now() } `,
+     |                  ^^^^^^
+  69 |             name: stepForm.name!,
+  70 |             approverRole: stepForm.approverRole as any,
+  71 |             thresholdMin: stepForm.thresholdMin || 0,
 
-Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+Expected ';', '}' or <eof>
 
 Import traces:
   Client Component Browser:
-    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component Browser]
-    ./src/app/dashboard/page.tsx [Client Component Browser]
-    ./src/app/dashboard/page.tsx [Server Component]
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
 
   Client Component SSR:
-    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component SSR]
-    ./src/app/dashboard/page.tsx [Client Component SSR]
-    ./src/app/dashboard/page.tsx [Server Component]
-[00:32:25.096] Browser ERROR   ./src/components/dashboard/ExecutiveDashboard.tsx:277:1
-Parsing ecmascript source code failed
-  275 |             </div>
-  276 |             );
-> 277 | }
-      | ^
-  278 |
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+[12:00:08.834] Server  LOG     ✓ Finished filesystem cache database compaction in 21.0s
+[12:02:18.205] Server  LOG     ✓ Compiled in 1719ms
+[12:02:18.850] Browser ERROR   ./src/components/admin/WorkflowBuilder.tsx:6:1
+Export deleteWorkflow doesn't exist in target module
+  4 | import { useAuth } from "@/context/AuthContext";
+  5 | import { Workflow, WorkflowStep } from "@/types";
+> 6 | import { getWorkflows, saveWorkflow, deleteWorkflow } from "@/lib/workflows";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { useModal } from "@/context/ModalContext";
+  8 | import {
+  9 |     GitMerge, Plus, Pencil, Trash2,
 
-Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+The export deleteWorkflow was not found in module [project]/src/lib/workflows.ts [app-client] (ecmascript).
+Did you mean to import saveWorkflow?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
 
 Import traces:
   Client Component Browser:
-    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component Browser]
-    ./src/app/dashboard/page.tsx [Client Component Browser]
-    ./src/app/dashboard/page.tsx [Server Component]
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
 
   Client Component SSR:
-    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component SSR]
-    ./src/app/dashboard/page.tsx [Client Component SSR]
-    ./src/app/dashboard/page.tsx [Server Component]
-[00:32:26.970] Browser ERROR   ./src/components/dashboard/ExecutiveDashboard.tsx:279:1
-Parsing ecmascript source code failed
-  277 |             </div>
-  278 |             );
-> 279 | }
-      | ^
-  280 |
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+[12:02:18.850] Browser ERROR   ./src/components/admin/WorkflowBuilder.tsx:6:1
+Export deleteWorkflow doesn't exist in target module
+  4 | import { useAuth } from "@/context/AuthContext";
+  5 | import { Workflow, WorkflowStep } from "@/types";
+> 6 | import { getWorkflows, saveWorkflow, deleteWorkflow } from "@/lib/workflows";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { useModal } from "@/context/ModalContext";
+  8 | import {
+  9 |     GitMerge, Plus, Pencil, Trash2,
 
-Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+The export deleteWorkflow was not found in module [project]/src/lib/workflows.ts [app-ssr] (ecmascript).
+Did you mean to import saveWorkflow?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
 
 Import traces:
   Client Component Browser:
-    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component Browser]
-    ./src/app/dashboard/page.tsx [Client Component Browser]
-    ./src/app/dashboard/page.tsx [Server Component]
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
 
   Client Component SSR:
-    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component SSR]
-    ./src/app/dashboard/page.tsx [Client Component SSR]
-    ./src/app/dashboard/page.tsx [Server Component]
-[00:32:26.984] Browser ERROR   ./src/components/dashboard/ExecutiveDashboard.tsx:279:1
-Parsing ecmascript source code failed
-  277 |             </div>
-  278 |             );
-> 279 | }
-      | ^
-  280 |
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+[12:02:57.792] Server  LOG     ✓ Compiled in 182ms
+[12:02:57.911] Browser ERROR   ./src/components/admin/WorkflowBuilder.tsx:6:1
+Export deleteWorkflow doesn't exist in target module
+  4 | import { useAuth } from "@/context/AuthContext";
+  5 | import { Workflow, WorkflowStep } from "@/types";
+> 6 | import { getWorkflows, saveWorkflow, deleteWorkflow } from "@/lib/workflows";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { useModal } from "@/context/ModalContext";
+  8 | import {
+  9 |     GitMerge, Plus, Pencil, Trash2,
 
-Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+The export deleteWorkflow was not found in module [project]/src/lib/workflows.ts [app-client] (ecmascript).
+Did you mean to import saveWorkflow?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
 
 Import traces:
   Client Component Browser:
-    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component Browser]
-    ./src/app/dashboard/page.tsx [Client Component Browser]
-    ./src/app/dashboard/page.tsx [Server Component]
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
 
   Client Component SSR:
-    ./src/components/dashboard/ExecutiveDashboard.tsx [Client Component SSR]
-    ./src/app/dashboard/page.tsx [Client Component SSR]
-    ./src/app/dashboard/page.tsx [Server Component]
-[00:33:10.327] Server  LOG     ✓ Compiled in 61ms
-[00:33:10.973] Browser ERROR   uncaughtError: TypeError: Cannot read properties of undefined (reading 'slice')
-[00:33:39.209] Server  WARN    ⚠ Fast Refresh had to perform a full reload due to a runtime error.
-[00:33:39.237] Server  LOG     ✓ Compiled in 162ms
-[00:33:40.719] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:33:43.972] Browser WARN    [2026-02-13T21:16:03.247Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:33:43.972] Browser WARN    [2026-02-13T21:16:03.565Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:36:11.874] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:36:14.986] Browser WARN    [2026-02-13T21:18:34.933Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:36:15.245] Browser WARN    [2026-02-13T21:18:35.198Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:40:50.136] Server  LOG     ✓ Compiled in 353ms
-[00:42:38.511] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:42:40.930] Browser WARN    [2026-02-13T21:25:00.882Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:42:41.080] Browser WARN    [2026-02-13T21:25:01.032Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:47:31.060] Server  LOG     ✓ Compiled in 39ms
-[00:47:32.850] Server  LOG     ✓ Compiled in 93ms
-[00:47:46.787] Server  LOG     ✓ Compiled in 45ms
-[00:47:59.543] Server  LOG     ✓ Compiled in 34ms
-[00:48:01.066] Server  LOG     ✓ Compiled in 43ms
-[00:48:11.824] Server  LOG     ✓ Compiled in 689ms
-[00:48:20.997] Server  LOG     ✓ Compiled in 48ms
-[00:49:01.689] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:49:04.151] Browser WARN    [2026-02-13T21:31:24.063Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:49:04.252] Browser WARN    [2026-02-13T21:31:24.207Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:49:06.938] Browser ERROR   React has detected a change in the order of Hooks called by %s. This will lead to bugs and errors if not fixed. For more information, read the Rules of Hooks: https://react.dev/link/rules-of-hooks
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+[12:02:57.911] Browser ERROR   ./src/components/admin/WorkflowBuilder.tsx:6:1
+Export deleteWorkflow doesn't exist in target module
+  4 | import { useAuth } from "@/context/AuthContext";
+  5 | import { Workflow, WorkflowStep } from "@/types";
+> 6 | import { getWorkflows, saveWorkflow, deleteWorkflow } from "@/lib/workflows";
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  7 | import { useModal } from "@/context/ModalContext";
+  8 | import {
+  9 |     GitMerge, Plus, Pencil, Trash2,
 
-   Previous render            Next render
-   ------------------------------------------------------
-%s   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- Dashboard 1. useContext                 useContext
-2. useState                   useState
-3. useState                   useState
-4. useState                   useState
-5. useState                   useState
-6. useEffect                  useEffect
-7. undefined                  useContext
+The export deleteWorkflow was not found in module [project]/src/lib/workflows.ts [app-ssr] (ecmascript).
+Did you mean to import saveWorkflow?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
 
-[00:49:06.938] Browser ERROR   uncaughtError: Error: Rendered more hooks than during the previous render.
-[00:49:44.273] Server  WARN    ⚠ Fast Refresh had to perform a full reload due to a runtime error.
-[00:49:44.274] Server  LOG     ✓ Compiled in 193ms
-[00:49:45.371] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:49:45.825] Server  LOG     ✓ Compiled in 131ms
-[00:49:48.973] Browser WARN    [2026-02-13T21:32:08.072Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:49:48.973] Browser WARN    [2026-02-13T21:32:08.215Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:50:02.493] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[00:50:04.557] Browser WARN    [2026-02-13T21:32:24.507Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[00:50:04.811] Browser WARN    [2026-02-13T21:32:24.764Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[01:03:46.974] Browser WARN    [2026-02-13T21:46:06.338Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[01:24:43.565] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
-[01:24:46.132] Browser WARN    [2026-02-13T22:07:06.071Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[01:24:46.482] Browser WARN    [2026-02-13T22:07:06.423Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
-[49:37:16.140] Browser WARN    [2026-02-15T22:19:29.012Z]  @firebase/database: FIREBASE WARNING: Using an unspecified index. Your data will be downloaded and filtered on the client. Consider adding ".indexOn": "userId" at /notifications to your security rules for better performance. 
+Import traces:
+  Client Component Browser:
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+[12:03:41.288] Server  LOG     ✓ Compiled in 807ms
+[12:04:33.437] Server  LOG     ✓ Compiled in 1657ms
+[12:05:11.751] Server  LOG     ✓ Compiled in 445ms
+[12:06:47.347] Browser ERROR   Error fetching audit logs: {}
+[12:06:47.348] Browser ERROR   Error fetching audit logs: {}
+[12:09:44.153] Server  LOG     ✓ Compiled in 417ms
+[12:13:25.674] Server  LOG     ✓ Compiled in 3.6s
+[12:17:26.104] Server  LOG     ✓ Compiled in 1520ms
+[12:21:38.987] Server  LOG     ✓ Finished filesystem cache database compaction in 12.9s
+[12:22:52.069] Browser ERROR   Error fetching audit logs: {}
+[12:22:52.069] Browser ERROR   Error fetching audit logs: {}
+[12:23:09.944] Browser ERROR   Error fetching assets: {}
+[12:23:09.944] Browser ERROR   Error fetching assets: {}
+[12:23:14.387] Browser ERROR   Failed to load inventory: {}
+[12:23:14.387] Browser ERROR   Failed to load inventory: {}
+[21:31:13.079] Server  WARN    [2026-03-05T20:51:45.129Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[21:32:17.070] Server  LOG     ✓ Compiled in 1600ms
+[21:35:50.056] Server  LOG     ✓ Compiled in 481ms
+[21:38:46.611] Browser ERROR   Error fetching audit logs: {}
+[21:38:46.611] Browser ERROR   Error fetching audit logs: {}
+[21:39:02.310] Server  LOG     ✓ Finished filesystem cache database compaction in 11.9s
+[21:39:31.610] Browser ERROR   Error fetching audit logs: {}
+[21:39:31.610] Browser ERROR   Error fetching audit logs: {}
+[21:40:00.131] Browser ERROR   Error fetching assets: {}
+[21:40:00.131] Browser ERROR   Error fetching assets: {}
+[21:40:58.916] Browser ERROR   Failed to load inventory: {}
+[21:40:58.916] Browser ERROR   Failed to load inventory: {}
+[21:41:55.037] Browser ERROR   Failed to load inventory: {}
+[21:41:55.038] Browser ERROR   Failed to load inventory: {}
+[21:42:00.690] Browser ERROR   Error fetching contracts {}
+[21:42:00.690] Browser ERROR   Error fetching contracts {}
+[21:42:15.754] Browser ERROR   unhandledRejection: Error: Permission denied
+[21:42:15.754] Browser ERROR   unhandledRejection: Error: Permission denied
+[21:42:23.521] Server  LOG     ✓ Finished filesystem cache database compaction in 10.7s
+[21:42:34.468] Server  LOG     ✓ Finished filesystem cache database compaction in 10.2s
+[21:46:03.828] Server  LOG     ✓ Compiled in 1690ms
+[21:49:06.600] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[21:49:09.906] Browser ERROR   unhandledRejection: Error: Permission denied
+[21:49:09.906] Browser ERROR   unhandledRejection: Error: Permission denied
+[21:49:17.585] Browser ERROR   Error fetching audit logs: {}
+[21:49:17.585] Browser ERROR   Error fetching audit logs: {}
+[21:49:54.912] Browser ERROR   Error fetching assets: {}
+[21:49:54.912] Browser ERROR   Error fetching assets: {}
+[21:49:56.605] Browser ERROR   Failed to load inventory: {}
+[21:49:56.605] Browser ERROR   Failed to load inventory: {}
+[21:50:00.737] Browser ERROR   Failed to load inventory: {}
+[21:50:00.737] Browser ERROR   Failed to load inventory: {}
+[21:51:43.179] Server  LOG     ✓ Compiled in 598ms
+[22:04:27.577] Server  LOG     ✓ Finished filesystem cache database compaction in 16.4s

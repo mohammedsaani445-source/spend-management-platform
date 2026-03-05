@@ -1,14 +1,17 @@
 {
+  "/api/invitations/route": "app/api/invitations/route.js",
   "/dashboard/analytics/page": "app/dashboard/analytics/page.js",
-  "/dashboard/approvals/page": "app/dashboard/approvals/page.js",
+  "/dashboard/assets/page": "app/dashboard/assets/page.js",
   "/dashboard/budgets/page": "app/dashboard/budgets/page.js",
-  "/dashboard/invoices/page": "app/dashboard/invoices/page.js",
+  "/dashboard/compliance/page": "app/dashboard/compliance/page.js",
+  "/dashboard/contracts/page": "app/dashboard/contracts/page.js",
+  "/dashboard/inventory/page": "app/dashboard/inventory/page.js",
+  "/dashboard/notifications/page": "app/dashboard/notifications/page.js",
   "/dashboard/page": "app/dashboard/page.js",
-  "/dashboard/purchase-orders/page": "app/dashboard/purchase-orders/page.js",
-  "/dashboard/requisitions/new/page": "app/dashboard/requisitions/new/page.js",
+  "/dashboard/payments/page": "app/dashboard/payments/page.js",
   "/dashboard/requisitions/page": "app/dashboard/requisitions/page.js",
-  "/dashboard/support/page": "app/dashboard/support/page.js",
+  "/dashboard/settings/page": "app/dashboard/settings/page.js",
+  "/dashboard/sourcing/page": "app/dashboard/sourcing/page.js",
   "/dashboard/vendors/page": "app/dashboard/vendors/page.js",
-  "/login/page": "app/login/page.js",
-  "/page": "app/page.js"
+  "/login/page": "app/login/page.js"
 }

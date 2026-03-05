@@ -8,10 +8,17 @@ import { getDepartments } from "@/lib/departments";
 import { Location, Department } from "@/types";
 import { useAuth } from "@/context/AuthContext";
 import { auth } from "@/lib/firebase";
-import styles from "@/components/layout/Layout.module.css";
+import { useModal } from "@/context/ModalContext";
+import styles from "@/app/dashboard/settings/Settings.module.css";
+import {
+    Users, Search, UserPlus, Shield, MapPin,
+    Building2, UserCog, Mail, X, CheckCircle2,
+    XCircle, AlertCircle, ChevronDown
+} from "lucide-react";
 
 export default function UserManagement() {
     const { user: currentUser } = useAuth();
+    const { showError } = useModal();
     const [users, setUsers] = useState<AppUser[]>([]);
     const [locations, setLocations] = useState<Location[]>([]);
     const [departments, setDepartments] = useState<Department[]>([]);
@@ -51,7 +58,7 @@ export default function UserManagement() {
             await updateUserRole(currentUser.tenantId, uid, newRole, currentUser.uid);
             setUsers(prev => prev.map(u => u.uid === uid ? { ...u, role: newRole } : u));
         } catch (error) {
-            alert("Failed to update role");
+            showError("Update Failed", "Failed to update user role.");
         }
     };
 
@@ -59,13 +66,13 @@ export default function UserManagement() {
         if (!currentUser) return;
         try {
             const updates = {
-                ...(locationId ? { locationId } : {}),
-                ...(departmentId ? { departmentId } : {})
+                ...(locationId !== undefined ? { locationId } : {}),
+                ...(departmentId !== undefined ? { departmentId } : {})
             };
             await updateUserHierarchy(currentUser.tenantId, uid, updates, currentUser.uid);
             setUsers(prev => prev.map(u => u.uid === uid ? { ...u, ...updates } : u));
         } catch (error) {
-            alert("Failed to update hierarchy");
+            showError("Update Failed", "Failed to update organizational hierarchy.");
         }
     };
 
@@ -75,7 +82,7 @@ export default function UserManagement() {
             await updateUserManager(currentUser.tenantId, uid, managerId, currentUser.uid);
             setUsers(prev => prev.map(u => u.uid === uid ? { ...u, managerId } : u));
         } catch (error) {
-            alert("Failed to update manager");
+            showError("Update Failed", "Failed to update manager assignment.");
         }
     };
 
@@ -86,7 +93,7 @@ export default function UserManagement() {
             await setUserStatus(currentUser.tenantId, uid, newStatus, currentUser.uid);
             setUsers(prev => prev.map(u => u.uid === uid ? { ...u, isActive: newStatus } : u));
         } catch (error) {
-            alert("Failed to update status");
+            showError("Update Failed", "Failed to update user status.");
         }
     };
 
@@ -136,7 +143,9 @@ export default function UserManagement() {
             });
             // Refresh directory
             fetchUsers();
-            alert("User invited successfully! If RESEND_API_KEY is configured, an email was sent.");
+
+            // Show success via custom logic since we don't have a showSuccess in ModalContext right now
+            alert("User invited successfully! If email is configured, an invitation was sent.");
         } catch (err: any) {
             setInviteError(err.message);
         } finally {
@@ -149,251 +158,320 @@ export default function UserManagement() {
         (u.displayName || "").toLowerCase().includes(filter.toLowerCase())
     );
 
-    if (loading) return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading user directory...</div>;
+    if (loading) return <div style={{ padding: '2.5rem', textAlign: 'center', color: '#6B7280' }}>Loading user directory...</div>;
 
     return (
-        <div className="card" style={{ padding: 0, overflow: 'hidden', position: 'relative' }}>
+        <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
             {/* Invite Modal */}
             {isInviteModalOpen && (
-                <div className={styles.modalBackdrop} style={{ zIndex: 1000 }}>
-                    <div className="card" style={{ maxWidth: '500px', width: '100%', padding: '2.5rem', margin: 'auto', position: 'relative' }}>
-                        <button
-                            onClick={() => setIsInviteModalOpen(false)}
-                            style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
-                        >
-                            ✕
-                        </button>
-                        <h2 style={{ marginTop: 0, marginBottom: '0.5rem', fontWeight: 800 }}>Invite Team Member</h2>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                            Send an invitation email with a secure setup link.
-                        </p>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(17, 24, 39, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, animation: 'fadeIn 0.2s ease-out' }}>
+                    <div className={styles.card} style={{ maxWidth: '500px', width: '100%', margin: '1rem', padding: '0', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
+                        <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ background: '#E0E7FF', color: '#4F46E5', width: 36, height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <UserPlus size={20} />
+                                </div>
+                                <div>
+                                    <h2 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800 }}>Invite Team Member</h2>
+                                    <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>Send an invitation email with a secure setup link.</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setIsInviteModalOpen(false)}
+                                style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', padding: '0.25rem' }}
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
 
-                        <form onSubmit={handleInviteUser} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                        <form onSubmit={handleInviteUser} style={{ padding: '2rem' }}>
                             {inviteError && (
-                                <div style={{ padding: '1rem', backgroundColor: 'var(--error-soft)', color: 'var(--error)', borderRadius: '8px', fontSize: '0.85rem', fontWeight: 600 }}>
-                                    {inviteError}
+                                <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#FEF2F2', color: '#EF4444', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, display: 'flex', alignItems: 'flex-start', gap: '0.75rem', border: '1px solid #FEE2E2' }}>
+                                    <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+                                    <span>{inviteError}</span>
                                 </div>
                             )}
-                            <div className="form-group">
-                                <label>Email Address *</label>
-                                <input
-                                    type="email"
-                                    required
-                                    value={inviteData.email}
-                                    onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Full Name</label>
-                                <input
-                                    type="text"
-                                    value={inviteData.displayName}
-                                    placeholder="Optional"
-                                    onChange={(e) => setInviteData({ ...inviteData, displayName: e.target.value })}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>System Role *</label>
-                                <select
-                                    required
-                                    value={inviteData.role}
-                                    onChange={(e) => setInviteData({ ...inviteData, role: e.target.value as UserRole })}
-                                >
-                                    {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                                </select>
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div className="form-group">
-                                    <label>Location</label>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Email Address *</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Mail size={16} color="#9CA3AF" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                        <input
+                                            type="email"
+                                            className={styles.input}
+                                            style={{ paddingLeft: '2.5rem' }}
+                                            required
+                                            value={inviteData.email}
+                                            onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
+                                            placeholder="colleague@company.com"
+                                            autoFocus
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Full Name</label>
+                                    <input
+                                        type="text"
+                                        className={styles.input}
+                                        value={inviteData.displayName}
+                                        placeholder="Optional"
+                                        onChange={(e) => setInviteData({ ...inviteData, displayName: e.target.value })}
+                                    />
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>System Role *</label>
                                     <select
-                                        value={inviteData.locationId}
-                                        onChange={(e) => setInviteData({ ...inviteData, locationId: e.target.value })}
+                                        className={styles.input}
+                                        required
+                                        value={inviteData.role}
+                                        onChange={(e) => setInviteData({ ...inviteData, role: e.target.value as UserRole })}
                                     >
-                                        <option value="">None</option>
-                                        {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                                        {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                                     </select>
                                 </div>
-                                <div className="form-group">
-                                    <label>Department</label>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Location</label>
+                                        <select
+                                            className={styles.input}
+                                            value={inviteData.locationId}
+                                            onChange={(e) => setInviteData({ ...inviteData, locationId: e.target.value })}
+                                        >
+                                            <option value="">None</option>
+                                            {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Department</label>
+                                        <select
+                                            className={styles.input}
+                                            value={inviteData.departmentId}
+                                            onChange={(e) => setInviteData({ ...inviteData, departmentId: e.target.value })}
+                                        >
+                                            <option value="">None</option>
+                                            {departments.filter(d => !inviteData.locationId || d.locationId === inviteData.locationId).map(d => (
+                                                <option key={d.id} value={d.id}>{d.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Direct Manager</label>
                                     <select
-                                        value={inviteData.departmentId}
-                                        onChange={(e) => setInviteData({ ...inviteData, departmentId: e.target.value })}
+                                        className={styles.input}
+                                        value={inviteData.managerId}
+                                        onChange={(e) => setInviteData({ ...inviteData, managerId: e.target.value })}
                                     >
                                         <option value="">None</option>
-                                        {departments.filter(d => !inviteData.locationId || d.locationId === inviteData.locationId).map(d => (
-                                            <option key={d.id} value={d.id}>{d.name}</option>
+                                        {users.map(m => (
+                                            <option key={m.uid} value={m.uid}>{m.displayName || m.email}</option>
                                         ))}
                                     </select>
                                 </div>
                             </div>
-                            <div className="form-group">
-                                <label>Direct Manager</label>
-                                <select
-                                    value={inviteData.managerId}
-                                    onChange={(e) => setInviteData({ ...inviteData, managerId: e.target.value })}
-                                >
-                                    <option value="">None</option>
-                                    {users.map(m => (
-                                        <option key={m.uid} value={m.uid}>{m.displayName || m.email}</option>
-                                    ))}
-                                </select>
-                            </div>
 
-                            <button
-                                type="submit"
-                                className="btn btn-primary"
-                                disabled={isInviting || !inviteData.email}
-                                style={{ marginTop: '1rem', padding: '0.875rem' }}
-                            >
-                                {isInviting ? "Sending Invitation..." : "Send Invitation"}
-                            </button>
+                            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                                <button type="button" className={styles.secondaryButton} onClick={() => setIsInviteModalOpen(false)} style={{ flex: 1, justifyContent: 'center' }}>
+                                    Cancel
+                                </button>
+                                <button type="submit" className={styles.primaryButton} disabled={isInviting || !inviteData.email} style={{ flex: 1, justifyContent: 'center' }}>
+                                    {isInviting ? <div style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> : <Mail size={16} />}
+                                    {isInviting ? "Sending..." : "Send Invitation"}
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>
             )}
 
-            <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
                 <div>
-                    <h3 style={{ margin: 0, fontWeight: 800 }}>User Directory</h3>
-                    <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Manage permissions and team structural assignments.</p>
+                    <h3 className={styles.sectionTitle} style={{ marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Users size={22} color="var(--brand)" /> User Directory
+                    </h3>
+                    <p className={styles.subtitle}>Manage permissions, team assignments, and reporting structures.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                    <input
-                        type="text"
-                        placeholder="Search by name or email..."
-                        className="form-control"
-                        style={{ width: '250px', borderRadius: '10px' }}
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                    />
-                    <button
-                        className="btn btn-primary"
-                        style={{ padding: '0.5rem 1rem', borderRadius: '10px', fontSize: '0.85rem' }}
-                        onClick={() => setIsInviteModalOpen(true)}
-                    >
-                        + Invite Member
+                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div style={{ position: 'relative' }}>
+                        <Search size={16} color="#9CA3AF" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                        <input
+                            type="text"
+                            placeholder="Search directory..."
+                            className={styles.input}
+                            style={{ paddingLeft: '2.5rem', width: '280px', borderRadius: '100px', backgroundColor: 'white' }}
+                            value={filter}
+                            onChange={(e) => setFilter(e.target.value)}
+                        />
+                    </div>
+                    <button className={styles.primaryButton} onClick={() => setIsInviteModalOpen(true)}>
+                        <UserPlus size={18} /> Invite Member
                     </button>
                 </div>
             </div>
 
-            <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        <tr style={{ background: 'var(--background)', borderBottom: '1px solid var(--border)' }}>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>User</th>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Role</th>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Organization</th>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Manager</th>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Status</th>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>Joined</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {filteredUsers.map(u => (
-                            <tr key={u.uid} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }}>
-                                <td style={{ padding: '1.25rem 1.5rem' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                        <div style={{
-                                            width: '40px',
-                                            height: '40px',
-                                            borderRadius: '50%',
-                                            background: 'var(--brand)',
-                                            color: 'white',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontWeight: 800,
-                                            fontSize: '1rem'
-                                        }}>
-                                            {(u.displayName || u.email || "U")[0].toUpperCase()}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: 700, fontSize: '0.95rem' }}>{u.displayName || "Standard User"}</div>
-                                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{u.email}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style={{ padding: '1.25rem 1.5rem' }}>
-                                    <select
-                                        value={u.role}
-                                        onChange={(e) => handleRoleChange(u.uid, e.target.value as UserRole)}
-                                        style={{
-                                            padding: '0.5rem',
-                                            borderRadius: '8px',
-                                            border: '1px solid var(--border)',
-                                            background: 'var(--background)',
-                                            fontSize: '0.85rem',
-                                            fontWeight: 600,
-                                            color: u.role === 'ADMIN' ? 'var(--brand)' : 'var(--text-main)'
-                                        }}
-                                    >
-                                        {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                                    </select>
-                                </td>
-                                <td style={{ padding: '1.25rem 1.5rem' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                        <select
-                                            value={u.locationId || ""}
-                                            onChange={(e) => handleHierarchyChange(u.uid, e.target.value)}
-                                            style={{ padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.75rem' }}
-                                        >
-                                            <option value="">Select Location...</option>
-                                            {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
-                                        </select>
-                                        <select
-                                            value={u.departmentId || ""}
-                                            onChange={(e) => handleHierarchyChange(u.uid, undefined, e.target.value)}
-                                            style={{ padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border)', fontSize: '0.75rem' }}
-                                        >
-                                            <option value="">Select Department...</option>
-                                            {departments.filter(d => !u.locationId || d.locationId === u.locationId).map(d => (
-                                                <option key={d.id} value={d.id}>{d.name}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </td>
-                                <td style={{ padding: '1.25rem 1.5rem' }}>
-                                    <select
-                                        value={u.managerId || ""}
-                                        onChange={(e) => handleManagerChange(u.uid, e.target.value)}
-                                        style={{
-                                            padding: '0.5rem',
-                                            borderRadius: '8px',
-                                            border: '1px solid var(--border)',
-                                            background: 'var(--background)',
-                                            fontSize: '0.85rem'
-                                        }}
-                                    >
-                                        <option value="">No Manager</option>
-                                        {users.filter(potentialManager => potentialManager.uid !== u.uid).map(m => (
-                                            <option key={m.uid} value={m.uid}>{m.displayName || m.email}</option>
-                                        ))}
-                                    </select>
-                                </td>
-                                <td style={{ padding: '1.25rem 1.5rem' }}>
-                                    <button
-                                        onClick={() => handleStatusToggle(u.uid, u.isActive)}
-                                        style={{
-                                            padding: '0.4rem 1rem',
-                                            borderRadius: '20px',
-                                            border: 'none',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 800,
-                                            cursor: 'pointer',
-                                            background: (u.isActive ?? true) ? 'var(--status-approved-bg)' : 'var(--status-rejected-bg)',
-                                            color: (u.isActive ?? true) ? 'var(--status-approved)' : 'var(--status-rejected)'
-                                        }}
-                                    >
-                                        {(u.isActive ?? true) ? "● Active" : "○ Disabled"}
-                                    </button>
-                                </td>
-                                <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                    {u.createdAt.toLocaleDateString()}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <div className={styles.card} style={{ padding: 0, overflow: 'hidden' }}>
+                {filteredUsers.length === 0 ? (
+                    <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+                        <div style={{ background: '#F3F4F6', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+                            <Search size={32} color="#9CA3AF" />
+                        </div>
+                        <h4 style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.5rem' }}>No users found</h4>
+                        <p className={styles.subtitle} style={{ maxWidth: '400px', margin: '0 auto' }}>
+                            {filter ? `No users match the search "${filter}".` : "Your user directory is currently empty."}
+                        </p>
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                            <thead>
+                                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--border)' }}>
+                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>User</th>
+                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Role</th>
+                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Organization</th>
+                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Manager</th>
+                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredUsers.map(u => (
+                                    <tr key={u.uid} style={{ borderBottom: '1px solid var(--border)', transition: 'background-color 0.2s', backgroundColor: 'white' }}>
+                                        <td style={{ padding: '1.25rem 1.5rem' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                {u.photoURL ? (
+                                                    <img src={u.photoURL} alt={u.displayName || "User"} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border)' }} />
+                                                ) : (
+                                                    <div style={{
+                                                        width: '40px',
+                                                        height: '40px',
+                                                        borderRadius: '50%',
+                                                        background: 'linear-gradient(135deg, var(--brand) 0%, #E83E8C 100%)',
+                                                        color: 'white',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontWeight: 800,
+                                                        fontSize: '1.125rem',
+                                                        flexShrink: 0
+                                                    }}>
+                                                        {(u.displayName || u.email || "U")[0].toUpperCase()}
+                                                    </div>
+                                                )}
+                                                <div>
+                                                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)', marginBottom: '0.125rem' }}>{u.displayName || "Standard User"}</div>
+                                                    <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>{u.email}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td style={{ padding: '1.25rem 1.5rem' }}>
+                                            <div style={{ position: 'relative', width: 'fit-content' }}>
+                                                <select
+                                                    value={u.role}
+                                                    onChange={(e) => handleRoleChange(u.uid, e.target.value as UserRole)}
+                                                    className={styles.input}
+                                                    style={{
+                                                        padding: '0.375rem 2rem 0.375rem 0.75rem',
+                                                        borderRadius: '0.5rem',
+                                                        fontSize: '0.8125rem',
+                                                        fontWeight: 700,
+                                                        backgroundColor: u.role === 'ADMIN' ? '#EEF2FF' : '#F9FAFB',
+                                                        color: u.role === 'ADMIN' ? '#4F46E5' : 'var(--text-main)',
+                                                        borderColor: u.role === 'ADMIN' ? '#C7D2FE' : 'var(--border)',
+                                                        cursor: 'pointer',
+                                                        appearance: 'none'
+                                                    }}
+                                                >
+                                                    {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                                                </select>
+                                                <ChevronDown size={14} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: u.role === 'ADMIN' ? '#4F46E5' : '#9CA3AF' }} />
+                                            </div>
+                                        </td>
+
+                                        <td style={{ padding: '1.25rem 1.5rem' }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                <div style={{ position: 'relative' }}>
+                                                    <MapPin size={12} color="#9CA3AF" style={{ position: 'absolute', left: '0.625rem', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
+                                                    <select
+                                                        value={u.locationId || ""}
+                                                        onChange={(e) => handleHierarchyChange(u.uid, e.target.value, undefined)}
+                                                        className={styles.input}
+                                                        style={{ padding: '0.375rem 1.75rem 0.375rem 1.75rem', borderRadius: '0.375rem', fontSize: '0.75rem', cursor: 'pointer', color: u.locationId ? 'var(--text-main)' : 'var(--text-secondary)', appearance: 'none', height: 'auto', backgroundColor: 'transparent' }}
+                                                    >
+                                                        <option value="">No Location Defined</option>
+                                                        {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                                                    </select>
+                                                    <ChevronDown size={12} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9CA3AF' }} />
+                                                </div>
+
+                                                <div style={{ position: 'relative' }}>
+                                                    <Building2 size={12} color="#9CA3AF" style={{ position: 'absolute', left: '0.625rem', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
+                                                    <select
+                                                        value={u.departmentId || ""}
+                                                        onChange={(e) => handleHierarchyChange(u.uid, undefined, e.target.value)}
+                                                        className={styles.input}
+                                                        style={{ padding: '0.375rem 1.75rem 0.375rem 1.75rem', borderRadius: '0.375rem', fontSize: '0.75rem', cursor: 'pointer', color: u.departmentId ? 'var(--text-main)' : 'var(--text-secondary)', appearance: 'none', height: 'auto', backgroundColor: 'transparent' }}
+                                                    >
+                                                        <option value="">No Department Defined</option>
+                                                        {departments.filter(d => !u.locationId || d.locationId === u.locationId).map(d => (
+                                                            <option key={d.id} value={d.id}>{d.name}</option>
+                                                        ))}
+                                                    </select>
+                                                    <ChevronDown size={12} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9CA3AF' }} />
+                                                </div>
+                                            </div>
+                                        </td>
+
+                                        <td style={{ padding: '1.25rem 1.5rem' }}>
+                                            <div style={{ position: 'relative' }}>
+                                                <UserCog size={14} color="#9CA3AF" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
+                                                <select
+                                                    value={u.managerId || ""}
+                                                    onChange={(e) => handleManagerChange(u.uid, e.target.value)}
+                                                    className={styles.input}
+                                                    style={{ padding: '0.4rem 2rem 0.4rem 2.25rem', borderRadius: '0.5rem', fontSize: '0.8125rem', cursor: 'pointer', color: u.managerId ? 'var(--text-main)' : 'var(--text-secondary)', appearance: 'none', backgroundColor: '#F9FAFB' }}
+                                                >
+                                                    <option value="">No Line Manager</option>
+                                                    {users.filter(potentialManager => potentialManager.uid !== u.uid).map(m => (
+                                                        <option key={m.uid} value={m.uid}>{m.displayName || m.email}</option>
+                                                    ))}
+                                                </select>
+                                                <ChevronDown size={14} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9CA3AF' }} />
+                                            </div>
+                                        </td>
+
+                                        <td style={{ padding: '1.25rem 1.5rem' }}>
+                                            <button
+                                                onClick={() => handleStatusToggle(u.uid, u.isActive)}
+                                                style={{
+                                                    padding: '0.375rem 0.75rem',
+                                                    borderRadius: '999px',
+                                                    border: 'none',
+                                                    fontSize: '0.75rem',
+                                                    fontWeight: 700,
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '0.375rem',
+                                                    transition: 'all 0.2s',
+                                                    background: (u.isActive ?? true) ? '#ECFDF5' : '#FEF2F2',
+                                                    color: (u.isActive ?? true) ? '#10B981' : '#EF4444'
+                                                }}
+                                            >
+                                                {(u.isActive ?? true) ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                                                {(u.isActive ?? true) ? "Active" : "Disabled"}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </div>
     );

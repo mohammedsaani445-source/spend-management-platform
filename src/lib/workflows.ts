@@ -86,3 +86,10 @@ export const getWorkflows = async (tenantId: string): Promise<Workflow[]> => {
     }
     return [];
 };
+
+/**
+ * Deletes a workflow by ID.
+ */
+export const deleteWorkflow = async (tenantId: string, id: string): Promise<void> => {
+    await set(getWorkflowRef(tenantId, id), null);
+};

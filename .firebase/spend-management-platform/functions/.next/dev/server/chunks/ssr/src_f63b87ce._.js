@@ -103,21 +103,20 @@ function VendorDetailModal({ vendor, onClose, onEdit }) {
             backgroundColor: 'rgba(0,0,0,0.6)',
             backdropFilter: 'blur(5px)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'center',
-            padding: '1rem'
+            padding: '2rem 1rem',
+            overflowY: 'auto'
         },
         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
             className: "card",
             style: {
                 width: '800px',
                 maxWidth: '95%',
-                maxHeight: '90vh',
-                overflowY: 'auto',
                 position: 'relative',
                 padding: 0,
                 border: 'none',
-                overflow: 'hidden'
+                marginBottom: '2rem'
             },
             children: [
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -814,7 +813,7 @@ function VendorDetailModal({ vendor, onClose, onEdit }) {
             ]
         }, void 0, true, {
             fileName: "[project]/src/components/vendors/VendorDetailModal.tsx",
-            lineNumber: 36,
+            lineNumber: 37,
             columnNumber: 13
         }, this)
     }, void 0, false, {
@@ -856,7 +855,8 @@ function VendorsPage() {
         email: "",
         phone: "",
         address: "",
-        taxId: ""
+        taxId: "",
+        category: "General"
     });
     const fetchVendors = async ()=>{
         setLoading(true);
@@ -881,7 +881,8 @@ function VendorsPage() {
                 email: "",
                 phone: "",
                 address: "",
-                taxId: ""
+                taxId: "",
+                category: "General"
             });
             await showAlert("Success", "Vendor added successfully.");
             fetchVendors(); // Refresh list
@@ -911,7 +912,7 @@ function VendorsPage() {
                                 children: "Vendors"
                             }, void 0, false, {
                                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                lineNumber: 61,
+                                lineNumber: 62,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -921,13 +922,13 @@ function VendorsPage() {
                                 children: "Manage your supplier relationships and performance."
                             }, void 0, false, {
                                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                lineNumber: 62,
+                                lineNumber: 63,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                        lineNumber: 60,
+                        lineNumber: 61,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -936,13 +937,13 @@ function VendorsPage() {
                         children: "+ Add Vendor"
                     }, void 0, false, {
                         fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                        lineNumber: 64,
+                        lineNumber: 65,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                lineNumber: 59,
+                lineNumber: 60,
                 columnNumber: 13
             }, this),
             loading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -954,7 +955,7 @@ function VendorsPage() {
                 children: "Loading vendors..."
             }, void 0, false, {
                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                lineNumber: 70,
+                lineNumber: 71,
                 columnNumber: 17
             }, this) : vendors.length === 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "card",
@@ -969,12 +970,12 @@ function VendorsPage() {
                     children: "No vendors found. Add your first vendor to get started."
                 }, void 0, false, {
                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                    lineNumber: 73,
+                    lineNumber: 74,
                     columnNumber: 21
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                lineNumber: 72,
+                lineNumber: 73,
                 columnNumber: 17
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "card",
@@ -1005,7 +1006,7 @@ function VendorsPage() {
                                         children: "Company"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                        lineNumber: 80,
+                                        lineNumber: 81,
                                         columnNumber: 33
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1017,7 +1018,7 @@ function VendorsPage() {
                                         children: "Contact Person"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                        lineNumber: 81,
+                                        lineNumber: 82,
                                         columnNumber: 33
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1029,7 +1030,7 @@ function VendorsPage() {
                                         children: "Email"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                        lineNumber: 82,
+                                        lineNumber: 83,
                                         columnNumber: 33
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1041,7 +1042,7 @@ function VendorsPage() {
                                         children: "Status"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                        lineNumber: 83,
+                                        lineNumber: 84,
                                         columnNumber: 33
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
@@ -1053,18 +1054,18 @@ function VendorsPage() {
                                         children: "Action"
                                     }, void 0, false, {
                                         fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                        lineNumber: 84,
+                                        lineNumber: 85,
                                         columnNumber: 33
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                lineNumber: 79,
+                                lineNumber: 80,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                            lineNumber: 78,
+                            lineNumber: 79,
                             columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -1086,7 +1087,7 @@ function VendorsPage() {
                                             children: vendor.name
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 100,
+                                            lineNumber: 101,
                                             columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1096,7 +1097,7 @@ function VendorsPage() {
                                             children: vendor.contactName
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 101,
+                                            lineNumber: 102,
                                             columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1106,7 +1107,7 @@ function VendorsPage() {
                                             children: vendor.email
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 102,
+                                            lineNumber: 103,
                                             columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1125,12 +1126,12 @@ function VendorsPage() {
                                                 children: vendor.status
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                lineNumber: 104,
+                                                lineNumber: 105,
                                                 columnNumber: 41
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 103,
+                                            lineNumber: 104,
                                             columnNumber: 37
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -1150,34 +1151,34 @@ function VendorsPage() {
                                                 children: "View Profile"
                                             }, void 0, false, {
                                                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                lineNumber: 116,
+                                                lineNumber: 117,
                                                 columnNumber: 41
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 115,
+                                            lineNumber: 116,
                                             columnNumber: 37
                                         }, this)
                                     ]
                                 }, vendor.id, true, {
                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                    lineNumber: 89,
+                                    lineNumber: 90,
                                     columnNumber: 33
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                            lineNumber: 87,
+                            lineNumber: 88,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                    lineNumber: 77,
+                    lineNumber: 78,
                     columnNumber: 21
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                lineNumber: 76,
+                lineNumber: 77,
                 columnNumber: 17
             }, this),
             selectedVendor && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$vendors$2f$VendorDetailModal$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
@@ -1191,14 +1192,15 @@ function VendorsPage() {
                         email: v.email,
                         phone: v.phone || "",
                         address: v.address || "",
-                        taxId: v.taxId || ""
+                        taxId: v.taxId || "",
+                        category: v.category || "General"
                     });
                     setSelectedVendor(null);
                     setIsFormOpen(true);
                 }
             }, void 0, false, {
                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                lineNumber: 136,
+                lineNumber: 137,
                 columnNumber: 17
             }, this),
             isFormOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1208,14 +1210,17 @@ function VendorsPage() {
                     backgroundColor: 'rgba(0,0,0,0.5)',
                     display: 'flex',
                     justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 110
+                    alignItems: 'flex-start',
+                    zIndex: 110,
+                    overflowY: 'auto',
+                    padding: '2rem 1rem'
                 },
                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "card",
                     style: {
                         width: '500px',
-                        maxWidth: '90%'
+                        maxWidth: '90%',
+                        marginBottom: '2rem'
                     },
                     children: [
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
@@ -1227,7 +1232,7 @@ function VendorsPage() {
                             children: formData.name ? 'Edit Vendor' : 'Add New Vendor'
                         }, void 0, false, {
                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                            lineNumber: 158,
+                            lineNumber: 161,
                             columnNumber: 25
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -1250,7 +1255,7 @@ function VendorsPage() {
                                                     children: "Company Name *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 162,
+                                                    lineNumber: 165,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1269,13 +1274,13 @@ function VendorsPage() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 163,
+                                                    lineNumber: 166,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 161,
+                                            lineNumber: 164,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1289,7 +1294,7 @@ function VendorsPage() {
                                                     children: "Contact Name *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 167,
+                                                    lineNumber: 170,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1308,13 +1313,13 @@ function VendorsPage() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 168,
+                                                    lineNumber: 171,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 166,
+                                            lineNumber: 169,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1328,7 +1333,7 @@ function VendorsPage() {
                                                     children: "Email *"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 172,
+                                                    lineNumber: 175,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1347,13 +1352,13 @@ function VendorsPage() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 173,
+                                                    lineNumber: 176,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 171,
+                                            lineNumber: 174,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1367,7 +1372,7 @@ function VendorsPage() {
                                                     children: "Phone"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 177,
+                                                    lineNumber: 180,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1385,13 +1390,13 @@ function VendorsPage() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 178,
+                                                    lineNumber: 181,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 176,
+                                            lineNumber: 179,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1405,7 +1410,7 @@ function VendorsPage() {
                                                     children: "Address"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 182,
+                                                    lineNumber: 185,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1423,13 +1428,13 @@ function VendorsPage() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 183,
+                                                    lineNumber: 186,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 181,
+                                            lineNumber: 184,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1443,7 +1448,7 @@ function VendorsPage() {
                                                     children: "Tax ID"
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 187,
+                                                    lineNumber: 190,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -1461,19 +1466,108 @@ function VendorsPage() {
                                                         })
                                                 }, void 0, false, {
                                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                                    lineNumber: 188,
+                                                    lineNumber: 191,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 186,
+                                            lineNumber: 189,
+                                            columnNumber: 33
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                                    style: {
+                                                        display: 'block',
+                                                        fontSize: '0.875rem',
+                                                        marginBottom: '0.5rem'
+                                                    },
+                                                    children: "Category *"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/src/app/dashboard/vendors/page.tsx",
+                                                    lineNumber: 195,
+                                                    columnNumber: 37
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
+                                                    required: true,
+                                                    style: {
+                                                        width: '100%',
+                                                        padding: '0.5rem',
+                                                        border: '1px solid var(--border)',
+                                                        borderRadius: 'var(--radius-sm)',
+                                                        backgroundColor: 'white'
+                                                    },
+                                                    value: formData.category,
+                                                    onChange: (e)=>setFormData({
+                                                            ...formData,
+                                                            category: e.target.value
+                                                        }),
+                                                    children: [
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            value: "General",
+                                                            children: "General"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/dashboard/vendors/page.tsx",
+                                                            lineNumber: 198,
+                                                            columnNumber: 41
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            value: "IT Services",
+                                                            children: "IT Services"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/dashboard/vendors/page.tsx",
+                                                            lineNumber: 199,
+                                                            columnNumber: 41
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            value: "Office Supplies",
+                                                            children: "Office Supplies"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/dashboard/vendors/page.tsx",
+                                                            lineNumber: 200,
+                                                            columnNumber: 41
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            value: "Logistics",
+                                                            children: "Logistics"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/dashboard/vendors/page.tsx",
+                                                            lineNumber: 201,
+                                                            columnNumber: 41
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            value: "Marketing",
+                                                            children: "Marketing"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/dashboard/vendors/page.tsx",
+                                                            lineNumber: 202,
+                                                            columnNumber: 41
+                                                        }, this),
+                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
+                                                            value: "Other",
+                                                            children: "Other"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/src/app/dashboard/vendors/page.tsx",
+                                                            lineNumber: 203,
+                                                            columnNumber: 41
+                                                        }, this)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/src/app/dashboard/vendors/page.tsx",
+                                                    lineNumber: 196,
+                                                    columnNumber: 37
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/src/app/dashboard/vendors/page.tsx",
+                                            lineNumber: 194,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                    lineNumber: 160,
+                                    lineNumber: 163,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1494,7 +1588,7 @@ function VendorsPage() {
                                             children: "Cancel"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 193,
+                                            lineNumber: 208,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1503,36 +1597,36 @@ function VendorsPage() {
                                             children: "Save Vendor"
                                         }, void 0, false, {
                                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                            lineNumber: 194,
+                                            lineNumber: 209,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                                    lineNumber: 192,
+                                    lineNumber: 207,
                                     columnNumber: 29
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                            lineNumber: 159,
+                            lineNumber: 162,
                             columnNumber: 25
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                    lineNumber: 157,
+                    lineNumber: 160,
                     columnNumber: 21
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-                lineNumber: 153,
+                lineNumber: 155,
                 columnNumber: 17
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/src/app/dashboard/vendors/page.tsx",
-        lineNumber: 58,
+        lineNumber: 59,
         columnNumber: 9
     }, this);
 }
