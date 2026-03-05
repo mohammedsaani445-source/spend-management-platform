@@ -223,3 +223,22 @@ Import traces:
 [21:50:00.737] Browser ERROR   Failed to load inventory: {}
 [21:51:43.179] Server  LOG     ✓ Compiled in 598ms
 [22:04:27.577] Server  LOG     ✓ Finished filesystem cache database compaction in 16.4s
+[22:23:27.186] Browser ERROR   Error fetching assets: {}
+[22:23:27.187] Browser ERROR   Error fetching assets: {}
+[22:23:55.902] Browser ERROR   Failed to load inventory: {}
+[22:23:55.902] Browser ERROR   Failed to load inventory: {}
+[22:28:12.301] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[22:34:55.527] Server  LOG     ✓ Finished filesystem cache database compaction in 10.7s
+[22:39:25.510] Server  LOG     ✓ Compiled in 2.1s
+[22:40:13.481] Server  LOG     ✓ Compiled in 718ms
+[22:41:34.451] Server  LOG     ✓ Compiled in 660ms
+[22:50:09.808] Browser ERROR   Error fetching contracts {}
+[22:50:09.808] Browser ERROR   Error fetching contracts {}
+[22:50:55.030] Server  LOG     ✓ Compiled in 468ms
+[22:51:37.610] Browser ERROR   Error fetching contracts {}
+[22:51:37.611] Browser ERROR   Error fetching contracts {}
+[22:54:43.577] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[22:56:30.352] Server  LOG     ✓ Finished filesystem cache database compaction in 11.4s
+[22:59:53.694] Server  LOG     ✓ Compiled in 276ms
+[23:00:30.724] Server  LOG     ✓ Compiled in 85ms
+[23:00:43.470] Server  LOG     ✓ Finished filesystem cache database compaction in 10.6s

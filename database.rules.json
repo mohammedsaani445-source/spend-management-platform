@@ -80,6 +80,11 @@
             ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
             ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'PURCHASER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || (newData.hasChildren(['portalToken', 'portalTokenExpiry']) && auth.uid != null))"
           },
+          "contracts": {
+            ".indexOn": "vendorId",
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'PURCHASER')"
+          },
           "budgets": {
             ".indexOn": "department",
             ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
