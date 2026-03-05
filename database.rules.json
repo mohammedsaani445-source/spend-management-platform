@@ -127,6 +127,27 @@
               ".read": "true",
               ".write": "auth != null || !data.exists()"
             }
+          },
+          "assets": {
+            ".indexOn": "ownerId",
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
+          },
+          "skus": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
+          },
+          "warehouses": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
+          },
+          "inventory_logs": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
+          },
+          "stock_levels": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
           }
         }
       },
