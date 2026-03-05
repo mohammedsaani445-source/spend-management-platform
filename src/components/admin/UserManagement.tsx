@@ -165,7 +165,7 @@ export default function UserManagement() {
             {/* Invite Modal */}
             {isInviteModalOpen && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(17, 24, 39, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, animation: 'fadeIn 0.2s ease-out' }}>
-                    <div className={styles.card} style={{ maxWidth: '500px', width: '100%', margin: '1rem', padding: '0', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)' }}>
+                    <div className={styles.card} style={{ maxWidth: '500px', width: '100%', margin: '1rem', padding: '0', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
                         <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                 <div style={{ background: '#E0E7FF', color: '#4F46E5', width: 36, height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -184,7 +184,7 @@ export default function UserManagement() {
                             </button>
                         </div>
 
-                        <div style={{ padding: '2rem', overflowY: 'auto', maxHeight: 'calc(100vh - 150px)' }}>
+                        <div style={{ padding: '2rem', overflowY: 'auto', flex: 1 }}>
                             <form onSubmit={handleInviteUser}>
                                 {inviteError && (
                                     <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#FEF2F2', color: '#EF4444', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, display: 'flex', alignItems: 'flex-start', gap: '0.75rem', border: '1px solid #FEE2E2' }}>
