@@ -148,6 +148,14 @@
           "stock_levels": {
             ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
             ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
+          },
+          "bills": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
+          },
+          "payment_runs": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
           }
         }
       },
