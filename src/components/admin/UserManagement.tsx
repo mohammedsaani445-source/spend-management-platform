@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { AppUser, UserRole } from "@/types";
 import { getAllUsers, updateUserRole, updateUserHierarchy, updateUserManager, setUserStatus } from "@/lib/users";
 import { getLocations } from "@/lib/locations";
@@ -163,8 +164,8 @@ export default function UserManagement() {
     return (
         <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
             {/* Invite Modal */}
-            {isInviteModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(17, 24, 39, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, animation: 'fadeIn 0.2s ease-out' }}>
+            {isInviteModalOpen && typeof document !== 'undefined' && createPortal(
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(17, 24, 39, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100000, animation: 'fadeIn 0.2s ease-out' }}>
                     <div className={styles.card} style={{ maxWidth: '500px', width: '100%', margin: '1rem', padding: '0', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
                         <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -288,7 +289,8 @@ export default function UserManagement() {
                             </form>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
