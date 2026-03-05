@@ -184,107 +184,109 @@ export default function UserManagement() {
                             </button>
                         </div>
 
-                        <form onSubmit={handleInviteUser} style={{ padding: '2rem' }}>
-                            {inviteError && (
-                                <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#FEF2F2', color: '#EF4444', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, display: 'flex', alignItems: 'flex-start', gap: '0.75rem', border: '1px solid #FEE2E2' }}>
-                                    <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '0.125rem' }} />
-                                    <span>{inviteError}</span>
-                                </div>
-                            )}
+                        <div style={{ padding: '2rem', overflowY: 'auto', maxHeight: 'calc(100vh - 150px)' }}>
+                            <form onSubmit={handleInviteUser}>
+                                {inviteError && (
+                                    <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#FEF2F2', color: '#EF4444', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, display: 'flex', alignItems: 'flex-start', gap: '0.75rem', border: '1px solid #FEE2E2' }}>
+                                        <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+                                        <span>{inviteError}</span>
+                                    </div>
+                                )}
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Email Address *</label>
-                                    <div style={{ position: 'relative' }}>
-                                        <Mail size={16} color="#9CA3AF" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Email Address *</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Mail size={16} color="#9CA3AF" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                                            <input
+                                                type="email"
+                                                className={styles.input}
+                                                style={{ paddingLeft: '2.5rem' }}
+                                                required
+                                                value={inviteData.email}
+                                                onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
+                                                placeholder="colleague@company.com"
+                                                autoFocus
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Full Name</label>
                                         <input
-                                            type="email"
+                                            type="text"
                                             className={styles.input}
-                                            style={{ paddingLeft: '2.5rem' }}
-                                            required
-                                            value={inviteData.email}
-                                            onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
-                                            placeholder="colleague@company.com"
-                                            autoFocus
+                                            value={inviteData.displayName}
+                                            placeholder="Optional"
+                                            onChange={(e) => setInviteData({ ...inviteData, displayName: e.target.value })}
                                         />
                                     </div>
-                                </div>
 
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Full Name</label>
-                                    <input
-                                        type="text"
-                                        className={styles.input}
-                                        value={inviteData.displayName}
-                                        placeholder="Optional"
-                                        onChange={(e) => setInviteData({ ...inviteData, displayName: e.target.value })}
-                                    />
-                                </div>
-
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>System Role *</label>
-                                    <select
-                                        className={styles.input}
-                                        required
-                                        value={inviteData.role}
-                                        onChange={(e) => setInviteData({ ...inviteData, role: e.target.value as UserRole })}
-                                    >
-                                        {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                                    </select>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Location</label>
+                                        <label className={styles.label}>System Role *</label>
                                         <select
                                             className={styles.input}
-                                            value={inviteData.locationId}
-                                            onChange={(e) => setInviteData({ ...inviteData, locationId: e.target.value })}
+                                            required
+                                            value={inviteData.role}
+                                            onChange={(e) => setInviteData({ ...inviteData, role: e.target.value as UserRole })}
                                         >
-                                            <option value="">None</option>
-                                            {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                                            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                                         </select>
                                     </div>
+
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.label}>Location</label>
+                                            <select
+                                                className={styles.input}
+                                                value={inviteData.locationId}
+                                                onChange={(e) => setInviteData({ ...inviteData, locationId: e.target.value })}
+                                            >
+                                                <option value="">None</option>
+                                                {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className={styles.formGroup}>
+                                            <label className={styles.label}>Department</label>
+                                            <select
+                                                className={styles.input}
+                                                value={inviteData.departmentId}
+                                                onChange={(e) => setInviteData({ ...inviteData, departmentId: e.target.value })}
+                                            >
+                                                <option value="">None</option>
+                                                {departments.filter(d => !inviteData.locationId || d.locationId === inviteData.locationId).map(d => (
+                                                    <option key={d.id} value={d.id}>{d.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Department</label>
+                                        <label className={styles.label}>Direct Manager</label>
                                         <select
                                             className={styles.input}
-                                            value={inviteData.departmentId}
-                                            onChange={(e) => setInviteData({ ...inviteData, departmentId: e.target.value })}
+                                            value={inviteData.managerId}
+                                            onChange={(e) => setInviteData({ ...inviteData, managerId: e.target.value })}
                                         >
                                             <option value="">None</option>
-                                            {departments.filter(d => !inviteData.locationId || d.locationId === inviteData.locationId).map(d => (
-                                                <option key={d.id} value={d.id}>{d.name}</option>
+                                            {users.map(m => (
+                                                <option key={m.uid} value={m.uid}>{m.displayName || m.email}</option>
                                             ))}
                                         </select>
                                     </div>
                                 </div>
 
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Direct Manager</label>
-                                    <select
-                                        className={styles.input}
-                                        value={inviteData.managerId}
-                                        onChange={(e) => setInviteData({ ...inviteData, managerId: e.target.value })}
-                                    >
-                                        <option value="">None</option>
-                                        {users.map(m => (
-                                            <option key={m.uid} value={m.uid}>{m.displayName || m.email}</option>
-                                        ))}
-                                    </select>
+                                <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                                    <button type="button" className={styles.secondaryButton} onClick={() => setIsInviteModalOpen(false)} style={{ flex: 1, justifyContent: 'center' }}>
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className={styles.primaryButton} disabled={isInviting || !inviteData.email} style={{ flex: 1, justifyContent: 'center' }}>
+                                        {isInviting ? <div style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> : <Mail size={16} />}
+                                        {isInviting ? "Sending..." : "Send Invitation"}
+                                    </button>
                                 </div>
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                                <button type="button" className={styles.secondaryButton} onClick={() => setIsInviteModalOpen(false)} style={{ flex: 1, justifyContent: 'center' }}>
-                                    Cancel
-                                </button>
-                                <button type="submit" className={styles.primaryButton} disabled={isInviting || !inviteData.email} style={{ flex: 1, justifyContent: 'center' }}>
-                                    {isInviting ? <div style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> : <Mail size={16} />}
-                                    {isInviting ? "Sending..." : "Send Invitation"}
-                                </button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
