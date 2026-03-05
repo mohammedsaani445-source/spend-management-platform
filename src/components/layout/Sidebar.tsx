@@ -51,7 +51,12 @@ const ADMIN_ITEMS = [
     { name: "Settings", href: "/dashboard/settings", icon: "⚙" },
 ];
 
-export default function Sidebar() {
+interface SidebarProps {
+    isCollapsed?: boolean;
+    onToggle?: () => void;
+}
+
+export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
     const pathname = usePathname();
     const { user } = useAuth();
 
@@ -63,29 +68,36 @@ export default function Sidebar() {
         exact ? pathname === href : pathname.startsWith(href);
 
     return (
-        <aside className={styles.sidebar}>
+        <aside className={`${styles.sidebar} ${isCollapsed ? styles.sidebarCollapsed : ''}`}>
             {/* Logo */}
-            <div className={styles.logoContainer}>
-                <div className={styles.logoIcon}>M</div>
-                <div className={styles.logoText}>MEGAPEX</div>
+            <div className={styles.logoContainer} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
+                <div className={styles.logoIcon} title="Megapex">M</div>
+                {!isCollapsed && <div className={styles.logoText}>MEGAPEX</div>}
+                <button onClick={onToggle} className={styles.collapseToggle} title={isCollapsed ? "Expand Menu" : "Collapse Menu"}>
+                    {isCollapsed ? '»' : '«'}
+                </button>
             </div>
 
             {/* Navigation */}
             <nav className={styles.navSection}>
                 {NAV_GROUPS.map((group) => (
                     <div key={group.label}>
-                        <div className={styles.sectionTitle}>{group.label}</div>
+                        <div className={styles.sectionTitle}>
+                            {!isCollapsed ? group.label : <span style={{ opacity: 0.5 }}>—</span>}
+                        </div>
                         <ul style={{ listStyle: 'none' }}>
                             {group.items.map((item) => (
                                 <li key={item.name}>
                                     <Link
                                         href={item.href}
                                         className={`${styles.navLink} ${isActive(item.href, item.exact) ? styles.navLinkActive : ''}`}
+                                        title={isCollapsed ? item.name : undefined}
+                                        style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '0' : '0 1rem' }}
                                     >
-                                        <span className={styles.navIcon} style={{ fontFamily: 'monospace', fontSize: '1.1rem' }}>
+                                        <span className={styles.navIcon} style={{ fontFamily: 'monospace', fontSize: '1.25rem' }}>
                                             {item.icon}
                                         </span>
-                                        {item.name}
+                                        {!isCollapsed && item.name}
                                     </Link>
                                 </li>
                             ))}
@@ -95,7 +107,9 @@ export default function Sidebar() {
 
                 {/* Admin / extra items */}
                 <div>
-                    <div className={styles.sectionTitle}>Admin</div>
+                    <div className={styles.sectionTitle}>
+                        {!isCollapsed ? "Admin" : <span style={{ opacity: 0.5 }}>—</span>}
+                    </div>
                     <ul style={{ listStyle: 'none' }}>
                         {ADMIN_ITEMS.map((item) => {
                             const show = item.href === '/dashboard/notifications' || user?.role === 'ADMIN';
@@ -105,11 +119,13 @@ export default function Sidebar() {
                                     <Link
                                         href={item.href}
                                         className={`${styles.navLink} ${isActive(item.href) ? styles.navLinkActive : ''}`}
+                                        title={isCollapsed ? item.name : undefined}
+                                        style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '0' : '0 1rem' }}
                                     >
-                                        <span className={styles.navIcon} style={{ fontFamily: 'monospace' }}>
+                                        <span className={styles.navIcon} style={{ fontFamily: 'monospace', fontSize: '1.25rem' }}>
                                             {item.icon}
                                         </span>
-                                        {item.name}
+                                        {!isCollapsed && item.name}
                                     </Link>
                                 </li>
                             );
@@ -120,12 +136,14 @@ export default function Sidebar() {
 
             {/* Bottom user profile */}
             <div className={styles.bottomSection}>
-                <div className={styles.userProfile}>
-                    <div className={styles.userAvatar}>{initials}</div>
-                    <div className={styles.userInfo}>
-                        <div className={styles.userName}>{user?.displayName || 'User'}</div>
-                        <div className={styles.userRole}>{user?.role || 'Member'}</div>
-                    </div>
+                <div className={styles.userProfile} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '0.5rem 0' : '0.5rem 0.625rem' }}>
+                    <div className={styles.userAvatar} title={isCollapsed ? user?.displayName || 'User' : undefined}>{initials}</div>
+                    {!isCollapsed && (
+                        <div className={styles.userInfo}>
+                            <div className={styles.userName}>{user?.displayName || 'User'}</div>
+                            <div className={styles.userRole}>{user?.role || 'Member'}</div>
+                        </div>
+                    )}
                 </div>
             </div>
         </aside>
