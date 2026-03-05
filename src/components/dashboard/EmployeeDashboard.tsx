@@ -60,7 +60,7 @@ export default function EmployeeDashboard({ user, requisitions }: EmployeeDashbo
         <div style={{ color: 'var(--text-primary)' }}>
 
             {/* Welcome Banner */}
-            <div style={{
+            <div className="welcome-bar-inner" style={{
                 background: 'linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%)',
                 borderRadius: '12px', padding: '1.5rem 2rem',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -74,12 +74,14 @@ export default function EmployeeDashboard({ user, requisitions }: EmployeeDashbo
                         Submit a purchase request or track your existing orders below.
                     </p>
                 </div>
-                <Link href="/dashboard/requisitions/new" style={{
-                    background: 'white', color: 'var(--brand)', fontSize: '0.875rem', fontWeight: 700,
-                    padding: '0.5rem 1rem', borderRadius: '8px', textDecoration: 'none'
-                }}>
-                    + New Request
-                </Link>
+                <div className="welcome-bar-actions" style={{ display: 'flex' }}>
+                    <Link href="/dashboard/requisitions/new" style={{
+                        background: 'white', color: 'var(--brand)', fontSize: '0.875rem', fontWeight: 700,
+                        padding: '0.5rem 1rem', borderRadius: '8px', textDecoration: 'none', display: 'flex'
+                    }}>
+                        + New Request
+                    </Link>
+                </div>
             </div>
 
             {/* Category cards grid */}
@@ -99,10 +101,10 @@ export default function EmployeeDashboard({ user, requisitions }: EmployeeDashbo
             </div>
 
             {/* Main 2-column grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '1.5rem' }}>
+            <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '1.5rem' }}>
 
                 {/* My Recent Requests */}
-                <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem' }}>
+                <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem', overflowX: 'auto', minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                         <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>My Requests</h2>
                         <Link href="/dashboard/requisitions" style={{ fontSize: '0.8125rem', color: 'var(--brand)', fontWeight: 600 }}>View all</Link>

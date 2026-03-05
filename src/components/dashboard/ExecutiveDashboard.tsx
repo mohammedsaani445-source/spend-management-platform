@@ -56,7 +56,7 @@ export default function ExecutiveDashboard({ user, stats, vendorPerf, currency, 
         <div style={{ fontFamily: "'Inter', sans-serif", color: 'var(--text-primary)' }}>
 
             {/* === WELCOME BAR === */}
-            <div style={{
+            <div className="welcome-bar-inner" style={{
                 background: 'linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%)',
                 borderRadius: '12px', padding: '1.5rem 2rem',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -75,7 +75,7 @@ export default function ExecutiveDashboard({ user, stats, vendorPerf, currency, 
                         )}
                     </h1>
                 </div>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <div className="welcome-bar-actions" style={{ display: 'flex', gap: '0.75rem' }}>
                     <Link href="/dashboard/requisitions/new" style={{
                         background: 'white', color: 'var(--brand)', fontSize: '0.875rem',
                         fontWeight: 700, padding: '0.5rem 1rem', borderRadius: '8px',
@@ -97,7 +97,7 @@ export default function ExecutiveDashboard({ user, stats, vendorPerf, currency, 
             </div>
 
             {/* === KPI CARDS === */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                 {[
                     {
                         label: 'Pending Approvals',
@@ -156,10 +156,10 @@ export default function ExecutiveDashboard({ user, stats, vendorPerf, currency, 
             </div>
 
             {/* === MAIN GRID === */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '1.5rem' }}>
+            <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '1.5rem' }}>
 
                 {/* LEFT COLUMN */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>
 
                     {/* Spend Chart */}
                     <div style={cardStyle}>

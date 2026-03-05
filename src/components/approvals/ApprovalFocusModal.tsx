@@ -94,76 +94,68 @@ export default function ApprovalFocusModal({
             backdropFilter: 'blur(8px)',
             animation: 'fadeIn 0.3s ease-out'
         }}>
-            <div className="card" style={{
-                width: '95vw',
-                height: '90vh',
-                maxWidth: '1600px',
-                display: 'grid',
-                gridTemplateColumns: '1fr 400px',
-                padding: 0,
-                overflow: 'hidden',
-                backgroundColor: 'var(--background)',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
-            }}>
+            <div className="card modalContainer">
                 {/* Left Panel: The Request (Document View) */}
-                <div style={{ padding: '3rem', overflowY: 'auto', backgroundColor: 'var(--surface-2)', borderRight: '1px solid var(--border)' }}>
-                    <div style={{ maxWidth: '800px', margin: '0 auto', backgroundColor: 'white', padding: '3rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)', minHeight: '100%' }}>
+                <div className="leftPanel">
+                    <div className="documentCard">
                         {/* Header */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', borderBottom: '2px solid var(--text-primary)', paddingBottom: '1rem' }}>
+                        <div className="reqHeader">
                             <div>
-                                <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)' }}>Purchase Requisition</h1>
+                                <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Purchase Requisition</h1>
                                 <div style={{ color: 'var(--text-secondary)' }}>#{requisition.id?.slice(0, 8).toUpperCase()}</div>
                             </div>
-                            <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontWeight: 700, fontSize: '1.2rem' }}>{requisition.department}</div>
+                            <div className="reqHeaderRight">
+                                <div style={{ fontWeight: 700, fontSize: '1.1rem' }}>{requisition.department}</div>
                                 <div style={{ color: 'var(--text-secondary)' }}>{new Date(requisition.createdAt).toLocaleDateString()}</div>
                             </div>
                         </div>
 
                         {/* Requester Info */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
+                        <div className="reqInfoGrid">
                             <div>
                                 <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-disabled)', fontWeight: 600 }}>Requested By</div>
-                                <div style={{ fontSize: '1.1rem', fontWeight: 500 }}>{requisition.requesterName}</div>
+                                <div style={{ fontSize: '1rem', fontWeight: 500 }}>{requisition.requesterName}</div>
                             </div>
                             <div>
                                 <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-disabled)', fontWeight: 600 }}>Preferred Vendor</div>
-                                <div style={{ fontSize: '1.1rem', fontWeight: 500 }}>{requisition.vendorName || 'Not Specified'}</div>
+                                <div style={{ fontSize: '1rem', fontWeight: 500 }}>{requisition.vendorName || 'Not Specified'}</div>
                             </div>
                         </div>
 
-                        {/* Line Items Table */}
-                        <table style={{ width: '100%', marginBottom: '2rem', borderCollapse: 'collapse' }}>
-                            <thead>
-                                <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <th style={{ textAlign: 'left', padding: '0.75rem 0', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Item & Description</th>
-                                    <th style={{ textAlign: 'right', padding: '0.75rem 0', color: 'var(--text-secondary)', fontSize: '0.875rem', width: '80px' }}>Qty</th>
-                                    <th style={{ textAlign: 'right', padding: '0.75rem 0', color: 'var(--text-secondary)', fontSize: '0.875rem', width: '120px' }}>Unit Price</th>
-                                    <th style={{ textAlign: 'right', padding: '0.75rem 0', color: 'var(--text-secondary)', fontSize: '0.875rem', width: '120px' }}>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {requisition.items.map((item, idx) => (
-                                    <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
-                                        <td style={{ padding: '1rem 0' }}>
-                                            <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item.description}</div>
-                                            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>GL: {item.glCode || 'N/A'}</div>
-                                        </td>
-                                        <td style={{ textAlign: 'right', padding: '1rem 0' }}>{item.quantity}</td>
-                                        <td style={{ textAlign: 'right', padding: '1rem 0' }}>{formatCurrency(item.unitPrice, requisition.currency)}</td>
-                                        <td style={{ textAlign: 'right', padding: '1rem 0', fontWeight: 600 }}>{formatCurrency(item.total, requisition.currency)}</td>
+                        {/* Line Items Table wrapper */}
+                        <div className="tableWrapper">
+                            <table style={{ width: '100%', marginBottom: '2rem', borderCollapse: 'collapse' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                                        <th style={{ textAlign: 'left', padding: '0.75rem 0', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>Item & Description</th>
+                                        <th style={{ textAlign: 'right', padding: '0.75rem 0', color: 'var(--text-secondary)', fontSize: '0.875rem', width: '80px' }}>Qty</th>
+                                        <th style={{ textAlign: 'right', padding: '0.75rem 0', color: 'var(--text-secondary)', fontSize: '0.875rem', width: '120px' }}>Unit Price</th>
+                                        <th style={{ textAlign: 'right', padding: '0.75rem 0', color: 'var(--text-secondary)', fontSize: '0.875rem', width: '120px' }}>Total</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colSpan={3} style={{ textAlign: 'right', paddingTop: '1.5rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Total Amount</td>
-                                    <td style={{ textAlign: 'right', paddingTop: '1.5rem', fontWeight: 800, fontSize: '1.5rem', color: 'var(--text-primary)' }}>
-                                        {formatCurrency(requisition.totalAmount, requisition.currency)}
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {requisition.items.map((item, idx) => (
+                                        <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
+                                            <td style={{ padding: '1rem 0' }}>
+                                                <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item.description}</div>
+                                                <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>GL: {item.glCode || 'N/A'}</div>
+                                            </td>
+                                            <td style={{ textAlign: 'right', padding: '1rem 0' }}>{item.quantity}</td>
+                                            <td style={{ textAlign: 'right', padding: '1rem 0' }}>{formatCurrency(item.unitPrice, requisition.currency)}</td>
+                                            <td style={{ textAlign: 'right', padding: '1rem 0', fontWeight: 600 }}>{formatCurrency(item.total, requisition.currency)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colSpan={3} style={{ textAlign: 'right', paddingTop: '1.5rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Total Amount</td>
+                                        <td style={{ textAlign: 'right', paddingTop: '1.5rem', fontWeight: 800, fontSize: '1.5rem', color: 'var(--text-primary)' }}>
+                                            {formatCurrency(requisition.totalAmount, requisition.currency)}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
 
                         {/* Justification */}
                         <div style={{ marginBottom: '2rem' }}>
@@ -176,10 +168,10 @@ export default function ApprovalFocusModal({
                 </div>
 
                 {/* Right Panel: Decision Support */}
-                <div style={{ backgroundColor: 'var(--text-primary)', color: 'white', padding: '2rem', display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto' }}>
+                <div className="rightPanel">
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', flexShrink: 0 }}>
-                        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-disabled)', fontSize: '1.5rem', cursor: 'pointer' }}>✕</button>
+                    <div className="closeBtnWrapper">
+                        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-disabled)', fontSize: '1.5rem', cursor: 'pointer', padding: '0.5rem' }}>✕</button>
                     </div>
 
                     <div style={{ marginTop: '1rem', flex: 1 }}>
@@ -324,6 +316,67 @@ export default function ApprovalFocusModal({
                 </div>
 
                 <style jsx>{`
+                    .modalContainer {
+                        width: 95vw;
+                        height: 90vh;
+                        max-width: 1600px;
+                        display: grid;
+                        grid-template-columns: 1fr 400px;
+                        padding: 0;
+                        overflow: hidden;
+                        background-color: var(--background);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+                    }
+                    .leftPanel {
+                        padding: 3rem;
+                        overflow-y: auto;
+                        background-color: var(--surface-2);
+                        border-right: 1px solid var(--border);
+                    }
+                    .documentCard {
+                        max-width: 800px;
+                        margin: 0 auto;
+                        background-color: white;
+                        padding: 3rem;
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                        min-height: 100%;
+                    }
+                    .reqHeader {
+                        display: flex;
+                        justify-content: space-between;
+                        margin-bottom: 2rem;
+                        border-bottom: 2px solid var(--text-primary);
+                        padding-bottom: 1rem;
+                    }
+                    .reqHeaderRight {
+                        text-align: right;
+                    }
+                    .reqInfoGrid {
+                        display: grid;
+                        grid-template-columns: 1fr 1fr;
+                        gap: 2rem;
+                        margin-bottom: 3rem;
+                    }
+                    .rightPanel {
+                        background-color: var(--text-primary);
+                        color: white;
+                        padding: 2rem;
+                        display: flex;
+                        flex-direction: column;
+                        height: 100%;
+                        overflow-y: auto;
+                    }
+                    .closeBtnWrapper {
+                        display: flex;
+                        justify-content: flex-end;
+                        flex-shrink: 0;
+                    }
+                    .tableWrapper {
+                        width: 100%;
+                        overflow-x: auto;
+                        margin-bottom: 2rem;
+                    }
+                    
                     @keyframes fadeIn {
                         from { opacity: 0; }
                         to { opacity: 1; }
@@ -332,6 +385,48 @@ export default function ApprovalFocusModal({
                         0% { opacity: 1; }
                         50% { opacity: 0.7; }
                         100% { opacity: 1; }
+                    }
+
+                    @media (max-width: 1024px) {
+                        .modalContainer {
+                            grid-template-columns: 1fr;
+                            overflow-y: auto;
+                            height: 95vh;
+                        }
+                        .leftPanel {
+                            padding: 1rem;
+                            border-right: none;
+                            overflow-y: visible;
+                        }
+                        .documentCard {
+                            padding: 1.5rem;
+                            min-height: auto;
+                        }
+                        .reqHeader {
+                            flex-direction: column;
+                            gap: 1rem;
+                        }
+                        .reqHeaderRight {
+                            text-align: left;
+                        }
+                        .reqInfoGrid {
+                            grid-template-columns: 1fr;
+                            gap: 1rem;
+                            margin-bottom: 2rem;
+                        }
+                        .rightPanel {
+                            padding: 1.5rem;
+                            overflow-y: visible;
+                            height: auto;
+                        }
+                        .closeBtnWrapper {
+                            position: fixed;
+                            top: 2.5vh;
+                            right: 2.5vw;
+                            background: rgba(15, 23, 42, 0.8);
+                            border-radius: 50%;
+                            z-index: 1000;
+                        }
                     }
                 `}</style>
             </div>
