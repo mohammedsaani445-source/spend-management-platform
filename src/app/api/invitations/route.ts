@@ -106,28 +106,44 @@ export async function POST(req: NextRequest) {
         }
 
         // Try to send the email via Resend if configured
-        if (process.env.RESEND_API_KEY) {
-            await resend.emails.send({
-                from: 'Invitations <invites@your-domain.com>', // Replace with your verified sender
-                to: [email],
-                subject: `You've been invited to join Megapex Spend Management`,
-                html: `
-                    <h2>Welcome to Megapex</h2>
-                    <p>You have been invited by ${requesterSnap.val().displayName || 'an admin'} to join their workspace.</p>
-                    <p>Click the link below to set your password and access your account:</p>
-                    <a href="${resetLink}" style="display: inline-block; padding: 10px 20px; background-color: #e8572a; color: white; text-decoration: none; border-radius: 5px;">Accept Invitation</a>
-                    <p>If you already have an account, you can <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login">log in here</a>.</p>
-                `
-            });
+        let emailSent = false;
+        const resendKey = process.env.RESEND_API_KEY;
+        const hasValidResendKey = resendKey && resendKey !== "fallback_key" && !resendKey.includes("YOUR_");
+
+        if (hasValidResendKey) {
+            try {
+                await resend.emails.send({
+                    from: process.env.EMAIL_FROM || 'Megapex <onboarding@resend.dev>',
+                    to: [email],
+                    subject: `You've been invited to join Megapex Spend Management`,
+                    html: `
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                            <h2 style="color: #1e293b; margin-bottom: 16px;">Welcome to Megapex</h2>
+                            <p style="color: #475569; line-height: 1.6;">You have been invited by <strong>${requesterSnap.val().displayName || 'an admin'}</strong> to join their workspace.</p>
+                            <p style="color: #475569; line-height: 1.6; margin-bottom: 24px;">Click the button below to set your password and access your account:</p>
+                            <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #e8572a; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">Accept Invitation</a>
+                            <hr style="margin: 32px 0; border: 0; border-top: 1px solid #e2e8f0;" />
+                            <p style="font-size: 12px; color: #94a3b8;">If the button doesn't work, copy and paste this link into your browser:</p>
+                            <p style="font-size: 12px; color: #94a3b8; word-break: break-all;">${resetLink}</p>
+                        </div>
+                    `
+                });
+                emailSent = true;
+                console.log(`[SUCCESS] Invitation email sent to ${email}`);
+            } catch (emailError) {
+                console.error("[ERROR] Failed to send email via Resend:", emailError);
+            }
         } else {
-            console.log(`[DEV MODE] Invitation generated. Send this link to the user to setup password: ${resetLink}`);
+            console.log(`[DEV MODE] Resend API key missing or invalid. Invitation generated but NOT sent via email.`);
+            console.log(`[DEV LINK] ${resetLink}`);
         }
 
         return NextResponse.json({
             success: true,
             message: "User invited successfully",
             uid: userRecord.uid,
-            isNewUser
+            isNewUser,
+            emailSent
         });
 
     } catch (error: any) {

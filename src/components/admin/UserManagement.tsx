@@ -14,7 +14,7 @@ import styles from "@/app/dashboard/settings/Settings.module.css";
 import {
     Users, Search, UserPlus, Shield, MapPin,
     Building2, UserCog, Mail, X, CheckCircle2,
-    XCircle, AlertCircle, ChevronDown
+    XCircle, AlertCircle, ChevronDown, AlertTriangle
 } from "lucide-react";
 
 export default function UserManagement() {
@@ -109,6 +109,7 @@ export default function UserManagement() {
     });
     const [isInviting, setIsInviting] = useState(false);
     const [inviteError, setInviteError] = useState("");
+    const [successMessage, setSuccessMessage] = useState<{ text: string, type: 'success' | 'warning' } | null>(null);
 
     const handleInviteUser = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -133,6 +134,7 @@ export default function UserManagement() {
             }
 
             // Success
+            setIsInviting(false);
             setIsInviteModalOpen(false);
             setInviteData({
                 email: "",
@@ -142,11 +144,22 @@ export default function UserManagement() {
                 departmentId: "",
                 managerId: ""
             });
+
             // Refresh directory
             fetchUsers();
 
-            // Show success via custom logic since we don't have a showSuccess in ModalContext right now
-            alert("User invited successfully! If email is configured, an invitation was sent.");
+            const message = result.emailSent
+                ? `Invitation sent to ${inviteData.email}!`
+                : `User added to directory. Note: Email service not configured, please share the login link manually.`;
+
+            setSuccessMessage({
+                text: message,
+                type: result.emailSent ? 'success' : 'warning'
+            });
+
+            // Clear success message after 5 seconds
+            setTimeout(() => setSuccessMessage(null), 5000);
+
         } catch (err: any) {
             setInviteError(err.message);
         } finally {
@@ -317,6 +330,26 @@ export default function UserManagement() {
                     </button>
                 </div>
             </div>
+
+            {successMessage && (
+                <div style={{
+                    marginBottom: '1.5rem',
+                    padding: '1rem 1.25rem',
+                    backgroundColor: successMessage.type === 'success' ? '#ECFDF5' : '#FFFBEB',
+                    color: successMessage.type === 'success' ? '#059669' : '#D97706',
+                    borderRadius: '0.75rem',
+                    fontSize: '0.9375rem',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    border: `1px solid ${successMessage.type === 'success' ? '#A7F3D0' : '#FDE68A'}`,
+                    animation: 'slideUp 0.3s ease-out'
+                }}>
+                    {successMessage.type === 'success' ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+                    <span>{successMessage.text}</span>
+                </div>
+            )}
 
             <div className={styles.card} style={{ padding: 0, overflow: 'hidden' }}>
                 {filteredUsers.length === 0 ? (
