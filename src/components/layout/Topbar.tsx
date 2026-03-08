@@ -7,6 +7,7 @@ import NotificationDropdown from "./NotificationDropdown";
 import UserMenu from "./UserMenu";
 import { useState, useRef, useEffect } from "react";
 import { Search } from "lucide-react";
+import { Logo } from "../common/Logo";
 
 const ROUTE_TITLES: Record<string, string> = {
     '/dashboard': 'Dashboard',
@@ -61,7 +62,7 @@ export default function Topbar({ onMobileMenuToggle }: TopbarProps) {
             {/* Mobile Menu Toggle */}
             {onMobileMenuToggle && (
                 <div className={styles.mobileMenuToggle} onClick={onMobileMenuToggle} title="Open Menu">
-                    <div className={styles.logoIcon} style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>A</div>
+                    <Logo size={28} className={styles.logoIcon} />
                 </div>
             )}
 

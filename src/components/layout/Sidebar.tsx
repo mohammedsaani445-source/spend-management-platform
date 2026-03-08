@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { Logo } from '../common/Logo'; // Added this import
 import {
     Home, ShieldCheck, ShoppingBag, FileText, Package,
     ReceiptText, CreditCard,
@@ -78,8 +79,8 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
         <aside className={`${styles.sidebar} ${isCollapsed ? styles.sidebarCollapsed : ''} ${isMobileMenuOpen ? styles.sidebarMobileOpen : ''}`}>
             {/* Logo */}
             <div className={styles.logoContainer} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
-                <div className={styles.logoIcon} title="Apexprocure">A</div>
-                {!isCollapsed && <div className={styles.logoText}>APEXPROCURE</div>}
+                <Logo size={32} className={styles.logoIcon} />
+                {!isCollapsed && <div className={styles.logoText}>APEX PROCURE</div>}
                 <button onClick={onToggle} className={styles.collapseToggle} title={isCollapsed ? "Expand Menu" : "Collapse Menu"}>
                     {isCollapsed ? '»' : '«'}
                 </button>

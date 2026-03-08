@@ -6,6 +6,7 @@ import { auth, db, DB_PREFIX } from "@/lib/firebase";
 import { ref, get } from "firebase/database";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Logo } from "@/components/common/Logo";
 import * as OTPAuth from "otpauth";
 
 export default function LoginPage() {
@@ -147,7 +148,7 @@ export default function LoginPage() {
         setIsVerifying(true);
         try {
             const totp = new OTPAuth.TOTP({
-                issuer: "Procurify", label: userEmail,
+                issuer: "Apex Procure", label: userEmail,
                 algorithm: "SHA1", digits: 6, period: 30, secret: userSecret
             });
             const delta = totp.validate({ token: twoFactorCode, window: 1 });
@@ -185,13 +186,9 @@ export default function LoginPage() {
 
                 {/* Logo */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', zIndex: 1 }}>
-                    <div style={{
-                        width: '40px', height: '40px', background: 'white',
-                        borderRadius: '10px', display: 'flex', alignItems: 'center',
-                        justifyContent: 'center', fontWeight: 900, fontSize: '1rem', color: '#5C6AC4'
-                    }}>Pf</div>
-                    <span style={{ color: 'white', fontSize: '1.375rem', fontWeight: 700, letterSpacing: '-0.02em' }}>
-                        Procurify
+                    <Logo size={48} variant="white" />
+                    <span style={{ color: 'white', fontSize: '1.5rem', fontWeight: 800, letterSpacing: '-0.02em' }}>
+                        Apex Procure
                     </span>
                 </div>
 
@@ -236,7 +233,7 @@ export default function LoginPage() {
                     padding: '1.25rem', zIndex: 1, borderLeft: '3px solid rgba(255,255,255,0.4)'
                 }}>
                     <p style={{ color: 'rgba(255,255,255,0.9)', fontSize: '0.875rem', lineHeight: 1.6, marginBottom: '0.75rem', fontStyle: 'italic' }}>
-                        "Procurify gave us 10x purchasing efficiency and complete visibility into our spend."
+                        "Apex Procure gave us 10x purchasing efficiency and complete visibility into our spend."
                     </p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{
@@ -321,7 +318,7 @@ export default function LoginPage() {
                                     {isEmailStep ? 'Welcome back' : `Hello, ${email.split('@')[0]}!`}
                                 </h2>
                                 <p style={{ color: '#637381', fontSize: '0.9375rem' }}>
-                                    {isEmailStep ? 'Sign in to your Procurify account' : 'Enter your password to continue'}
+                                    {isEmailStep ? 'Sign in to your Apex Procure account' : 'Enter your password to continue'}
                                 </p>
                             </div>
 
@@ -521,7 +518,7 @@ export default function LoginPage() {
 
                     {/* Legal */}
                     <p style={{ marginTop: '2.5rem', textAlign: 'center', fontSize: '0.75rem', color: '#919EAB', lineHeight: 1.5 }}>
-                        By signing in, you agree to Procurify's{' '}
+                        By signing in, you agree to Apex Procure's{' '}
                         <a href="#" style={{ color: '#5C6AC4' }}>Terms of Service</a> and{' '}
                         <a href="#" style={{ color: '#5C6AC4' }}>Privacy Policy</a>.
                     </p>

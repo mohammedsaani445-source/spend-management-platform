@@ -367,7 +367,7 @@ export default function SignupPage() {
                         color: 'white', fontWeight: 900, fontSize: '0.9rem'
                     }}>Pf</div>
                     <span style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.5px', color: '#212B36' }}>
-                        Procurify
+                        Apex Procure
                     </span>
                 </div>
 

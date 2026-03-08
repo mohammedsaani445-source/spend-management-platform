@@ -1,0 +1,45 @@
+<svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Geometric Monogram: Apex Peak (A) + Process Loop (P) -->
+    <!-- The 'A' Peak Symbol -->
+    <path
+        d="M15 82L50 18L85 82"
+        stroke="#212B36"
+        stroke-width="12"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+    />
+
+    <!-- The 'P' Cutout (Negative Space Effect) -->
+    <circle
+        cx="70"
+        cy="55"
+        r="22"
+        stroke="#FFFFFF"
+        stroke-width="16"
+    />
+
+    <!-- The 'P' Process Loop -->
+    <circle
+        cx="70"
+        cy="55"
+        r="22"
+        stroke="#E8572A"
+        stroke-width="12"
+    />
+    
+    <!-- Connecting Stem -->
+    <path
+        d="M48 55V82"
+        stroke="#E8572A"
+        stroke-width="12"
+        stroke-linecap="round"
+    />
+
+    <!-- Left Reinforcement for 'A' definition -->
+    <path
+        d="M38 58H25"
+        stroke="#212B36"
+        stroke-width="10"
+        stroke-linecap="round"
+    />
+</svg>

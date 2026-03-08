@@ -66,7 +66,7 @@ export default function VendorDashboard({ session }: VendorDashboardProps) {
         <div className={styles.portalWrapper}>
             <header className={styles.portalHeader}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div className={styles.brand}>Procurify</div>
+                    <div className={styles.brand}>Apex Procure</div>
                     <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.2)' }}></div>
                     <div style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: 500 }}>Supplier Nexus</div>
                 </div>
@@ -201,7 +201,7 @@ export default function VendorDashboard({ session }: VendorDashboardProps) {
             )}
 
             <footer style={{ marginTop: '4rem', textAlign: 'center', color: '#64748b', fontSize: '0.8rem' }}>
-                Secure Portal Access • Powered by Procurify Enterprise Suite
+                Secure Portal Access • Powered by Apex Procure Enterprise Suite
             </footer>
         </div>
     );

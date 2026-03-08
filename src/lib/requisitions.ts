@@ -16,7 +16,7 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
 
         // --- ENTERPRISE WORKFLOW ENGINE ---
         const workflow = await evaluateWorkflow(tenantId, 'REQUISITION', requisition.totalAmount);
-        let approver = { uid: 'system-admin', name: 'System Administrator', email: 'admin@procurify.ai' };
+        let approver = { uid: 'system-admin', name: 'System Administrator', email: 'admin@apexprocure.com' };
 
         if (workflow && workflow.steps.length > 0) {
             const nextApprovers = await getCurrentStepApprovers(tenantId, workflow, 0, requisition.requesterId);
@@ -160,7 +160,7 @@ export const approveRequisition = async (tenantId: string, reqId: string) => {
             tenantId,
             entityId: reqId,
             entityType: 'REQUISITION',
-            actor: { uid: 'system', name: 'Auto System', email: 'system@procurify.ai' }, // In real app, this would be current user
+            actor: { uid: 'system', name: 'Auto System', email: 'system@apexprocure.com' }, // In real app, this would be current user
             action: 'APPROVE'
         });
 

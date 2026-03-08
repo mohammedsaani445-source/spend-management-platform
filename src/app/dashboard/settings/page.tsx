@@ -68,7 +68,7 @@ export default function SettingsPage() {
         setTempSecret(secretBase32);
 
         const totp = new OTPAuth.TOTP({
-            issuer: "Procurify Enterprise",
+            issuer: "Apex Procure Enterprise",
             label: user.email,
             algorithm: "SHA1",
             digits: 6,
@@ -98,7 +98,7 @@ export default function SettingsPage() {
         setVerificationError("");
 
         const totp = new OTPAuth.TOTP({
-            issuer: "Procurify Enterprise",
+            issuer: "Apex Procure Enterprise",
             label: user?.email,
             algorithm: "SHA1",
             digits: 6,
