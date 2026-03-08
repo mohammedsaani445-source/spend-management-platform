@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import styles from "./Layout.module.css";
 import NotificationDropdown from "./NotificationDropdown";
 import UserMenu from "./UserMenu";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Search } from "lucide-react";
 
 const ROUTE_TITLES: Record<string, string> = {
@@ -39,16 +39,29 @@ export default function Topbar({ onMobileMenuToggle }: TopbarProps) {
     const { user } = useAuth();
     const pathname = usePathname();
     const [search, setSearch] = useState('');
+    const searchInputRef = useRef<HTMLInputElement>(null);
 
     const pageTitle = ROUTE_TITLES[pathname] || 'Dashboard';
     const parentSection = pageTitle === 'Dashboard' ? null : 'Dashboard';
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInputRef.current?.focus();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     return (
         <header className={styles.topbar}>
             {/* Mobile Menu Toggle */}
             {onMobileMenuToggle && (
                 <div className={styles.mobileMenuToggle} onClick={onMobileMenuToggle} title="Open Menu">
-                    <div className={styles.logoIcon} style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>M</div>
+                    <div className={styles.logoIcon} style={{ width: '28px', height: '28px', fontSize: '0.75rem' }}>A</div>
                 </div>
             )}
 
@@ -67,6 +80,7 @@ export default function Topbar({ onMobileMenuToggle }: TopbarProps) {
             <div className={styles.searchBar}>
                 <Search className={styles.searchIcon} size={16} color="#6B7280" />
                 <input
+                    ref={searchInputRef}
                     type="text"
                     className={styles.searchInput}
                     placeholder="Search requisitions, orders, vendors..."
@@ -74,7 +88,7 @@ export default function Topbar({ onMobileMenuToggle }: TopbarProps) {
                     onChange={e => setSearch(e.target.value)}
                 />
                 <div className={styles.searchShortcut}>
-                    <span>⌘</span>K
+                    <span>Ctrl</span> K
                 </div>
             </div>
 
