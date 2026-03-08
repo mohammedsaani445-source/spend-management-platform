@@ -1214,4 +1214,31 @@
         display: none;
         /* Optionally hide breadcrumbs on very small screens to save space */
     }
+
+    .searchShortcut {
+        display: none !important;
+    }
+
+    .searchInput {
+        padding-right: 1.25rem !important;
+        background: white;
+        /* Brighter background for better contrast on small screens */
+    }
+
+    .userInfo {
+        display: none !important;
+    }
+
+    .topbar {
+        gap: 0.5rem;
+    }
+
+    .actions {
+        gap: 0.25rem;
+    }
+
+    .notificationDropdown {
+        width: calc(100vw - 2rem);
+        right: -1rem;
+    }
 }
