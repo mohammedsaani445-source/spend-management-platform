@@ -78,8 +78,8 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
         <aside className={`${styles.sidebar} ${isCollapsed ? styles.sidebarCollapsed : ''} ${isMobileMenuOpen ? styles.sidebarMobileOpen : ''}`}>
             {/* Logo */}
             <div className={styles.logoContainer} style={{ justifyContent: isCollapsed ? 'center' : 'flex-start' }}>
-                <div className={styles.logoIcon} title="Megapex">M</div>
-                {!isCollapsed && <div className={styles.logoText}>MEGAPEX</div>}
+                <div className={styles.logoIcon} title="Apexprocure">A</div>
+                {!isCollapsed && <div className={styles.logoText}>APEXPROCURE</div>}
                 <button onClick={onToggle} className={styles.collapseToggle} title={isCollapsed ? "Expand Menu" : "Collapse Menu"}>
                     {isCollapsed ? '»' : '«'}
                 </button>

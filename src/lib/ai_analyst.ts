@@ -34,7 +34,7 @@ export const querySpendAnalyst = async (tenantId: string, query: string) => {
 
         // 2. Intelligence Prompt
         const prompt = `
-            You are "SANI", an elite Enterprise AI Spend Analyst for the MEGAPEX Procurement Platform.
+            You are "SANI", an elite Enterprise AI Spend Analyst for the APEXPROCURE Procurement Platform.
             
             Current Tenant Context (JSON):
             ${JSON.stringify(context, null, 2)}

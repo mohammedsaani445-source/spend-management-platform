@@ -113,12 +113,12 @@ export async function POST(req: NextRequest) {
         if (hasValidResendKey) {
             try {
                 await resend.emails.send({
-                    from: process.env.EMAIL_FROM || 'Megapex <onboarding@resend.dev>',
+                    from: process.env.EMAIL_FROM || 'Apexprocure <onboarding@resend.dev>',
                     to: [email],
-                    subject: `You've been invited to join Megapex Spend Management`,
+                    subject: `You've been invited to join Apexprocure Spend Management`,
                     html: `
                         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <h2 style="color: #1e293b; margin-bottom: 16px;">Welcome to Megapex</h2>
+                            <h2 style="color: #1e293b; margin-bottom: 16px;">Welcome to Apexprocure</h2>
                             <p style="color: #475569; line-height: 1.6;">You have been invited by <strong>${requesterSnap.val().displayName || 'an admin'}</strong> to join their workspace.</p>
                             <p style="color: #475569; line-height: 1.6; margin-bottom: 24px;">Click the button below to set your password and access your account:</p>
                             <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #e8572a; color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">Accept Invitation</a>

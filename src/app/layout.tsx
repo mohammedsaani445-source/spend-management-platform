@@ -7,7 +7,7 @@ import ErrorBoundary from "@/components/common/ErrorBoundary";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Spend Management Platform",
+  title: "Apexprocure",
   description: "Procurement and Spend Management Solution",
 };
 
