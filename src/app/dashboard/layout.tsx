@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { createUserProfile } from "@/lib/db";
 import styles from "@/components/layout/Layout.module.css";
 import Loader from "@/components/common/Loader";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 export default function DashboardLayout({
     children,
@@ -53,6 +54,8 @@ export default function DashboardLayout({
     useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [pathname]);
+
+    useScrollLock(isMobileMenuOpen);
 
     if (loading || !isMounted) return <Loader fullScreen={true} text="Authenticating..." />;
 
