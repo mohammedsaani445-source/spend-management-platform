@@ -124,9 +124,11 @@ body.no-scroll {
 body.no-scroll main,
 body.no-scroll [class*="mainWrapper"],
 body.no-scroll [class*="pageContainer"],
-body.no-scroll .page-container {
+body.no-scroll .page-container,
+body.no-scroll #dashboard-main-content {
   overflow: hidden !important;
   height: 100vh !important;
+  /* Removed pointer-events: none to allow modals to be interactive */
 }
 
 a {
@@ -565,13 +567,26 @@ select {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(33, 43, 54, 0.5);
-  backdrop-filter: blur(2px);
-  z-index: 200;
+  background: rgba(15, 23, 42, 0.75);
+  /* Darker, more contrast */
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  /* Higher priority */
   display: flex;
   align-items: center;
+  /* Center by default */
   justify-content: center;
-  padding: 1rem;
+  padding: 2rem 1rem;
+  overflow-y: auto;
+  pointer-events: auto !important;
+  /* Explicitly ensure interaction */
+}
+
+/* Ensure that if the modal is taller than screen, it starts from top */
+@media (max-height: 800px) {
+  .modal-backdrop {
+    align-items: flex-start;
+  }
 }
 
 .modal {
@@ -579,10 +594,13 @@ select {
   border-radius: var(--radius-xl);
   width: 100%;
   max-width: 520px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  position: relative;
+  z-index: 10000;
+  margin: auto;
+  /* Works with flex centering */
+  pointer-events: auto !important;
 }
 
 .modal-header {
@@ -591,6 +609,13 @@ select {
   justify-content: space-between;
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  /* Ensure solid background for contrast */
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  position: sticky;
+  /* Keep header visible if modal body scrolls locally */
+  top: 0;
+  z-index: 10;
 }
 
 .modal-title {

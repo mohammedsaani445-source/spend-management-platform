@@ -6,7 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Logo } from '../common/Logo'; // Added this import
 import {
     Home, ShieldCheck, ShoppingBag, FileText, Package,
-    ReceiptText, CreditCard,
+    ReceiptText, CreditCard, Receipt,
     Store, Handshake, Wallet, Boxes, Server,
     LineChart, Target, ClipboardCheck,
     Blocks, LifeBuoy, Settings as SettingsIcon

@@ -1,6 +1,6 @@
 import { db, DB_PREFIX } from "./firebase";
 import { ref, get, update } from "firebase/database";
-import { PurchaseOrder, ItemReceipt, Invoice } from "@/types";
+import { PurchaseOrder, ItemReceipt, Invoice, POStatus } from "@/types";
 
 /**
  * Performs a 3-way match:
@@ -52,10 +52,17 @@ export const performThreeWayMatch = async (tenantId: string, poId: string) => {
         }
 
         // 4. Update PO Status
+        let poStatus: POStatus = isMatched ? 'FULFILLED' : 'DISCREPANCY_FLAGGED';
+
+        // If it was already RECEIVED and we have a discrepancy, flag it immediately
+        if (!isMatched) {
+            poStatus = 'DISCREPANCY_FLAGGED';
+        }
+
         await update(poRef, {
             isMatched,
             discrepancyNote: isMatched ? "All records reconciled matching PO, Receipt and Invoice." : discrepancyNote,
-            status: isMatched ? 'FULFILLED' : po.status
+            status: poStatus
         });
 
         // 5. Audit Log for Matching

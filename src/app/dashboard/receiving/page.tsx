@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Search, Filter, Package, Truck, CheckCircle, AlertCircle, Calendar, ArrowRight, ClipboardCheck } from "lucide-react";
+import { Search, Filter, Package, Truck, CheckCircle, AlertCircle, Calendar, ArrowRight, ClipboardCheck, Zap } from "lucide-react";
 import Loader from "@/components/common/Loader";
 import { PurchaseOrder, ItemReceipt, GoodsReceiptLine, AppUser } from "@/types";
 import { getPurchaseOrders } from "@/lib/purchaseOrders";
 import { getReceipts, createReceipt, updateReceiptQuality, unreceiveItems } from "@/lib/receipts";
+import { ReceiptCaptureModal } from "@/components/receipts/ReceiptCaptureModal";
 import { formatCurrency } from "@/lib/currencies";
 import { useAuth } from "@/context/AuthContext";
 import { useModal } from "@/context/ModalContext";
@@ -49,6 +50,7 @@ export default function ReceivingPage() {
     const [packingSlipName, setPackingSlipName] = useState("");
     const [notes, setNotes] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [isScanOpen, setIsScanOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
         if (!user) return;
@@ -138,6 +140,26 @@ export default function ReceivingPage() {
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const handleScanSuccess = (data: any) => {
+        setIsScanOpen(false);
+        // Automagically fill the receipt lines from OCR data
+        if (data.items && data.items.length > 0) {
+            const updatedLines = receiptLines.map(line => {
+                const match = data.items.find((item: any) =>
+                    item.description.toLowerCase().includes(line.description.toLowerCase()) ||
+                    line.description.toLowerCase().includes(item.description.toLowerCase())
+                );
+                if (match) {
+                    return { ...line, receivedQty: match.quantity };
+                }
+                return line;
+            });
+            setReceiptLines(updatedLines);
+        }
+        if (data.invoiceNumber) setPackingSlipName(data.invoiceNumber);
+        showAlert("AI Scan Complete", "Inferred quantities and packing slip details from the image.");
     };
 
     // ── Unreceive ────────────────────────────────────────────────────────────
@@ -424,6 +446,16 @@ export default function ReceivingPage() {
                             <button onClick={() => setShowModal(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#637381", cursor: "pointer" }}>×</button>
                         </div>
 
+                        <div style={{ padding: '0 20px', marginBottom: '1rem' }}>
+                            <button
+                                className="btn btn-secondary"
+                                style={{ width: '100%', gap: '8px', border: '1px dashed var(--brand)', color: 'var(--brand)', background: 'var(--brand-soft)' }}
+                                onClick={() => setIsScanOpen(true)}
+                            >
+                                <Zap size={16} /> AI Scan Packing Slip
+                            </button>
+                        </div>
+
                         <div className="modal-body">
                             {/* Auto-receive toggle */}
                             <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", background: "#F4F6F8", borderRadius: 10, padding: "1rem", marginBottom: "1.25rem" }}>
@@ -563,6 +595,11 @@ export default function ReceivingPage() {
                     </div>
                 </div>
             )}
+            <ReceiptCaptureModal
+                isOpen={isScanOpen}
+                onClose={() => setIsScanOpen(false)}
+                onSuccess={handleScanSuccess}
+            />
         </div>
     );
 }

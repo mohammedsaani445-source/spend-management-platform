@@ -40,15 +40,8 @@ export default function VendorDetailModal({ vendor, onClose, onEdit }: VendorDet
     }, [user, vendor.id]);
 
     return (
-        <div style={{
-            position: 'fixed', inset: 0, zIndex: 100,
-            backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)',
-            display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '2rem 1rem',
-            overflowY: 'auto'
-        }}>
-            <div className="card" style={{
-                width: '800px', maxWidth: '95%', position: 'relative', padding: 0, border: 'none', marginBottom: '2rem'
-            }}>
+        <div className="modal-backdrop">
+            <div className="modal" style={{ width: '800px', maxWidth: '95%', padding: 0, border: 'none' }}>
 
                 {/* Header Banner */}
                 <div style={{

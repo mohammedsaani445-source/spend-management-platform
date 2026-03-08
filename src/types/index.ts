@@ -165,7 +165,7 @@ export interface DeliveryLog {
     details?: string;
 }
 
-export type POStatus = 'ISSUED' | 'SENT' | 'OPENED' | 'ACKNOWLEDGED' | 'RECEIVED' | 'BILLED' | 'CLOSED' | 'CANCELLED' | 'FULFILLED';
+export type POStatus = 'ISSUED' | 'SENT' | 'OPENED' | 'ACKNOWLEDGED' | 'RECEIVED' | 'BILLED' | 'CLOSED' | 'CANCELLED' | 'FULFILLED' | 'DISCREPANCY_FLAGGED';
 
 export interface PurchaseOrder {
     id?: string;
@@ -215,6 +215,12 @@ export interface Invoice {
     fileName?: string;
     fileUrl?: string;
     createdAt: Date;
+    // AI Metadata
+    confidence?: number;
+    confidenceReasoning?: string;
+    hasFraudAlert?: boolean;
+    fraudCheckReason?: string;
+    autoExtracted?: boolean;
 }
 
 
@@ -647,4 +653,29 @@ export interface Workflow {
     isActive: boolean;
     createdAt: string;
     priority: number; // For tie-breaking multiple applicable workflows
+}
+
+// Phase 28: Expense Management (Reimbursements & Out-of-pocket)
+export type ExpenseStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'REIMBURSED' | 'PAID';
+
+export interface Expense {
+    id?: string;
+    tenantId: string;
+    userId: string;
+    userName: string;
+    vendorName: string;
+    amount: number;
+    currency: string;
+    date: string;
+    category: string;
+    glCode?: string;
+    status: ExpenseStatus;
+    receiptUrl?: string;
+    fileName?: string;
+    notes?: string;
+    confidence?: number;
+    hasFraudAlert?: boolean;
+    fraudReason?: string;
+    createdAt: string;
+    autoExtracted?: boolean;
 }

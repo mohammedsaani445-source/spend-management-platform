@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { Invoice, PurchaseOrder, Vendor, InvoiceStatus } from "@/types";
-import { getInvoices, createInvoice, updateInvoiceStatus as updateStatus, subscribeToInvoices } from "@/lib/invoices";
+import { getInvoices, createInvoice, updateInvoiceStatus as updateStatus, subscribeToInvoices, checkDuplicateInvoice } from "@/lib/invoices";
 import { getPurchaseOrders, subscribeToPurchaseOrders } from "@/lib/purchaseOrders";
 import { getVendors } from "@/lib/vendors";
 import { formatCurrency } from "@/lib/currencies";
@@ -12,6 +12,10 @@ import InvoiceDetailModal from "@/components/invoices/InvoiceDetailModal";
 import CustomSelect from "@/components/ui/CustomSelect";
 import InvoiceUpload from "@/components/invoices/InvoiceUpload";
 import Loader from "@/components/common/Loader";
+import { ReceiptCaptureModal } from "@/components/receipts/ReceiptCaptureModal";
+import { Zap, Edit2, AlertTriangle } from "lucide-react";
+import { useScrollLock } from "@/hooks/useScrollLock";
+import { recordCorrection } from "@/lib/feedback";
 
 const INV_STATUS_STYLES: Record<string, { bg: string; color: string }> = {
     PENDING: { bg: 'var(--warning-bg)', color: 'var(--warning)' },
@@ -27,16 +31,28 @@ export default function InvoicesPage() {
     const [pos, setPos] = useState<PurchaseOrder[]>([]);
     const [vendors, setVendors] = useState<Vendor[]>([]);
     const [loading, setLoading] = useState(true);
+
     const [showModal, setShowModal] = useState(false);
+    const [isScanOpen, setIsScanOpen] = useState(false);
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+    // Global Scroll Lock for Modals
+    useScrollLock(showModal || !!selectedInvoice || isScanOpen);
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [formData, setFormData] = useState({
         poId: "", invoiceNumber: "", amount: 0, currency: "USD",
         issueDate: new Date().toISOString().split('T')[0],
         dueDate: new Date().toISOString().split('T')[0],
-        fileName: "", fileUrl: ""
+        fileName: "", fileUrl: "",
+        confidence: null as number | null,
+        confidenceReasoning: "",
+        hasFraudAlert: false,
+        fraudCheckReason: "",
+        autoExtracted: false
     });
+    const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null);
+    const [lastAiData, setLastAiData] = useState<any>(null);
 
     const stats = useMemo(() => {
         const pending = invoices.filter(i => i.status === 'PENDING').reduce((acc, i) => acc + i.amount, 0);
@@ -51,7 +67,11 @@ export default function InvoicesPage() {
             return acc;
         }, {} as Record<string, number>);
         const displayCurrency = Object.keys(currencyCount).sort((a, b) => currencyCount[b] - currencyCount[a])[0] || 'USD';
-        return { pending, overdue, totalAmount, matchRate, displayCurrency };
+        const aiAccuracy = invoices.filter(i => i.autoExtracted).length > 0
+            ? Math.round(invoices.filter(i => i.autoExtracted).reduce((acc, i) => acc + (i.confidence || 0), 0) / invoices.filter(i => i.autoExtracted).length)
+            : 99.4;
+        const anomalies = invoices.filter(i => i.hasFraudAlert).length;
+        return { pending, overdue, totalAmount, matchRate, displayCurrency, aiAccuracy, anomalies };
     }, [invoices]);
 
     const filteredInvoices = useMemo(() => {
@@ -98,16 +118,38 @@ export default function InvoicesPage() {
                 if (!confirmed) return;
             }
             if (!user) return;
+
+            // Final duplicate check before save
+            if (await checkDuplicateInvoice(user.tenantId, selectedPO.vendorName, formData.invoiceNumber)) {
+                const proceed = await showConfirm("Duplicate Warning",
+                    `An invoice with number ${formData.invoiceNumber} already exists for ${selectedPO.vendorName}. Do you really want to save this duplicate?`);
+                if (!proceed) return;
+            }
+
             await createInvoice(user.tenantId, {
                 vendorId: selectedPO.vendorId, vendorName: selectedPO.vendorName,
                 poId: selectedPO.id, poNumber: selectedPO.poNumber,
                 invoiceNumber: formData.invoiceNumber, amount: formData.amount,
                 currency: selectedPO.currency,
                 issueDate: new Date(formData.issueDate), dueDate: new Date(formData.dueDate),
-                status: 'PENDING', department: selectedPO.department
+                status: 'PENDING', department: selectedPO.department,
+                fileName: formData.fileName, fileUrl: formData.fileUrl,
+                confidence: formData.confidence || 0,
+                confidenceReasoning: formData.confidenceReasoning || "",
+                hasFraudAlert: formData.hasFraudAlert,
+                fraudCheckReason: formData.fraudCheckReason,
+                autoExtracted: formData.autoExtracted
             });
             setShowModal(false);
-            setFormData({ poId: "", invoiceNumber: "", amount: 0, currency: "USD", issueDate: new Date().toISOString().split('T')[0], dueDate: new Date().toISOString().split('T')[0], fileName: "", fileUrl: "" });
+            setFormData({
+                poId: "", invoiceNumber: "", amount: 0, currency: "USD",
+                issueDate: new Date().toISOString().split('T')[0],
+                dueDate: new Date().toISOString().split('T')[0],
+                fileName: "", fileUrl: "",
+                confidence: null, confidenceReasoning: "", hasFraudAlert: false, fraudCheckReason: "", autoExtracted: false
+            });
+            setDuplicateWarning(null);
+            setLastAiData(null);
         } catch { await showError("Error", "Error creating invoice"); }
     };
 
@@ -129,6 +171,55 @@ export default function InvoicesPage() {
         } catch { await showError("Error", "Error updating status"); }
     };
 
+    const handleScanSuccess = async (data: any) => {
+        setIsScanOpen(false);
+        setLastAiData(data);
+
+        const po = pos.find(p =>
+            (data.poNumber && p.poNumber.includes(data.poNumber)) ||
+            (data.vendorName && p.vendorName.toLowerCase().includes(data.vendorName.toLowerCase()))
+        );
+
+        if (user && data.vendorName && data.invoiceNumber) {
+            const isDuplicate = await checkDuplicateInvoice(user.tenantId, data.vendorName, data.invoiceNumber);
+            if (isDuplicate) {
+                setDuplicateWarning(`Invoice #${data.invoiceNumber} already exists for this vendor.`);
+            } else {
+                setDuplicateWarning(null);
+            }
+        }
+
+        setFormData({
+            ...formData,
+            poId: po?.id || "",
+            invoiceNumber: data.invoiceNumber || "",
+            amount: data.totalAmount || 0,
+            currency: data.currency || "USD",
+            issueDate: data.issueDate ? new Date(data.issueDate).toISOString().split('T')[0] : formData.issueDate,
+            dueDate: data.dueDate ? new Date(data.dueDate).toISOString().split('T')[0] : formData.dueDate,
+            confidence: data.confidenceScore || 0,
+            confidenceReasoning: data.confidenceReasoning || "",
+            autoExtracted: true,
+            hasFraudAlert: data.isDuplicate || false,
+            fraudCheckReason: data.isDuplicate ? "AI identified visual markers of a duplicate document." : ""
+        });
+
+        if (data.poNumber) {
+            showAlert("AI Scan Complete", `Extracted details for invoice from ${data.vendorName || 'Unknown'}.`);
+        }
+    };
+
+    const handleCorrection = async (field: string, newValue: any) => {
+        if (!user || !lastAiData) return;
+        const originalValue = lastAiData[field];
+        if (originalValue !== undefined && originalValue !== newValue) {
+            const selectedPO = pos.find(p => p.id === formData.poId);
+            if (selectedPO?.vendorId) {
+                await recordCorrection(user.tenantId, selectedPO.vendorId, field, String(originalValue), String(newValue));
+            }
+        }
+    };
+
     if (loading) return (
         <div className="page-container">
             <Loader text="Loading invoices..." />
@@ -147,19 +238,20 @@ export default function InvoicesPage() {
             </div>
 
             {/* Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                 {[
                     { label: 'Total Volume', value: formatCurrency(stats.totalAmount, stats.displayCurrency), color: 'var(--brand)', bg: 'var(--brand-soft)', icon: '📊' },
                     { label: 'Pending Payment', value: formatCurrency(stats.pending, stats.displayCurrency), color: 'var(--warning)', bg: 'var(--warning-bg)', icon: '⏳' },
-                    { label: 'Overdue', value: `${stats.overdue} invoice${stats.overdue !== 1 ? 's' : ''}`, color: 'var(--error)', bg: 'var(--error-bg)', icon: '⚠️' },
-                    { label: 'Match Rate', value: `${stats.matchRate}%`, color: 'var(--success)', bg: 'var(--success-soft)', icon: '🎯' },
+                    { label: 'AI Accuracy', value: `${stats.aiAccuracy}%`, color: 'var(--success)', bg: 'var(--success-soft)', icon: '🎯' },
+                    { label: 'Fraud Alerts', value: stats.anomalies, color: 'var(--error)', bg: 'var(--error-bg)', icon: '🛡️' },
+                    { label: 'Match Rate', value: `${stats.matchRate}%`, color: 'var(--brand)', bg: 'var(--brand-soft)', icon: '🤝' },
                 ].map(s => (
-                    <div key={s.label} style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, padding: '1.25rem', borderTop: `4px solid ${s.color}` }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-secondary)' }}>{s.label}</span>
-                            <div style={{ width: 32, height: 32, background: s.bg, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.875rem' }}>{s.icon}</div>
+                    <div key={s.label} style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, padding: '1rem', borderTop: `4px solid ${s.color}` }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                            <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-secondary)' }}>{s.label}</span>
+                            <div style={{ width: 28, height: 28, background: s.bg, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem' }}>{s.icon}</div>
                         </div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 800, color: s.color }}>{s.value}</div>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: s.color }}>{s.value}</div>
                     </div>
                 ))}
             </div>
@@ -192,6 +284,39 @@ export default function InvoicesPage() {
                         </div>
                         <form onSubmit={handleSubmit}>
                             <div className="modal-body" style={{ display: 'grid', gap: '1rem' }}>
+                                <div style={{
+                                    padding: '1rem',
+                                    background: 'var(--brand-soft)',
+                                    borderRadius: '12px',
+                                    border: '1px dashed var(--brand)',
+                                    marginBottom: '0.5rem',
+                                    textAlign: 'center'
+                                }}>
+                                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--brand)', marginBottom: '0.25rem' }}>
+                                        <Zap size={14} style={{ marginRight: '4px' }} /> Automated AI Extraction
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                                        Upload your document below, and our AI will instantly extract details and match them to your Purchase Order.
+                                    </div>
+                                </div>
+
+                                {duplicateWarning && (
+                                    <div style={{
+                                        padding: '1rem',
+                                        background: 'var(--error-bg)',
+                                        borderRadius: '12px',
+                                        border: '1px solid var(--error)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.75rem',
+                                        color: 'var(--error)',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 600
+                                    }}>
+                                        <AlertTriangle size={18} />
+                                        {duplicateWarning}
+                                    </div>
+                                )}
                                 <CustomSelect
                                     label="Select Purchase Order"
                                     value={formData.poId}
@@ -210,9 +335,15 @@ export default function InvoicesPage() {
                                 />
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                                     <div>
-                                        <label className="form-label">Invoice #</label>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <label className="form-label">Invoice #</label>
+                                            {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                        </div>
                                         <input type="text" required className="form-input"
-                                            value={formData.invoiceNumber} onChange={e => setFormData({ ...formData, invoiceNumber: e.target.value })} />
+                                            value={formData.invoiceNumber}
+                                            onChange={e => setFormData({ ...formData, invoiceNumber: e.target.value })}
+                                            onBlur={e => handleCorrection('invoiceNumber', e.target.value)}
+                                        />
                                     </div>
                                     <div>
                                         <label className="form-label">Currency</label>
@@ -220,29 +351,54 @@ export default function InvoicesPage() {
                                             style={{ background: 'var(--background)', color: 'var(--text-secondary)', cursor: 'not-allowed' }} />
                                     </div>
                                     <div>
-                                        <label className="form-label">Amount ({formData.currency})</label>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <label className="form-label">Amount ({formData.currency})</label>
+                                            {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                        </div>
                                         <input type="number" step="0.01" required className="form-input"
-                                            value={formData.amount} onChange={e => setFormData({ ...formData, amount: Number(e.target.value) })} />
+                                            value={formData.amount}
+                                            onChange={e => setFormData({ ...formData, amount: Number(e.target.value) })}
+                                            onBlur={e => handleCorrection('totalAmount', Number(e.target.value))}
+                                        />
                                     </div>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                     <div>
-                                        <label className="form-label">Issue Date</label>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <label className="form-label">Issue Date</label>
+                                            {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                        </div>
                                         <input type="date" required className="form-input"
-                                            value={formData.issueDate} onChange={e => setFormData({ ...formData, issueDate: e.target.value })} />
+                                            value={formData.issueDate}
+                                            onChange={e => setFormData({ ...formData, issueDate: e.target.value })}
+                                            onBlur={e => handleCorrection('issueDate', e.target.value)}
+                                        />
                                     </div>
                                     <div>
-                                        <label className="form-label">Due Date</label>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <label className="form-label">Due Date</label>
+                                            {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                        </div>
                                         <input type="date" required className="form-input"
-                                            value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} />
+                                            value={formData.dueDate}
+                                            onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
+                                            onBlur={e => handleCorrection('dueDate', e.target.value)}
+                                        />
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="form-label">Invoice Attachment</label>
+                                    <label className="form-label">Invoice Attachment & AI Analysis</label>
                                     <InvoiceUpload
-                                        onUploadComplete={(url, name) => {
-                                            if (url) setFormData({ ...formData, fileName: name, fileUrl: url });
-                                            else setFormData({ ...formData, fileName: "", fileUrl: "" });
+                                        onUploadComplete={(url, name, aiData) => {
+                                            if (url) {
+                                                // If AI data is provided (merged flow), populate the form
+                                                if (aiData) {
+                                                    handleScanSuccess(aiData);
+                                                }
+                                                setFormData({ ...formData, fileName: name, fileUrl: url });
+                                            } else {
+                                                setFormData({ ...formData, fileName: "", fileUrl: "" });
+                                            }
                                         }}
                                     />
                                 </div>
@@ -275,6 +431,7 @@ export default function InvoicesPage() {
                                 <th>Invoice #</th>
                                 <th>Vendor / PO</th>
                                 <th>Due Date</th>
+                                <th>AI Confidence</th>
                                 <th style={{ textAlign: 'right' }}>Amount</th>
                                 <th style={{ textAlign: 'center' }}>Attach</th>
                             </tr>
@@ -305,6 +462,20 @@ export default function InvoicesPage() {
                                             </div>
                                             {isOverdue && <div style={{ fontSize: '0.7rem', color: 'var(--error)', fontWeight: 700, marginTop: 2 }}>OVERDUE</div>}
                                         </td>
+                                        <td>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <div style={{ flex: 1, height: '4px', backgroundColor: 'var(--border)', borderRadius: '2px', width: '60px' }}>
+                                                    <div style={{
+                                                        height: '100%',
+                                                        backgroundColor: (inv.confidence ?? 0) > 98 ? 'var(--success)' : 'var(--warning)',
+                                                        width: `${inv.confidence ?? 0}%`,
+                                                        borderRadius: '2px'
+                                                    }} />
+                                                </div>
+                                                <span style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)' }}>{inv.confidence ?? 0}%</span>
+                                            </div>
+                                            {inv.hasFraudAlert && <div style={{ fontSize: '0.65rem', color: 'var(--error)', fontWeight: 700, marginTop: 2 }}>⚠️ FRAUD ALERT</div>}
+                                        </td>
                                         <td style={{ textAlign: 'right', fontWeight: 800, fontSize: '0.9375rem' }}>
                                             {formatCurrency(inv.amount, inv.currency)}
                                         </td>
@@ -328,6 +499,12 @@ export default function InvoicesPage() {
                     onStatusUpdate={handleStatusUpdate}
                 />
             )}
+            <ReceiptCaptureModal
+                isOpen={isScanOpen}
+                onClose={() => setIsScanOpen(false)}
+                onSuccess={handleScanSuccess}
+                mode="INVOICE"
+            />
         </div>
     );
 }

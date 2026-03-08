@@ -78,7 +78,7 @@ export default function DashboardLayout({
 
             <div className={`${styles.mainWrapper} ${isCollapsed ? styles.mainWrapperCollapsed : ''}`}>
                 <Topbar onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)} />
-                <main style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
+                <main id="dashboard-main-content" style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
                     {children}
                 </main>
             </div>

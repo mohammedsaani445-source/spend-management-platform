@@ -19,7 +19,11 @@ export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id
             status: invoice.status || 'PENDING',
             department: invoice.department,
             fileName: invoice.fileName || null,
-            fileUrl: invoice.fileUrl || null
+            fileUrl: invoice.fileUrl || null,
+            confidence: invoice.confidence || null,
+            hasFraudAlert: invoice.hasFraudAlert || false,
+            fraudCheckReason: invoice.fraudCheckReason || null,
+            autoExtracted: invoice.autoExtracted || false
         });
 
         return newInvRef.key;
@@ -97,5 +101,27 @@ export const updateInvoiceStatus = async (tenantId: string, invId: string, statu
     } catch (error: any) {
         console.error(`[Invoices] Error updating invoice ${invId}:`, error);
         throw error;
+    }
+};
+
+/**
+ * Checks if an invoice number already exists for a specific vendor.
+ * Prevents double-payments and duplicate entries.
+ */
+export const checkDuplicateInvoice = async (tenantId: string, vendorName: string, invoiceNumber: string): Promise<boolean> => {
+    try {
+        const invRef = getInvoicesRef(tenantId);
+        const snapshot = await get(invRef);
+
+        if (!snapshot.exists()) return false;
+
+        const invoices = Object.values(snapshot.val()) as Invoice[];
+        return invoices.some(inv =>
+            inv.vendorName?.toLowerCase() === vendorName.toLowerCase() &&
+            inv.invoiceNumber === invoiceNumber
+        );
+    } catch (error) {
+        console.error("[Invoices] Error checking duplicates:", error);
+        return false;
     }
 };
