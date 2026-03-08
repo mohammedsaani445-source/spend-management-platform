@@ -6,6 +6,7 @@ import { getVendors, addVendor } from "@/lib/vendors";
 import { useModal } from "@/context/ModalContext";
 import { useAuth } from "@/context/AuthContext";
 import VendorDetailModal from "@/components/vendors/VendorDetailModal";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 const VENDOR_CATEGORIES = ["General", "IT Services", "Office Supplies", "Logistics", "Marketing", "Other"];
 
@@ -50,6 +51,8 @@ export default function VendorsPage() {
     const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
     const [search, setSearch] = useState('');
     const [formData, setFormData] = useState(defaultForm);
+
+    useScrollLock(isFormOpen);
 
     const fetchVendors = async () => {
         if (!user) return;

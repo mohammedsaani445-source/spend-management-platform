@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Loader from "@/components/common/Loader";
 import styles from "./Settings.module.css";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 import WorkflowBuilder from "@/components/admin/WorkflowBuilder";
 import AuditLogViewer from "@/components/admin/AuditLogViewer";
@@ -43,6 +44,8 @@ export default function SettingsPage() {
     const [verificationCode, setVerificationCode] = useState("");
     const [verificationError, setVerificationError] = useState("");
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+
+    useScrollLock(is2FAModalOpen || isLogoutModalOpen);
 
     useEffect(() => {
         if (user) {

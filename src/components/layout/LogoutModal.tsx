@@ -4,6 +4,7 @@ import styles from "./Layout.module.css";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface LogoutModalProps {
     isOpen: boolean;
@@ -13,6 +14,8 @@ interface LogoutModalProps {
 export default function LogoutModal({ isOpen, onClose }: LogoutModalProps) {
     const router = useRouter();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+    useScrollLock(isOpen);
 
     if (!isOpen) return null;
 

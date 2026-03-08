@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Vendor } from "@/types";
 import { getVendorPerformanceMetrics, VendorMetrics } from "@/lib/vendor_analytics";
 import { useAuth } from "@/context/AuthContext";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface VendorDetailModalProps {
     vendor: Vendor;
@@ -15,6 +16,8 @@ export default function VendorDetailModal({ vendor, onClose, onEdit }: VendorDet
     const { user } = useAuth();
     const [metrics, setMetrics] = useState<VendorMetrics | null>(null);
     const [loading, setLoading] = useState(true);
+
+    useScrollLock(true);
 
     useEffect(() => {
         const fetchMetrics = async () => {

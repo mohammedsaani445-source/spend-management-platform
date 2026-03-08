@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { useScrollLock } from '@/hooks/useScrollLock';
 
 type ModalType = 'ALERT' | 'CONFIRM' | 'ERROR';
 
@@ -20,6 +21,8 @@ export function ModalProvider({ children }: { children: ReactNode }) {
 
     // Promise resolvers
     const [resolvePromise, setResolvePromise] = useState<((value: any) => void) | null>(null);
+
+    useScrollLock(isOpen);
 
     const showAlert = (title: string, message: string): Promise<void> => {
         return new Promise((resolve) => {

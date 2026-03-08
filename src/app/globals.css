@@ -111,6 +111,16 @@ body {
   line-height: 1.57;
 }
 
+/* Prevent scroll leakage when modals are open */
+body.no-scroll {
+  overflow: hidden !important;
+}
+
+body.no-scroll main,
+body.no-scroll .page-container {
+  overflow: hidden !important;
+}
+
 a {
   color: var(--brand);
   text-decoration: none;
