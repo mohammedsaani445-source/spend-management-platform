@@ -112,7 +112,7 @@ export default function PurchaseOrdersPage() {
             </div>
 
             {/* Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                 {[
                     { label: 'Total Committed', value: formatCurrency(stats.totalCommitted, stats.displayCurrency), color: 'var(--brand)', bg: 'var(--brand-soft)', icon: '💰' },
                     { label: 'Pending Receipt', value: formatCurrency(stats.pendingValue, stats.displayCurrency), color: 'var(--warning)', bg: 'var(--warning-bg)', icon: '⏳' },
@@ -130,19 +130,20 @@ export default function PurchaseOrdersPage() {
             </div>
 
             {/* Filters */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', alignItems: 'center' }}>
-                <div style={{ position: 'relative', flex: 1, maxWidth: 380 }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ position: 'relative', flex: 1, minWidth: '200px', maxWidth: 380 }}>
                     <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }}>🔍</span>
                     <input
-                        type="text" placeholder="Search PO # or vendor..."
+                        type="text" placeholder="Search..."
                         value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                         className="form-input" style={{ paddingLeft: '2.25rem' }}
                     />
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%' }}>
                     {['ALL', 'ISSUED', 'SENT', 'RECEIVED', 'CANCELLED'].map(s => (
                         <button key={s} onClick={() => setStatusFilter(s)}
-                            className={statusFilter === s ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}>
+                            className={statusFilter === s ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+                            style={{ flexShrink: 0 }}>
                             {s === 'ALL' ? 'All' : s[0] + s.slice(1).toLowerCase()}
                         </button>
                     ))}
@@ -162,7 +163,7 @@ export default function PurchaseOrdersPage() {
                     </div>
                 </div>
             ) : (
-                <div className="table-wrapper">
+                <div className="table-wrapper responsive-table">
                     <table className="data-table">
                         <thead>
                             <tr>
@@ -170,7 +171,7 @@ export default function PurchaseOrdersPage() {
                                 <th>Vendor</th>
                                 <th>Amount</th>
                                 <th>Status</th>
-                                <th>Issued Date</th>
+                                <th className="hidden-mobile">Issued Date</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -179,29 +180,31 @@ export default function PurchaseOrdersPage() {
                                 const s = STATUS_STYLES[po.status] || { bg: 'var(--background)', color: 'var(--text-secondary)' };
                                 return (
                                     <tr key={po.id} onClick={() => setSelectedPO(po)} style={{ cursor: 'pointer' }}>
-                                        <td>
+                                        <td data-label="PO Number">
                                             <div style={{ fontWeight: 700, color: 'var(--brand)', fontFamily: 'monospace', fontSize: '0.875rem' }}>{po.poNumber}</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Req #{po.requisitionId.slice(-6).toUpperCase()}</div>
+                                            <div className="hidden-mobile" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Req #{po.requisitionId.slice(-6).toUpperCase()}</div>
                                         </td>
-                                        <td>
+                                        <td data-label="Vendor">
                                             <div style={{ fontWeight: 600 }}>{po.vendorName}</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Standard Terms</div>
+                                            <div className="hidden-mobile" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Standard Terms</div>
                                         </td>
-                                        <td>
+                                        <td data-label="Amount">
                                             <div style={{ fontWeight: 700 }}>{formatCurrency(po.totalAmount, po.currency)}</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{po.items.length} line items</div>
+                                            <div className="hidden-mobile" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{po.items.length} line items</div>
                                         </td>
-                                        <td>
+                                        <td data-label="Status">
                                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 10px', borderRadius: 9999, fontSize: '0.75rem', fontWeight: 700, background: s.bg, color: s.color }}>
                                                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
                                                 {po.status}
                                             </span>
                                         </td>
-                                        <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
+                                        <td data-label="Issued Date" className="hidden-mobile" style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
                                             {po.issuedAt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </td>
                                         <td>
-                                            <button className="btn btn-ghost btn-sm">Open →</button>
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                <button className="btn btn-ghost btn-sm">Open →</button>
+                                            </div>
                                         </td>
                                     </tr>
                                 );

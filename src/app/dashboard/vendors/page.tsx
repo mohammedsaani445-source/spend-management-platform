@@ -100,7 +100,7 @@ export default function VendorsPage() {
             </div>
 
             {/* Stats strip */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                 {[
                     { label: 'Total Vendors', value: vendors.length, color: 'var(--brand)', bg: 'var(--brand-soft)' },
                     { label: 'Active', value: activeCount, color: 'var(--success)', bg: 'var(--success-bg)' },
@@ -142,15 +142,15 @@ export default function VendorsPage() {
                     </div>
                 </div>
             ) : (
-                <div className="table-wrapper">
+                <div className="table-wrapper responsive-table">
                     <table className="data-table">
                         <thead>
                             <tr>
                                 <th>Company</th>
-                                <th>Contact</th>
-                                <th>Email</th>
+                                <th className="hidden-mobile">Contact</th>
+                                <th className="hidden-mobile">Email</th>
                                 <th>Category</th>
-                                <th>Payment</th>
+                                <th className="hidden-mobile">Payment</th>
                                 <th>Status</th>
                                 <th></th>
                             </tr>
@@ -158,25 +158,27 @@ export default function VendorsPage() {
                         <tbody>
                             {filtered.map(vendor => (
                                 <tr key={vendor.id} onClick={() => setSelectedVendor(vendor)} style={{ cursor: 'pointer' }}>
-                                    <td>
+                                    <td data-label="Company">
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                             <VendorAvatar name={vendor.name} />
                                             <span style={{ fontWeight: 600 }}>{vendor.name}</span>
                                         </div>
                                     </td>
-                                    <td>{vendor.contactName}</td>
-                                    <td style={{ color: 'var(--text-secondary)' }}>{vendor.email}</td>
-                                    <td>
+                                    <td data-label="Contact" className="hidden-mobile">{vendor.contactName}</td>
+                                    <td data-label="Email" className="hidden-mobile" style={{ color: 'var(--text-secondary)' }}>{vendor.email}</td>
+                                    <td data-label="Category">
                                         <span style={{ fontSize: '0.8125rem', background: 'var(--surface-hover)', color: 'var(--text-secondary)', padding: '2px 8px', borderRadius: 6, fontWeight: 500 }}>
                                             {vendor.category || 'General'}
                                         </span>
                                     </td>
-                                    <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>{vendor.paymentMethod || 'ACH'}</td>
-                                    <td><StatusPill status={vendor.status} /></td>
+                                    <td data-label="Payment" className="hidden-mobile" style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>{vendor.paymentMethod || 'ACH'}</td>
+                                    <td data-label="Status"><StatusPill status={vendor.status} /></td>
                                     <td>
-                                        <button className="btn btn-ghost btn-sm" onClick={e => { e.stopPropagation(); setSelectedVendor(vendor); }}>
-                                            View →
-                                        </button>
+                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                            <button className="btn btn-ghost btn-sm" onClick={e => { e.stopPropagation(); setSelectedVendor(vendor); }}>
+                                                View →
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -207,7 +209,7 @@ export default function VendorsPage() {
                             <button onClick={() => setIsFormOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.25rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>×</button>
                         </div>
                         <form onSubmit={handleSubmit}>
-                            <div className="modal-body" style={{ display: 'grid', gap: '1rem' }}>
+                            <div className="modal-body grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                 {[
                                     { label: 'Company Name *', key: 'name', type: 'text', required: true },
                                     { label: 'Contact Name *', key: 'contactName', type: 'text', required: true },

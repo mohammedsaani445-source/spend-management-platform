@@ -97,7 +97,7 @@ export default function ExecutiveDashboard({ user, stats, vendorPerf, currency, 
             </div>
 
             {/* === KPI CARDS === */}
-            <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="kpi-grid">
                 {[
                     {
                         label: 'Pending Approvals',
@@ -156,7 +156,7 @@ export default function ExecutiveDashboard({ user, stats, vendorPerf, currency, 
             </div>
 
             {/* === MAIN GRID === */}
-            <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '1.5rem' }}>
+            <div className="dashboard-grid">
 
                 {/* LEFT COLUMN */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>

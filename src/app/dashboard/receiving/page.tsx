@@ -207,7 +207,7 @@ export default function ReceivingPage() {
             </div>
 
             {/* ── Stats Strip ────────────────────────────────────────────── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+            <div className="kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
                 {[
                     { label: "Received Today", value: stats.receivedToday, color: "#5C6AC4", bg: "#E8EAF6", icon: "📦" },
                     { label: "Awaiting Receipt", value: stats.pending, color: "#B76E00", bg: "#FFF7CD", icon: "⏳" },
@@ -225,7 +225,7 @@ export default function ReceivingPage() {
             </div>
 
             {/* ── Tab Bar ────────────────────────────────────────────────── */}
-            <div style={{ display: "flex", gap: "0.25rem", background: "#F4F6F8", padding: "0.25rem", borderRadius: 10, width: "fit-content", marginBottom: "1rem" }}>
+            <div style={{ display: "flex", gap: "0.25rem", background: "#F4F6F8", padding: "0.25rem", borderRadius: 10, width: "fit-content", marginBottom: "1rem", overflowX: 'auto', maxWidth: '100%' }}>
                 {(["pending", "history"] as const).map(t => (
                     <button key={t} onClick={() => setTab(t)} style={{
                         padding: "0.5rem 1.25rem", borderRadius: 8, border: "none", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", transition: "all 0.15s",
@@ -261,18 +261,18 @@ export default function ReceivingPage() {
                         </div>
                     </div>
                 ) : (
-                    <div className="table-wrapper">
+                    <div className="table-wrapper responsive-table">
                         <table className="data-table">
                             <thead>
                                 <tr>
                                     <th>PO Number</th>
                                     <th>Vendor</th>
-                                    <th>Department</th>
-                                    <th>Items</th>
-                                    <th>Expected By</th>
+                                    <th className="hidden-mobile">Department</th>
+                                    <th className="hidden-mobile">Items</th>
+                                    <th className="hidden-mobile">Expected By</th>
                                     <th style={{ textAlign: "right" }}>Total Value</th>
                                     <th>Status</th>
-                                    <th>3-Way Match</th>
+                                    <th className="hidden-mobile">3-Way Match</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -284,39 +284,39 @@ export default function ReceivingPage() {
                                     const canReceive = !["CLOSED", "CANCELLED"].includes(po.status);
                                     return (
                                         <tr key={po.id}>
-                                            <td>
+                                            <td data-label="PO Number">
                                                 <div style={{ fontWeight: 700, color: "#5C6AC4", fontFamily: "monospace" }}>{po.poNumber}</div>
                                                 <div style={{ fontSize: "0.75rem", color: "#919EAB" }}>
                                                     {new Date(po.issuedAt).toLocaleDateString()}
                                                 </div>
                                             </td>
-                                            <td style={{ fontWeight: 600 }}>{po.vendorName}</td>
-                                            <td>
+                                            <td data-label="Vendor" style={{ fontWeight: 600 }}>{po.vendorName}</td>
+                                            <td data-label="Department" className="hidden-mobile">
                                                 <span style={{ fontSize: "0.8rem", background: "#E8EAF6", color: "#5C6AC4", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>
                                                     {po.department}
                                                 </span>
                                             </td>
-                                            <td style={{ color: "#637381" }}>{po.items.length} line{po.items.length !== 1 ? "s" : ""}</td>
-                                            <td style={{ color: "#637381", fontSize: "0.875rem" }}>
+                                            <td data-label="Items" className="hidden-mobile" style={{ color: "#637381" }}>{po.items.length} line{po.items.length !== 1 ? "s" : ""}</td>
+                                            <td data-label="Expected By" className="hidden-mobile" style={{ color: "#637381", fontSize: "0.875rem" }}>
                                                 {po.expectedDeliveryDate
                                                     ? new Date(po.expectedDeliveryDate).toLocaleDateString()
                                                     : "—"}
                                             </td>
-                                            <td style={{ textAlign: "right", fontWeight: 700 }}>
+                                            <td data-label="Total Value" style={{ textAlign: "right", fontWeight: 700 }}>
                                                 {formatCurrency(po.totalAmount, po.currency || "USD")}
                                             </td>
-                                            <td>
+                                            <td data-label="Status">
                                                 <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 10px", borderRadius: 9999, fontSize: "0.75rem", fontWeight: 700, background: po.status === "RECEIVED" ? "#E9FBF0" : "#FFF7CD", color: po.status === "RECEIVED" ? "#00AB55" : "#B76E00" }}>
                                                     ● {po.status}
                                                 </span>
                                             </td>
-                                            <td>
+                                            <td data-label="3-Way Match" className="hidden-mobile">
                                                 <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "2px 10px", borderRadius: 9999, background: match.bg, color: match.color }}>
                                                     {match.label}
                                                 </span>
                                             </td>
                                             <td>
-                                                <div style={{ display: "flex", gap: "0.5rem" }}>
+                                                <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
                                                     {canReceive && (
                                                         <button
                                                             className="btn btn-primary btn-sm"
@@ -348,18 +348,18 @@ export default function ReceivingPage() {
                         </div>
                     </div>
                 ) : (
-                    <div className="table-wrapper">
+                    <div className="table-wrapper responsive-table">
                         <table className="data-table">
                             <thead>
                                 <tr>
                                     <th>Date</th>
                                     <th>PO Number</th>
                                     <th>Vendor</th>
-                                    <th>Received By</th>
-                                    <th>Lines</th>
-                                    <th>Type</th>
+                                    <th className="hidden-mobile">Received By</th>
+                                    <th className="hidden-mobile">Lines</th>
+                                    <th className="hidden-mobile">Type</th>
                                     <th>Quality</th>
-                                    <th>Packing Slip</th>
+                                    <th className="hidden-mobile">Packing Slip</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -372,38 +372,40 @@ export default function ReceivingPage() {
                                         const withinWindow = (Date.now() - createdAt.getTime()) / 3_600_000 < 24;
                                         return (
                                             <tr key={receipt.id}>
-                                                <td style={{ color: "#637381", fontSize: "0.8125rem" }}>
+                                                <td data-label="Date" style={{ color: "#637381", fontSize: "0.8125rem" }}>
                                                     {createdAt.toLocaleDateString()}{" "}
-                                                    <span style={{ color: "#919EAB", fontSize: "0.75rem" }}>
+                                                    <span className="hidden-mobile" style={{ color: "#919EAB", fontSize: "0.75rem" }}>
                                                         {createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                                                     </span>
                                                 </td>
-                                                <td style={{ fontWeight: 700, color: "#5C6AC4", fontFamily: "monospace" }}>
+                                                <td data-label="PO Number" style={{ fontWeight: 700, color: "#5C6AC4", fontFamily: "monospace" }}>
                                                     {receipt.poNumber || receipt.poId.slice(-6)}
                                                 </td>
-                                                <td style={{ fontWeight: 600 }}>{receipt.poVendorName || "—"}</td>
-                                                <td style={{ color: "#637381" }}>{receipt.receivedByName}</td>
-                                                <td style={{ color: "#637381" }}>{receipt.lines?.length ?? 0} line(s)</td>
-                                                <td>
+                                                <td data-label="Vendor" style={{ fontWeight: 600 }}>{receipt.poVendorName || "—"}</td>
+                                                <td data-label="Received By" className="hidden-mobile" style={{ color: "#637381" }}>{receipt.receivedByName}</td>
+                                                <td data-label="Lines" className="hidden-mobile" style={{ color: "#637381" }}>{receipt.lines?.length ?? 0} line(s)</td>
+                                                <td data-label="Type" className="hidden-mobile">
                                                     {receipt.isAutoReceive
                                                         ? <span style={{ fontSize: "0.75rem", background: "#CAFDF5", color: "#006098", padding: "2px 8px", borderRadius: 9999, fontWeight: 700 }}>Auto-Receive</span>
                                                         : <span style={{ fontSize: "0.75rem", background: "#E8EAF6", color: "#5C6AC4", padding: "2px 8px", borderRadius: 9999, fontWeight: 700 }}>Physical</span>
                                                     }
                                                 </td>
-                                                <td>
-                                                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                                                <td data-label="Quality">
+                                                    <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: 'flex-end' }}>
                                                         <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 10px", borderRadius: 9999, fontSize: "0.75rem", fontWeight: 700, background: qStyle.bg, color: qStyle.color }}>
                                                             ● {receipt.overallQualityStatus}
                                                         </span>
-                                                        {receipt.overallQualityStatus === "PASSED" ? null : (
-                                                            <button onClick={() => handleQC(receipt, "PASSED")} style={{ fontSize: "0.7rem", padding: "2px 6px", borderRadius: 4, border: "1px solid #00AB55", color: "#00AB55", background: "none", cursor: "pointer" }}>Pass</button>
-                                                        )}
-                                                        {receipt.overallQualityStatus === "FAILED" ? null : (
-                                                            <button onClick={() => handleQC(receipt, "FAILED")} style={{ fontSize: "0.7rem", padding: "2px 6px", borderRadius: 4, border: "1px solid #B72136", color: "#B72136", background: "none", cursor: "pointer" }}>Fail</button>
-                                                        )}
+                                                        <div className="hidden-mobile" style={{ display: 'flex', gap: 4 }}>
+                                                            {receipt.overallQualityStatus === "PASSED" ? null : (
+                                                                <button onClick={() => handleQC(receipt, "PASSED")} style={{ fontSize: "0.7rem", padding: "2px 6px", borderRadius: 4, border: "1px solid #00AB55", color: "#00AB55", background: "none", cursor: "pointer" }}>Pass</button>
+                                                            )}
+                                                            {receipt.overallQualityStatus === "FAILED" ? null : (
+                                                                <button onClick={() => handleQC(receipt, "FAILED")} style={{ fontSize: "0.7rem", padding: "2px 6px", borderRadius: 4, border: "1px solid #B72136", color: "#B72136", background: "none", cursor: "pointer" }}>Fail</button>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </td>
-                                                <td>
+                                                <td data-label="Packing Slip" className="hidden-mobile">
                                                     {receipt.packingSlipUrl
                                                         ? <a href={receipt.packingSlipUrl} target="_blank" rel="noreferrer" style={{ color: "#5C6AC4", fontWeight: 600, fontSize: "0.8rem" }}>📎 View</a>
                                                         : receipt.packingSlipName
@@ -411,14 +413,16 @@ export default function ReceivingPage() {
                                                             : <span style={{ color: "#DFE3E8" }}>—</span>
                                                     }
                                                 </td>
-                                                <td>
-                                                    {withinWindow && (
-                                                        <button
-                                                            onClick={() => handleUnreceive(receipt)}
-                                                            style={{ fontSize: "0.75rem", padding: "3px 10px", borderRadius: 6, border: "1px solid #DFE3E8", color: "#637381", background: "white", cursor: "pointer" }}>
-                                                            Unreceive
-                                                        </button>
-                                                    )}
+                                                <td data-label="Actions">
+                                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                        {withinWindow && (
+                                                            <button
+                                                                onClick={() => handleUnreceive(receipt)}
+                                                                style={{ fontSize: "0.75rem", padding: "3px 10px", borderRadius: 6, border: "1px solid #DFE3E8", color: "#637381", background: "white", cursor: "pointer" }}>
+                                                                Unreceive
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </tr>
                                         );

@@ -238,7 +238,7 @@ export default function InvoicesPage() {
             </div>
 
             {/* Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                 {[
                     { label: 'Total Volume', value: formatCurrency(stats.totalAmount, stats.displayCurrency), color: 'var(--brand)', bg: 'var(--brand-soft)', icon: '📊' },
                     { label: 'Pending Payment', value: formatCurrency(stats.pending, stats.displayCurrency), color: 'var(--warning)', bg: 'var(--warning-bg)', icon: '⏳' },
@@ -260,14 +260,15 @@ export default function InvoicesPage() {
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', alignItems: 'center' }}>
                 <div style={{ position: 'relative', flex: 1, maxWidth: 380 }}>
                     <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }}>🔍</span>
-                    <input type="text" placeholder="Search invoice # or vendor..."
+                    <input type="text" placeholder="Search..."
                         value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                         className="form-input" style={{ paddingLeft: '2.25rem' }} />
                 </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%' }}>
                     {['ALL', 'PENDING', 'APPROVED', 'PAID', 'REJECTED'].map(s => (
                         <button key={s} onClick={() => setStatusFilter(s)}
-                            className={statusFilter === s ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}>
+                            className={statusFilter === s ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
+                            style={{ flexShrink: 0 }}>
                             {s === 'ALL' ? 'All' : s[0] + s.slice(1).toLowerCase()}
                         </button>
                     ))}
@@ -333,7 +334,7 @@ export default function InvoicesPage() {
                                     ]}
                                     placeholder="Select PO"
                                 />
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                                <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                                     <div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <label className="form-label">Invoice #</label>
@@ -362,7 +363,7 @@ export default function InvoicesPage() {
                                         />
                                     </div>
                                 </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                                     <div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <label className="form-label">Issue Date</label>
@@ -423,17 +424,17 @@ export default function InvoicesPage() {
                     </div>
                 </div>
             ) : (
-                <div className="table-wrapper">
+                <div className="table-wrapper responsive-table">
                     <table className="data-table">
                         <thead>
                             <tr>
                                 <th>Status</th>
                                 <th>Invoice #</th>
                                 <th>Vendor / PO</th>
-                                <th>Due Date</th>
-                                <th>AI Confidence</th>
+                                <th className="hidden-mobile">Due Date</th>
+                                <th className="hidden-mobile">AI Confidence</th>
                                 <th style={{ textAlign: 'right' }}>Amount</th>
-                                <th style={{ textAlign: 'center' }}>Attach</th>
+                                <th className="hidden-mobile" style={{ textAlign: 'center' }}>Attach</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -442,27 +443,27 @@ export default function InvoicesPage() {
                                 const isOverdue = new Date(inv.dueDate) < new Date() && inv.status === 'PENDING';
                                 return (
                                     <tr key={inv.id} onClick={() => setSelectedInvoice(inv)} style={{ cursor: 'pointer' }}>
-                                        <td>
+                                        <td data-label="Status">
                                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 10px', borderRadius: 9999, fontSize: '0.75rem', fontWeight: 700, background: s.bg, color: s.color }}>
                                                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: s.color, flexShrink: 0 }} />
                                                 {inv.status}
                                             </span>
                                         </td>
-                                        <td>
+                                        <td data-label="Invoice #">
                                             <div style={{ fontWeight: 700, color: 'var(--brand)', fontFamily: 'monospace', fontSize: '0.875rem' }}>{inv.invoiceNumber}</div>
-                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Created {new Date(inv.createdAt).toLocaleDateString()}</div>
+                                            <div className="hidden-mobile" style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Created {new Date(inv.createdAt).toLocaleDateString()}</div>
                                         </td>
-                                        <td>
+                                        <td data-label="Vendor / PO">
                                             <div style={{ fontWeight: 600 }}>{inv.vendorName}</div>
                                             <div style={{ fontSize: '0.75rem', color: 'var(--brand)', fontWeight: 600 }}>#{inv.poNumber}</div>
                                         </td>
-                                        <td>
+                                        <td data-label="Due Date" className="hidden-mobile">
                                             <div style={{ fontSize: '0.875rem', color: isOverdue ? 'var(--error)' : 'var(--text-secondary)', fontWeight: isOverdue ? 700 : 400 }}>
                                                 {new Date(inv.dueDate).toLocaleDateString()}
                                             </div>
                                             {isOverdue && <div style={{ fontSize: '0.7rem', color: 'var(--error)', fontWeight: 700, marginTop: 2 }}>OVERDUE</div>}
                                         </td>
-                                        <td>
+                                        <td data-label="AI Confidence" className="hidden-mobile">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                                 <div style={{ flex: 1, height: '4px', backgroundColor: 'var(--border)', borderRadius: '2px', width: '60px' }}>
                                                     <div style={{
@@ -476,10 +477,10 @@ export default function InvoicesPage() {
                                             </div>
                                             {inv.hasFraudAlert && <div style={{ fontSize: '0.65rem', color: 'var(--error)', fontWeight: 700, marginTop: 2 }}>⚠️ FRAUD ALERT</div>}
                                         </td>
-                                        <td style={{ textAlign: 'right', fontWeight: 800, fontSize: '0.9375rem' }}>
+                                        <td data-label="Amount" style={{ textAlign: 'right', fontWeight: 800, fontSize: '0.9375rem' }}>
                                             {formatCurrency(inv.amount, inv.currency)}
                                         </td>
-                                        <td style={{ textAlign: 'center' }}>
+                                        <td data-label="Attachment" className="hidden-mobile" style={{ textAlign: 'center' }}>
                                             {inv.fileName ? <span title={inv.fileName} style={{ fontSize: '1rem' }}>📎</span> : <span style={{ color: 'var(--border)' }}>—</span>}
                                         </td>
                                     </tr>

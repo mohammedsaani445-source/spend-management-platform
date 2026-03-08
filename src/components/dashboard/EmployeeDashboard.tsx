@@ -100,11 +100,26 @@ export default function EmployeeDashboard({ user, requisitions }: EmployeeDashbo
                 ))}
             </div>
 
+            {/* === KPI CARDS === */}
+            <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+                {[
+                    { label: 'Total Requests', value: requisitions.length, color: 'var(--brand)', bg: 'var(--brand-soft)' },
+                    { label: 'Pending', value: requisitions.filter(r => r.status === 'PENDING').length, color: 'var(--warning)', bg: 'var(--warning-bg)' },
+                    { label: 'Approved', value: requisitions.filter(r => r.status === 'APPROVED').length, color: 'var(--success)', bg: 'var(--success-soft)' },
+                    { label: 'Ordered', value: requisitions.filter(r => r.status === 'ORDERED').length, color: 'var(--info)', bg: 'var(--info-bg)' },
+                ].map(s => (
+                    <div key={s.label} className="card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{s.label}</div>
+                        <div style={{ fontSize: '1.75rem', fontWeight: 700, color: 'var(--text-primary)' }}>{s.value}</div>
+                    </div>
+                ))}
+            </div>
+
             {/* Main 2-column grid */}
-            <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '1.5rem' }}>
+            <div className="dashboard-grid">
 
                 {/* My Recent Requests */}
-                <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem', overflowX: 'auto', minWidth: 0 }}>
+                <div className="card" style={{ padding: '1.5rem', overflowX: 'auto', minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                         <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>My Requests</h2>
                         <Link href="/dashboard/requisitions" style={{ fontSize: '0.8125rem', color: 'var(--brand)', fontWeight: 600 }}>View all</Link>
@@ -117,33 +132,37 @@ export default function EmployeeDashboard({ user, requisitions }: EmployeeDashbo
                             <div style={{ fontSize: '0.8125rem' }}>Create your first purchase request to get started.</div>
                         </div>
                     ) : (
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-                            <thead>
-                                <tr>
-                                    {['REQ #', 'Description', 'Amount', 'Status'].map(h => (
-                                        <th key={h} style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border)' }}>{h}</th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {activeRequests.map(req => (
-                                    <tr key={req.id} onClick={() => router.push('/dashboard/requisitions')} style={{ cursor: 'pointer' }}>
-                                        <td style={{ padding: '0.75rem', fontFamily: 'monospace', fontWeight: 600, color: 'var(--brand)', borderBottom: '1px solid var(--background)' }}>
-                                            #{req.id?.slice(-5).toUpperCase()}
-                                        </td>
-                                        <td style={{ padding: '0.75rem', borderBottom: '1px solid var(--background)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
-                                            {(req as any).description || req.vendorName || '—'}
-                                        </td>
-                                        <td style={{ padding: '0.75rem', fontWeight: 700, borderBottom: '1px solid var(--background)' }}>
-                                            {formatCurrency(req.totalAmount, req.currency)}
-                                        </td>
-                                        <td style={{ padding: '0.75rem', borderBottom: '1px solid var(--background)' }}>
-                                            <StatusBadge status={req.status} />
-                                        </td>
+                        <div className="responsive-table">
+                            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                                <thead>
+                                    <tr>
+                                        {['REQ #', 'Description', 'Amount', 'Status'].map(h => (
+                                            <th key={h} className={h === 'Description' || h === 'REQ #' ? '' : 'hidden-mobile'} style={{ padding: '0.5rem 0.75rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', borderBottom: '1px solid var(--border)' }}>{h}</th>
+                                        ))}
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {activeRequests.map(req => (
+                                        <tr key={req.id} onClick={() => router.push('/dashboard/requisitions')} style={{ cursor: 'pointer' }}>
+                                            <td data-label="REQ #" style={{ padding: '0.75rem', fontFamily: 'monospace', fontWeight: 600, color: 'var(--brand)', borderBottom: '1px solid var(--background)' }}>
+                                                #{req.id?.slice(-5).toUpperCase()}
+                                            </td>
+                                            <td data-label="Description" style={{ padding: '0.75rem', borderBottom: '1px solid var(--background)', maxWidth: '160px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text-primary)' }}>
+                                                {(req as any).description || req.vendorName || '—'}
+                                            </td>
+                                            <td data-label="Amount" style={{ padding: '0.75rem', fontWeight: 700, borderBottom: '1px solid var(--background)' }}>
+                                                {formatCurrency(req.totalAmount, req.currency)}
+                                            </td>
+                                            <td data-label="Status" style={{ padding: '0.75rem', borderBottom: '1px solid var(--background)' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                    <StatusBadge status={req.status} />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
                     )}
                 </div>
 
