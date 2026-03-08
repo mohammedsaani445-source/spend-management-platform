@@ -31,13 +31,30 @@ export default function DashboardLayout({
     const pathname = usePathname();
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Initial state from localStorage
+    useEffect(() => {
+        const saved = localStorage.getItem('sidebar-collapsed');
+        if (saved !== null) {
+            setIsCollapsed(saved === 'true');
+        }
+        setIsMounted(true);
+    }, []);
+
+    // Save state to localStorage
+    const handleToggleCollapse = () => {
+        const newState = !isCollapsed;
+        setIsCollapsed(newState);
+        localStorage.setItem('sidebar-collapsed', String(newState));
+    };
 
     // Close mobile menu when navigating
     useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [pathname]);
 
-    if (loading) return <Loader fullScreen={true} text="Authenticating..." />;
+    if (loading || !isMounted) return <Loader fullScreen={true} text="Authenticating..." />;
 
     if (!user) return null;
 
@@ -52,7 +69,7 @@ export default function DashboardLayout({
 
             <Sidebar
                 isCollapsed={isCollapsed}
-                onToggle={() => setIsCollapsed(!isCollapsed)}
+                onToggle={handleToggleCollapse}
                 isMobileMenuOpen={isMobileMenuOpen}
             />
 

@@ -99,7 +99,7 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                                     <Link
                                         href={item.href}
                                         className={`${styles.navLink} ${isActive(item.href, item.exact) ? styles.navLinkActive : ''}`}
-                                        title={isCollapsed ? item.name : undefined}
+                                        title={item.name}
                                         style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '0' : '0 1rem' }}
                                     >
                                         <span className={styles.navIcon} style={typeof item.icon === 'string' ? { fontFamily: 'monospace', fontSize: '1.25rem' } : { display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -127,7 +127,7 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                                     <Link
                                         href={item.href}
                                         className={`${styles.navLink} ${isActive(item.href) ? styles.navLinkActive : ''}`}
-                                        title={isCollapsed ? item.name : undefined}
+                                        title={item.name}
                                         style={{ justifyContent: isCollapsed ? 'center' : 'flex-start', padding: isCollapsed ? '0' : '0 1rem' }}
                                     >
                                         <span className={styles.navIcon} style={typeof item.icon === 'string' ? { fontFamily: 'monospace', fontSize: '1.25rem' } : { display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

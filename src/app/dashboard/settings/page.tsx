@@ -223,34 +223,34 @@ export default function SettingsPage() {
             <div className={styles.layout}>
                 {/* Fixed Navigation Sidebar */}
                 <div className={styles.sidebar}>
-                    <button onClick={() => setActiveTab('PROFILE')} className={`${styles.navLink} ${activeTab === 'PROFILE' ? styles.navLinkActive : ''}`}>
+                    <button onClick={() => setActiveTab('PROFILE')} className={`${styles.navLink} ${activeTab === 'PROFILE' ? styles.navLinkActive : ''}`} data-label="Profile Details">
                         <User size={18} className={styles.navIcon} /> Profile Details
                     </button>
-                    <button onClick={() => setActiveTab('SECURITY')} className={`${styles.navLink} ${activeTab === 'SECURITY' ? styles.navLinkActive : ''}`}>
+                    <button onClick={() => setActiveTab('SECURITY')} className={`${styles.navLink} ${activeTab === 'SECURITY' ? styles.navLinkActive : ''}`} data-label="Security & Privacy">
                         <Shield size={18} className={styles.navIcon} /> Security & Privacy
                     </button>
-                    <button onClick={() => setActiveTab('NOTIFICATIONS')} className={`${styles.navLink} ${activeTab === 'NOTIFICATIONS' ? styles.navLinkActive : ''}`}>
+                    <button onClick={() => setActiveTab('NOTIFICATIONS')} className={`${styles.navLink} ${activeTab === 'NOTIFICATIONS' ? styles.navLinkActive : ''}`} data-label="Notifications">
                         <Bell size={18} className={styles.navIcon} /> Notifications
                     </button>
 
                     {(user.role === 'ADMIN' || user.role === 'SUPERUSER') && (
                         <>
                             <div className={styles.navSection}>Administrative</div>
-                            <button onClick={() => setActiveTab('AUDIT')} className={`${styles.navLink} ${activeTab === 'AUDIT' ? styles.navLinkActive : ''}`}>
+                            <button onClick={() => setActiveTab('AUDIT')} className={`${styles.navLink} ${activeTab === 'AUDIT' ? styles.navLinkActive : ''}`} data-label="Security Audit Log">
                                 <ScrollText size={18} className={styles.navIcon} /> Security Audit Log
                             </button>
-                            <button onClick={() => setActiveTab('HIERARCHY')} className={`${styles.navLink} ${activeTab === 'HIERARCHY' ? styles.navLinkActive : ''}`}>
+                            <button onClick={() => setActiveTab('HIERARCHY')} className={`${styles.navLink} ${activeTab === 'HIERARCHY' ? styles.navLinkActive : ''}`} data-label="Organizational Hierarchy">
                                 <Network size={18} className={styles.navIcon} /> Organizational Hierarchy
                             </button>
-                            <button onClick={() => setActiveTab('WORKFLOWS')} className={`${styles.navLink} ${activeTab === 'WORKFLOWS' ? styles.navLinkActive : ''}`}>
+                            <button onClick={() => setActiveTab('WORKFLOWS')} className={`${styles.navLink} ${activeTab === 'WORKFLOWS' ? styles.navLinkActive : ''}`} data-label="Workflow Designer">
                                 <GitMerge size={18} className={styles.navIcon} /> Workflow Designer
                             </button>
-                            <button onClick={() => setActiveTab('TEAM')} className={`${styles.navLink} ${activeTab === 'TEAM' ? styles.navLinkActive : ''}`}>
+                            <button onClick={() => setActiveTab('TEAM')} className={`${styles.navLink} ${activeTab === 'TEAM' ? styles.navLinkActive : ''}`} data-label="Team Management">
                                 <Users size={18} className={styles.navIcon} /> Team Management
                             </button>
                         </>
                     )}
-                    <button onClick={() => setIsLogoutModalOpen(true)} className={`${styles.navLink} ${styles.navLinkDanger}`}>
+                    <button onClick={() => setIsLogoutModalOpen(true)} className={`${styles.navLink} ${styles.navLinkDanger}`} data-label="Sign Out">
                         <LogOut size={18} className={styles.navIcon} /> Sign Out
                     </button>
                 </div>
