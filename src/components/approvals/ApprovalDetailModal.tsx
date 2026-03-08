@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { Requisition, Budget } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface ApprovalDetailModalProps {
     requisition: Requisition;
@@ -23,6 +24,7 @@ export default function ApprovalDetailModal({
     onReject,
     onRevision
 }: ApprovalDetailModalProps) {
+    useScrollLock(true);
 
     const [comment, setComment] = useState("");
 

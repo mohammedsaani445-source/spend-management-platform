@@ -5,6 +5,7 @@ import { formatCurrency } from "@/lib/currencies";
 import { useState, useEffect } from "react";
 import { getRequisitions } from "@/lib/requisitions";
 import { useAuth } from "@/context/AuthContext";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface ApprovalFocusModalProps {
     requisition: Requisition;
@@ -24,6 +25,7 @@ export default function ApprovalFocusModal({
     onApprove,
     onReject
 }: ApprovalFocusModalProps) {
+    useScrollLock(true);
     const { user } = useAuth();
     const [priceHistory, setPriceHistory] = useState<{ item: string, lastPrice: number, date: Date }[]>([]);
     const [loadingHistory, setLoadingHistory] = useState(true);

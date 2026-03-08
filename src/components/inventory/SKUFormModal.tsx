@@ -5,6 +5,7 @@ import { SKU } from "@/types";
 import { createSKU } from "@/lib/inventory";
 import { useAuth } from "@/context/AuthContext";
 import styles from "@/components/layout/Layout.module.css";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface SKUFormModalProps {
     onClose: () => void;
@@ -14,6 +15,8 @@ interface SKUFormModalProps {
 export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+
+    useScrollLock(true);
     const [formData, setFormData] = useState({
         code: "",
         name: "",

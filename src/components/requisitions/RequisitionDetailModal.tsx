@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { Requisition, RequisitionStatus } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface RequisitionDetailModalProps {
     requisition: Requisition;
@@ -17,6 +18,7 @@ export default function RequisitionDetailModal({
     onDuplicate,
     onSource
 }: RequisitionDetailModalProps) {
+    useScrollLock(true);
 
     // Status Timeline Logic
     const steps = [

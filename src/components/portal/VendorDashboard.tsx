@@ -5,6 +5,7 @@ import { PortalSession, PurchaseOrder, Invoice } from "@/types";
 import { getPurchaseOrders, logDeliveryEvent } from "@/lib/purchaseOrders";
 import { getInvoices } from "@/lib/invoices";
 import styles from "./Portal.module.css";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface VendorDashboardProps {
     session: PortalSession;
@@ -15,6 +16,8 @@ export default function VendorDashboard({ session }: VendorDashboardProps) {
     const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedPO, setSelectedPO] = useState<PurchaseOrder | null>(null);
+
+    useScrollLock(!!selectedPO);
 
     useEffect(() => {
         loadVendorData();

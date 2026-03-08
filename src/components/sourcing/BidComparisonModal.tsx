@@ -5,6 +5,7 @@ import { RFP, Quotation } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
 import tableStyles from "@/components/assets/Assets.module.css";
 import styles from "@/components/layout/Layout.module.css";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface BidComparisonModalProps {
     rfp: RFP;
@@ -15,6 +16,8 @@ interface BidComparisonModalProps {
 
 export default function BidComparisonModal({ rfp, bids, onClose, onAward }: BidComparisonModalProps) {
     const [selectedBidId, setSelectedBidId] = useState<string | null>(null);
+
+    useScrollLock(true);
 
     const isLocked = new Date() < new Date(rfp.deadline) && rfp.status === 'OPEN';
 

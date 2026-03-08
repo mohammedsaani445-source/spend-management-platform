@@ -5,6 +5,7 @@ import { PurchaseOrder, CommunicationLog } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
 import EmailComposerModal from "./EmailComposerModal";
 import { getCommunicationHistory } from "@/lib/communications";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface PODetailModalProps {
     po: PurchaseOrder;
@@ -21,6 +22,7 @@ export default function PODetailModal({
     onCancel,
     onEmailVendor
 }: PODetailModalProps) {
+    useScrollLock(true);
     const [showEmailComposer, setShowEmailComposer] = useState(false);
     const [communicationHistory, setCommunicationHistory] = useState<CommunicationLog[]>([]);
     const [showHistory, setShowHistory] = useState(false);

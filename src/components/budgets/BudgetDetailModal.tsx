@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import { Budget, Requisition } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
 import { X, TrendingUp, AlertTriangle, AlertCircle, PieChart, Info, Building2, User, FileText, CheckCircle2 } from "lucide-react";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface BudgetDetailModalProps {
     budget: Budget;
@@ -16,6 +17,7 @@ export default function BudgetDetailModal({
     requisitions,
     onClose
 }: BudgetDetailModalProps) {
+    useScrollLock(true);
     const currency = budget.currency || 'USD';
     const totalSpent = requisitions.reduce((sum, r) => sum + r.totalAmount, 0);
     const percentInitial = (totalSpent / budget.amount) * 100;

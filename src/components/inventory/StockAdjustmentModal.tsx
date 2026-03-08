@@ -5,6 +5,7 @@ import { SKU, Warehouse } from "@/types";
 import { adjustStock } from "@/lib/inventory";
 import { useAuth } from "@/context/AuthContext";
 import styles from "@/components/layout/Layout.module.css";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface StockAdjustmentModalProps {
     skus: SKU[];
@@ -16,6 +17,8 @@ interface StockAdjustmentModalProps {
 export default function StockAdjustmentModal({ skus, warehouses, onClose, onSaved }: StockAdjustmentModalProps) {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+
+    useScrollLock(true);
     const [formData, setFormData] = useState({
         skuId: "",
         warehouseId: "",

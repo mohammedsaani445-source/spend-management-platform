@@ -5,6 +5,7 @@ import { Requisition, RFP, Vendor } from "@/types";
 import { createRFP, getRFPSubmissionLink } from "@/lib/sourcing";
 import { useAuth } from "@/context/AuthContext";
 import styles from "@/components/layout/Layout.module.css";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface CreateRFPModalProps {
     requisition: Requisition;
@@ -20,6 +21,8 @@ export default function CreateRFPModal({ requisition, vendors, onClose, onCreate
     const [deadline, setDeadline] = useState("");
     const [selectedVendors, setSelectedVendors] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
+
+    useScrollLock(true);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

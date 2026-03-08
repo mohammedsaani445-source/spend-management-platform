@@ -112,17 +112,21 @@ body {
 }
 
 /* Prevent scroll leakage when modals are open */
+html.no-scroll,
 body.no-scroll {
   overflow: hidden !important;
   height: 100vh !important;
   width: 100vw !important;
+  position: fixed !important;
+  /* Forces layout to stay put */
 }
 
 body.no-scroll main,
 body.no-scroll [class*="mainWrapper"],
+body.no-scroll [class*="pageContainer"],
 body.no-scroll .page-container {
   overflow: hidden !important;
-  height: 100% !important;
+  height: 100vh !important;
 }
 
 a {

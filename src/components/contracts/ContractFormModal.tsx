@@ -6,6 +6,7 @@ import { createContract, updateContract } from "@/lib/contracts";
 import { useAuth } from "@/context/AuthContext";
 import FileUploader from "@/components/common/FileUploader";
 import styles from "@/components/layout/Layout.module.css";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface ContractFormModalProps {
     contract?: Contract; // If provided, we are in EDIT mode
@@ -17,6 +18,8 @@ interface ContractFormModalProps {
 export default function ContractFormModal({ contract, vendors, onClose, onSaved }: ContractFormModalProps) {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+
+    useScrollLock(true);
 
     const [formData, setFormData] = useState({
         title: contract?.title || "",

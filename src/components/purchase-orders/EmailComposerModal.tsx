@@ -6,6 +6,7 @@ import { EMAIL_TEMPLATES, EmailTemplate, replaceEmailVariables } from "@/lib/ema
 import { logCommunication } from "@/lib/communications";
 import { useAuth } from "@/context/AuthContext";
 import { generatePortalLink } from "@/lib/portal";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface EmailComposerModalProps {
     po: PurchaseOrder;
@@ -15,6 +16,8 @@ interface EmailComposerModalProps {
 
 export default function EmailComposerModal({ po, onClose, onSent }: EmailComposerModalProps) {
     const { user } = useAuth();
+
+    useScrollLock(true);
     const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate>(EMAIL_TEMPLATES[0]);
     const [subject, setSubject] = useState("");
     const [body, setBody] = useState("");

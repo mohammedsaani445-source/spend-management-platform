@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { auth } from "@/lib/firebase";
 import { useModal } from "@/context/ModalContext";
 import styles from "@/app/dashboard/settings/Settings.module.css";
+import { useScrollLock } from "@/hooks/useScrollLock";
 import {
     Users, Search, UserPlus, Shield, MapPin,
     Building2, UserCog, Mail, X, CheckCircle2,
@@ -111,6 +112,8 @@ export default function UserManagement() {
     const [isInviting, setIsInviting] = useState(false);
     const [inviteError, setInviteError] = useState("");
     const [successMessage, setSuccessMessage] = useState<{ text: string, type: 'success' | 'warning' } | null>(null);
+
+    useScrollLock(isInviteModalOpen);
 
     const handleInviteUser = async (e: React.FormEvent) => {
         e.preventDefault();

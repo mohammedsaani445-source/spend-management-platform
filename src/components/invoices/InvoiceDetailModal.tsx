@@ -4,6 +4,7 @@ import { formatCurrency } from "@/lib/currencies";
 import { getPoReceipts } from "@/lib/receipts";
 import { useAuth } from "@/context/AuthContext";
 import InvoiceUpload from "./InvoiceUpload";
+import { useScrollLock } from "@/hooks/useScrollLock";
 
 interface InvoiceDetailModalProps {
     invoice: Invoice;
@@ -20,6 +21,7 @@ export default function InvoiceDetailModal({
     onPay,
     onStatusUpdate
 }: InvoiceDetailModalProps) {
+    useScrollLock(true);
     const { user } = useAuth();
     const [receipts, setReceipts] = useState<ItemReceipt[]>([]);
     const [loading, setLoading] = useState(true);
