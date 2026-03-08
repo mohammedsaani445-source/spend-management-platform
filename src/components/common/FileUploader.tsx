@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { uploadFile } from "@/lib/storage";
+import Loader from "@/components/common/Loader";
 
 interface FileUploaderProps {
     onUploadComplete: (url: string, fileName: string) => void;
@@ -101,8 +102,7 @@ export default function FileUploader({
 
             {uploading ? (
                 <div style={{ textAlign: 'center' }}>
-                    <div className="spinner" style={{ marginBottom: '1rem' }}></div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Uploading secure document...</div>
+                    <Loader text="Uploading secure document..." />
                 </div>
             ) : fileName ? (
                 <div style={{ textAlign: 'center' }}>

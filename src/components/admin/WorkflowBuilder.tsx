@@ -11,6 +11,7 @@ import {
     AlertCircle, FileText, ChevronRight, Layers, CheckCircle2, Users
 } from "lucide-react";
 import styles from "@/app/dashboard/settings/Settings.module.css";
+import Loader from "@/components/common/Loader";
 
 export default function WorkflowBuilder() {
     const { user } = useAuth();
@@ -127,7 +128,7 @@ export default function WorkflowBuilder() {
         }
     };
 
-    if (loading) return <div style={{ padding: '2.5rem', textAlign: 'center', color: '#6B7280' }}>Loading approval workflows...</div>;
+    if (loading) return <Loader text="Loading approval workflows..." />;
 
     return (
         <div style={{ animation: 'fadeIn 0.3s ease-out' }}>

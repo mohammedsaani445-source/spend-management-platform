@@ -11,6 +11,7 @@ import {
     GitMerge, Users, LogOut, CheckCircle2,
     Smartphone, X
 } from "lucide-react";
+import Loader from "@/components/common/Loader";
 import styles from "./Settings.module.css";
 
 import WorkflowBuilder from "@/components/admin/WorkflowBuilder";
@@ -139,7 +140,7 @@ export default function SettingsPage() {
         }
     };
 
-    if (!user) return <div style={{ padding: '2rem', textAlign: 'center', color: '#6B7280' }}>Loading user data...</div>;
+    if (!user) return <Loader text="Loading user data..." />;
 
     return (
         <div className={styles.container}>

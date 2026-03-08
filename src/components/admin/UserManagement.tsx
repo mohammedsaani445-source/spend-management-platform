@@ -16,6 +16,7 @@ import {
     Building2, UserCog, Mail, X, CheckCircle2,
     XCircle, AlertCircle, ChevronDown, AlertTriangle
 } from "lucide-react";
+import Loader from "@/components/common/Loader";
 
 export default function UserManagement() {
     const { user: currentUser } = useAuth();
@@ -172,7 +173,7 @@ export default function UserManagement() {
         (u.displayName || "").toLowerCase().includes(filter.toLowerCase())
     );
 
-    if (loading) return <div style={{ padding: '2.5rem', textAlign: 'center', color: '#6B7280' }}>Loading user directory...</div>;
+    if (loading) return <Loader text="Loading user directory..." />;
 
     return (
         <div style={{ animation: 'fadeIn 0.3s ease-out' }}>

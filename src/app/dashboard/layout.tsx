@@ -7,6 +7,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createUserProfile } from "@/lib/db";
 import styles from "@/components/layout/Layout.module.css";
+import Loader from "@/components/common/Loader";
 
 export default function DashboardLayout({
     children,
@@ -36,7 +37,7 @@ export default function DashboardLayout({
         setIsMobileMenuOpen(false);
     }, [pathname]);
 
-    if (loading) return null; // Or a loading spinner
+    if (loading) return <Loader fullScreen={true} text="Authenticating..." />;
 
     if (!user) return null;
 
