@@ -3,6 +3,8 @@
 import { useEffect, useState, use } from "react";
 import { PurchaseOrder } from "@/types";
 import { getPurchaseOrderById, logDeliveryEvent } from "@/lib/purchaseOrders";
+import Loader from "@/components/common/Loader";
+import styles from "@/components/layout/Layout.module.css";
 import { formatCurrency } from "@/lib/currencies";
 
 export default function PublicPOPage({ params }: { params: Promise<{ id: string }> }) {
@@ -37,11 +39,8 @@ export default function PublicPOPage({ params }: { params: Promise<{ id: string 
     };
 
     if (loading) return (
-        <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8fafc' }}>
-            <div style={{ textAlign: 'center' }}>
-                <div className="animate-spin" style={{ fontSize: '2rem', marginBottom: '1rem' }}>🔄</div>
-                <p style={{ color: '#64748b' }}>Securely loading document...</p>
-            </div>
+        <div className={styles.pageContainer} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--background)' }}>
+            <Loader text="Loading Purchase Order..." />
         </div>
     );
 

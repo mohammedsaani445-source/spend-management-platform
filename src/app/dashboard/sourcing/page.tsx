@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Plus, Search, Filter, Target, Zap, Shield, Users, ArrowUpRight, Calendar, Clock } from "lucide-react";
+import Loader from "@/components/common/Loader";
 import { RFP, RFPStatus, Quotation, Requisition, Vendor } from "@/types";
 import { getRFPs, getRFPQuotes, awardBid, getRFPSubmissionLink } from "@/lib/sourcing";
 import { getRequisitions } from "@/lib/requisitions";
@@ -88,7 +90,11 @@ export default function SourcingPage() {
         }
     };
 
-    if (loading) return <div style={{ padding: '2rem' }}>Loading sourcing events...</div>;
+    if (loading) return (
+        <div className="page-container">
+            <Loader text="Loading sourcing events..." />
+        </div>
+    );
 
     return (
         <div className={styles.pageContainer}>

@@ -11,7 +11,9 @@ import { useAuth } from "@/context/AuthContext";
 import { logAction } from "@/lib/audit";
 import CustomSelect from "@/components/ui/CustomSelect";
 import BudgetDetailModal from "@/components/budgets/BudgetDetailModal";
-import { Briefcase, CreditCard, AlertTriangle, AlertCircle, X, Plus, Wallet, PieChart, Info, ArrowUpRight } from "lucide-react";
+import { Plus, Wallet, TrendingUp, AlertCircle, Calendar, Briefcase, CreditCard, AlertTriangle, PieChart, Info, ArrowUpRight, X } from "lucide-react";
+import Loader from "@/components/common/Loader";
+import styles from "@/components/layout/Layout.module.css";
 
 const DEPT_OPTIONS = ["General", "IT", "Marketing", "Operations", "Finance", "HR"];
 
@@ -175,7 +177,7 @@ export default function BudgetsPage() {
 
     if (loading) return (
         <div className="page-container">
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>Loading budgets...</div>
+            <Loader text="Loading budgets..." />
         </div>
     );
 

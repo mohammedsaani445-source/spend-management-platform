@@ -1,5 +1,8 @@
 "use client";
 
+import { Plus, Search, Filter, Download, FileText, PieChart, TrendingUp, Calendar, ArrowUpRight } from "lucide-react";
+import Loader from "@/components/common/Loader";
+import styles from "@/components/layout/Layout.module.css";
 import { useEffect, useState, useMemo } from "react";
 import { PurchaseOrder, POStatus } from "@/types";
 import { subscribeToPurchaseOrders, updatePOStatus } from "@/lib/purchaseOrders";
@@ -90,8 +93,8 @@ export default function PurchaseOrdersPage() {
     };
 
     if (loading) return (
-        <div className="page-container animate-fade-in">
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>Loading purchase orders...</div>
+        <div className="page-container">
+            <Loader text="Loading purchase orders..." />
         </div>
     );
 

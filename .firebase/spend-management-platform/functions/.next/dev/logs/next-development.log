@@ -242,3 +242,984 @@ Import traces:
 [22:59:53.694] Server  LOG     ✓ Compiled in 276ms
 [23:00:30.724] Server  LOG     ✓ Compiled in 85ms
 [23:00:43.470] Server  LOG     ✓ Finished filesystem cache database compaction in 10.6s
+[23:10:00.234] Server  LOG     ✓ Compiled in 471ms
+[23:12:58.970] Server  LOG     ✓ Compiled in 252ms
+[23:20:37.084] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[23:22:52.374] Server  LOG     ✓ Compiled in 2.6s
+[23:40:46.500] Server  LOG     [DEBUG] generating password reset link for "mohammedsaani445@gmail.com"
+[23:40:46.503] Server  LOG     [DEBUG] FIREBASE_PROJECT_ID: "spend-management-platform"
+[23:40:46.505] Server  LOG     [DEBUG] FIREBASE_CLIENT_EMAIL exists? true
+[23:40:46.507] Server  LOG     [DEBUG] FIREBASE_PRIVATE_KEY exists? true
+[23:40:47.200] Server  LOG     [DEV MODE] Invitation generated. Send this link to the user to setup password: https://spend-management-platform.firebaseapp.com/__/auth/action?apiKey=AIzaSyBTj9jFKQlLuJD7U_Pu8BKXC_iVni7dzPY&mode=resetPassword&oobCode=z89bmGgHJKOBKscH9JqCmRWDOzVRV0H7_oaE3EZwMyIAAAGcwDvvcw&continueUrl=http://localhost:3000/login&lang=en
+[23:47:41.822] Server  LOG     ✓ Compiled in 457ms
+[23:48:27.062] Server  LOG     ✓ Compiled in 254ms
+[23:48:27.294] Browser ERROR   ./src/components/admin/UserManagement.tsx:491:1
+Parsing ecmascript source code failed
+  489 |             </div>
+  490 |             );
+> 491 | }
+      | ^
+  492 |
+
+Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+
+Import traces:
+  Client Component Browser:
+    ./src/components/admin/UserManagement.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/admin/UserManagement.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+[23:48:58.602] Server  LOG     ✓ Compiled in 604ms
+[23:52:06.153] Server  LOG     [DEBUG] generating password reset link for "mohammedsaani445@gmail.com"
+[23:52:06.158] Server  LOG     [DEBUG] FIREBASE_PROJECT_ID: "spend-management-platform"
+[23:52:06.160] Server  LOG     [DEBUG] FIREBASE_CLIENT_EMAIL exists? true
+[23:52:06.162] Server  LOG     [DEBUG] FIREBASE_PRIVATE_KEY exists? true
+[23:52:07.128] Server  LOG     [DEV MODE] Resend API key missing or invalid. Invitation generated but NOT sent via email.
+[23:52:07.129] Server  LOG     [DEV LINK] https://spend-management-platform.firebaseapp.com/__/auth/action?apiKey=AIzaSyBTj9jFKQlLuJD7U_Pu8BKXC_iVni7dzPY&mode=resetPassword&oobCode=2CnJWAoiA8BJq_pCEm8s1Iz_sdJ5BA8-lrWxjbkEKUUAAAGcwEZOfw&continueUrl=http://localhost:3000/login&lang=en
+[24:01:49.936] Server  LOG       Reload env: .env.local
+[25:23:04.947] Server  WARN    [2026-03-06T00:43:37.123Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:25:12.259] Server  WARN    [2026-03-06T00:45:44.458Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:27:16.824] Server  WARN    [2026-03-06T00:47:49.022Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:28:19.602] Server  WARN    [2026-03-06T00:48:51.800Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:33:19.028] Server  WARN    [2026-03-06T00:53:51.227Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:35:43.020] Server  WARN    [2026-03-06T00:56:15.219Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:37:16.147] Server  WARN    [2026-03-06T00:57:48.345Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:40:08.499] Server  WARN    [2026-03-06T01:00:40.697Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:43:55.841] Server  WARN    [2026-03-06T01:04:28.040Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:48:25.633] Server  WARN    [2026-03-06T01:08:57.832Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:52:07.575] Server  WARN    [2026-03-06T01:12:39.773Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:54:30.281] Server  WARN    [2026-03-06T01:15:02.479Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:55:09.697] Server  WARN    [2026-03-06T01:15:41.895Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:56:34.007] Server  WARN    [2026-03-06T01:17:06.205Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:57:09.069] Server  WARN    [2026-03-06T01:17:41.268Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:57:33.185] Server  WARN    [2026-03-06T01:18:05.384Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:59:29.225] Server  WARN    [2026-03-06T01:20:01.424Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[25:59:56.515] Server  WARN    [2026-03-06T01:20:28.713Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:01:35.288] Server  WARN    [2026-03-06T01:22:07.487Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:05:40.631] Server  WARN    [2026-03-06T01:26:12.830Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:09:50.871] Server  WARN    [2026-03-06T01:30:23.070Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:12:37.175] Server  WARN    [2026-03-06T01:33:09.373Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:16:08.505] Server  WARN    [2026-03-06T01:36:40.704Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:16:10.817] Server  WARN    [2026-03-06T01:36:43.015Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:17:03.175] Server  WARN    [2026-03-06T01:37:35.374Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:21:00.788] Server  WARN    [2026-03-06T01:41:32.986Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:24:05.875] Server  WARN    [2026-03-06T01:44:38.073Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:24:21.433] Server  WARN    [2026-03-06T01:44:53.631Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:29:04.751] Server  WARN    [2026-03-06T01:49:36.949Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:33:47.208] Server  WARN    [2026-03-06T01:54:19.406Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:34:47.069] Server  WARN    [2026-03-06T01:55:19.266Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:39:37.469] Server  WARN    [2026-03-06T02:00:09.667Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:44:35.398] Server  WARN    [2026-03-06T02:05:07.596Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:47:23.375] Server  WARN    [2026-03-06T02:07:55.574Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:50:36.174] Server  WARN    [2026-03-06T02:11:08.372Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:51:06.152] Server  WARN    [2026-03-06T02:11:38.351Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:55:00.644] Server  WARN    [2026-03-06T02:15:32.843Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:58:31.990] Server  WARN    [2026-03-06T02:19:04.189Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[26:59:06.055] Server  WARN    [2026-03-06T02:19:38.253Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:03:27.860] Server  WARN    [2026-03-06T02:24:00.059Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:07:10.587] Server  WARN    [2026-03-06T02:27:42.786Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:07:21.299] Server  WARN    [2026-03-06T02:27:53.497Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:07:41.324] Server  WARN    [2026-03-06T02:28:13.523Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:10:33.924] Server  WARN    [2026-03-06T02:31:06.123Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:14:14.053] Server  WARN    [2026-03-06T02:34:46.252Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:19:12.155] Server  WARN    [2026-03-06T02:39:44.353Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:19:20.255] Server  WARN    [2026-03-06T02:39:52.454Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:21:46.819] Server  WARN    [2026-03-06T02:42:19.016Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:24:12.724] Server  WARN    [2026-03-06T02:44:44.923Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:28:36.549] Server  WARN    [2026-03-06T02:49:08.747Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:32:24.317] Server  WARN    [2026-03-06T02:52:56.514Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:37:04.724] Server  WARN    [2026-03-06T02:57:36.922Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:39:59.949] Server  WARN    [2026-03-06T03:00:32.147Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:43:32.457] Server  WARN    [2026-03-06T03:04:04.655Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:47:57.557] Server  WARN    [2026-03-06T03:08:29.756Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:52:56.949] Server  WARN    [2026-03-06T03:13:29.147Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:54:25.125] Server  WARN    [2026-03-06T03:14:57.324Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:54:40.171] Server  WARN    [2026-03-06T03:15:12.370Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:55:29.965] Server  WARN    [2026-03-06T03:16:02.164Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:58:22.500] Server  WARN    [2026-03-06T03:18:54.698Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[27:59:26.040] Server  WARN    [2026-03-06T03:19:58.239Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:02:23.101] Server  WARN    [2026-03-06T03:22:55.299Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:02:32.064] Server  WARN    [2026-03-06T03:23:04.263Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:03:45.973] Server  WARN    [2026-03-06T03:24:18.171Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:05:28.504] Server  WARN    [2026-03-06T03:26:00.703Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:07:21.006] Server  WARN    [2026-03-06T03:27:53.205Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:09:01.403] Server  WARN    [2026-03-06T03:29:33.601Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:12:32.733] Server  WARN    [2026-03-06T03:33:04.931Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:16:27.001] Server  WARN    [2026-03-06T03:36:59.199Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:20:39.637] Server  WARN    [2026-03-06T03:41:11.834Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:23:35.666] Server  WARN    [2026-03-06T03:44:07.864Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:24:21.969] Server  WARN    [2026-03-06T03:44:54.168Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:27:25.707] Server  WARN    [2026-03-06T03:47:57.905Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:31:05.172] Server  WARN    [2026-03-06T03:51:37.370Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:33:04.970] Server  WARN    [2026-03-06T03:53:37.168Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:37:17.872] Server  WARN    [2026-03-06T03:57:50.071Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[28:41:59.372] Server  WARN    [2026-03-06T04:02:31.571Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[31:45:41.182] Server  WARN    [2026-03-06T07:06:13.369Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[35:05:55.477] Server  WARN    [2026-03-06T10:26:24.144Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[35:55:15.299] Server  LOG       Reload env: .env.local
+[35:56:06.970] Server  LOG     ✓ Finished writing to filesystem cache in 26.5s
+[35:57:20.544] Server  LOG     ✓ Finished filesystem cache database compaction in 74s
+[35:57:20.752] Server  LOG     ✓ Finished writing to filesystem cache in 54s
+[36:36:19.599] Server  WARN    [2026-03-06T11:56:48.242Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:36:20.413] Server  WARN    [2026-03-06T11:56:49.080Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:36:21.299] Server  WARN    [2026-03-06T11:56:49.964Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:36:23.551] Server  WARN    [2026-03-06T11:56:52.217Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:36:26.119] Server  WARN    [2026-03-06T11:56:54.785Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:36:28.552] Server  WARN    [2026-03-06T11:56:57.218Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:36:33.271] Server  WARN    [2026-03-06T11:57:01.938Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:36:39.318] Server  WARN    [2026-03-06T11:57:07.986Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:36:46.367] Server  WARN    [2026-03-06T11:57:15.035Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:36:47.266] Server  WARN    [2026-03-06T11:57:15.933Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:36:51.452] Server  WARN    [2026-03-06T11:57:20.119Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:37:07.746] Server  WARN    [2026-03-06T11:57:36.414Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:37:18.008] Server  WARN    [2026-03-06T11:57:46.671Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:37:35.233] Server  WARN    [2026-03-06T11:58:03.900Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:38:07.744] Server  WARN    [2026-03-06T11:58:36.411Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:38:16.010] Server  WARN    [2026-03-06T11:58:44.677Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:39:13.014] Server  WARN    [2026-03-06T11:59:41.681Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:39:55.764] Server  WARN    [2026-03-06T12:00:24.431Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:40:10.436] Server  WARN    [2026-03-06T12:00:39.103Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:41:23.183] Server  WARN    [2026-03-06T12:01:51.850Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:43:10.965] Server  WARN    [2026-03-06T12:03:39.632Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:46:51.212] Server  WARN    [2026-03-06T12:07:19.879Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:48:49.069] Server  WARN    [2026-03-06T12:09:17.736Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:50:29.676] Server  WARN    [2026-03-06T12:10:58.343Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:55:09.619] Server  WARN    [2026-03-06T12:15:38.286Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:57:29.427] Server  WARN    [2026-03-06T12:17:58.094Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:57:55.521] Server  WARN    [2026-03-06T12:18:24.188Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[36:58:57.726] Server  WARN    [2026-03-06T12:19:26.393Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:02:26.812] Server  WARN    [2026-03-06T12:22:55.480Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:02:35.183] Server  WARN    [2026-03-06T12:23:03.851Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:05:46.925] Server  WARN    [2026-03-06T12:26:15.591Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:07:49.362] Server  WARN    [2026-03-06T12:28:18.029Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:11:34.428] Server  WARN    [2026-03-06T12:32:03.080Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:14:10.580] Server  WARN    [2026-03-06T12:34:39.242Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:18:38.564] Server  WARN    [2026-03-06T12:39:07.227Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:21:35.026] Server  WARN    [2026-03-06T12:42:03.691Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:23:31.017] Server  WARN    [2026-03-06T12:43:59.684Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:25:31.705] Server  WARN    [2026-03-06T12:46:00.373Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:28:28.768] Server  WARN    [2026-03-06T12:48:57.435Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:32:07.539] Server  WARN    [2026-03-06T12:52:36.206Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:32:35.430] Server  WARN    [2026-03-06T12:53:04.097Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:35:31.471] Server  WARN    [2026-03-06T12:56:00.139Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:39:46.698] Server  WARN    [2026-03-06T13:00:15.365Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:41:10.729] Server  WARN    [2026-03-06T13:01:39.396Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:46:05.116] Server  WARN    [2026-03-06T13:06:33.783Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:50:24.222] Server  WARN    [2026-03-06T13:10:52.889Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:53:32.455] Server  WARN    [2026-03-06T13:14:01.122Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:55:13.432] Server  WARN    [2026-03-06T13:15:42.100Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:58:24.788] Server  WARN    [2026-03-06T13:18:53.456Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[37:58:59.289] Server  WARN    [2026-03-06T13:19:27.956Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:00:50.218] Server  WARN    [2026-03-06T13:21:18.885Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:01:32.790] Server  WARN    [2026-03-06T13:22:01.457Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:06:27.771] Server  WARN    [2026-03-06T13:26:56.438Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:08:36.601] Server  WARN    [2026-03-06T13:29:05.269Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:13:06.027] Server  WARN    [2026-03-06T13:33:34.694Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:14:12.005] Server  WARN    [2026-03-06T13:34:40.672Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:15:34.223] Server  WARN    [2026-03-06T13:36:02.891Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:19:25.428] Server  WARN    [2026-03-06T13:39:54.095Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:24:01.748] Server  WARN    [2026-03-06T13:44:30.416Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:24:26.616] Server  WARN    [2026-03-06T13:44:55.283Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:24:38.100] Server  WARN    [2026-03-06T13:45:06.768Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:28:48.798] Server  WARN    [2026-03-06T13:49:17.465Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:31:12.732] Server  WARN    [2026-03-06T13:51:41.400Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:36:00.896] Server  WARN    [2026-03-06T13:56:29.564Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:38:53.811] Server  WARN    [2026-03-06T13:59:22.478Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:38:57.502] Server  WARN    [2026-03-06T13:59:26.170Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:41:08.789] Server  WARN    [2026-03-06T14:01:37.457Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:44:06.902] Server  WARN    [2026-03-06T14:04:35.570Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:46:58.245] Server  WARN    [2026-03-06T14:07:26.913Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:49:09.991] Server  WARN    [2026-03-06T14:09:38.658Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:49:34.213] Server  WARN    [2026-03-06T14:10:02.880Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:54:17.729] Server  WARN    [2026-03-06T14:14:46.397Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[38:58:28.808] Server  WARN    [2026-03-06T14:18:57.476Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:01:38.344] Server  WARN    [2026-03-06T14:22:07.011Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:03:06.558] Server  WARN    [2026-03-06T14:23:35.226Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:06:17.339] Server  WARN    [2026-03-06T14:26:46.007Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:08:24.446] Server  WARN    [2026-03-06T14:28:53.114Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:10:51.018] Server  WARN    [2026-03-06T14:31:19.686Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:12:36.512] Server  WARN    [2026-03-06T14:33:05.180Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:14:05.126] Server  WARN    [2026-03-06T14:34:33.793Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:18:34.302] Server  WARN    [2026-03-06T14:39:02.969Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:21:35.608] Server  WARN    [2026-03-06T14:42:04.275Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:25:43.063] Server  WARN    [2026-03-06T14:46:11.730Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:26:13.205] Server  WARN    [2026-03-06T14:46:41.873Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:28:14.713] Server  WARN    [2026-03-06T14:48:43.380Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:32:48.574] Server  WARN    [2026-03-06T14:53:17.231Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:36:03.932] Server  WARN    [2026-03-06T14:56:32.599Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:38:11.489] Server  WARN    [2026-03-06T14:58:40.156Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:40:34.434] Server  WARN    [2026-03-06T15:01:03.101Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:41:52.408] Server  WARN    [2026-03-06T15:02:21.075Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:42:47.443] Server  WARN    [2026-03-06T15:03:16.111Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:46:35.341] Server  WARN    [2026-03-06T15:07:04.008Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:49:39.849] Server  WARN    [2026-03-06T15:10:08.517Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:51:55.057] Server  WARN    [2026-03-06T15:12:23.724Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:52:47.926] Server  WARN    [2026-03-06T15:13:16.593Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[39:55:17.126] Server  WARN    [2026-03-06T15:15:45.793Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:00:07.884] Server  WARN    [2026-03-06T15:20:36.551Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:00:46.110] Server  WARN    [2026-03-06T15:21:14.777Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:01:23.396] Server  WARN    [2026-03-06T15:21:52.064Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:04:03.200] Server  WARN    [2026-03-06T15:24:31.867Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:04:41.299] Server  WARN    [2026-03-06T15:25:09.967Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:08:26.736] Server  WARN    [2026-03-06T15:28:55.404Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:12:55.245] Server  WARN    [2026-03-06T15:33:23.912Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:13:31.613] Server  WARN    [2026-03-06T15:34:00.280Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:15:21.655] Server  WARN    [2026-03-06T15:35:50.322Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:19:13.098] Server  WARN    [2026-03-06T15:39:41.765Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:21:55.740] Server  WARN    [2026-03-06T15:42:24.408Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:24:22.814] Server  WARN    [2026-03-06T15:44:51.481Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:25:43.812] Server  WARN    [2026-03-06T15:46:12.480Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:26:39.035] Server  WARN    [2026-03-06T15:47:07.703Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:26:56.276] Server  WARN    [2026-03-06T15:47:24.944Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:31:34.222] Server  WARN    [2026-03-06T15:52:02.889Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:32:56.156] Server  WARN    [2026-03-06T15:53:24.824Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:36:32.048] Server  WARN    [2026-03-06T15:57:00.715Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:39:24.389] Server  WARN    [2026-03-06T15:59:53.056Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:41:52.471] Server  WARN    [2026-03-06T16:02:21.139Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:46:51.438] Server  WARN    [2026-03-06T16:07:20.105Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:50:42.040] Server  WARN    [2026-03-06T16:11:10.707Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:53:44.166] Server  WARN    [2026-03-06T16:14:12.833Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:57:43.455] Server  WARN    [2026-03-06T16:18:12.122Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[40:58:46.057] Server  WARN    [2026-03-06T16:19:14.725Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:02:47.127] Server  WARN    [2026-03-06T16:23:15.794Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:06:31.898] Server  WARN    [2026-03-06T16:27:00.565Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:08:30.290] Server  WARN    [2026-03-06T16:28:58.957Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:10:37.964] Server  WARN    [2026-03-06T16:31:06.632Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:11:28.547] Server  WARN    [2026-03-06T16:31:57.215Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:15:37.406] Server  WARN    [2026-03-06T16:36:06.073Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:19:26.758] Server  WARN    [2026-03-06T16:39:55.425Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:20:18.273] Server  WARN    [2026-03-06T16:40:46.940Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:21:45.416] Server  WARN    [2026-03-06T16:42:14.084Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:22:28.169] Server  WARN    [2026-03-06T16:42:56.837Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:24:24.658] Server  WARN    [2026-03-06T16:44:53.326Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:27:49.984] Server  WARN    [2026-03-06T16:48:18.652Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:31:29.582] Server  WARN    [2026-03-06T16:51:58.250Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:35:47.590] Server  WARN    [2026-03-06T16:56:16.258Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:40:06.919] Server  WARN    [2026-03-06T17:00:35.586Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:43:03.412] Server  WARN    [2026-03-06T17:03:32.079Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:46:06.362] Server  WARN    [2026-03-06T17:06:35.030Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:49:54.020] Server  WARN    [2026-03-06T17:10:22.687Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:54:53.500] Server  WARN    [2026-03-06T17:15:22.167Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:56:40.466] Server  WARN    [2026-03-06T17:17:09.133Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:56:48.737] Server  WARN    [2026-03-06T17:17:17.404Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[41:58:39.589] Server  WARN    [2026-03-06T17:19:08.257Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[42:03:11.922] Server  WARN    [2026-03-06T17:23:40.589Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[45:05:39.079] Server  WARN    [2026-03-06T20:26:07.737Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[84:10:06.503] Server  WARN    [2026-03-08T11:30:32.105Z]  @firebase/database: "FIREBASE WARNING: {\"code\":\"app/invalid-credential\",\"message\":\"Credential implementation provided to initializeApp() via the \\\"credential\\\" property failed to fetch a valid Google OAuth2 access token with the following error: \\\"request to https://oauth2.googleapis.com/token failed, reason: getaddrinfo ENOTFOUND oauth2.googleapis.com\\\".\"} "
+[84:42:38.785] Server  LOG     ✓ Compiled in 1135ms
+[84:42:43.344] Server  LOG     ✓ Compiled in 645ms
+[84:42:54.449] Server  LOG     ✓ Finished filesystem cache database compaction in 10.8s
+[84:43:14.156] Server  LOG     ✓ Compiled in 842ms
+[84:47:46.986] Server  LOG     ✓ Compiled in 2.6s
+[84:58:31.175] Server  LOG     ✓ Compiled in 14.4s
+[84:58:33.732] Server  LOG     ✓ Compiled in 538ms
+[84:58:41.666] Server  LOG     ✓ Finished writing to filesystem cache in 11.8s
+[84:58:45.322] Server  LOG     ✓ Compiled in 795ms
+[84:58:55.783] Server  LOG     ✓ Finished filesystem cache database compaction in 14.2s
+[84:58:55.940] Server  LOG     ✓ Finished writing to filesystem cache in 12.3s
+[84:59:03.708] Server  LOG     ✓ Compiled in 1884ms
+[84:59:10.585] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[85:00:54.082] Browser ERROR   ./src/components/admin/WorkflowBuilder.tsx:15:8
+Ecmascript file had an error
+  13 | import styles from "@/app/dashboard/settings/Settings.module.css";
+  14 | import Loader from "@/components/common/Loader";
+> 15 | import Loader from "@/components/common/Loader";
+     |        ^^^^^^
+  16 |
+  17 | export default function WorkflowBuilder() {
+  18 |     const { user } = useAuth();
+
+the name `Loader` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+[85:00:56.669] Browser ERROR   ./src/components/admin/WorkflowBuilder.tsx:15:8
+Ecmascript file had an error
+  13 | import styles from "@/app/dashboard/settings/Settings.module.css";
+  14 | import Loader from "@/components/common/Loader";
+> 15 | import Loader from "@/components/common/Loader";
+     |        ^^^^^^
+  16 |
+  17 | export default function WorkflowBuilder() {
+  18 |     const { user } = useAuth();
+
+the name `Loader` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+[85:01:02.975] Browser ERROR   ./src/components/admin/WorkflowBuilder.tsx:15:8
+Ecmascript file had an error
+  13 | import styles from "@/app/dashboard/settings/Settings.module.css";
+  14 | import Loader from "@/components/common/Loader";
+> 15 | import Loader from "@/components/common/Loader";
+     |        ^^^^^^
+  16 |
+  17 | export default function WorkflowBuilder() {
+  18 |     const { user } = useAuth();
+
+the name `Loader` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Client Component Browser]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/admin/WorkflowBuilder.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Client Component SSR]
+    ./src/app/dashboard/settings/page.tsx [Server Component]
+[85:01:02.977] Browser ERROR   ./src/components/common/FileUploader.tsx:6:8
+Ecmascript file had an error
+  4 | import { uploadFile } from "@/lib/storage";
+  5 | import Loader from "@/components/common/Loader";
+> 6 | import Loader from "@/components/common/Loader";
+    |        ^^^^^^
+  7 |
+  8 | interface FileUploaderProps {
+  9 |     onUploadComplete: (url: string, fileName: string) => void;
+
+the name `Loader` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./src/components/common/FileUploader.tsx [Client Component Browser]
+    ./src/components/contracts/ContractFormModal.tsx [Client Component Browser]
+    ./src/app/dashboard/contracts/page.tsx [Client Component Browser]
+    ./src/app/dashboard/contracts/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/common/FileUploader.tsx [Client Component SSR]
+    ./src/components/contracts/ContractFormModal.tsx [Client Component SSR]
+    ./src/app/dashboard/contracts/page.tsx [Client Component SSR]
+    ./src/app/dashboard/contracts/page.tsx [Server Component]
+[85:01:22.336] Server  LOG     ✓ Compiled in 337ms
+[85:01:22.432] Browser ERROR   ./src/components/common/FileUploader.tsx:6:8
+Ecmascript file had an error
+  4 | import { uploadFile } from "@/lib/storage";
+  5 | import Loader from "@/components/common/Loader";
+> 6 | import Loader from "@/components/common/Loader";
+    |        ^^^^^^
+  7 |
+  8 | interface FileUploaderProps {
+  9 |     onUploadComplete: (url: string, fileName: string) => void;
+
+the name `Loader` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./src/components/common/FileUploader.tsx [Client Component Browser]
+    ./src/components/contracts/ContractFormModal.tsx [Client Component Browser]
+    ./src/app/dashboard/contracts/page.tsx [Client Component Browser]
+    ./src/app/dashboard/contracts/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/common/FileUploader.tsx [Client Component SSR]
+    ./src/components/contracts/ContractFormModal.tsx [Client Component SSR]
+    ./src/app/dashboard/contracts/page.tsx [Client Component SSR]
+    ./src/app/dashboard/contracts/page.tsx [Server Component]
+[85:01:24.902] Server  LOG     ✓ Compiled in 117ms
+[85:04:17.631] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[85:11:58.269] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[85:14:25.662] Server  LOG     ✓ Compiled in 2.3s
+[85:19:46.166] Server  LOG     ✓ Compiled in 477ms
+[85:20:24.929] Server  LOG     ✓ Compiled in 351ms
+[85:20:25.223] Browser ERROR   ./src/app/dashboard/payments/page.tsx:40:52
+Parsing ecmascript source code failed
+  38 |     const [search, setSearch] = useState("");
+  39 |     const [statusFilter, setStatusFilter] = useState<string>("ALL");
+> 40 |     const [selectedIds, setSelectedIds] = new Set());
+     |                                                    ^
+  41 |
+  42 |     // ── Pay Modal state ──────────────────────────────────────────────────────
+  43 |     const [showPayModal, setShowPayModal] = useState(false);
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/payments/page.tsx [Client Component Browser]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/payments/page.tsx [Client Component SSR]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+[85:20:40.733] Server  LOG     ✓ Compiled in 462ms
+[85:20:40.851] Browser ERROR   ./src/app/dashboard/payments/page.tsx:40:52
+Parsing ecmascript source code failed
+  38 |     const [search, setSearch] = useState("");
+  39 |     const [statusFilter, setStatusFilter] = useState<string>("ALL");
+> 40 |     const [selectedIds, setSelectedIds] = new Set());
+     |                                                    ^
+  41 |
+  42 |     // ── Pay Modal state ──────────────────────────────────────────────────────
+  43 |     const [showPayModal, setShowPayModal] = useState(false);
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/payments/page.tsx [Client Component Browser]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/payments/page.tsx [Client Component SSR]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+[85:21:03.317] Server  LOG     ✓ Compiled in 620ms
+[85:21:03.441] Browser ERROR   ./src/app/dashboard/payments/page.tsx:40:52
+Parsing ecmascript source code failed
+  38 |     const [search, setSearch] = useState("");
+  39 |     const [statusFilter, setStatusFilter] = useState<string>("ALL");
+> 40 |     const [selectedIds, setSelectedIds] = new Set());
+     |                                                    ^
+  41 |
+  42 |     // ── Pay Modal state ──────────────────────────────────────────────────────
+  43 |     const [showPayModal, setShowPayModal] = useState(false);
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/payments/page.tsx [Client Component Browser]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/payments/page.tsx [Client Component SSR]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+[85:21:17.198] Browser ERROR   ./src/app/dashboard/payments/page.tsx:40:52
+Parsing ecmascript source code failed
+  38 |     const [search, setSearch] = useState("");
+  39 |     const [statusFilter, setStatusFilter] = useState<string>("ALL");
+> 40 |     const [selectedIds, setSelectedIds] = new Set());
+     |                                                    ^
+  41 |
+  42 |     // ── Pay Modal state ──────────────────────────────────────────────────────
+  43 |     const [showPayModal, setShowPayModal] = useState(false);
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/payments/page.tsx [Client Component Browser]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/payments/page.tsx [Client Component SSR]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+[85:21:26.969] Browser ERROR   ./src/app/dashboard/payments/page.tsx:40:52
+Parsing ecmascript source code failed
+  38 |     const [search, setSearch] = useState("");
+  39 |     const [statusFilter, setStatusFilter] = useState<string>("ALL");
+> 40 |     const [selectedIds, setSelectedIds] = new Set());
+     |                                                    ^
+  41 |
+  42 |     // ── Pay Modal state ──────────────────────────────────────────────────────
+  43 |     const [showPayModal, setShowPayModal] = useState(false);
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/payments/page.tsx [Client Component Browser]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/payments/page.tsx [Client Component SSR]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+[85:21:36.094] Server  ERROR   ⨯ ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[85:21:36.100] Server  ERROR   ⨯ ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[85:21:36.105] Server  ERROR   ⨯ ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[85:21:36.108] Server  ERROR   ⨯ ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[85:21:36.406] Browser ERROR   ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[85:21:36.406] Browser ERROR   ./src/app/dashboard/payments/page.tsx:40:52
+Parsing ecmascript source code failed
+  38 |     const [search, setSearch] = useState("");
+  39 |     const [statusFilter, setStatusFilter] = useState<string>("ALL");
+> 40 |     const [selectedIds, setSelectedIds] = new Set());
+     |                                                    ^
+  41 |
+  42 |     // ── Pay Modal state ──────────────────────────────────────────────────────
+  43 |     const [showPayModal, setShowPayModal] = useState(false);
+
+Expected a semicolon
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/payments/page.tsx [Client Component Browser]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/payments/page.tsx [Client Component SSR]
+    ./src/app/dashboard/payments/page.tsx [Server Component]
+[85:21:45.574] Server  LOG     ✓ Compiled in 411ms
+[85:21:45.680] Browser ERROR   ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[85:21:47.378] Server  ERROR   ⨯ ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[85:21:47.388] Server  ERROR   ⨯ ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[85:21:47.392] Server  ERROR   ⨯ ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[85:21:47.397] Server  ERROR   ⨯ ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[85:21:47.531] Browser ERROR   ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[85:22:01.229] Server  LOG     ✓ Finished filesystem cache database compaction in 10.3s
+[85:25:06.608] Browser ERROR   ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[85:25:09.087] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[85:25:09.453] Browser ERROR   ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[85:25:09.867] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/dashboard" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en">
+                          <body
+                            className="inter_5972bc34-module__OU16Qa__className"
+-                           style={{overflow-x:"hidden",overflow-y:"hidden"}}
+                          >
+                  ...
+
+[85:25:10.340] Browser ERROR   ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[85:28:34.635] Browser ERROR   ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[85:28:37.113] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[85:28:37.511] Browser ERROR   ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[85:28:37.856] Browser ERROR   A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <HotReload globalError={[...]} webSocket={WebSocket} staticIndicatorState={{pathname:null, ...}}>
+      <AppDevOverlayErrorBoundary globalError={[...]}>
+        <ReplaySsrOnlyErrors>
+        <DevRootHTTPAccessFallbackBoundary>
+          <HTTPAccessFallbackBoundary notFound={<NotAllowedRootHTTPFallbackError>}>
+            <HTTPAccessFallbackErrorBoundary pathname="/dashboard" notFound={<NotAllowedRootHTTPFallbackError>} ...>
+              <RedirectBoundary>
+                <RedirectErrorBoundary router={{...}}>
+                  <Head>
+                  <__next_root_layout_boundary__>
+                    <SegmentViewNode type="layout" pagePath="layout.tsx">
+                      <SegmentTrieNode>
+                      <link>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <script>
+                      <RootLayout>
+                        <html lang="en">
+                          <body
+                            className="inter_5972bc34-module__OU16Qa__className"
+-                           style={{overflow-x:"hidden",overflow-y:"hidden"}}
+                          >
+                  ...
+
+[85:28:39.046] Browser ERROR   ./src/app/dashboard/notifications/page.tsx:10:1
+Module not found: Can't resolve '../Layout.module.css'
+   8 | import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+   9 | import Loader from "@/components/common/Loader";
+> 10 | import styles from "../Layout.module.css";
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  11 |
+  12 | export default function NotificationsPage() {
+  13 |     const { user } = useAuth();
+
+Import traces:
+  Client Component Browser:
+    ./src/app/dashboard/notifications/page.tsx [Client Component Browser]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/app/dashboard/notifications/page.tsx [Client Component SSR]
+    ./src/app/dashboard/notifications/page.tsx [Server Component]
+
+https://nextjs.org/docs/messages/module-not-found
+[85:28:46.001] Server  LOG     ✓ Compiled in 3.4s

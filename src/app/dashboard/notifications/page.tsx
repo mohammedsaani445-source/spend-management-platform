@@ -5,8 +5,9 @@ import { useAuth } from "@/context/AuthContext";
 import { Notification } from "@/types";
 import { subscribeToNotifications, markNotificationAsRead, markAllAsRead, clearNotifications } from "@/lib/notifications";
 import { useRouter } from "next/navigation";
-import { Bell, FileSignature, CheckCircle2, Eye, AlertTriangle, Trash2, CheckCheck, Inbox } from "lucide-react";
-import styles from "./Notifications.module.css";
+import { Bell, Info, AlertTriangle, CheckCircle2, Clock, Trash2, Mail, ExternalLink, Settings, FileSignature, Eye, CheckCheck, Inbox } from "lucide-react";
+import Loader from "@/components/common/Loader";
+import styles from "@/components/layout/Layout.module.css";
 
 export default function NotificationsPage() {
     const { user } = useAuth();
@@ -38,7 +39,11 @@ export default function NotificationsPage() {
         }
     };
 
-    if (loading) return <div style={{ padding: '2rem', textAlign: 'center', color: '#6B7280' }}>Loading Notification Center...</div>;
+    if (loading) return (
+        <div className="page-container">
+            <Loader text="Loading Notification Center..." />
+        </div>
+    );
 
     return (
         <div className={styles.container}>

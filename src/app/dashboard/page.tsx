@@ -9,6 +9,7 @@ import { DashboardEvent, Requisition } from "@/types";
 import ExecutiveDashboard from "@/components/dashboard/ExecutiveDashboard";
 import EmployeeDashboard from "@/components/dashboard/EmployeeDashboard";
 import { getVendorPerformanceAnalytics, VendorPerformance } from "@/lib/vendorAnalytics";
+import Loader from "@/components/common/Loader";
 
 export default function Dashboard() {
     const { user, loading: authLoading } = useAuth();
@@ -71,12 +72,7 @@ export default function Dashboard() {
 
     if (authLoading || loading) {
         return (
-            <div style={{ height: 'calc(100vh - 80px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ textAlign: 'center' }}>
-                    <div className="animate-spin" style={{ fontSize: '2rem', marginBottom: '1rem' }}>🔄</div>
-                    <p style={{ color: '#64748b' }}>Loading your command center...</p>
-                </div>
-            </div>
+            <Loader fullScreen={true} text="Loading your command center..." />
         );
     }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { RefreshCcw, FileText, MoreVertical } from "lucide-react";
 import { Contract, ContractStatus } from "@/types";
 import tableStyles from "@/components/assets/Assets.module.css";
 import styles from "@/components/layout/Layout.module.css";
@@ -60,7 +61,7 @@ export default function ContractRegistry({ contracts, onEdit, onDelete }: Contra
                                         <div style={{ fontWeight: 600 }}>{contract.title}</div>
                                         {contract.autoRenew && (
                                             <span style={{ fontSize: '0.65rem', color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                                                🔄 Auto-renews
+                                                <RefreshCcw size={10} /> Auto-renews
                                             </span>
                                         )}
                                     </td>
@@ -114,7 +115,7 @@ export default function ContractRegistry({ contracts, onEdit, onDelete }: Contra
                                                     className="btn"
                                                     style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', textDecoration: 'none', display: 'flex', alignItems: 'center' }}
                                                 >
-                                                    📄
+                                                    <FileText size={14} />
                                                 </a>
                                             )}
                                         </div>

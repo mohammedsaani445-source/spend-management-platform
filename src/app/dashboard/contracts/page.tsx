@@ -5,6 +5,7 @@ import { Contract, Vendor } from "@/types";
 import { getContracts, deleteContract, getExpiringContracts } from "@/lib/contracts";
 import { getVendors } from "@/lib/vendors";
 import { useAuth } from "@/context/AuthContext";
+import Loader from "@/components/common/Loader";
 import ContractRegistry from "@/components/contracts/ContractRegistry";
 import ContractFormModal from "@/components/contracts/ContractFormModal";
 import styles from "@/components/layout/Layout.module.css";
@@ -51,7 +52,11 @@ export default function ContractsPage() {
 
     const expiringSoon = getExpiringContracts(contracts, 60);
 
-    if (loading) return <div style={{ padding: '2rem' }}>Loading contract repository...</div>;
+    if (loading) return (
+        <div className="page-container">
+            <Loader text="Loading contract repository..." />
+        </div>
+    );
 
     return (
         <div className={styles.pageContainer}>

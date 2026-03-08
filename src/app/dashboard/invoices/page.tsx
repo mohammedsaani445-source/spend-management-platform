@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import InvoiceDetailModal from "@/components/invoices/InvoiceDetailModal";
 import CustomSelect from "@/components/ui/CustomSelect";
 import InvoiceUpload from "@/components/invoices/InvoiceUpload";
+import Loader from "@/components/common/Loader";
 
 const INV_STATUS_STYLES: Record<string, { bg: string; color: string }> = {
     PENDING: { bg: 'var(--warning-bg)', color: 'var(--warning)' },
@@ -129,8 +130,8 @@ export default function InvoicesPage() {
     };
 
     if (loading) return (
-        <div className="page-container animate-fade-in">
-            <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>Loading invoices...</div>
+        <div className="page-container">
+            <Loader text="Loading invoices..." />
         </div>
     );
 

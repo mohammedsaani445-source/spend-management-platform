@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { subscribeToTickets, updateTicketStatus } from "@/lib/help";
 import { SupportTicket } from "@/types";
 import { useRouter } from "next/navigation";
+import Loader from "@/components/common/Loader";
 
 export default function SupportAdminPage() {
     const { user, loading: authLoading } = useAuth();
@@ -50,7 +51,11 @@ export default function SupportAdminPage() {
         }
     };
 
-    if (loading) return <div style={{ padding: '2rem' }}>Loading Support Tickets...</div>;
+    if (loading) return (
+        <div className="page-container">
+            <Loader text="Loading Support Tickets..." />
+        </div>
+    );
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>

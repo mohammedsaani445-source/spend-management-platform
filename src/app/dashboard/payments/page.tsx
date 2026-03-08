@@ -5,6 +5,7 @@ import { Bill, PaymentRun, PaymentMethod, AppUser } from "@/types";
 import { getBills, getPaymentHistory, processBillPayment, scheduleBill, voidBill } from "@/lib/payments";
 import { formatCurrency } from "@/lib/currencies";
 import { Search, CreditCard, CalendarDays, CheckCircle2, AlertCircle, Banknote, X, ArrowRight, History, Receipt, Building2, Filter, FileText } from "lucide-react";
+import Loader from "@/components/common/Loader";
 import { useAuth } from "@/context/AuthContext";
 import { useModal } from "@/context/ModalContext";
 
@@ -193,7 +194,7 @@ export default function PaymentsPage() {
 
     if (loading) return (
         <div className="page-container">
-            <div style={{ textAlign: "center", padding: "4rem", color: "#637381" }}>Loading payments...</div>
+            <Loader text="Loading payments..." />
         </div>
     );
 

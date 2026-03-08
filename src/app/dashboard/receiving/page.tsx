@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { Search, Filter, Package, Truck, CheckCircle, AlertCircle, Calendar, ArrowRight, ClipboardCheck } from "lucide-react";
+import Loader from "@/components/common/Loader";
 import { PurchaseOrder, ItemReceipt, GoodsReceiptLine, AppUser } from "@/types";
 import { getPurchaseOrders } from "@/lib/purchaseOrders";
 import { getReceipts, createReceipt, updateReceiptQuality, unreceiveItems } from "@/lib/receipts";
@@ -168,7 +170,7 @@ export default function ReceivingPage() {
 
     if (loading) return (
         <div className="page-container">
-            <div style={{ textAlign: "center", padding: "4rem", color: "#637381" }}>Loading receiving...</div>
+            <Loader text="Loading shipments..." />
         </div>
     );
 

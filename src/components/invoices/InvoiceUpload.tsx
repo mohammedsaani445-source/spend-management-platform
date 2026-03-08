@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { uploadFile } from "@/lib/storage";
+import Loader from "@/components/common/Loader";
 
 interface InvoiceUploadProps {
     onUploadComplete: (url: string, fileName: string) => void;
@@ -117,10 +118,7 @@ export default function InvoiceUpload({ onUploadComplete, currentFileName }: Inv
             />
 
             {uploading ? (
-                <div style={{ textAlign: 'center' }}>
-                    <div className="spinner" style={{ marginBottom: '1rem' }}></div>
-                    <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>Uploading secure document...</div>
-                </div>
+                <Loader text="Uploading secure document..." />
             ) : (fileName || currentFileName) ? (
                 <div style={{ textAlign: 'center', padding: '1rem' }}>
                     <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📄</div>
