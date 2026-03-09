@@ -1,0 +1,122 @@
+/* Advanced CSS Motion System for Apex Procure */
+
+@keyframes revealUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes glowPulse {
+    0% {
+        box-shadow: 0 0 5px rgba(232, 87, 42, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 25px rgba(232, 87, 42, 0.4);
+    }
+
+    100% {
+        box-shadow: 0 0 5px rgba(232, 87, 42, 0.2);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.reveal {
+    animation: revealUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.fade {
+    animation: fadeIn 1s ease-out forwards;
+}
+
+.float {
+    animation: float 4s ease-in-out infinite;
+}
+
+.glow {
+    animation: glowPulse 3s infinite;
+}
+
+.scale {
+    animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Staggered Delay Helpers */
+.delay1 {
+    animation-delay: 0.1s;
+}
+
+.delay2 {
+    animation-delay: 0.2s;
+}
+
+.delay3 {
+    animation-delay: 0.3s;
+}
+
+.delay4 {
+    animation-delay: 0.4s;
+}
+
+.delay5 {
+    animation-delay: 0.5s;
+}
+
+/* Interactive Hover States */
+.hoverLift {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+
+.hoverLift:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 30px 60px -12px rgba(50, 50, 93, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3);
+}
+
+.zoomIn {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zoomIn:hover {
+    transform: scale(1.03);
+}

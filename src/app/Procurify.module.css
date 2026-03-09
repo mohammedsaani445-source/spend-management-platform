@@ -1,0 +1,250 @@
+/* High-Fidelity Procurify-Exact Styles for Apex Procure */
+
+.wrapper {
+    background: #FFFFFF;
+    color: #1A1A1A;
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}
+
+/* --- Navigation --- */
+.nav {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4%;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.navScrolled {
+    background: #FFFFFF;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.logoArea {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 850;
+    font-size: 1.125rem;
+    color: #1A1A1A;
+    text-decoration: none;
+    letter-spacing: -0.01em;
+}
+
+.navLinks {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.navLink {
+    font-weight: 600;
+    font-size: 0.9375rem;
+    color: #4A4A4A;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.navLink:hover {
+    color: #E8572A;
+}
+
+/* --- Hero Section --- */
+.hero {
+    padding: 160px 4% 100px;
+    text-align: center;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.heroTag {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #FFF5F3;
+    color: #E8572A;
+    border-radius: 100px;
+    font-weight: 800;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2rem;
+}
+
+.heroTitle {
+    font-size: clamp(2.75rem, 6vw, 4.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    color: #1A1A1A;
+}
+
+.heroSubtitle {
+    font-size: clamp(1.125rem, 2.5vw, 1.375rem);
+    line-height: 1.6;
+    color: #637381;
+    max-width: 800px;
+    margin: 0 auto 3rem;
+    font-weight: 500;
+}
+
+.heroVisual {
+    margin-top: 4rem;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    background: #F9FAFB;
+    padding: 8px;
+}
+
+/* --- Comparison Section --- */
+.comparison {
+    padding: 100px 4%;
+    background: #F9FAFB;
+}
+
+.comparisonInner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+}
+
+.comparisonCard {
+    background: #FFFFFF;
+    padding: 3rem;
+    border-radius: 24px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.comparisonTitle {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+}
+
+.comparisonItem {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: #637381;
+}
+
+/* --- Features Grid --- */
+.sectionTitle {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin-bottom: 4rem;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 4% 100px;
+}
+
+.card {
+    padding: 2.5rem;
+    background: #FFFFFF;
+    border: 1px solid #DFE3E8;
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+    border-color: #E8572A;
+}
+
+.icon {
+    width: 48px;
+    height: 48px;
+    background: #FFF5F3;
+    color: #E8572A;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.cardTitle {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.cardText {
+    color: #637381;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* --- Mobile Mastery --- */
+.mobileSection {
+    background: #212B36;
+    color: white;
+    padding: 120px 4%;
+    overflow: hidden;
+}
+
+.mobileInner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem;
+    align-items: center;
+}
+
+/* --- Final CTA --- */
+.cta {
+    padding: 120px 4%;
+    text-align: center;
+}
+
+.ctaBox {
+    background: #E8572A;
+    color: white;
+    padding: 80px 40px;
+    border-radius: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+    .navLinks {
+        display: none;
+    }
+
+    .comparisonInner {
+        grid-template-columns: 1fr;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mobileInner {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+}
