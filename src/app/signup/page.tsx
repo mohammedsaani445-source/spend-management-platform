@@ -178,6 +178,20 @@ export default function SignupPage() {
                     <form onSubmit={handleSignup}>
                         {isEmailStep ? (
                             <>
+                                <div className={styles.inputGroup}>
+                                    <label className={styles.label}>Work Email</label>
+                                    <div style={{ position: 'relative' }}>
+                                        <input type="email" className={styles.input} placeholder="name@company.com" value={email} onChange={e => setEmail(e.target.value)} required />
+                                        <Mail size={18} color="#919EAB" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', margin: '1.5rem 0', gap: '1rem' }}>
+                                    <div style={{ flex: 1, height: '1px', background: '#F4F6F8' }} />
+                                    <span style={{ fontSize: '0.75rem', color: '#919EAB', fontWeight: 700 }}>OR SIGN UP WITH</span>
+                                    <div style={{ flex: 1, height: '1px', background: '#F4F6F8' }} />
+                                </div>
+
                                 <button className={styles.googleBtn} type="button" onClick={handleGoogleSignup} disabled={isLoading}>
                                     <svg width="20" height="20" viewBox="0 0 24 24">
                                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -187,18 +201,6 @@ export default function SignupPage() {
                                     </svg>
                                     Sign up with Google
                                 </button>
-                                <div style={{ display: 'flex', alignItems: 'center', margin: '1.5rem 0', gap: '1rem' }}>
-                                    <div style={{ flex: 1, height: '1px', background: '#F4F6F8' }} />
-                                    <span style={{ fontSize: '0.75rem', color: '#919EAB', fontWeight: 700 }}>OR EMAIL</span>
-                                    <div style={{ flex: 1, height: '1px', background: '#F4F6F8' }} />
-                                </div>
-                                <div className={styles.inputGroup}>
-                                    <label className={styles.label}>Work Email</label>
-                                    <div style={{ position: 'relative' }}>
-                                        <input type="email" className={styles.input} placeholder="name@company.com" value={email} onChange={e => setEmail(e.target.value)} required />
-                                        <Mail size={18} color="#919EAB" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
-                                    </div>
-                                </div>
                             </>
                         ) : (
                             <div style={{ animation: 'fadeIn 0.5s' }}>
