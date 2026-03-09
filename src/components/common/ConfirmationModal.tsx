@@ -31,7 +31,7 @@ export default function ConfirmationModal({
     const lightAccent = type === "danger" ? "#fee2e2" : type === "warning" ? "#fef3c7" : "var(--brand-soft)";
 
     return (
-        <div className="modal-backdrop" style={{ zindex: 9999 }}>
+        <div className="modal-backdrop" style={{ zIndex: 9999 }}>
             <div className="modal" style={{ maxWidth: '400px', transform: 'translateY(10vh)' }}>
                 <div className="modal-header">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
