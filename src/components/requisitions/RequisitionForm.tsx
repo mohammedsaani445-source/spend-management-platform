@@ -196,8 +196,8 @@ export default function RequisitionForm() {
                                             value={item.description} onChange={e => handleItemChange(index, 'description', e.target.value)} />
                                     </td>
                                     <td style={{ padding: '0.5rem' }}>
-                                        <input type="number" min="1" required style={{ width: '100%', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-main)', padding: '0.25rem' }}
-                                            value={item.quantity} onChange={e => handleItemChange(index, 'quantity', Number(e.target.value))} />
+                                        <input type="number" min="0" required style={{ width: '100%', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-main)', padding: '0.25rem' }}
+                                            value={item.quantity} onChange={e => handleItemChange(index, 'quantity', e.target.value === "" ? "" : Number(e.target.value))} />
                                     </td>
                                     <td style={{ padding: '0.5rem' }}>
                                         <input type="number" min="0" step="0.01" required style={{ width: '100%', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-main)', padding: '0.25rem' }}

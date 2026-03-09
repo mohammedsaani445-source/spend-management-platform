@@ -1,20 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { SKU } from "@/types";
-import { createSKU } from "@/lib/inventory";
+import { SKU, Warehouse } from "@/types";
+import { createSKU, logInventoryAction } from "@/lib/inventory";
 import { useAuth } from "@/context/AuthContext";
 import styles from "@/components/layout/Layout.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
-import { Camera } from "lucide-react";
+import { Camera, RefreshCw } from "lucide-react";
 import BarcodeScanner from "./BarcodeScanner";
+import { updateSKU } from "@/lib/inventory";
 
 interface SKUFormModalProps {
+    initialData?: SKU;
+    warehouses: Warehouse[];
     onClose: () => void;
     onSaved: () => void;
 }
 
-export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
+export default function SKUFormModal({ initialData, warehouses, onClose, onSaved }: SKUFormModalProps) {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
@@ -23,14 +26,16 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
 
     useScrollLock(true);
     const [formData, setFormData] = useState({
-        code: "",
-        name: "",
-        description: "",
-        category: "OFFICE_SUPPLIES",
-        unit: "PCS",
-        minStockLevel: 5,
-        unitPrice: 0,
-        currency: "USD"
+        code: initialData?.code || "",
+        name: initialData?.name || "",
+        description: initialData?.description || "",
+        category: initialData?.category || "OFFICE_SUPPLIES",
+        unit: initialData?.unit || "PCS",
+        minStockLevel: initialData?.minStockLevel || 5,
+        unitPrice: initialData?.unitPrice || 0,
+        currency: initialData?.currency || "USD",
+        initialStock: 0,
+        warehouseId: warehouses[0]?.id || ""
     });
 
     const handleScan = async (code: string) => {
@@ -50,10 +55,29 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
         if (!user) return;
         setLoading(true);
         try {
-            await createSKU(formData, user);
+            if (initialData?.id) {
+                await updateSKU(user.tenantId, initialData.id, formData);
+            } else {
+                const skuId = await createSKU(formData, user);
+
+                // Initialize stock if provided
+                if (skuId && formData.initialStock > 0 && formData.warehouseId) {
+                    const wh = warehouses.find(w => w.id === formData.warehouseId);
+                    await logInventoryAction(user.tenantId, {
+                        skuId,
+                        skuName: formData.name,
+                        warehouseId: formData.warehouseId,
+                        warehouseName: wh?.name || "Initial Warehouse",
+                        action: 'ADJUSTMENT',
+                        quantity: formData.initialStock,
+                        performedBy: user.email || "System",
+                        notes: "Initial stock allocation during SKU creation."
+                    });
+                }
+            }
             onSaved();
         } catch (error) {
-            alert("Failed to create SKU.");
+            alert(initialData?.id ? "Failed to update SKU." : "Failed to create SKU.");
         } finally {
             setLoading(false);
         }
@@ -63,7 +87,7 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
         <div className="modal-backdrop">
             <div className="modal" style={{ maxWidth: '500px' }}>
                 <div className="modal-header">
-                    <h2 className="modal-title">Define New SKU</h2>
+                    <h2 className="modal-title">{initialData?.id ? 'Edit SKU Details' : 'Define New SKU'}</h2>
                     <button onClick={onClose} className="closeButton" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.25rem' }}>&times;</button>
                 </div>
                 <form onSubmit={handleSubmit} style={{ padding: '1.5rem' }}>
@@ -134,8 +158,8 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
                             required
                         />
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                        <div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+                        <div style={{ flex: '1 1 180px' }}>
                             <label className={styles.label}>Min Stock Level</label>
                             <input
                                 type="number"
@@ -145,7 +169,7 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
                                 required
                             />
                         </div>
-                        <div>
+                        <div style={{ flex: '1 1 180px' }}>
                             <label className={styles.label}>Unit</label>
                             <select
                                 className={styles.input}
@@ -159,10 +183,46 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
                             </select>
                         </div>
                     </div>
+
+                    {!initialData && (
+                        <div style={{ padding: '1.25rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0', marginBottom: '1rem' }}>
+                            <h3 style={{ fontSize: '0.875rem', fontWeight: 700, marginBottom: '0.75rem', color: '#1e293b' }}>Initial Stock Allocation</h3>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                                <div style={{ flex: '1 1 100px' }}>
+                                    <label className={styles.label}>Opening Quantity</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        className={styles.input}
+                                        value={formData.initialStock}
+                                        onChange={e => setFormData({ ...formData, initialStock: Number(e.target.value) })}
+                                    />
+                                </div>
+                                <div style={{ flex: '1 1 200px' }}>
+                                    <label className={styles.label}>Storage Warehouse</label>
+                                    <select
+                                        className={styles.input}
+                                        value={formData.warehouseId}
+                                        onChange={e => setFormData({ ...formData, warehouseId: e.target.value })}
+                                        required={formData.initialStock > 0}
+                                    >
+                                        <option value="">Select Location...</option>
+                                        {warehouses.map(wh => (
+                                            <option key={wh.id} value={wh.id}>{wh.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     <div className="modal-footer" style={{ borderTop: '1px solid var(--border)', padding: '1rem 1.5rem', background: 'var(--surface-2)', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
                         <button type="button" className="btn" onClick={onClose}>Cancel</button>
                         <button type="submit" className="btn btn-primary" disabled={loading}>
-                            {loading ? 'Creating...' : 'Add to Catalog'}
+                            {loading ? (
+                                <><RefreshCw size={18} className="animate-spin" style={{ marginRight: '8px' }} /> Saving...</>
+                            ) : (
+                                initialData?.id ? 'Save Changes' : 'Add to Catalog'
+                            )}
                         </button>
                     </div>
                 </form>

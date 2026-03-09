@@ -155,21 +155,21 @@ export default function InventoryLookupModal({ skus, warehouses, levels, onClose
                                 borderRadius: '16px', padding: '1.5rem', boxShadow: 'var(--shadow-sm)',
                                 marginBottom: '1.5rem'
                             }}>
-                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem' }}>
                                     <div style={{
                                         width: '56px', height: '56px', borderRadius: '12px', background: 'var(--brand-xsoft)',
                                         display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)'
                                     }}>
                                         <Package size={32} />
                                     </div>
-                                    <div style={{ flex: 1 }}>
+                                    <div style={{ flex: '1 1 200px' }}>
                                         <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>{selectedSKU.name}</h3>
-                                        <div style={{ fontSize: '0.875rem', color: '#64748b', display: 'flex', gap: '0.5rem', marginTop: '4px' }}>
+                                        <div style={{ fontSize: '0.875rem', color: '#64748b', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '4px' }}>
                                             <span style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{selectedSKU.code}</span>
                                             <span style={{ background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{selectedSKU.category}</span>
                                         </div>
                                     </div>
-                                    <div style={{ textAlign: 'right' }}>
+                                    <div style={{ textAlign: 'left', minWidth: '100px' }} className="mobile-total-units">
                                         <div style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Total Units</div>
                                         <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--brand)' }}>{skuInventory.total}</div>
                                     </div>

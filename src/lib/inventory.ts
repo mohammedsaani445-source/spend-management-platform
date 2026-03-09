@@ -1,5 +1,5 @@
 import { db, DB_PREFIX } from "./firebase";
-import { ref, push, set, get, update, query, orderByChild, equalTo } from "firebase/database";
+import { ref, push, set, get, update, query, orderByChild, equalTo, remove } from "firebase/database";
 import { Warehouse, SKU, StockLevel, InventoryLog, Asset } from "@/types";
 
 const getWarehousesRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/warehouses`);
@@ -64,6 +64,32 @@ export const createSKU = async (sku: Omit<SKU, 'id'>, user: { tenantId: string }
 };
 
 /**
+ * Updates an existing SKU in the catalog.
+ */
+export const updateSKU = async (tenantId: string, skuId: string, updates: Partial<SKU>): Promise<void> => {
+    try {
+        const itemRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/skus/${skuId}`);
+        await update(itemRef, updates);
+    } catch (error) {
+        console.error("Error updating SKU:", error);
+        throw error;
+    }
+};
+
+/**
+ * Deletes an SKU from the catalog.
+ */
+export const deleteSKU = async (tenantId: string, skuId: string): Promise<void> => {
+    try {
+        const itemRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/skus/${skuId}`);
+        await remove(itemRef);
+    } catch (error) {
+        console.error("Error deleting SKU:", error);
+        throw error;
+    }
+};
+
+/**
  * Creates a new Warehouse.
  */
 export const createWarehouse = async (warehouse: Omit<Warehouse, 'id'>, tenantId: string): Promise<string | null> => {
@@ -78,7 +104,31 @@ export const createWarehouse = async (warehouse: Omit<Warehouse, 'id'>, tenantId
         throw error;
     }
 };
+/**
+ * Updates an existing warehouse.
+ */
+export const updateWarehouse = async (tenantId: string, warehouseId: string, updates: Partial<Warehouse>): Promise<void> => {
+    try {
+        const warehouseRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/warehouses/${warehouseId}`);
+        await update(warehouseRef, updates);
+    } catch (error) {
+        console.error("Error updating warehouse:", error);
+        throw error;
+    }
+};
 
+/**
+ * Deletes a warehouse.
+ */
+export const deleteWarehouse = async (tenantId: string, warehouseId: string): Promise<void> => {
+    try {
+        const warehouseRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/warehouses/${warehouseId}`);
+        await remove(warehouseRef);
+    } catch (error) {
+        console.error("Error deleting warehouse:", error);
+        throw error;
+    }
+};
 
 /**
  * Manages Asset Lifecycle.
@@ -123,8 +173,7 @@ export const adjustStock = async (
         action: 'ADJUSTMENT',
         quantity,
         performedBy,
-        notes: notes || `Manual stock adjustment of ${quantity > 0 ? '+' : ''}${quantity} units.`,
-        referenceId: undefined
+        notes: notes || `Manual stock adjustment of ${quantity > 0 ? '+' : ''}${quantity} units.`
     });
 };
 

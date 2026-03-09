@@ -78,7 +78,7 @@ export default function Topbar({ onMobileMenuToggle }: TopbarProps) {
             </div>
 
             {/* Search bar */}
-            <div className={styles.searchBar}>
+            <div className={`${styles.searchBar} hidden-mobile`}>
                 <Search className={styles.searchIcon} size={16} color="#6B7280" />
                 <input
                     ref={searchInputRef}

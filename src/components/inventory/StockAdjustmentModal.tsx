@@ -37,7 +37,7 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
     const [formData, setFormData] = useState({
         skuId: "",
         warehouseId: "",
-        quantity: 1,
+        quantity: 1 as number | string,
         reason: ""
     });
     const [scanError, setScanError] = useState<string | null>(null);
@@ -50,7 +50,7 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
     }, [formData.skuId, formData.warehouseId, levels]);
 
     const projectedStock = useMemo(() => {
-        const delta = mode === "INBOUND" ? formData.quantity : -formData.quantity;
+        const delta = mode === "INBOUND" ? Number(formData.quantity) : -Number(formData.quantity);
         return Math.max(0, currentStock + delta);
     }, [currentStock, formData.quantity, mode]);
 
@@ -65,7 +65,7 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
 
         setLoading(true);
         try {
-            const finalQty = mode === "INBOUND" ? formData.quantity : -formData.quantity;
+            const finalQty = mode === "INBOUND" ? Number(formData.quantity) : -Number(formData.quantity);
             await adjustStock(
                 user.tenantId,
                 formData.skuId,
@@ -204,8 +204,8 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
                             )}
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                            <div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
+                            <div style={{ flex: '1 1 240px' }}>
                                 <label className={styles.label}>Inventory Item</label>
                                 <select
                                     className={styles.input}
@@ -217,7 +217,7 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
                                     {skus.map(s => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
                                 </select>
                             </div>
-                            <div>
+                            <div style={{ flex: '1 1 180px' }}>
                                 <label className={styles.label}>Location</label>
                                 <select
                                     className={styles.input}
@@ -237,7 +237,7 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
                             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 <button
                                     type="button"
-                                    onClick={() => setFormData(f => ({ ...f, quantity: Math.max(1, f.quantity - 1) }))}
+                                    onClick={() => setFormData(f => ({ ...f, quantity: Math.max(0, Number(f.quantity) - 1) }))}
                                     style={{ width: '48px', height: '48px', borderRadius: '10px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}
                                 >
                                     <Minus size={20} />
@@ -247,12 +247,24 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
                                     className={styles.input}
                                     style={{ textAlign: 'center', fontSize: '1.25rem', fontWeight: 800, height: '48px' }}
                                     value={formData.quantity}
-                                    onChange={e => setFormData({ ...formData, quantity: Math.max(1, Number(e.target.value)) })}
+                                    onChange={e => {
+                                        const val = e.target.value;
+                                        if (val === "") {
+                                            setFormData({ ...formData, quantity: "" });
+                                        } else {
+                                            setFormData({ ...formData, quantity: Math.max(0, Number(val)) });
+                                        }
+                                    }}
+                                    onBlur={() => {
+                                        if (formData.quantity === "") {
+                                            setFormData({ ...formData, quantity: 0 });
+                                        }
+                                    }}
                                     required
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setFormData(f => ({ ...f, quantity: f.quantity + 1 }))}
+                                    onClick={() => setFormData(f => ({ ...f, quantity: Number(f.quantity) + 1 }))}
                                     style={{ width: '48px', height: '48px', borderRadius: '10px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}
                                 >
                                     <Plus size={20} />
@@ -266,22 +278,22 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
                                 background: mode === "INBOUND" ? '#f0fdf4' : '#fff1f2',
                                 padding: '1rem', borderRadius: '12px', border: '1px solid',
                                 borderColor: mode === "INBOUND" ? '#bbf7d0' : '#fecaca',
-                                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                                marginBottom: '1.5rem'
+                                display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between',
+                                marginBottom: '1.5rem', gap: '0.75rem'
                             }}>
-                                <div style={{ textAlign: 'center' }}>
+                                <div style={{ textAlign: 'center', flex: '1 1 60px' }}>
                                     <div style={{ fontSize: '0.65rem', fontWeight: 700, color: mode === "INBOUND" ? '#166534' : '#991b1b', textTransform: 'uppercase' }}>Current</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{currentStock}</div>
                                 </div>
-                                <ArrowRight size={20} style={{ color: '#94a3b8' }} />
-                                <div style={{ textAlign: 'center', padding: '0 1rem', borderLeft: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1' }}>
+                                <ArrowRight size={20} style={{ color: '#94a3b8', display: 'none' }} className="hidden-mobile-inline" />
+                                <div style={{ textAlign: 'center', padding: '0 1rem', borderLeft: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1', flex: '1 1 100px' }}>
                                     <div style={{ fontSize: '0.65rem', fontWeight: 700, color: mode === "INBOUND" ? '#166534' : '#991b1b', textTransform: 'uppercase' }}>Adjustment</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800, color: mode === "INBOUND" ? '#059669' : '#e11d48' }}>
-                                        {mode === "INBOUND" ? "+" : "-"}{formData.quantity}
+                                        {mode === "INBOUND" ? "+" : "-"}{Number(formData.quantity)}
                                     </div>
                                 </div>
-                                <ArrowRight size={20} style={{ color: '#94a3b8' }} />
-                                <div style={{ textAlign: 'center' }}>
+                                <ArrowRight size={20} style={{ color: '#94a3b8', display: 'none' }} className="hidden-mobile-inline" />
+                                <div style={{ textAlign: 'center', flex: '1 1 60px' }}>
                                     <div style={{ fontSize: '0.65rem', fontWeight: 700, color: mode === "INBOUND" ? '#166534' : '#991b1b', textTransform: 'uppercase' }}>New Balance</div>
                                     <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{projectedStock}</div>
                                 </div>
