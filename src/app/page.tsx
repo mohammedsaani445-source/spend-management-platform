@@ -84,24 +84,27 @@ export default function Home() {
             {
               icon: <Zap />,
               title: "Autonomous AP",
-              text: "Our 99% accurate AI OCR extracts every field from invoices instantly, mapping them to purchase orders automatically."
+              text: "Our 99% accurate AI OCR extracts every field from invoices instantly, mapping them to purchase orders automatically.",
+              slug: "autonomous-ap"
             },
             {
               icon: <Shield />,
               title: "Guardrail AI™",
-              text: "Proactive fraud detection checks for duplicate invoices, vendor anomalies, and budget overruns in real-time."
+              text: "Proactive fraud detection checks for duplicate invoices, vendor anomalies, and budget overruns in real-time.",
+              slug: "fraud-protection"
             },
             {
               icon: <BarChart3 />,
               title: "Deep Spend Insights",
-              text: "Get a real-time view of every dollar spent. Forecast budgets and identify savings opportunities with AI analytics."
+              text: "Get a real-time view of every dollar spent. Forecast budgets and identify savings opportunities with AI analytics.",
+              slug: "spend-insights"
             }
           ].map((feature, idx) => (
             <div key={idx} className={styles.featureCard}>
               <div className={styles.featureIcon}>{feature.icon}</div>
               <h3 className={styles.featureTitle}>{feature.title}</h3>
               <p className={styles.featureText}>{feature.text}</p>
-              <Link href="/login" style={{ color: '#E8572A', fontWeight: 700, fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '1.5rem', textDecoration: 'none' }}>
+              <Link href={`/features/${feature.slug}`} style={{ color: '#E8572A', fontWeight: 700, fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '1.5rem', textDecoration: 'none' }}>
                 Learn More <ChevronRight size={16} />
               </Link>
             </div>
@@ -131,7 +134,7 @@ export default function Home() {
               view to ensure that even the most complex data tables are perfectly
               readable on any smartphone.
             </p>
-            <ul style={{ listStyle: 'none', padding: 0, marginTop: '2rem', display: 'grid', gap: '1rem' }}>
+            <ul style={{ listStyle: 'none', padding: 0, marginTop: '2rem', display: 'grid', gap: '1rem', marginBottom: '2.5rem' }}>
               {[
                 "Approve requests in one tap",
                 "Capture receipts with AI scanning",
@@ -143,6 +146,9 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+            <Link href="/features/mobile-procurement" className="btn btn-secondary" style={{ padding: '0.75rem 2rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              Explore Mobile Capabilities <ArrowRight size={18} />
+            </Link>
           </div>
         </div>
       </section>
