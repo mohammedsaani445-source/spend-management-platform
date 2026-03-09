@@ -6,7 +6,7 @@ import Image from "next/image";
 import {
     Zap, Shield, BarChart3, ArrowRight, CheckCircle2,
     ChevronRight, PlayCircle, Globe, Lock, Cpu,
-    स्मार्टफोन, Smartphone, CheckCircle, XCircle, Play
+    Smartphone, CheckCircle, XCircle, Play
 } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { useIntersection } from "@/hooks/useIntersection";
