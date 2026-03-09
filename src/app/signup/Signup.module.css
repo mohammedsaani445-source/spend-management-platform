@@ -1,0 +1,200 @@
+/* Premium Procurify-Style Signup Styles */
+
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: #FFFFFF;
+    overflow-x: hidden;
+}
+
+/* --- Left Brand Panel --- */
+.brandPanel {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    padding: 3.5rem;
+    position: relative;
+    background: #0F172A;
+    color: white;
+    justify-content: space-between;
+}
+
+.brandVisual {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0.35;
+    object-fit: cover;
+}
+
+.brandContent {
+    position: relative;
+    z-index: 10;
+}
+
+.brandHeading {
+    font-size: 3rem;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+    margin: 3rem 0 1.5rem;
+}
+
+.brandText {
+    font-size: 1.0625rem;
+    color: #919EAB;
+    max-width: 360px;
+    line-height: 1.6;
+}
+
+/* --- Right Auth Panel --- */
+.authPanel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 2rem;
+    background: #FFFFFF;
+    overflow-y: auto;
+}
+
+.authCard {
+    width: 100%;
+    max-width: 500px;
+    animation: fadeIn 0.6s ease-out;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #1A1A1A;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.03em;
+}
+
+.subtitle {
+    font-size: 0.9375rem;
+    color: #637381;
+    margin-bottom: 2rem;
+}
+
+/* --- Components --- */
+.inputGroup {
+    margin-bottom: 1.25rem;
+}
+
+.label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #1A1A1A;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.input {
+    width: 100%;
+    height: 52px;
+    padding: 0 1rem;
+    background: #F9FAFB;
+    border: 2px solid #F4F6F8;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #1A1A1A;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    outline: none;
+}
+
+.input:focus {
+    background: #FFFFFF;
+    border-color: #E8572A;
+    box-shadow: 0 0 0 4px rgba(232, 87, 42, 0.1);
+}
+
+.select {
+    width: 100%;
+    height: 52px;
+    padding: 0 1rem;
+    background: #F9FAFB;
+    border: 2px solid #F4F6F8;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #1A1A1A;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.googleBtn {
+    width: 100%;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: #FFFFFF;
+    border: 2px solid #F4F6F8;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.9375rem;
+    color: #1A1A1A;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-bottom: 1rem;
+}
+
+.primaryBtn {
+    width: 100%;
+    height: 52px;
+    background: #E8572A;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-top: 1rem;
+}
+
+.primaryBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* --- Mobile Fixes --- */
+@media (max-width: 1200px) {
+    .brandPanel {
+        width: 35%;
+    }
+}
+
+@media (max-width: 1024px) {
+    .brandPanel {
+        display: none;
+    }
+
+    .authPanel {
+        padding: 2rem 1rem;
+    }
+}
