@@ -141,6 +141,7 @@ export default function InventoryDashboard() {
                 <StockAdjustmentModal
                     skus={skus}
                     warehouses={warehouses}
+                    levels={levels}
                     onClose={() => setShowStockModal(false)}
                     onSaved={() => { setShowStockModal(false); loadData(); }}
                 />

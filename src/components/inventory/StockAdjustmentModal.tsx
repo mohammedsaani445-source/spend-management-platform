@@ -1,34 +1,58 @@
 "use client";
 
-import { useState } from "react";
-import { SKU, Warehouse } from "@/types";
+import { useState, useMemo } from "react";
+import { SKU, Warehouse, StockLevel } from "@/types";
 import { adjustStock } from "@/lib/inventory";
 import { useAuth } from "@/context/AuthContext";
 import styles from "@/components/layout/Layout.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { Plus, Minus, ArrowRight, Package, AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
 
 interface StockAdjustmentModalProps {
     skus: SKU[];
     warehouses: Warehouse[];
+    levels: StockLevel[];
     onClose: () => void;
     onSaved: () => void;
 }
 
-export default function StockAdjustmentModal({ skus, warehouses, onClose, onSaved }: StockAdjustmentModalProps) {
+const PRESET_REASONS = [
+    "New Shipment Received",
+    "Customer Return",
+    "Cycle Count Adjustment",
+    "Damaged / Scrapped",
+    "Promotional Issue",
+    "Internal Project Use",
+    "Warehouse Transfer"
+];
+
+export default function StockAdjustmentModal({ skus, warehouses, levels, onClose, onSaved }: StockAdjustmentModalProps) {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [mode, setMode] = useState<"INBOUND" | "OUTBOUND">("INBOUND");
 
     useScrollLock(true);
     const [formData, setFormData] = useState({
         skuId: "",
         warehouseId: "",
-        quantity: 0,
+        quantity: 1,
         reason: ""
     });
 
+    const currentStock = useMemo(() => {
+        if (!formData.skuId || !formData.warehouseId) return 0;
+        const level = levels.find(l => l.skuId === formData.skuId && l.warehouseId === formData.warehouseId);
+        return level ? level.quantity : 0;
+    }, [formData.skuId, formData.warehouseId, levels]);
+
+    const projectedStock = useMemo(() => {
+        const delta = mode === "INBOUND" ? formData.quantity : -formData.quantity;
+        return Math.max(0, currentStock + delta);
+    }, [currentStock, formData.quantity, mode]);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user) return;
+        if (!user || !formData.skuId || !formData.warehouseId) return;
 
         const sku = skus.find(s => s.id === formData.skuId);
         const wh = warehouses.find(w => w.id === formData.warehouseId);
@@ -37,13 +61,14 @@ export default function StockAdjustmentModal({ skus, warehouses, onClose, onSave
 
         setLoading(true);
         try {
+            const finalQty = mode === "INBOUND" ? formData.quantity : -formData.quantity;
             await adjustStock(
                 user.tenantId,
                 formData.skuId,
                 sku.name,
                 formData.warehouseId,
                 wh.name,
-                formData.quantity,
+                finalQty,
                 user.displayName || user.email || 'System',
                 formData.reason
             );
@@ -55,83 +80,195 @@ export default function StockAdjustmentModal({ skus, warehouses, onClose, onSave
         }
     };
 
+    const handleQuickScan = (code: string) => {
+        const match = skus.find(s => s.code.toLowerCase() === code.toLowerCase().trim());
+        if (match) {
+            setFormData({ ...formData, skuId: match.id! });
+            return true;
+        }
+        return false;
+    };
+
     return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="card" style={{ width: '450px' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem' }}>Stock Adjustment</h2>
-                <form onSubmit={handleSubmit}>
-                    <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f0f9ff', borderRadius: '8px', border: '1px solid #bae6fd' }}>
-                        <label className={styles.label} style={{ color: '#0369a1', fontWeight: 700 }}>🔍 Quick Scan (SKU / Barcode)</label>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+            <div className="card" style={{ width: '100%', maxWidth: '520px', padding: 0, borderRadius: '20px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.15)' }}>
+
+                {/* Header Mode Toggle */}
+                <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0' }}>
+                    <button
+                        onClick={() => setMode("INBOUND")}
+                        style={{
+                            flex: 1, padding: '1.25rem', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                            background: mode === "INBOUND" ? '#dcfce7' : '#fff',
+                            color: mode === "INBOUND" ? '#166534' : '#64748b',
+                            fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                        }}
+                    >
+                        <Plus size={18} /> INBOUND / RECEIVE
+                    </button>
+                    <button
+                        onClick={() => setMode("OUTBOUND")}
+                        style={{
+                            flex: 1, padding: '1.25rem', border: 'none', cursor: 'pointer', transition: 'all 0.2s',
+                            background: mode === "OUTBOUND" ? '#fee2e2' : '#fff',
+                            color: mode === "OUTBOUND" ? '#991b1b' : '#64748b',
+                            fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                        }}
+                    >
+                        <Minus size={18} /> OUTBOUND / ISSUE
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmit} style={{ padding: '1.5rem' }}>
+
+                    {/* Quick Scan Barcode Area */}
+                    <div style={{
+                        marginBottom: '1.5rem', padding: '1rem',
+                        background: '#f8fafc', borderRadius: '12px', border: '2px dashed #cbd5e1'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                🚀 Barcode / Quick Scan
+                            </label>
+                            <span style={{ fontSize: '0.65rem', color: '#94a3b8', background: '#fff', padding: '2px 6px', borderRadius: '4px' }}>Auto-Focus Ready</span>
+                        </div>
                         <input
                             className={styles.input}
-                            placeholder="Scan or type barcode..."
+                            placeholder="Scan SKU barcode..."
                             autoFocus
+                            style={{ background: '#fff' }}
                             onChange={(e) => {
-                                const code = e.target.value.trim();
-                                if (!code) return;
-                                const match = skus.find(s => s.code === code);
-                                if (match) {
-                                    setFormData({ ...formData, skuId: match.id! });
-                                    // Visual feedback
+                                if (handleQuickScan(e.target.value)) {
                                     e.target.style.borderColor = '#22c55e';
                                 } else {
-                                    e.target.style.borderColor = '#cbd5e1';
+                                    e.target.style.borderColor = '#e2e8f0';
                                 }
                             }}
                         />
-                        <div style={{ fontSize: '0.7rem', color: '#0c4a6e', marginTop: '0.25rem' }}>
-                            Physical scanners will automatically focus and match items here.
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                        <div>
+                            <label className={styles.label}>Inventory Item</label>
+                            <select
+                                className={styles.input}
+                                value={formData.skuId}
+                                onChange={e => setFormData({ ...formData, skuId: e.target.value })}
+                                required
+                            >
+                                <option value="">Select Item...</option>
+                                {skus.map(s => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
+                            </select>
+                        </div>
+                        <div>
+                            <label className={styles.label}>Location</label>
+                            <select
+                                className={styles.input}
+                                value={formData.warehouseId}
+                                onChange={e => setFormData({ ...formData, warehouseId: e.target.value })}
+                                required
+                            >
+                                <option value="">Select Site...</option>
+                                {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
+                            </select>
                         </div>
                     </div>
 
-                    <div style={{ marginBottom: '1rem' }}>
-                        <label className={styles.label}>Selected Item</label>
-                        <select
-                            className={styles.input}
-                            value={formData.skuId}
-                            onChange={e => setFormData({ ...formData, skuId: e.target.value })}
-                            required
-                        >
-                            <option value="">Choose item...</option>
-                            {skus.map(s => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
-                        </select>
+                    {/* Industrial Quantity Control */}
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <label className={styles.label}>Adjustment Quantity</label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            <button
+                                type="button"
+                                onClick={() => setFormData(f => ({ ...f, quantity: Math.max(1, f.quantity - 1) }))}
+                                style={{ width: '48px', height: '48px', borderRadius: '10px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}
+                            >
+                                <Minus size={20} />
+                            </button>
+                            <input
+                                type="number"
+                                className={styles.input}
+                                style={{ textAlign: 'center', fontSize: '1.25rem', fontWeight: 800, height: '48px' }}
+                                value={formData.quantity}
+                                onChange={e => setFormData({ ...formData, quantity: Math.max(1, Number(e.target.value)) })}
+                                required
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setFormData(f => ({ ...f, quantity: f.quantity + 1 }))}
+                                style={{ width: '48px', height: '48px', borderRadius: '10px', border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}
+                            >
+                                <Plus size={20} />
+                            </button>
+                        </div>
                     </div>
-                    <div style={{ marginBottom: '1rem' }}>
-                        <label className={styles.label}>Warehouse Location</label>
-                        <select
-                            className={styles.input}
-                            value={formData.warehouseId}
-                            onChange={e => setFormData({ ...formData, warehouseId: e.target.value })}
-                            required
-                        >
-                            <option value="">Choose location...</option>
-                            {warehouses.map(w => <option key={w.id} value={w.id}>{w.name}</option>)}
-                        </select>
-                    </div>
-                    <div style={{ marginBottom: '1rem' }}>
-                        <label className={styles.label}>Quantity Change (Positive for receipt, Negative for removal)</label>
-                        <input
-                            type="number"
-                            className={styles.input}
-                            value={formData.quantity}
-                            onChange={e => setFormData({ ...formData, quantity: Number(e.target.value) })}
-                            required
-                        />
-                    </div>
-                    <div style={{ marginBottom: '1rem' }}>
-                        <label className={styles.label}>Adjustment Reason</label>
+
+                    {/* Stock Impact Preview Card */}
+                    {formData.skuId && formData.warehouseId && (
+                        <div style={{
+                            background: mode === "INBOUND" ? '#f0fdf4' : '#fff1f2',
+                            padding: '1rem', borderRadius: '12px', border: '1px solid',
+                            borderColor: mode === "INBOUND" ? '#bbf7d0' : '#fecaca',
+                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                            marginBottom: '1.5rem'
+                        }}>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: mode === "INBOUND" ? '#166534' : '#991b1b', textTransform: 'uppercase' }}>Current</div>
+                                <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{currentStock}</div>
+                            </div>
+                            <ArrowRight size={20} style={{ color: '#94a3b8' }} />
+                            <div style={{ textAlign: 'center', padding: '0 1rem', borderLeft: '1px solid #cbd5e1', borderRight: '1px solid #cbd5e1' }}>
+                                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: mode === "INBOUND" ? '#166534' : '#991b1b', textTransform: 'uppercase' }}>Adjustment</div>
+                                <div style={{ fontSize: '1.1rem', fontWeight: 800, color: mode === "INBOUND" ? '#059669' : '#e11d48' }}>
+                                    {mode === "INBOUND" ? "+" : "-"}{formData.quantity}
+                                </div>
+                            </div>
+                            <ArrowRight size={20} style={{ color: '#94a3b8' }} />
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ fontSize: '0.65rem', fontWeight: 700, color: mode === "INBOUND" ? '#166534' : '#991b1b', textTransform: 'uppercase' }}>New Balance</div>
+                                <div style={{ fontSize: '1.1rem', fontWeight: 800 }}>{projectedStock}</div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div style={{ marginBottom: '1.5rem' }}>
+                        <label className={styles.label}>Movement Reason</label>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '0.6rem' }}>
+                            {PRESET_REASONS.map(r => (
+                                <button
+                                    key={r} type="button"
+                                    onClick={() => setFormData({ ...formData, reason: r })}
+                                    style={{
+                                        fontSize: '0.65rem', padding: '4px 10px', borderRadius: '6px', border: '1px solid #e2e8f0',
+                                        background: formData.reason === r ? '#475569' : '#fff',
+                                        color: formData.reason === r ? '#fff' : '#475569',
+                                        cursor: 'pointer'
+                                    }}
+                                >
+                                    {r}
+                                </button>
+                            ))}
+                        </div>
                         <input
                             className={styles.input}
                             value={formData.reason}
                             onChange={e => setFormData({ ...formData, reason: e.target.value })}
-                            placeholder="e.g. Received from shipment, Cycle count"
+                            placeholder="Specify reason..."
                             required
                         />
                     </div>
-                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem' }}>
-                        <button type="button" className="btn" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn btn-primary" disabled={loading}>
-                            {loading ? 'Processing...' : 'Record Adjustment'}
+
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                        <button type="button" className="btn" style={{ flex: 1 }} onClick={onClose}>Discard</button>
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                            style={{ flex: 2, background: mode === "INBOUND" ? '#059669' : '#e11d48', border: 'none' }}
+                            disabled={loading}
+                        >
+                            {loading ? <RefreshCw size={18} className="animate-spin" /> : (
+                                <><CheckCircle2 size={18} style={{ marginRight: '8px' }} /> Commit Movement</>
+                            )}
                         </button>
                     </div>
                 </form>
