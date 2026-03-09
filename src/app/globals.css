@@ -578,15 +578,14 @@ select {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.75);
-  /* Darker, more contrast */
   backdrop-filter: blur(4px);
   z-index: var(--z-modal-backdrop);
-  /* Higher priority */
   display: flex;
-  align-items: center;
-  /* Center by default */
+  align-items: flex-start;
+  /* Start from top instead of center */
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: calc(var(--topbar-height) + 2rem) 1rem 2rem;
+  /* Buffer for topbar + gap */
   overflow-y: auto;
   pointer-events: auto !important;
   /* Explicitly ensure interaction */
@@ -608,8 +607,8 @@ select {
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   position: relative;
   z-index: var(--z-modal);
-  margin: auto;
-  /* Works with flex centering */
+  margin-bottom: auto;
+  /* Ensure it stays at the top of the flex container */
   pointer-events: auto !important;
 }
 
