@@ -40,6 +40,8 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
         quantity: 1,
         reason: ""
     });
+    const [scanError, setScanError] = useState<string | null>(null);
+    const [lookupLoading, setLookupLoading] = useState(false);
 
     const currentStock = useMemo(() => {
         if (!formData.skuId || !formData.warehouseId) return 0;
@@ -82,13 +84,23 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
         }
     };
 
-    const handleQuickScan = (code: string) => {
+    const handleQuickScan = async (code: string) => {
+        setLookupLoading(true);
+        setScanError(null);
+
+        // Simulate "database query" for realistic feedback
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         const match = skus.find(s => s.code.toLowerCase() === code.toLowerCase().trim());
         if (match) {
             setFormData({ ...formData, skuId: match.id! });
             setIsScanning(false);
+            setLookupLoading(false);
             return true;
         }
+
+        setScanError(`Barcode not found: ${code}`);
+        setLookupLoading(false);
         return false;
     };
 
@@ -164,20 +176,31 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
                                         onClose={() => setIsScanning(false)}
                                     />
                                 </div>
+                            ) : lookupLoading ? (
+                                <div style={{ padding: '1rem', textAlign: 'center', background: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                                    <RefreshCw size={24} className="animate-spin" color="var(--brand)" />
+                                    <p style={{ fontSize: '0.8rem', marginTop: '0.5rem', fontWeight: 600 }}>Locating SKU...</p>
+                                </div>
                             ) : (
-                                <input
-                                    className={styles.input}
-                                    placeholder="Scan SKU barcode..."
-                                    autoFocus
-                                    style={{ background: '#fff' }}
-                                    onChange={(e) => {
-                                        if (handleQuickScan(e.target.value)) {
-                                            e.target.style.borderColor = '#22c55e';
-                                        } else {
-                                            e.target.style.borderColor = '#e2e8f0';
-                                        }
-                                    }}
-                                />
+                                <>
+                                    <input
+                                        className={styles.input}
+                                        placeholder="Scan SKU barcode..."
+                                        autoFocus
+                                        style={{ background: '#fff', borderColor: scanError ? 'var(--error)' : '#e2e8f0' }}
+                                        onChange={async (e) => {
+                                            const val = e.target.value;
+                                            if (val.length > 5) { // Assuming barcodes are usually longer
+                                                await handleQuickScan(val);
+                                            }
+                                        }}
+                                    />
+                                    {scanError && (
+                                        <p style={{ color: 'var(--error)', fontSize: '0.7rem', marginTop: '0.4rem', fontWeight: 700 }}>
+                                            ⚠️ {scanError}
+                                        </p>
+                                    )}
+                                </>
                             )}
                         </div>
 

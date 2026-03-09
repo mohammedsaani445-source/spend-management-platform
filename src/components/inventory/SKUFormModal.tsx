@@ -18,6 +18,8 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
+    const [lookupLoading, setLookupLoading] = useState(false);
+    const [justScanned, setJustScanned] = useState(false);
 
     useScrollLock(true);
     const [formData, setFormData] = useState({
@@ -31,9 +33,16 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
         currency: "USD"
     });
 
-    const handleScan = (code: string) => {
+    const handleScan = async (code: string) => {
+        setLookupLoading(true);
+        // Realistic "picking" delay
+        await new Promise(resolve => setTimeout(resolve, 400));
+
         setFormData({ ...formData, code });
+        setLookupLoading(false);
         setIsScanning(false);
+        setJustScanned(true);
+        setTimeout(() => setJustScanned(false), 2000); // Clear success state after 2s
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -81,15 +90,39 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
                                     onClose={() => setIsScanning(false)}
                                 />
                             </div>
+                        ) : lookupLoading ? (
+                            <div style={{ padding: '1rem', textAlign: 'center', background: '#f8fafc', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                                <div style={{ width: '24px', height: '24px', border: '3px solid var(--brand-soft)', borderTop: '3px solid var(--brand)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }}></div>
+                                <p style={{ fontSize: '0.75rem', marginTop: '0.5rem', fontWeight: 600 }}>Decoding Barcode...</p>
+                            </div>
                         ) : (
-                            <input
-                                className={styles.input}
-                                value={formData.code}
-                                onChange={e => setFormData({ ...formData, code: e.target.value })}
-                                placeholder="e.g. IT-LPT-042"
-                                required
-                            />
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    className={styles.input}
+                                    value={formData.code}
+                                    onChange={e => setFormData({ ...formData, code: e.target.value })}
+                                    placeholder="e.g. IT-LPT-042"
+                                    style={{
+                                        paddingRight: '2.5rem',
+                                        borderColor: justScanned ? 'var(--success)' : 'var(--border)',
+                                        transition: 'all 0.3s'
+                                    }}
+                                    required
+                                />
+                                {justScanned && (
+                                    <div style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--success)' }}>
+                                        <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'var(--success-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                            ✓
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         )}
+                        <style jsx>{`
+                            @keyframes spin {
+                                to { transform: rotate(360deg); }
+                            }
+                        `}</style>
                     </div>
                     <div style={{ marginBottom: '1rem' }}>
                         <label className={styles.label}>Product Name</label>

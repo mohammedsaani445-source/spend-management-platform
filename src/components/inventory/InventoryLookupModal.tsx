@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { SKU, Warehouse, StockLevel } from "@/types";
-import { Search, Camera, Package, MapPin, X, Info } from "lucide-react";
+import { Search, Camera, Package, MapPin, X, Info, RefreshCcw, AlertTriangle } from "lucide-react";
 import BarcodeScanner from "./BarcodeScanner";
 import styles from "@/components/layout/Layout.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
@@ -18,16 +18,30 @@ export default function InventoryLookupModal({ skus, warehouses, levels, onClose
     const [searchQuery, setSearchQuery] = useState("");
     const [isScanning, setIsScanning] = useState(false);
     const [selectedSKU, setSelectedSKU] = useState<SKU | null>(null);
+    const [lookupLoading, setLookupLoading] = useState(false);
+    const [scanError, setScanError] = useState<string | null>(null);
 
     useScrollLock(true);
 
-    const handleScan = (code: string) => {
+    const handleScan = async (code: string) => {
+        setLookupLoading(true);
+        setScanError(null);
+        setSelectedSKU(null);
+
+        // Simulate "database query" for realistic feedback
+        await new Promise(resolve => setTimeout(resolve, 600));
+
         const found = skus.find(s => s.code.toLowerCase() === code.toLowerCase().trim());
+
         if (found) {
             setSelectedSKU(found);
             setIsScanning(false);
             setSearchQuery("");
+        } else {
+            setScanError(`No item found for barcode: ${code}`);
+            setIsScanning(false);
         }
+        setLookupLoading(false);
     };
 
     const searchResults = useMemo(() => {
@@ -190,16 +204,36 @@ export default function InventoryLookupModal({ skus, warehouses, levels, onClose
                         </div>
                     )}
 
-                    {!selectedSKU && !isScanning && (
+                    {lookupLoading && (
+                        <div style={{ height: '250px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                            <RefreshCcw size={40} className="animate-spin" color="var(--brand)" />
+                            <p style={{ marginTop: '1rem', fontWeight: 600 }}>Querying Global Inventory...</p>
+                        </div>
+                    )}
+
+                    {!selectedSKU && !isScanning && !lookupLoading && (
                         <div style={{
                             height: '250px', display: 'flex', flexDirection: 'column',
                             alignItems: 'center', justifyContent: 'center', color: '#94a3b8',
                             textAlign: 'center', padding: '2rem'
                         }}>
-                            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
-                                <Info size={32} />
-                            </div>
-                            <p style={{ margin: 0, fontWeight: 500 }}>Scan a barcode or search for an item below to see detailed warehouse stock.</p>
+                            {scanError ? (
+                                <>
+                                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'var(--error-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem', color: 'var(--error)' }}>
+                                        <AlertTriangle size={32} />
+                                    </div>
+                                    <p style={{ margin: 0, fontWeight: 700, color: 'var(--error)' }}>{scanError}</p>
+                                    <p style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>If this is a new SKU, please register it first.</p>
+                                    <button onClick={() => setScanError(null)} style={{ marginTop: '1rem', color: 'var(--brand)', fontWeight: 700, background: 'none', border: 'none' }}>Try Again</button>
+                                </>
+                            ) : (
+                                <>
+                                    <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+                                        <Info size={32} />
+                                    </div>
+                                    <p style={{ margin: 0, fontWeight: 500 }}>Scan a barcode or search for an item below to see detailed warehouse stock.</p>
+                                </>
+                            )}
                         </div>
                     )}
 
