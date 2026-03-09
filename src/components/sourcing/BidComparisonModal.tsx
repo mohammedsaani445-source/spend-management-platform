@@ -22,8 +22,8 @@ export default function BidComparisonModal({ rfp, bids, onClose, onAward }: BidC
     const isLocked = new Date() < new Date(rfp.deadline) && rfp.status === 'OPEN';
 
     return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="card" style={{ width: '900px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="modal-backdrop">
+            <div className="modal" style={{ width: '900px', maxWidth: '95%', maxHeight: '90vh' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '2rem' }}>
                     <div>
                         <h2 style={{ fontSize: '1.25rem', fontWeight: 700 }}>

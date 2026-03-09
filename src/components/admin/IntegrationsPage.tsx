@@ -313,7 +313,7 @@ export default function IntegrationsPage() {
 
             {/* Create Modal */}
             {showCreate && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 'var(--z-modal)' as any, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div className={styles.card} style={{ width: '100%', maxWidth: '450px', padding: '2rem', animation: 'scaleIn 0.2s ease-out' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
                             <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800 }}>Generate New API Key</h3>
@@ -357,7 +357,7 @@ export default function IntegrationsPage() {
 
             {/* ERP Config Modal */}
             {activeErp && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 'var(--z-modal)' as any, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div className={styles.card} style={{ width: '100%', maxWidth: '500px', padding: '2.5rem', animation: 'scaleIn 0.2s ease-out' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '1.5rem' }}>
                             <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(79, 70, 229, 0.1)', color: '#4F46E5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

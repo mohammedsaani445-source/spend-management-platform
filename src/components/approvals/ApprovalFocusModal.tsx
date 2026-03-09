@@ -89,7 +89,7 @@ export default function ApprovalFocusModal({
             right: 0,
             bottom: 0,
             backgroundColor: 'rgba(15, 23, 42, 0.95)', // Deep dark overlay
-            zIndex: 9999,
+            zIndex: 'var(--z-modal)' as any,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',

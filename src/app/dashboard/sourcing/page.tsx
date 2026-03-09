@@ -217,7 +217,7 @@ export default function SourcingPage() {
 
             {/* Select Requisition Modal */}
             {showSelectReq && (
-                <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ position: 'fixed', inset: 0, zIndex: 'var(--z-modal-backdrop)' as any, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <div className="card" style={{ width: '500px', maxWidth: '95%' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
                             <h2 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Select Requisition</h2>

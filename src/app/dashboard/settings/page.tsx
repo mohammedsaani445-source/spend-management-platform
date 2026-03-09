@@ -151,7 +151,7 @@ export default function SettingsPage() {
             {is2FAModalOpen && (
                 <div style={{
                     position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
-                    zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    zIndex: 'var(--z-modal-backdrop)' as any, display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}>
                     <div className={styles.card} style={{ maxWidth: '450px', width: '90%', textAlign: 'center', position: 'relative' }}>
                         <button

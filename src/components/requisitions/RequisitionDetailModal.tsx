@@ -49,15 +49,8 @@ export default function RequisitionDetailModal({
     };
 
     return (
-        <div style={{
-            position: 'fixed', inset: 0, zIndex: 50,
-            backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
-        }}>
-            <div className="card" style={{
-                width: '800px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto',
-                animation: 'slideIn 0.3s ease-out'
-            }}>
+        <div className="modal-backdrop">
+            <div className="modal" style={{ width: '800px', maxWidth: '95%', maxHeight: '90vh' }}>
                 {/* Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '2rem' }}>
                     <div>

@@ -80,43 +80,23 @@ export default function InvoiceDetailModal({
 
     return (
         <div className="modal-backdrop">
-            <div className="modal" style={{ width: '900px', maxWidth: '95%' }}>
-                {/* Top Navigation Bar */}
-                <div style={{
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    padding: '1rem 1.5rem', color: 'white'
-                }}>
+            <div className="modal" style={{ width: '900px', maxWidth: '95%', padding: 0 }}>
+                {/* Standard Modal Header */}
+                <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
+                    <div>
+                        <h2 className="modal-title" style={{ fontSize: '1.25rem', marginBottom: '4px' }}>Invoice Details</h2>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>Reference: #{invoice.invoiceNumber}</div>
+                    </div>
                     <button
                         onClick={onClose}
-                        style={{
-                            display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            background: 'none', border: 'none', color: 'rgba(255,255,255,0.8)',
-                            cursor: 'pointer', fontSize: '0.9rem', fontWeight: 500
-                        }}
+                        className="closeButton"
+                        style={{ width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.05)', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
                     >
-                        ← Back to Invoices
+                        ×
                     </button>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>Invoice: {invoice.invoiceNumber}</div>
-                        <button
-                            onClick={onClose}
-                            style={{
-                                width: '32px', height: '32px', borderRadius: '50%',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white',
-                                cursor: 'pointer', fontSize: '1.2rem'
-                            }}
-                        >
-                            ×
-                        </button>
-                    </div>
                 </div>
 
-                <div className="modal-body" style={{ padding: '0 2rem 2rem' }}>
-                    <div className="modal-header" style={{ margin: '0 -2rem 2rem', borderBottom: '1px solid var(--border)' }}>
-                        <h2 className="modal-title" style={{ fontSize: '1.5rem' }}>Invoice Details</h2>
-                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>#{invoice.invoiceNumber}</div>
-                    </div>
+                <div className="modal-body" style={{ padding: '2rem', overflowY: 'auto', maxHeight: 'calc(90vh - 120px)' }}>
 
                     {/* 3-Way Match Visualizer */}
                     <div style={{ marginBottom: '2rem', padding: '1.5rem', backgroundColor: 'var(--surface-hover)', borderRadius: '12px', border: '1px solid var(--border)' }}>

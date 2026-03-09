@@ -36,11 +36,7 @@ export default function PODetailModal({
     }, [po.id, po.tenantId]);
 
     return (
-        <div style={{
-            position: 'fixed', inset: 0, zIndex: 100,
-            backgroundColor: 'rgba(2, 6, 23, 0.85)', backdropFilter: 'blur(12px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem'
-        }} className="modal-backdrop">
+        <div className="modal-backdrop">
             <style>{`
                 .adaptive-paper {
                     background-color: #ffffff !important;

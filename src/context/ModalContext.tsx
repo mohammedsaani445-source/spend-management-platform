@@ -75,32 +75,27 @@ export function ModalProvider({ children }: { children: ReactNode }) {
 
             {/* Modal UI */}
             {isOpen && (
-                <div style={{
-                    position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999
-                }}>
-                    <div className="card" style={{
-                        width: '400px', maxWidth: '90%', textAlign: 'center', padding: '2rem',
-                        animation: 'fadeIn 0.2s ease-out'
-                    }}>
+                <div className="modal-backdrop">
+                    <div className="modal" style={{ width: '400px', maxWidth: '90%', textAlign: 'center', padding: '2rem' }}>
                         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>
                             {type === 'ERROR' ? '⛔' : type === 'CONFIRM' ? '❓' : 'ℹ️'}
                         </div>
 
-                        <h3 style={{
-                            fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '1rem',
-                            color: type === 'ERROR' ? 'var(--error)' : 'var(--text-primary)'
+                        <h2 className="modal-title" style={{
+                            fontSize: '1.25rem', fontWeight: 900, marginBottom: '1rem',
+                            color: type === 'ERROR' ? '#991b1b' : 'var(--text-main)',
+                            border: 'none', padding: 0
                         }}>
                             {title}
-                        </h3>
+                        </h2>
 
-                        <p style={{ marginBottom: '2rem', lineHeight: '1.5', color: 'var(--text-secondary)' }}>
+                        <p style={{ marginBottom: '2rem', lineHeight: '1.5', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
                             {message}
                         </p>
 
                         <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
                             {type === 'CONFIRM' && (
-                                <button className="btn" onClick={handleCancel} style={{ minWidth: '100px' }}>
+                                <button className="btn" onClick={handleCancel} style={{ minWidth: '120px' }}>
                                     Cancel
                                 </button>
                             )}
@@ -108,11 +103,12 @@ export function ModalProvider({ children }: { children: ReactNode }) {
                                 className="btn btn-primary"
                                 onClick={handleConfirm}
                                 style={{
-                                    minWidth: '100px',
-                                    backgroundColor: type === 'ERROR' ? 'var(--error)' : 'var(--primary)'
+                                    minWidth: '120px',
+                                    backgroundColor: type === 'ERROR' ? '#991b1b' : 'var(--brand)',
+                                    border: 'none'
                                 }}
                             >
-                                {type === 'CONFIRM' ? 'Confirm' : 'OK'}
+                                {type === 'CONFIRM' ? 'Confirm Action' : 'I Understand'}
                             </button>
                         </div>
                     </div>

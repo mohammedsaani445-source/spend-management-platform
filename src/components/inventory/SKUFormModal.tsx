@@ -6,6 +6,8 @@ import { createSKU } from "@/lib/inventory";
 import { useAuth } from "@/context/AuthContext";
 import styles from "@/components/layout/Layout.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { Camera } from "lucide-react";
+import BarcodeScanner from "./BarcodeScanner";
 
 interface SKUFormModalProps {
     onClose: () => void;
@@ -15,6 +17,7 @@ interface SKUFormModalProps {
 export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
 
     useScrollLock(true);
     const [formData, setFormData] = useState({
@@ -27,6 +30,11 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
         unitPrice: 0,
         currency: "USD"
     });
+
+    const handleScan = (code: string) => {
+        setFormData({ ...formData, code });
+        setIsScanning(false);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -43,19 +51,45 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
     };
 
     return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="card" style={{ width: '500px' }}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem' }}>Define New SKU</h2>
-                <form onSubmit={handleSubmit}>
+        <div className="modal-backdrop">
+            <div className="modal" style={{ maxWidth: '500px' }}>
+                <div className="modal-header">
+                    <h2 className="modal-title">Define New SKU</h2>
+                    <button onClick={onClose} className="closeButton" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.25rem' }}>&times;</button>
+                </div>
+                <form onSubmit={handleSubmit} style={{ padding: '1.5rem' }}>
                     <div style={{ marginBottom: '1rem' }}>
-                        <label className={styles.label}>SKU / Barcode</label>
-                        <input
-                            className={styles.input}
-                            value={formData.code}
-                            onChange={e => setFormData({ ...formData, code: e.target.value })}
-                            placeholder="e.g. IT-LPT-042"
-                            required
-                        />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+                            <label className={styles.label} style={{ marginBottom: 0 }}>SKU / Barcode</label>
+                            <button
+                                type="button"
+                                onClick={() => setIsScanning(!isScanning)}
+                                style={{
+                                    fontSize: '0.75rem', color: isScanning ? '#e11d48' : 'var(--brand)',
+                                    background: 'none', border: 'none', cursor: 'pointer', fontWeight: 700,
+                                    display: 'flex', alignItems: 'center', gap: '4px'
+                                }}
+                            >
+                                <Camera size={14} /> {isScanning ? "Cancel Scan" : "Scan Barcode"}
+                            </button>
+                        </div>
+
+                        {isScanning ? (
+                            <div style={{ marginBottom: '1rem' }}>
+                                <BarcodeScanner
+                                    onScan={handleScan}
+                                    onClose={() => setIsScanning(false)}
+                                />
+                            </div>
+                        ) : (
+                            <input
+                                className={styles.input}
+                                value={formData.code}
+                                onChange={e => setFormData({ ...formData, code: e.target.value })}
+                                placeholder="e.g. IT-LPT-042"
+                                required
+                            />
+                        )}
                     </div>
                     <div style={{ marginBottom: '1rem' }}>
                         <label className={styles.label}>Product Name</label>
@@ -92,7 +126,7 @@ export default function SKUFormModal({ onClose, onSaved }: SKUFormModalProps) {
                             </select>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '2rem' }}>
+                    <div className="modal-footer" style={{ borderTop: '1px solid var(--border)', padding: '1rem 1.5rem', background: 'var(--surface-2)', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
                         <button type="button" className="btn" onClick={onClose}>Cancel</button>
                         <button type="submit" className="btn btn-primary" disabled={loading}>
                             {loading ? 'Creating...' : 'Add to Catalog'}

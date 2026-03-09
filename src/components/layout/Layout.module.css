@@ -23,7 +23,7 @@
     position: fixed;
     left: 0;
     top: 0;
-    z-index: 100;
+    z-index: var(--z-sidebar);
     display: flex;
     flex-direction: column;
     background: var(--surface);
@@ -234,7 +234,7 @@
     padding: 0 1.5rem;
     position: sticky;
     top: 0;
-    z-index: 50;
+    z-index: var(--z-topbar);
     gap: 1rem;
 }
 
@@ -549,7 +549,7 @@
     border: 1px solid rgba(223, 227, 232, 0.6);
     border-radius: 12px;
     box-shadow: 0 12px 36px -4px rgba(33, 43, 54, 0.15), 0 4px 12px -2px rgba(33, 43, 54, 0.08);
-    z-index: 500;
+    z-index: var(--z-dropdown);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -764,7 +764,7 @@
     border: 1px solid #DFE3E8;
     border-radius: 12px;
     box-shadow: 0 8px 24px rgba(33, 43, 54, 0.18);
-    z-index: 500;
+    z-index: var(--z-dropdown);
     overflow: hidden;
 }
 
@@ -810,7 +810,7 @@
     position: fixed;
     inset: 0;
     background: rgba(33, 43, 54, 0.4);
-    z-index: 300;
+    z-index: var(--z-modal-backdrop);
 }
 
 .helpDrawer {
@@ -821,7 +821,7 @@
     height: 100vh;
     background: white;
     box-shadow: -4px 0 24px rgba(33, 43, 54, 0.12);
-    z-index: 400;
+    z-index: var(--z-modal);
     transform: translateX(100%);
     visibility: hidden;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s;
@@ -907,7 +907,7 @@
     inset: 0;
     background: rgba(33, 43, 54, 0.5);
     backdrop-filter: blur(2px);
-    z-index: 500;
+    z-index: var(--z-modal-backdrop);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1170,7 +1170,7 @@
     position: fixed;
     inset: 0;
     background: rgba(33, 43, 54, 0.4);
-    z-index: 90;
+    z-index: var(--z-sidebar);
     backdrop-filter: blur(2px);
 }
 

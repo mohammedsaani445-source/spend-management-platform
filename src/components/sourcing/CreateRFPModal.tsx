@@ -71,8 +71,8 @@ export default function CreateRFPModal({ requisition, vendors, onClose, onCreate
     };
 
     return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 100, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="card" style={{ width: '600px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div className="modal-backdrop">
+            <div className="modal" style={{ width: '600px', maxWidth: '95%', maxHeight: '90vh' }}>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem' }}>Initiate Strategic Sourcing</h2>
 
                 <form onSubmit={handleSubmit}>

@@ -95,16 +95,11 @@ export default function EmailComposerModal({ po, onClose, onSent }: EmailCompose
     };
 
     return (
-        <div style={{
-            position: 'fixed', inset: 0, zIndex: 100,
-            backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem'
-        }}>
-            <div style={{
-                backgroundColor: 'var(--surface)', borderRadius: '16px',
+        <div className="modal-backdrop">
+            <div className="modal" style={{
                 width: '100%', maxWidth: '1400px', maxHeight: '90vh',
                 display: 'flex', flexDirection: 'column', overflow: 'hidden',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+                padding: 0
             }}>
                 {/* Header */}
                 <div style={{

@@ -6,8 +6,10 @@ import { getSKUs, getWarehouses, getStockLevels } from "@/lib/inventory";
 import { useAuth } from "@/context/AuthContext";
 import SKUFormModal from "@/components/inventory/SKUFormModal";
 import StockAdjustmentModal from "@/components/inventory/StockAdjustmentModal";
+import InventoryLookupModal from "@/components/inventory/InventoryLookupModal";
 import styles from "@/components/layout/Layout.module.css";
 import tableStyles from "@/components/assets/Assets.module.css";
+import { Search, ArrowLeftRight, Plus } from "lucide-react";
 
 export default function InventoryDashboard() {
     const { user } = useAuth();
@@ -17,6 +19,7 @@ export default function InventoryDashboard() {
     const [loading, setLoading] = useState(true);
     const [showSKUModal, setShowSKUModal] = useState(false);
     const [showStockModal, setShowStockModal] = useState(false);
+    const [showLookupModal, setShowLookupModal] = useState(false);
 
     useEffect(() => {
         loadData();
@@ -64,9 +67,15 @@ export default function InventoryDashboard() {
                     <p className={styles.pageSubtitle}>Real-time tracking of SKUs and stock levels across all locations.</p>
                 </div>
                 <div style={{ display: 'flex', gap: '1rem' }}>
-                    <button className="btn" onClick={() => setShowStockModal(true)}>🔍 Quick Scan</button>
-                    <button className="btn" onClick={() => setShowStockModal(true)}>📦 Stock Movement</button>
-                    <button className={styles.primaryButton} onClick={() => setShowSKUModal(true)}>➕ New SKU</button>
+                    <button className="btn" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => setShowLookupModal(true)}>
+                        <Search size={18} /> Quick Lookup
+                    </button>
+                    <button className="btn" style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => setShowStockModal(true)}>
+                        <ArrowLeftRight size={18} /> Stock Movement
+                    </button>
+                    <button className={styles.primaryButton} style={{ display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => setShowSKUModal(true)}>
+                        <Plus size={18} /> New SKU
+                    </button>
                 </div>
             </div>
 
@@ -137,6 +146,14 @@ export default function InventoryDashboard() {
             </div>
 
             {showSKUModal && <SKUFormModal onClose={() => setShowSKUModal(false)} onSaved={() => { setShowSKUModal(false); loadData(); }} />}
+            {showLookupModal && (
+                <InventoryLookupModal
+                    skus={skus}
+                    warehouses={warehouses}
+                    levels={levels}
+                    onClose={() => setShowLookupModal(false)}
+                />
+            )}
             {showStockModal && (
                 <StockAdjustmentModal
                     skus={skus}

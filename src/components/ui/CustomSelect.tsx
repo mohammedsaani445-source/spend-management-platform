@@ -114,7 +114,7 @@ export default function CustomSelect({
                     border: '1px solid var(--border)',
                     borderRadius: 'var(--radius-md)',
                     boxShadow: 'var(--shadow-lg)',
-                    zIndex: 100,
+                    zIndex: 'var(--z-dropdown)' as any,
                     maxHeight: '300px',
                     overflowY: 'auto',
                     animation: 'fade-in-up 0.2s ease-out forwards'

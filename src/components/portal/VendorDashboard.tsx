@@ -147,7 +147,7 @@ export default function VendorDashboard({ session }: VendorDashboardProps) {
             {/* PO Detail Modal for Vendor */}
             {selectedPO && (
                 <div style={{
-                    position: 'fixed', inset: 0, zIndex: 1000,
+                    position: 'fixed', inset: 0, zIndex: 'var(--z-modal)' as any,
                     backgroundColor: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem'
                 }}>

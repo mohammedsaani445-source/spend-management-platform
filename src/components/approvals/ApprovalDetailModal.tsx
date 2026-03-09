@@ -45,17 +45,10 @@ export default function ApprovalDetailModal({
     }, [budget, deptSpend, requisition.totalAmount]);
 
     return (
-        <div style={{
-            position: 'fixed', inset: 0, zIndex: 100,
-            backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
-        }}>
-            <div className="card" style={{
-                width: '800px', maxWidth: '95%', maxHeight: '90vh', overflowY: 'auto',
-                animation: 'slideIn 0.3s ease-out', position: 'relative', border: 'none'
-            }}>
+        <div className="modal-backdrop">
+            <div className="modal" style={{ width: '800px', maxWidth: '95%', maxHeight: '90vh' }}>
                 {/* Header */}
-                <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 10 }}>
+                <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 'var(--z-sticky)' as any }}>
                     <div>
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.25rem' }}>
                             Approval Request
