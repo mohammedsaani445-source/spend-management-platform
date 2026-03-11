@@ -14,9 +14,9 @@ import styles from "@/app/dashboard/settings/Settings.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import ApprovalQueue from "./ApprovalQueue";
 import {
-    Users, Search, UserPlus, Shield, MapPin,
-    Building2, UserCog, Mail, X, CheckCircle2,
-    XCircle, AlertCircle, ChevronDown, AlertTriangle, ShieldCheck
+    Users, Search, Shield, MapPin,
+    Building2, UserCog, ChevronDown, ShieldCheck,
+    CheckCircle2, XCircle
 } from "lucide-react";
 import Loader from "@/components/common/Loader";
 import RoleSelector from "./RoleSelector";
@@ -103,76 +103,7 @@ export default function UserManagement() {
         }
     };
 
-    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-    const [inviteData, setInviteData] = useState({
-        email: "",
-        displayName: "",
-        role: "REQUESTER" as UserRole,
-        locationId: "",
-        departmentId: "",
-        managerId: ""
-    });
-    const [isInviting, setIsInviting] = useState(false);
-    const [inviteError, setInviteError] = useState("");
-    const [successMessage, setSuccessMessage] = useState<{ text: string, type: 'success' | 'warning' } | null>(null);
 
-    useScrollLock(isInviteModalOpen);
-
-    const handleInviteUser = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setIsInviting(true);
-        setInviteError("");
-
-        try {
-            const idToken = await auth.currentUser?.getIdToken();
-            const response = await fetch("/api/invitations", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${idToken}`
-                },
-                body: JSON.stringify(inviteData)
-            });
-
-            const result = await response.json();
-
-            if (!response.ok) {
-                throw new Error(result.error || "Failed to invite user");
-            }
-
-            // Success
-            setIsInviting(false);
-            setIsInviteModalOpen(false);
-            setInviteData({
-                email: "",
-                displayName: "",
-                role: "REQUESTER",
-                locationId: "",
-                departmentId: "",
-                managerId: ""
-            });
-
-            // Refresh directory
-            fetchUsers();
-
-            const message = result.emailSent
-                ? `Invitation sent to ${inviteData.email}!`
-                : `User added to directory. Note: Email service not configured, please share the login link manually.`;
-
-            setSuccessMessage({
-                text: message,
-                type: result.emailSent ? 'success' : 'warning'
-            });
-
-            // Clear success message after 5 seconds
-            setTimeout(() => setSuccessMessage(null), 5000);
-
-        } catch (err: any) {
-            setInviteError(err.message);
-        } finally {
-            setIsInviting(false);
-        }
-    };
 
     const filteredUsers = users.filter(u =>
         u.email.toLowerCase().includes(filter.toLowerCase()) ||
@@ -183,132 +114,6 @@ export default function UserManagement() {
 
     return (
         <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
-            {/* Invite Modal */}
-            {isInviteModalOpen && typeof document !== 'undefined' && createPortal(
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(17, 24, 39, 0.4)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 'var(--z-modal)' as any, animation: 'fadeIn 0.2s ease-out' }}>
-                    <div className={styles.card} style={{ maxWidth: '500px', width: '100%', margin: '1rem', padding: '0', overflow: 'hidden', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', display: 'flex', flexDirection: 'column', maxHeight: '90vh' }}>
-                        <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#F8FAFC' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                <div style={{ background: '#E0E7FF', color: '#4F46E5', width: 36, height: 36, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <UserPlus size={20} />
-                                </div>
-                                <div>
-                                    <h2 style={{ margin: 0, fontSize: '1.125rem', fontWeight: 800 }}>Invite Team Member</h2>
-                                    <p style={{ margin: 0, fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>Send an invitation email with a secure setup link.</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => setIsInviteModalOpen(false)}
-                                style={{ background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', padding: '0.25rem' }}
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <div style={{ padding: '2rem', overflowY: 'auto', flex: 1 }}>
-                            <form onSubmit={handleInviteUser}>
-                                {inviteError && (
-                                    <div style={{ marginBottom: '1.5rem', padding: '1rem', backgroundColor: '#FEF2F2', color: '#EF4444', borderRadius: '0.5rem', fontSize: '0.875rem', fontWeight: 600, display: 'flex', alignItems: 'flex-start', gap: '0.75rem', border: '1px solid #FEE2E2' }}>
-                                        <AlertCircle size={18} style={{ flexShrink: 0, marginTop: '0.125rem' }} />
-                                        <span>{inviteError}</span>
-                                    </div>
-                                )}
-
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Email Address *</label>
-                                        <div style={{ position: 'relative' }}>
-                                            <Mail size={16} color="#9CA3AF" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                                            <input
-                                                type="email"
-                                                className={styles.input}
-                                                style={{ paddingLeft: '2.5rem' }}
-                                                required
-                                                value={inviteData.email}
-                                                onChange={(e) => setInviteData({ ...inviteData, email: e.target.value })}
-                                                placeholder="colleague@company.com"
-                                                autoFocus
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Full Name</label>
-                                        <input
-                                            type="text"
-                                            className={styles.input}
-                                            value={inviteData.displayName}
-                                            placeholder="Optional"
-                                            onChange={(e) => setInviteData({ ...inviteData, displayName: e.target.value })}
-                                        />
-                                    </div>
-
-                                    <div className={styles.formGroup}>
-                                        <RoleSelector
-                                            label="System Role *"
-                                            value={inviteData.role}
-                                            onChange={(role) => setInviteData({ ...inviteData, role })}
-                                        />
-                                    </div>
-
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                        <div className={styles.formGroup}>
-                                            <label className={styles.label}>Location</label>
-                                            <select
-                                                className={styles.input}
-                                                value={inviteData.locationId}
-                                                onChange={(e) => setInviteData({ ...inviteData, locationId: e.target.value })}
-                                            >
-                                                <option value="">None</option>
-                                                {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className={styles.formGroup}>
-                                            <label className={styles.label}>Department</label>
-                                            <select
-                                                className={styles.input}
-                                                value={inviteData.departmentId}
-                                                onChange={(e) => setInviteData({ ...inviteData, departmentId: e.target.value })}
-                                            >
-                                                <option value="">None</option>
-                                                {departments.filter(d => !inviteData.locationId || d.locationId === inviteData.locationId).map(d => (
-                                                    <option key={d.id} value={d.id}>{d.name}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Direct Manager</label>
-                                        <select
-                                            className={styles.input}
-                                            value={inviteData.managerId}
-                                            onChange={(e) => setInviteData({ ...inviteData, managerId: e.target.value })}
-                                        >
-                                            <option value="">None</option>
-                                            {users.map(m => (
-                                                <option key={m.uid} value={m.uid}>{m.displayName || m.email}</option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-                                    <button type="button" className={styles.secondaryButton} onClick={() => setIsInviteModalOpen(false)} style={{ flex: 1, justifyContent: 'center' }}>
-                                        Cancel
-                                    </button>
-                                    <button type="submit" className={styles.primaryButton} disabled={isInviting || !inviteData.email} style={{ flex: 1, justifyContent: 'center' }}>
-                                        {isInviting ? <div style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> : <Mail size={16} />}
-                                        {isInviting ? "Sending..." : "Send Invitation"}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>,
-                document.body
-            )}
-
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.125rem' }}>
                 <div style={{ display: 'flex', gap: '2rem' }}>
                     <button
@@ -364,9 +169,6 @@ export default function UserManagement() {
                                 onChange={(e) => setFilter(e.target.value)}
                             />
                         </div>
-                        <button className={styles.primaryButton} onClick={() => setIsInviteModalOpen(true)}>
-                            <UserPlus size={18} /> Invite Member
-                        </button>
                     </div>
                 )}
             </div>
@@ -374,26 +176,6 @@ export default function UserManagement() {
                 <ApprovalQueue />
             ) : (
                 <>
-                    {successMessage && (
-                        <div style={{
-                            marginBottom: '1.5rem',
-                            padding: '1rem 1.25rem',
-                            backgroundColor: successMessage.type === 'success' ? '#ECFDF5' : '#FFFBEB',
-                            color: successMessage.type === 'success' ? '#059669' : '#D97706',
-                            borderRadius: '0.75rem',
-                            fontSize: '0.9375rem',
-                            fontWeight: 600,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.75rem',
-                            border: `1px solid ${successMessage.type === 'success' ? '#A7F3D0' : '#FDE68A'}`,
-                            animation: 'slideUp 0.3s ease-out'
-                        }}>
-                            {successMessage.type === 'success' ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
-                            <span>{successMessage.text}</span>
-                        </div>
-                    )}
-
                     <div className={styles.card} style={{ padding: 0, overflow: 'hidden' }}>
                         {filteredUsers.length === 0 ? (
                             <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
