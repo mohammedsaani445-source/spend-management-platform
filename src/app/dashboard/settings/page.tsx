@@ -152,6 +152,15 @@ function SettingsContent() {
         }
     };
 
+    const getSecurityScore = () => {
+        if (!user) return 0;
+        let score = 0;
+        if (formData.twoFactorEnabled) score += 50;
+        if (user.email) score += 25; // Base verified email
+        if (formData.phone) score += 25;
+        return score;
+    };
+
     const handleSave = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         setIsSaving(true);
@@ -288,8 +297,13 @@ function SettingsContent() {
                             <div>
                                 <h3 className={styles.sectionTitle}>Digital Identity</h3>
                                 <div className={styles.profileHeader}>
-                                    <div className={styles.avatar}>
-                                        {user.displayName?.[0] || 'U'}
+                                    <div className={styles.avatarWrapper}>
+                                        <div className={styles.avatar}>
+                                            {user.displayName?.[0] || 'U'}
+                                        </div>
+                                        <button className={styles.avatarEdit} title="Modify Identity Image">
+                                            <Smartphone size={14} />
+                                        </button>
                                     </div>
                                     <div>
                                         <h3 className={styles.profileName}>{user.displayName || "Personal Branding"}</h3>
@@ -310,17 +324,17 @@ function SettingsContent() {
                                         <input type="text" className={styles.input} placeholder="e.g. Procurement Specialsit" value={formData.jobTitle} onChange={e => setFormData({ ...formData, jobTitle: e.target.value })} />
                                     </div>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Phone Number</label>
+                                        <label className={styles.label}>Primary Contact Number</label>
                                         <input type="tel" className={styles.input} placeholder="+1 (555) 000-0000" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
                                     </div>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Location / Branch</label>
+                                        <label className={styles.label}>Physical Branch / Location</label>
                                         <input type="text" className={styles.input} placeholder="e.g. Headquarters" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
                                     </div>
                                 </div>
 
                                 <div className={styles.formGroup} style={{ marginTop: '1.5rem' }}>
-                                    <label className={styles.label}>Professional Bio</label>
+                                    <label className={styles.label}>Professional Biography</label>
                                     <textarea className={styles.textarea} placeholder="Describe your management style and procurement expertise..." value={formData.bio} onChange={e => setFormData({ ...formData, bio: e.target.value })} />
                                 </div>
                             </div>
@@ -328,7 +342,25 @@ function SettingsContent() {
 
                         {activeTab === 'SECURITY' && (
                             <div>
-                                <h3 className={styles.sectionTitle}>Account Access & Security</h3>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+                                    <h3 className={styles.sectionTitle} style={{ marginBottom: 0 }}>Account Access & Security</h3>
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6B7280', marginBottom: '0.25rem' }}>SECURITY STRENGTH</div>
+                                        <div style={{ display: 'flex', gap: '4px' }}>
+                                            {[...Array(4)].map((_, i) => (
+                                                <div
+                                                    key={i}
+                                                    style={{
+                                                        width: '24px', height: '4px', borderRadius: '2px',
+                                                        background: i < (getSecurityScore() / 25)
+                                                            ? (getSecurityScore() <= 50 ? '#EF4444' : getSecurityScore() <= 75 ? '#F59E0B' : '#10B981')
+                                                            : '#E5E7EB'
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div className={styles.formGrid} style={{ marginBottom: '2rem' }}>
                                     <div className={styles.formGroup}>

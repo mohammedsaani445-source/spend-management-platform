@@ -5,6 +5,11 @@ import { useAuth } from "@/context/AuthContext";
 import { HELP_ARTICLES, searchHelpArticles, submitSupportTicket, subscribeToUserTickets } from "@/lib/help";
 import { HelpArticle, SupportTicket } from "@/types";
 import styles from "./Layout.module.css";
+import {
+    Search, BookOpen, Ticket, History,
+    Lock, Zap, ChevronRight, X,
+    MessageCircle, HelpCircle, Activity
+} from "lucide-react";
 
 export default function HelpCenter() {
     const { user } = useAuth();
@@ -75,12 +80,16 @@ export default function HelpCenter() {
 
             {/* Help Drawer */}
             <div className={`${styles.helpDrawer} ${isOpen ? styles.helpDrawerOpen : ''}`} ref={drawerRef}>
-                <div className={styles.drawerHeader} style={{ background: 'var(--surface)', border: 'none', padding: '1.5rem 2rem' }}>
+                <div className={styles.drawerHeader} style={{ background: 'var(--surface)', borderBottom: '1px solid var(--border)', padding: '1.5rem 2rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <div style={{ fontSize: '1.5rem' }}>🤝</div>
-                        <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0 }}>Support Center</h2>
+                        <div style={{ color: 'var(--brand)', background: 'var(--brand-light)', padding: '8px', borderRadius: '12px' }}>
+                            <HelpCircle size={24} />
+                        </div>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 900, margin: 0, color: 'var(--text-main)' }}>Support Center</h2>
                     </div>
-                    <button className={styles.closeButton} onClick={() => setIsOpen(false)} style={{ fontSize: '1.5rem' }}>✕</button>
+                    <button className={styles.closeButton} onClick={() => setIsOpen(false)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <X size={20} />
+                    </button>
                 </div>
 
                 <div className={styles.drawerContent} style={{ padding: 0 }}>
@@ -88,37 +97,39 @@ export default function HelpCenter() {
                         <div className={styles.helpHome}>
                             {/* Binance Style Hero Search */}
                             <div style={{
-                                background: 'linear-gradient(180deg, var(--accent) 0%, var(--accent-hover) 100%)',
-                                padding: '2.5rem 2rem',
+                                background: 'linear-gradient(180deg, var(--brand) 0%, var(--brand-dark) 100%)',
+                                padding: '3rem 2rem',
                                 textAlign: 'center',
                                 color: 'white'
                             }}>
-                                <h1 style={{ fontSize: '1.8rem', fontWeight: 900, marginBottom: '1.5rem' }}>How can we help?</h1>
+                                <h1 style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>How can we help?</h1>
                                 <div style={{
                                     position: 'relative',
-                                    maxWidth: '360px',
+                                    maxWidth: '380px',
                                     margin: '0 auto'
                                 }}>
+                                    <Search size={18} style={{ position: 'absolute', left: '1.125rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.5, color: 'var(--text-main)' }} />
                                     <input
                                         type="text"
                                         placeholder="Search for articles or topics..."
                                         value={searchQuery}
                                         style={{
                                             width: '100%',
-                                            padding: '1rem 3rem 1rem 1.25rem',
-                                            borderRadius: '12px',
-                                            border: 'none',
-                                            fontSize: '0.95rem',
-                                            boxShadow: 'var(--shadow-md)',
+                                            padding: '1.125rem 3rem 1.125rem 3rem',
+                                            borderRadius: '14px',
+                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            fontSize: '0.9375rem',
+                                            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
                                             color: 'var(--text-main)',
-                                            background: 'var(--surface)'
+                                            background: 'var(--surface)',
+                                            outline: 'none',
+                                            transition: 'transform 0.2s'
                                         }}
                                         onChange={(e) => {
                                             setSearchQuery(e.target.value);
                                             if (e.target.value) setView('ARTICLES');
                                         }}
                                     />
-                                    <span style={{ position: 'absolute', right: '1.25rem', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>🔍</span>
                                 </div>
                             </div>
 
@@ -126,29 +137,40 @@ export default function HelpCenter() {
                             <div style={{ padding: '2rem' }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
                                     {[
-                                        { icon: '📚', label: 'Knowledge Base', view: 'ARTICLES' },
-                                        { icon: '🎫', label: 'Submit Ticket', view: 'CONTACT' },
-                                        { icon: '📋', label: 'My Requests', view: 'MY_TICKETS' },
-                                        { icon: '🔒', label: 'Account Security', view: 'ARTICLES' },
-                                        { icon: '⚡', label: 'Quick Tutorials', view: 'ARTICLES' }
+                                        { icon: <BookOpen size={24} />, label: 'Knowledge Base', view: 'ARTICLES', color: '#4F46E5', bg: '#EEF2FF' },
+                                        { icon: <Ticket size={24} />, label: 'Submit Ticket', view: 'CONTACT', color: '#10B981', bg: '#ECFDF5' },
+                                        { icon: <History size={24} />, label: 'My Requests', view: 'MY_TICKETS', color: '#F59E0B', bg: '#FFFBEB' },
+                                        { icon: <Lock size={24} />, label: 'Account Security', view: 'ARTICLES', color: '#6366F1', bg: '#F5F3FF' },
                                     ].map((item, idx) => (
                                         <div
                                             key={idx}
                                             onClick={() => setView(item.view as any)}
                                             style={{
-                                                padding: '1.25rem',
-                                                borderRadius: '16px',
+                                                padding: '1.5rem 1rem',
+                                                borderRadius: '20px',
                                                 border: '1px solid var(--border)',
                                                 textAlign: 'center',
                                                 cursor: 'pointer',
                                                 transition: 'all 0.2s',
-                                                background: 'var(--surface)'
+                                                background: 'var(--surface)',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                gap: '0.75rem'
                                             }}
-                                            onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--accent)'}
-                                            onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--border)'}
+                                            onMouseEnter={(e) => {
+                                                e.currentTarget.style.borderColor = item.color;
+                                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                                e.currentTarget.style.boxShadow = '0 10px 15px -3px rgba(0, 0, 0, 0.05)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.borderColor = 'var(--border)';
+                                                e.currentTarget.style.transform = 'translateY(0)';
+                                                e.currentTarget.style.boxShadow = 'none';
+                                            }}
                                         >
-                                            <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{item.icon}</div>
-                                            <div style={{ fontSize: '0.85rem', fontWeight: 700 }}>{item.label}</div>
+                                            <div style={{ color: item.color, background: item.bg, width: 44, height: 44, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{item.icon}</div>
+                                            <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-main)' }}>{item.label}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -163,10 +185,10 @@ export default function HelpCenter() {
                                         <div key={article.id} className={styles.articleLink} onClick={() => {
                                             setSelectedArticle(article);
                                             setView('ARTICLE_DETAIL');
-                                        }} style={{ padding: '0.875rem 0', borderBottom: '1px solid rgba(0,0,0,0.03)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                            <span style={{ opacity: 0.3, fontSize: '0.7rem' }}>●</span>
-                                            <span style={{ flex: 1 }}>{article.title}</span>
-                                            <span style={{ opacity: 0.3 }}>›</span>
+                                        }} style={{ padding: '1rem 0', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer' }}>
+                                            <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--brand)', opacity: 0.6 }} />
+                                            <span style={{ flex: 1, fontSize: '0.9375rem', fontWeight: 500 }}>{article.title}</span>
+                                            <ChevronRight size={16} style={{ opacity: 0.3 }} />
                                         </div>
                                     ))}
                                 </div>
@@ -350,9 +372,13 @@ export default function HelpCenter() {
                     )}
                 </div>
 
-                <div className={styles.drawerFooter} style={{ textAlign: 'center', padding: '1rem' }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                        <span style={{ color: '#049C63' }}>●</span> System Status: All Systems Operational
+                <div className={styles.drawerFooter} style={{ textAlign: 'center', padding: '1.5rem', borderTop: '1px solid var(--border)', background: '#F9FAFB' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', fontSize: '0.8125rem', fontWeight: 700, color: '#4B5563' }}>
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#10B981', position: 'absolute', animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite' }} />
+                            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#10B981', zIndex: 1 }} />
+                        </div>
+                        <span>System Status: All Systems Operational</span>
                     </div>
                 </div>
             </div>

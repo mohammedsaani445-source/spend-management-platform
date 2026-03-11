@@ -6,6 +6,11 @@ import { subscribeToTickets, updateTicketStatus } from "@/lib/help";
 import { SupportTicket } from "@/types";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/common/Loader";
+import {
+    Search, Filter, Clock, CheckCircle,
+    MessageSquare, AlertCircle, HelpCircle,
+    Lightbulb, ChevronRight, MoreVertical
+} from "lucide-react";
 
 export default function SupportAdminPage() {
     const { user, loading: authLoading } = useAuth();
@@ -42,12 +47,12 @@ export default function SupportAdminPage() {
         }
     };
 
-    const getStatusColor = (status: SupportTicket['status']) => {
+    const getStatusInfo = (status: SupportTicket['status']) => {
         switch (status) {
-            case 'OPEN': return 'var(--error)';
-            case 'IN_PROGRESS': return 'var(--primary)';
-            case 'CLOSED': return 'var(--text-secondary)';
-            default: return 'var(--text-secondary)';
+            case 'OPEN': return { color: '#EF4444', bg: '#FEF2F2', label: 'Critical' };
+            case 'IN_PROGRESS': return { color: '#4F46E5', bg: '#EEF2FF', label: 'Processing' };
+            case 'CLOSED': return { color: '#10B981', bg: '#ECFDF5', label: 'Resolved' };
+            default: return { color: '#6B7280', bg: '#F3F4F6', label: 'Unknown' };
         }
     };
 
@@ -90,70 +95,97 @@ export default function SupportAdminPage() {
 
             <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead style={{ backgroundColor: 'rgba(0,0,0,0.02)', borderBottom: '1px solid var(--border)' }}>
+                    <thead style={{ backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
                         <tr>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem' }}>Type & Subject</th>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem' }}>User</th>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem' }}>Status</th>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.85rem' }}>Created</th>
-                            <th style={{ padding: '1rem 1.5rem', textAlign: 'right', fontSize: '0.85rem' }}>Actions</th>
+                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Inquiry Details</th>
+                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em' }}>End User</th>
+                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Current Status</th>
+                            <th style={{ padding: '1rem 1.5rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Reported On</th>
+                            <th style={{ padding: '1rem 1.5rem', textAlign: 'right', fontSize: '0.75rem', fontWeight: 700, color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredTickets.length === 0 ? (
                             <tr>
-                                <td colSpan={5} style={{ padding: '4rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                                    No support tickets found.
+                                <td colSpan={5} style={{ padding: '6rem', textAlign: 'center' }}>
+                                    <div style={{ color: '#9CA3AF', marginBottom: '1rem' }}><MessageSquare size={48} /></div>
+                                    <h3 style={{ margin: 0, fontWeight: 800, color: '#111827' }}>No Support Queries</h3>
+                                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#6B7280' }}>All clear! There are no tickets matching your current filter.</p>
                                 </td>
                             </tr>
                         ) : (
-                            filteredTickets.map(ticket => (
-                                <tr key={ticket.id} style={{ borderBottom: '1px solid var(--border)' }}>
-                                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
-                                            <span style={{ fontSize: '1.25rem' }}>{getTypeIcon(ticket.type)}</span>
-                                            <div>
-                                                <div style={{ fontWeight: 700 }}>{ticket.subject}</div>
-                                                <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                                                    {ticket.description.length > 60 ? ticket.description.substring(0, 60) + '...' : ticket.description}
+                            filteredTickets.map(ticket => {
+                                const status = getStatusInfo(ticket.status);
+                                return (
+                                    <tr key={ticket.id} style={{ borderBottom: '1px solid #F3F4F6', transition: 'background 0.2s' }}>
+                                        <td style={{ padding: '1.5rem' }}>
+                                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                                <div style={{
+                                                    width: 40, height: 40, borderRadius: '10px',
+                                                    background: ticket.type === 'BUG' ? '#FEF2F2' : ticket.type === 'FEATURE_REQUEST' ? '#EFF6FF' : '#FFFBEB',
+                                                    color: ticket.type === 'BUG' ? '#EF4444' : ticket.type === 'FEATURE_REQUEST' ? '#3B82F6' : '#F59E0B',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                                }}>
+                                                    {ticket.type === 'BUG' ? <AlertCircle size={20} /> : ticket.type === 'FEATURE_REQUEST' ? <Lightbulb size={20} /> : <HelpCircle size={20} />}
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontWeight: 700, color: '#111827', fontSize: '0.9375rem' }}>{ticket.subject}</div>
+                                                    <div style={{ fontSize: '0.8125rem', color: '#6B7280', marginTop: '0.125rem', maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                        {ticket.description}
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                                        <div style={{ fontWeight: 600 }}>{ticket.userName}</div>
-                                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{ticket.userEmail}</div>
-                                    </td>
-                                    <td style={{ padding: '1.25rem 1.5rem' }}>
-                                        <span style={{
-                                            display: 'inline-block',
-                                            padding: '0.25rem 0.75rem',
-                                            borderRadius: '20px',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 700,
-                                            backgroundColor: `${getStatusColor(ticket.status)}15`,
-                                            color: getStatusColor(ticket.status),
-                                            border: `1px solid ${getStatusColor(ticket.status)}30`
-                                        }}>
-                                            {ticket.status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                                        {new Date(ticket.createdAt).toLocaleDateString()}
-                                    </td>
-                                    <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
-                                        <select
-                                            style={{ padding: '0.4rem', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.8rem' }}
-                                            value={ticket.status}
-                                            onChange={(e) => updateTicketStatus(ticket.id, e.target.value as any)}
-                                        >
-                                            <option value="OPEN">Open</option>
-                                            <option value="IN_PROGRESS">In Progress</option>
-                                            <option value="CLOSED">Closed</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                            ))
+                                        </td>
+                                        <td style={{ padding: '1.5rem' }}>
+                                            <div style={{ fontWeight: 600, color: '#111827' }}>{ticket.userName}</div>
+                                            <div style={{ fontSize: '0.8125rem', color: '#6B7280' }}>{ticket.userEmail}</div>
+                                        </td>
+                                        <td style={{ padding: '1.5rem' }}>
+                                            <span style={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '0.375rem',
+                                                padding: '0.375rem 0.75rem',
+                                                borderRadius: '9999px',
+                                                fontSize: '0.75rem',
+                                                fontWeight: 700,
+                                                backgroundColor: status.bg,
+                                                color: status.color,
+                                                border: `1px solid ${status.color}20`
+                                            }}>
+                                                <div style={{ width: 6, height: 6, borderRadius: '50%', background: status.color }} />
+                                                {status.label}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '1.5rem', fontSize: '0.875rem', color: '#6B7280' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                <Clock size={14} />
+                                                {new Date(ticket.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '1.5rem', textAlign: 'right' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                                                <select
+                                                    style={{
+                                                        padding: '0.4rem 0.75rem', border: '1px solid #E5E7EB',
+                                                        borderRadius: '8px', fontSize: '0.8125rem', fontWeight: 600,
+                                                        background: 'white', cursor: 'pointer', outline: 'none'
+                                                    }}
+                                                    value={ticket.status}
+                                                    onChange={(e) => updateTicketStatus(ticket.id, e.target.value as any)}
+                                                >
+                                                    <option value="OPEN">Mark Open</option>
+                                                    <option value="IN_PROGRESS">Processing</option>
+                                                    <option value="CLOSED">Resolved</option>
+                                                </select>
+                                                <button style={{ padding: '0.4rem', border: '1px solid #E5E7EB', borderRadius: '8px', background: 'white', color: '#6B7280' }}>
+                                                    <MoreVertical size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })
                         )}
                     </tbody>
                 </table>
