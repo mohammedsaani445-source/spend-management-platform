@@ -12,12 +12,14 @@ import { auth } from "@/lib/firebase";
 import { useModal } from "@/context/ModalContext";
 import styles from "@/app/dashboard/settings/Settings.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import ApprovalQueue from "./ApprovalQueue";
 import {
     Users, Search, UserPlus, Shield, MapPin,
     Building2, UserCog, Mail, X, CheckCircle2,
-    XCircle, AlertCircle, ChevronDown, AlertTriangle
+    XCircle, AlertCircle, ChevronDown, AlertTriangle, ShieldCheck
 } from "lucide-react";
 import Loader from "@/components/common/Loader";
+import RoleSelector from "./RoleSelector";
 
 export default function UserManagement() {
     const { user: currentUser } = useAuth();
@@ -28,7 +30,8 @@ export default function UserManagement() {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("");
 
-    const ROLES: UserRole[] = ["ADMIN", "APPROVER", "FINANCE", "REQUESTER", "AP_USER", "FINANCE_MANAGER", "STRATEGIC_SOURCER"];
+    const ROLES: UserRole[] = ["ADMIN", "SUPERUSER", "APPROVER", "FINANCE", "REQUESTER", "AP_USER", "FINANCE_MANAGER", "STRATEGIC_SOURCER", "PURCHASER", "RECEIVER", "REPORTER"];
+    const [activeSubTab, setActiveSubTab] = useState<'DIRECTORY' | 'REQUESTS'>('DIRECTORY');
 
     useEffect(() => {
         if (currentUser) {
@@ -241,15 +244,11 @@ export default function UserManagement() {
                                     </div>
 
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>System Role *</label>
-                                        <select
-                                            className={styles.input}
-                                            required
+                                        <RoleSelector
+                                            label="System Role *"
                                             value={inviteData.role}
-                                            onChange={(e) => setInviteData({ ...inviteData, role: e.target.value as UserRole })}
-                                        >
-                                            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                                        </select>
+                                            onChange={(role) => setInviteData({ ...inviteData, role })}
+                                        />
                                     </div>
 
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -310,210 +309,237 @@ export default function UserManagement() {
                 document.body
             )}
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
-                <div>
-                    <h3 className={styles.sectionTitle} style={{ marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Users size={22} color="var(--brand)" /> User Directory
-                    </h3>
-                    <p className={styles.subtitle}>Manage permissions, team assignments, and reporting structures.</p>
-                </div>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    <div style={{ position: 'relative' }}>
-                        <Search size={16} color="#9CA3AF" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                        <input
-                            type="text"
-                            placeholder="Search directory..."
-                            className={styles.input}
-                            style={{ paddingLeft: '2.5rem', width: '280px', borderRadius: '100px', backgroundColor: 'white' }}
-                            value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
-                        />
-                    </div>
-                    <button className={styles.primaryButton} onClick={() => setIsInviteModalOpen(true)}>
-                        <UserPlus size={18} /> Invite Member
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '0.125rem' }}>
+                <div style={{ display: 'flex', gap: '2rem' }}>
+                    <button
+                        onClick={() => setActiveSubTab('DIRECTORY')}
+                        style={{
+                            padding: '1rem 0',
+                            border: 'none',
+                            background: 'none',
+                            fontSize: '0.9375rem',
+                            fontWeight: 800,
+                            color: activeSubTab === 'DIRECTORY' ? 'var(--brand)' : 'var(--text-secondary)',
+                            borderBottom: activeSubTab === 'DIRECTORY' ? '2px solid var(--brand)' : '2px solid transparent',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.625rem',
+                            marginBottom: '-1px'
+                        }}
+                    >
+                        <Users size={20} /> User Directory
+                    </button>
+                    <button
+                        onClick={() => setActiveSubTab('REQUESTS')}
+                        style={{
+                            padding: '1rem 0',
+                            border: 'none',
+                            background: 'none',
+                            fontSize: '0.9375rem',
+                            fontWeight: 800,
+                            color: activeSubTab === 'REQUESTS' ? 'var(--brand)' : 'var(--text-secondary)',
+                            borderBottom: activeSubTab === 'REQUESTS' ? '2px solid var(--brand)' : '2px solid transparent',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.625rem',
+                            marginBottom: '-1px'
+                        }}
+                    >
+                        <ShieldCheck size={20} /> Access Requests
                     </button>
                 </div>
-            </div>
 
-            {successMessage && (
-                <div style={{
-                    marginBottom: '1.5rem',
-                    padding: '1rem 1.25rem',
-                    backgroundColor: successMessage.type === 'success' ? '#ECFDF5' : '#FFFBEB',
-                    color: successMessage.type === 'success' ? '#059669' : '#D97706',
-                    borderRadius: '0.75rem',
-                    fontSize: '0.9375rem',
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    border: `1px solid ${successMessage.type === 'success' ? '#A7F3D0' : '#FDE68A'}`,
-                    animation: 'slideUp 0.3s ease-out'
-                }}>
-                    {successMessage.type === 'success' ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
-                    <span>{successMessage.text}</span>
-                </div>
-            )}
-
-            <div className={styles.card} style={{ padding: 0, overflow: 'hidden' }}>
-                {filteredUsers.length === 0 ? (
-                    <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-                        <div style={{ background: '#F3F4F6', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-                            <Search size={32} color="#9CA3AF" />
+                {activeSubTab === 'DIRECTORY' && (
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', paddingBottom: '0.5rem' }}>
+                        <div style={{ position: 'relative' }}>
+                            <Search size={16} color="#9CA3AF" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                            <input
+                                type="text"
+                                placeholder="Search directory..."
+                                className={styles.input}
+                                style={{ paddingLeft: '2.5rem', width: '280px', borderRadius: '100px', backgroundColor: 'white' }}
+                                value={filter}
+                                onChange={(e) => setFilter(e.target.value)}
+                            />
                         </div>
-                        <h4 style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.5rem' }}>No users found</h4>
-                        <p className={styles.subtitle} style={{ maxWidth: '400px', margin: '0 auto' }}>
-                            {filter ? `No users match the search "${filter}".` : "Your user directory is currently empty."}
-                        </p>
-                    </div>
-                ) : (
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                            <thead>
-                                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--border)' }}>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>User</th>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Role</th>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Organization</th>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Manager</th>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredUsers.map(u => (
-                                    <tr key={u.uid} style={{ borderBottom: '1px solid var(--border)', transition: 'background-color 0.2s', backgroundColor: 'white' }}>
-                                        <td style={{ padding: '1.25rem 1.5rem' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                                {u.photoURL ? (
-                                                    <img src={u.photoURL} alt={u.displayName || "User"} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border)' }} />
-                                                ) : (
-                                                    <div style={{
-                                                        width: '40px',
-                                                        height: '40px',
-                                                        borderRadius: '50%',
-                                                        background: 'linear-gradient(135deg, var(--brand) 0%, #E83E8C 100%)',
-                                                        color: 'white',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        fontWeight: 800,
-                                                        fontSize: '1.125rem',
-                                                        flexShrink: 0
-                                                    }}>
-                                                        {(u.displayName || u.email || "U")[0].toUpperCase()}
-                                                    </div>
-                                                )}
-                                                <div>
-                                                    <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)', marginBottom: '0.125rem' }}>{u.displayName || "Standard User"}</div>
-                                                    <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>{u.email}</div>
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <td style={{ padding: '1.25rem 1.5rem' }}>
-                                            <div style={{ position: 'relative', width: 'fit-content' }}>
-                                                <select
-                                                    value={u.role}
-                                                    onChange={(e) => handleRoleChange(u.uid, e.target.value as UserRole)}
-                                                    className={styles.input}
-                                                    style={{
-                                                        padding: '0.375rem 2rem 0.375rem 0.75rem',
-                                                        borderRadius: '0.5rem',
-                                                        fontSize: '0.8125rem',
-                                                        fontWeight: 700,
-                                                        backgroundColor: u.role === 'ADMIN' ? '#EEF2FF' : '#F9FAFB',
-                                                        color: u.role === 'ADMIN' ? '#4F46E5' : 'var(--text-main)',
-                                                        borderColor: u.role === 'ADMIN' ? '#C7D2FE' : 'var(--border)',
-                                                        cursor: 'pointer',
-                                                        appearance: 'none'
-                                                    }}
-                                                >
-                                                    {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
-                                                </select>
-                                                <ChevronDown size={14} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: u.role === 'ADMIN' ? '#4F46E5' : '#9CA3AF' }} />
-                                            </div>
-                                        </td>
-
-                                        <td style={{ padding: '1.25rem 1.5rem' }}>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                                <div style={{ position: 'relative' }}>
-                                                    <MapPin size={12} color="#9CA3AF" style={{ position: 'absolute', left: '0.625rem', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
-                                                    <select
-                                                        value={u.locationId || ""}
-                                                        onChange={(e) => handleHierarchyChange(u.uid, e.target.value, undefined)}
-                                                        className={styles.input}
-                                                        style={{ padding: '0.375rem 1.75rem 0.375rem 1.75rem', borderRadius: '0.375rem', fontSize: '0.75rem', cursor: 'pointer', color: u.locationId ? 'var(--text-main)' : 'var(--text-secondary)', appearance: 'none', height: 'auto', backgroundColor: 'transparent' }}
-                                                    >
-                                                        <option value="">No Location Defined</option>
-                                                        {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
-                                                    </select>
-                                                    <ChevronDown size={12} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9CA3AF' }} />
-                                                </div>
-
-                                                <div style={{ position: 'relative' }}>
-                                                    <Building2 size={12} color="#9CA3AF" style={{ position: 'absolute', left: '0.625rem', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
-                                                    <select
-                                                        value={u.departmentId || ""}
-                                                        onChange={(e) => handleHierarchyChange(u.uid, undefined, e.target.value)}
-                                                        className={styles.input}
-                                                        style={{ padding: '0.375rem 1.75rem 0.375rem 1.75rem', borderRadius: '0.375rem', fontSize: '0.75rem', cursor: 'pointer', color: u.departmentId ? 'var(--text-main)' : 'var(--text-secondary)', appearance: 'none', height: 'auto', backgroundColor: 'transparent' }}
-                                                    >
-                                                        <option value="">No Department Defined</option>
-                                                        {departments.filter(d => !u.locationId || d.locationId === u.locationId).map(d => (
-                                                            <option key={d.id} value={d.id}>{d.name}</option>
-                                                        ))}
-                                                    </select>
-                                                    <ChevronDown size={12} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9CA3AF' }} />
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <td style={{ padding: '1.25rem 1.5rem' }}>
-                                            <div style={{ position: 'relative' }}>
-                                                <UserCog size={14} color="#9CA3AF" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
-                                                <select
-                                                    value={u.managerId || ""}
-                                                    onChange={(e) => handleManagerChange(u.uid, e.target.value)}
-                                                    className={styles.input}
-                                                    style={{ padding: '0.4rem 2rem 0.4rem 2.25rem', borderRadius: '0.5rem', fontSize: '0.8125rem', cursor: 'pointer', color: u.managerId ? 'var(--text-main)' : 'var(--text-secondary)', appearance: 'none', backgroundColor: '#F9FAFB' }}
-                                                >
-                                                    <option value="">No Line Manager</option>
-                                                    {users.filter(potentialManager => potentialManager.uid !== u.uid).map(m => (
-                                                        <option key={m.uid} value={m.uid}>{m.displayName || m.email}</option>
-                                                    ))}
-                                                </select>
-                                                <ChevronDown size={14} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9CA3AF' }} />
-                                            </div>
-                                        </td>
-
-                                        <td style={{ padding: '1.25rem 1.5rem' }}>
-                                            <button
-                                                onClick={() => handleStatusToggle(u.uid, u.isActive)}
-                                                style={{
-                                                    padding: '0.375rem 0.75rem',
-                                                    borderRadius: '999px',
-                                                    border: 'none',
-                                                    fontSize: '0.75rem',
-                                                    fontWeight: 700,
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '0.375rem',
-                                                    transition: 'all 0.2s',
-                                                    background: (u.isActive ?? true) ? '#ECFDF5' : '#FEF2F2',
-                                                    color: (u.isActive ?? true) ? '#10B981' : '#EF4444'
-                                                }}
-                                            >
-                                                {(u.isActive ?? true) ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-                                                {(u.isActive ?? true) ? "Active" : "Disabled"}
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <button className={styles.primaryButton} onClick={() => setIsInviteModalOpen(true)}>
+                            <UserPlus size={18} /> Invite Member
+                        </button>
                     </div>
                 )}
             </div>
+            {activeSubTab === 'REQUESTS' ? (
+                <ApprovalQueue />
+            ) : (
+                <>
+                    {successMessage && (
+                        <div style={{
+                            marginBottom: '1.5rem',
+                            padding: '1rem 1.25rem',
+                            backgroundColor: successMessage.type === 'success' ? '#ECFDF5' : '#FFFBEB',
+                            color: successMessage.type === 'success' ? '#059669' : '#D97706',
+                            borderRadius: '0.75rem',
+                            fontSize: '0.9375rem',
+                            fontWeight: 600,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.75rem',
+                            border: `1px solid ${successMessage.type === 'success' ? '#A7F3D0' : '#FDE68A'}`,
+                            animation: 'slideUp 0.3s ease-out'
+                        }}>
+                            {successMessage.type === 'success' ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+                            <span>{successMessage.text}</span>
+                        </div>
+                    )}
+
+                    <div className={styles.card} style={{ padding: 0, overflow: 'hidden' }}>
+                        {filteredUsers.length === 0 ? (
+                            <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
+                                <div style={{ background: '#F3F4F6', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
+                                    <Search size={32} color="#9CA3AF" />
+                                </div>
+                                <h4 style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.5rem' }}>No users found</h4>
+                                <p className={styles.subtitle} style={{ maxWidth: '400px', margin: '0 auto' }}>
+                                    {filter ? `No users match the search "${filter}".` : "Your user directory is currently empty."}
+                                </p>
+                            </div>
+                        ) : (
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                    <thead>
+                                        <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--border)' }}>
+                                            <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>User</th>
+                                            <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Role</th>
+                                            <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Organization</th>
+                                            <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Manager</th>
+                                            <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredUsers.map(u => (
+                                            <tr key={u.uid} style={{ borderBottom: '1px solid var(--border)', transition: 'background-color 0.2s', backgroundColor: 'white' }}>
+                                                <td style={{ padding: '1.25rem 1.5rem' }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                                        {u.photoURL ? (
+                                                            <img src={u.photoURL} alt={u.displayName || "User"} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1px solid var(--border)' }} />
+                                                        ) : (
+                                                            <div style={{
+                                                                width: '40px',
+                                                                height: '40px',
+                                                                borderRadius: '50%',
+                                                                background: 'linear-gradient(135deg, var(--brand) 0%, #E83E8C 100%)',
+                                                                color: 'white',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center',
+                                                                fontWeight: 800,
+                                                                fontSize: '1.125rem',
+                                                                flexShrink: 0
+                                                            }}>
+                                                                {(u.displayName || u.email || "U")[0].toUpperCase()}
+                                                            </div>
+                                                        )}
+                                                        <div>
+                                                            <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-primary)', marginBottom: '0.125rem' }}>{u.displayName || "Standard User"}</div>
+                                                            <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>{u.email}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <td style={{ padding: '1.25rem 1.5rem' }}>
+                                                    <RoleSelector
+                                                        variant="compact"
+                                                        value={u.role}
+                                                        onChange={(newRole) => handleRoleChange(u.uid, newRole)}
+                                                        disabled={u.uid === currentUser?.uid}
+                                                    />
+                                                </td>
+
+                                                <td style={{ padding: '1.25rem 1.5rem' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                                        <div style={{ position: 'relative' }}>
+                                                            <MapPin size={12} color="#9CA3AF" style={{ position: 'absolute', left: '0.625rem', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
+                                                            <select
+                                                                value={u.locationId || ""}
+                                                                onChange={(e) => handleHierarchyChange(u.uid, e.target.value, undefined)}
+                                                                className={styles.input}
+                                                                style={{ padding: '0.375rem 1.75rem 0.375rem 1.75rem', borderRadius: '0.375rem', fontSize: '0.75rem', cursor: 'pointer', color: u.locationId ? 'var(--text-main)' : 'var(--text-secondary)', appearance: 'none', height: 'auto', backgroundColor: 'transparent' }}
+                                                            >
+                                                                <option value="">No Location Defined</option>
+                                                                {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                                                            </select>
+                                                            <ChevronDown size={12} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9CA3AF' }} />
+                                                        </div>
+
+                                                        <div style={{ position: 'relative' }}>
+                                                            <Building2 size={12} color="#9CA3AF" style={{ position: 'absolute', left: '0.625rem', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
+                                                            <select
+                                                                value={u.departmentId || ""}
+                                                                onChange={(e) => handleHierarchyChange(u.uid, undefined, e.target.value)}
+                                                                className={styles.input}
+                                                                style={{ padding: '0.375rem 1.75rem 0.375rem 1.75rem', borderRadius: '0.375rem', fontSize: '0.75rem', cursor: 'pointer', color: u.departmentId ? 'var(--text-main)' : 'var(--text-secondary)', appearance: 'none', height: 'auto', backgroundColor: 'transparent' }}
+                                                            >
+                                                                <option value="">No Department Defined</option>
+                                                                {departments.filter(d => !u.locationId || d.locationId === u.locationId).map(d => (
+                                                                    <option key={d.id} value={d.id}>{d.name}</option>
+                                                                ))}
+                                                            </select>
+                                                            <ChevronDown size={12} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9CA3AF' }} />
+                                                        </div>
+                                                    </div>
+                                                </td>
+
+                                                <td style={{ padding: '1.25rem 1.5rem' }}>
+                                                    <div style={{ position: 'relative' }}>
+                                                        <UserCog size={14} color="#9CA3AF" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', zIndex: 1 }} />
+                                                        <select
+                                                            value={u.managerId || ""}
+                                                            onChange={(e) => handleManagerChange(u.uid, e.target.value)}
+                                                            className={styles.input}
+                                                            style={{ padding: '0.4rem 2rem 0.4rem 2.25rem', borderRadius: '0.5rem', fontSize: '0.8125rem', cursor: 'pointer', color: u.managerId ? 'var(--text-main)' : 'var(--text-secondary)', appearance: 'none', backgroundColor: '#F9FAFB' }}
+                                                        >
+                                                            <option value="">No Line Manager</option>
+                                                            {users.filter(potentialManager => potentialManager.uid !== u.uid).map(m => (
+                                                                <option key={m.uid} value={m.uid}>{m.displayName || m.email}</option>
+                                                            ))}
+                                                        </select>
+                                                        <ChevronDown size={14} style={{ position: 'absolute', right: '0.5rem', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: '#9CA3AF' }} />
+                                                    </div>
+                                                </td>
+
+                                                <td style={{ padding: '1.25rem 1.5rem' }}>
+                                                    <button
+                                                        onClick={() => handleStatusToggle(u.uid, u.isActive)}
+                                                        style={{
+                                                            padding: '0.375rem 0.75rem',
+                                                            borderRadius: '999px',
+                                                            border: 'none',
+                                                            fontSize: '0.75rem',
+                                                            fontWeight: 700,
+                                                            cursor: 'pointer',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '0.375rem',
+                                                            transition: 'all 0.2s',
+                                                            background: (u.isActive ?? true) ? '#ECFDF5' : '#FEF2F2',
+                                                            color: (u.isActive ?? true) ? '#10B981' : '#EF4444'
+                                                        }}
+                                                    >
+                                                        {(u.isActive ?? true) ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+                                                        {(u.isActive ?? true) ? "Active" : "Disabled"}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
         </div>
     );
 }

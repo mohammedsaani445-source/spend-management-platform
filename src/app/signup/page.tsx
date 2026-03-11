@@ -79,22 +79,23 @@ export default function SignupPage() {
                 throw authErr;
             }
             await updateProfile(userAuthResult.user, { displayName: fullName });
-            const tenantsRef = ref(db, `${DB_PREFIX}/tenants`);
-            const newTenantRef = push(tenantsRef);
-            const tenantId = newTenantRef.key;
-            if (!tenantId) throw new Error("Could not generate workspace ID");
-            await set(newTenantRef, { name: companyName, currency: currency, createdAt: Date.now() });
-            await set(ref(db, `${DB_PREFIX}/tenants/${tenantId}/users/${userAuthResult.user.uid}`), {
+
+            // GATEKEEPER FLOW: New users are registered as PENDING
+            // No tenant is created here. They await Super User assignment.
+            await set(ref(db, `${DB_PREFIX}/users_pending/${userAuthResult.user.uid}`), {
                 email: userAuthResult.user.email,
                 displayName: fullName,
-                role: 'SUPERUSER',
-                createdAt: Date.now(),
-                isActive: true
+                role: 'REQUESTER',
+                status: 'PENDING',
+                isActive: false,
+                createdAt: Date.now()
             });
-            await set(ref(db, `${DB_PREFIX}/userTenants/${userAuthResult.user.uid}`), { tenantId: tenantId });
-            router.push("/dashboard");
+
+            // We don't map them to a tenant yet. 
+            // We'll redirect to a "Success/Waiting" message.
+            router.push("/login?pending=true");
         } catch (err: any) {
-            setError(err.message || "Failed to create organization");
+            setError(err.message || "Failed to create account request");
             setIsLoading(false);
         }
     };
@@ -105,21 +106,18 @@ export default function SignupPage() {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
             const result = await signInWithPopup(auth, provider);
-            const initialCompanyName = `${result.user.displayName || 'My'} Workspace`;
-            const tenantsRef = ref(db, `${DB_PREFIX}/tenants`);
-            const newTenantRef = push(tenantsRef);
-            const tenantId = newTenantRef.key;
-            if (!tenantId) throw new Error("Could not generate workspace ID");
-            await set(newTenantRef, { name: initialCompanyName, currency: 'USD', createdAt: Date.now() });
-            await set(ref(db, `${DB_PREFIX}/tenants/${tenantId}/users/${result.user.uid}`), {
+
+            // GATEKEEPER FLOW: Google users also go to PENDING
+            await set(ref(db, `${DB_PREFIX}/users_pending/${result.user.uid}`), {
                 email: result.user.email,
                 displayName: result.user.displayName || 'User',
-                role: 'SUPERUSER',
-                createdAt: Date.now(),
-                isActive: true
+                role: 'REQUESTER',
+                status: 'PENDING',
+                isActive: false,
+                createdAt: Date.now()
             });
-            await set(ref(db, `${DB_PREFIX}/userTenants/${result.user.uid}`), { tenantId: tenantId });
-            router.push("/dashboard");
+
+            router.push("/login?pending=true");
         } catch (err: any) {
             setError("Google signup failed.");
             setIsLoading(false);
@@ -205,46 +203,9 @@ export default function SignupPage() {
                         ) : (
                             <div style={{ animation: 'fadeIn 0.5s' }}>
                                 <div className={styles.inputGroup}>
-                                    <label className={styles.label}>Company Details</label>
+                                    <label className={styles.label}>Full Name</label>
                                     <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                        <input type="text" className={styles.input} placeholder="Company Name" value={companyName} onChange={e => setCompanyName(e.target.value)} required autoFocus />
-                                        <Building2 size={18} color="#919EAB" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
-                                    </div>
-
-                                    {/* Premium Currency Selector */}
-                                    <div ref={dropdownRef} style={{ position: 'relative' }}>
-                                        <div className={styles.select} onClick={() => setIsCurrencyDropdownOpen(!isCurrencyDropdownOpen)}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                                <Globe size={18} color="#919EAB" />
-                                                <span style={{ fontWeight: 600 }}>{selectedCurrencyObj.name} ({selectedCurrencyObj.code})</span>
-                                            </div>
-                                            <ChevronDown size={18} color="#919EAB" />
-                                        </div>
-                                        {isCurrencyDropdownOpen && (
-                                            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '2px solid #F4F6F8', borderRadius: '12px', marginTop: '8px', zIndex: 100, boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
-                                                <div style={{ padding: '8px', borderBottom: '1px solid #F4F6F8' }}>
-                                                    <div style={{ position: 'relative' }}>
-                                                        <input type="text" className={styles.input} style={{ height: '40px' }} placeholder="Search..." value={currencySearchQuery} onChange={e => setCurrencySearchQuery(e.target.value)} />
-                                                        <Search size={14} color="#919EAB" style={{ position: 'absolute', right: '12px', top: '12px' }} />
-                                                    </div>
-                                                </div>
-                                                <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
-                                                    {filteredCurrencies.map(c => (
-                                                        <div key={c.code} onClick={() => { setCurrency(c.code); setIsCurrencyDropdownOpen(false); }} style={{ padding: '12px 16px', display: 'flex', justifyContent: 'space-between', cursor: 'pointer', background: currency === c.code ? '#F9FAFB' : 'transparent' }}>
-                                                            <span style={{ fontWeight: 600 }}>{c.name}</span>
-                                                            <span style={{ color: '#E8572A', fontWeight: 800 }}>{c.code}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className={styles.inputGroup}>
-                                    <label className={styles.label}>Primary Administrator</label>
-                                    <div style={{ position: 'relative', marginBottom: '1rem' }}>
-                                        <input type="text" className={styles.input} placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} required />
+                                        <input type="text" className={styles.input} placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} required autoFocus />
                                         <User size={18} color="#919EAB" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
                                     </div>
                                     <div style={{ position: 'relative' }}>
@@ -252,6 +213,7 @@ export default function SignupPage() {
                                         <Lock size={18} color="#919EAB" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
                                     </div>
                                 </div>
+
                             </div>
                         )}
 

@@ -30,6 +30,14 @@ export default function LoginPage() {
     const [resetSent, setResetSent] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [isCapsLockOn, setIsCapsLockOn] = useState(false);
+    const [isPendingApproval, setIsPendingApproval] = useState(false);
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('pending') === 'true') {
+            setIsPendingApproval(true);
+        }
+    }, []);
 
     const handleEmailContinue = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -94,8 +102,17 @@ export default function LoginPage() {
             const mappingSnap = await get(mappingRef);
 
             if (!mappingSnap.exists()) {
-                await auth.signOut();
-                setError("No workspace found for this account.");
+                // Check if they are in the pending queue
+                const pendingRef = ref(db, `${DB_PREFIX}/users_pending/${uid}`);
+                const pendingSnap = await get(pendingRef);
+
+                if (pendingSnap.exists()) {
+                    await auth.signOut();
+                    setError("Your account is still pending approval. Please contact your administrator.");
+                } else {
+                    await auth.signOut();
+                    setError("No workspace found for this account.");
+                }
                 setIsVerifying(false);
                 return;
             }
@@ -220,6 +237,15 @@ export default function LoginPage() {
                             <p className={styles.subtitle}>
                                 {isEmailStep ? "Enter your work email to get started." : `Continue as ${email}`}
                             </p>
+
+                            {isPendingApproval && (
+                                <div style={{ background: '#E3F2FD', color: '#1976D2', padding: '1.25rem', borderRadius: '12px', marginBottom: '1.5rem', border: '1px solid #BBDEFB' }}>
+                                    <h4 style={{ margin: '0 0 0.25rem 0', fontWeight: 800 }}>Request Submitted!</h4>
+                                    <p style={{ margin: 0, fontSize: '0.8125rem', lineHeight: 1.4 }}>
+                                        Your account is currently **pending approval** from the system administrator. You will be able to log in once your workspace has been assigned.
+                                    </p>
+                                </div>
+                            )}
 
                             {error && (
                                 <div style={{ background: '#FFE7D9', color: '#B72136', padding: '1rem', borderRadius: '12px', marginBottom: '1.5rem', display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.875rem', fontWeight: 600 }}>

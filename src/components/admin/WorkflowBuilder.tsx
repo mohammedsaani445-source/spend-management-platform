@@ -8,7 +8,8 @@ import { useModal } from "@/context/ModalContext";
 import {
     GitMerge, Plus, Pencil, Trash2,
     Settings, ArrowRight, Save, X,
-    AlertCircle, FileText, ChevronRight, Layers, CheckCircle2, Users
+    AlertCircle, FileText, ChevronRight, Layers, CheckCircle2, Users,
+    ArrowDown, ShieldCheck, Zap, Layout, Play, Info
 } from "lucide-react";
 import styles from "@/app/dashboard/settings/Settings.module.css";
 import Loader from "@/components/common/Loader";
@@ -22,12 +23,11 @@ export default function WorkflowBuilder() {
     const [saving, setSaving] = useState(false);
     const [view, setView] = useState<'LIST' | 'EDIT'>('LIST');
 
-    // Form state for a new/editing step
+    // Simple Step Form
     const [stepForm, setStepForm] = useState<Partial<WorkflowStep>>({
         name: "",
         approverRole: "APPROVER",
-        thresholdMin: 0,
-        thresholdMax: undefined
+        thresholdMin: 0
     });
 
     useEffect(() => {
@@ -49,9 +49,9 @@ export default function WorkflowBuilder() {
 
     const handleCreateNew = () => {
         setActiveWorkflow({
-            id: "", // Will be generated on save if new
+            id: "",
             tenantId: user?.tenantId || "",
-            name: "New Approval Workflow",
+            name: "New Approval Route",
             isActive: true,
             priority: 0,
             entityType: 'REQUISITION',
@@ -63,47 +63,27 @@ export default function WorkflowBuilder() {
 
     const handleAddStep = () => {
         if (!activeWorkflow || !stepForm.name) return;
-
         const newStep: WorkflowStep = {
             id: `step_${Date.now()}`,
             name: stepForm.name!,
             approverRole: stepForm.approverRole as any,
-            thresholdMin: stepForm.thresholdMin || 0,
-            thresholdMax: stepForm.thresholdMax
+            thresholdMin: stepForm.thresholdMin || 0
         };
-
-        setActiveWorkflow({
-            ...activeWorkflow,
-            steps: [...activeWorkflow.steps, newStep]
-        });
-
-        // Reset form
-        setStepForm({
-            name: "",
-            approverRole: "APPROVER",
-            thresholdMin: 0,
-            thresholdMax: undefined
-        });
+        setActiveWorkflow({ ...activeWorkflow, steps: [...(activeWorkflow.steps || []), newStep] });
+        setStepForm({ name: "", approverRole: "APPROVER", thresholdMin: 0 });
     };
 
     const handleRemoveStep = (stepId: string) => {
         if (!activeWorkflow) return;
-        const newSteps = activeWorkflow.steps
-            .filter(s => s.id !== stepId);
-
-        setActiveWorkflow({
-            ...activeWorkflow,
-            steps: newSteps
-        });
+        setActiveWorkflow({ ...activeWorkflow, steps: (activeWorkflow.steps || []).filter(s => s.id !== stepId) });
     };
 
     const handleSaveWorkflow = async () => {
         if (!user || !activeWorkflow) return;
         if (!activeWorkflow.name) {
-            showError("Validation Error", "Workflow name is required.");
+            showError("Missing Information", "Please give your workflow a name.");
             return;
         }
-
         setSaving(true);
         try {
             await saveWorkflow(user.tenantId, activeWorkflow);
@@ -120,7 +100,7 @@ export default function WorkflowBuilder() {
         if (!user) return;
         const confirmed = await showConfirm(
             "Delete Workflow",
-            `Are you sure you want to delete the "${name}" workflow? This action cannot be undone.`
+            `Are you sure you want to delete "${name}"? This cannot be undone.`
         );
         if (confirmed) {
             await deleteWorkflow(user.tenantId, id);
@@ -128,7 +108,7 @@ export default function WorkflowBuilder() {
         }
     };
 
-    if (loading) return <Loader text="Loading approval workflows..." />;
+    if (loading) return <Loader text="Loading approval engine..." />;
 
     return (
         <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
@@ -137,270 +117,217 @@ export default function WorkflowBuilder() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
                         <div>
                             <h3 className={styles.sectionTitle} style={{ marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <GitMerge size={22} color="var(--brand)" /> Approval Workflow Engine
+                                <GitMerge size={22} color="var(--brand)" /> Approval Journeys
                             </h3>
-                            <p className={styles.subtitle}>Configure automated routing rules for purchase requests based on value and role.</p>
+                            <p className={styles.subtitle}>Design smooth, automatic approval routes for your organization's spend.</p>
                         </div>
-                        {workflows.length > 0 && (
-                            <button className={styles.primaryButton} onClick={handleCreateNew}>
-                                <Plus size={18} /> Create Workflow
-                            </button>
-                        )}
+                        <button className={styles.primaryButton} onClick={handleCreateNew}>
+                            <Plus size={18} /> New Journey
+                        </button>
                     </div>
 
-                    {workflows.length === 0 ? (
-                        <div className={styles.card} style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-                            <div style={{ background: '#F3F4F6', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-                                <GitMerge size={32} color="#9CA3AF" />
-                            </div>
-                            <h4 style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.5rem' }}>No workflows defined</h4>
-                            <p className={styles.subtitle} style={{ maxWidth: '400px', margin: '0 auto 2rem auto' }}>
-                                Create approval workflows to automate how purchase requests are routed through your organization.
-                            </p>
-                            <button className={styles.primaryButton} onClick={handleCreateNew} style={{ margin: '0 auto' }}>
-                                <Plus size={18} /> Create Workflow
-                            </button>
-                        </div>
-                    ) : (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '1.5rem' }}>
-                            {workflows.map(wf => (
-                                <div key={wf.id} className={styles.card} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
-                                        <div>
-                                            <h4 style={{ fontWeight: 800, fontSize: '1.125rem', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
-                                                {wf.name}
-                                                {wf.isActive && <span style={{ background: '#ECFDF5', color: '#10B981', fontSize: '0.75rem', padding: '0.125rem 0.5rem', borderRadius: '999px', fontWeight: 700 }}>Active</span>}
-                                            </h4>
-                                        </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem' }}>
+                        {workflows.map(wf => (
+                            <div key={wf.id} className={styles.card} style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                border: '1px solid #E5E7EB'
+                            }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                                    <div>
+                                        <h4 style={{ fontWeight: 800, fontSize: '1.1rem', margin: 0 }}>{wf.name}</h4>
+                                        <span style={{ fontSize: '0.75rem', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>
+                                            {(wf.steps || []).length} {(wf.steps || []).length === 1 ? 'Stage' : 'Stages'} Approval
+                                        </span>
                                     </div>
-
-                                    <div style={{ flex: 1, background: '#F9FAFB', borderRadius: '0.5rem', padding: '1.25rem', marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                        <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Approval Chain</div>
-                                        {wf.steps.length === 0 ? (
-                                            <span style={{ fontSize: '0.875rem', fontStyle: 'italic', color: '#9CA3AF' }}>No steps defined</span>
-                                        ) : (
-                                            wf.steps.map((step, idx) => (
-                                                <div key={step.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                                    <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'white', border: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                                                        {idx + 1}
-                                                    </div>
-                                                    <div style={{ flex: 1 }}>
-                                                        <div style={{ fontSize: '0.875rem', fontWeight: 700 }}>{step.name} <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>({step.approverRole})</span></div>
-                                                        <div style={{ fontSize: '0.75rem', color: '#6B7280' }}>
-                                                            {step.thresholdMax ? `$${(step.thresholdMin || 0).toLocaleString()} - $${step.thresholdMax.toLocaleString()}` : `$${(step.thresholdMin || 0).toLocaleString()}+`}
-                                                        </div>
-                                                    </div>
-                                                    {idx < wf.steps.length - 1 && <ChevronRight size={14} color="#D1D5DB" />}
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', borderTop: '1px solid var(--border)', paddingTop: '1.25rem', marginTop: 'auto' }}>
-                                        <button
-                                            onClick={() => { setActiveWorkflow(wf); setView('EDIT'); }}
-                                            className={styles.secondaryButton}
-                                        >
-                                            <Pencil size={16} /> Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDeleteWorkflow(wf.id, wf.name)}
-                                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '38px', height: '38px', borderRadius: '6px', border: '1px solid #FEE2E2', background: '#FEF2F2', color: '#EF4444', cursor: 'pointer', transition: 'all 0.2s' }}
-                                        >
-                                            <Trash2 size={16} />
-                                        </button>
+                                    <div style={{ background: wf.isActive ? '#ECFDF5' : '#F4F6F8', color: wf.isActive ? '#10B981' : '#637381', fontSize: '0.7rem', padding: '0.2rem 0.6rem', borderRadius: '100px', fontWeight: 800 }}>
+                                        {wf.isActive ? 'ACTIVE' : 'DRAFT'}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
+
+                                <div style={{ background: '#F9FAFB', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem', flex: 1 }}>
+                                    {(wf.steps || []).length === 0 ? (
+                                        <div style={{ textAlign: 'center', color: '#9CA3AF', fontSize: '0.85rem', fontStyle: 'italic' }}>No steps configured</div>
+                                    ) : (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                            {(wf.steps || []).map((s, idx) => (
+                                                <div key={s.id} style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                                                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'white', border: '1.5px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.7rem', fontWeight: 800 }}>{idx + 1}</div>
+                                                    <div style={{ fontSize: '0.85rem' }}>
+                                                        <span style={{ fontWeight: 700 }}>{s.name}</span>
+                                                        <span style={{ color: '#6B7280', marginLeft: '0.5rem' }}>for ${(s.thresholdMin || 0).toLocaleString()}+</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '0.75rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+                                    <button onClick={() => { setActiveWorkflow(wf); setView('EDIT'); }} className={styles.secondaryButton} style={{ flex: 1, justifyContent: 'center' }}>
+                                        <Pencil size={14} /> Configure
+                                    </button>
+                                    <button onClick={() => handleDeleteWorkflow(wf.id, wf.name)} style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#EF4444', borderRadius: '8px', width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </>
             )}
 
             {view === 'EDIT' && activeWorkflow && (
                 <div style={{ animation: 'fadeIn 0.2s ease-out' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
                         <div>
-                            <h3 className={styles.sectionTitle} style={{ marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <Settings size={22} color="var(--brand)" />
-                                {activeWorkflow.id ? 'Edit Workflow' : 'Create New Workflow'}
-                            </h3>
-                            <button onClick={() => setView('LIST')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.25rem', padding: 0 }}>
+                            <button onClick={() => setView('LIST')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.4rem', padding: 0, marginBottom: '0.5rem' }}>
                                 <ArrowRight size={14} style={{ transform: 'rotate(180deg)' }} /> Back to directory
                             </button>
+                            <h3 className={styles.sectionTitle} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <Settings size={22} color="var(--brand)" />
+                                {activeWorkflow.id ? activeWorkflow.name : 'Design New Journey'}
+                            </h3>
                         </div>
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button className={styles.secondaryButton} onClick={() => setView('LIST')}>
-                                <X size={18} /> Cancel
-                            </button>
+                            <button className={styles.secondaryButton} onClick={() => setView('LIST')}>Discard</button>
                             <button className={styles.primaryButton} onClick={handleSaveWorkflow} disabled={saving}>
-                                {saving ? <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><div style={{ width: 16, height: 16, border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }} /> Saving...</span> : <><Save size={18} /> Save Workflow</>}
+                                {saving ? 'Saving...' : <><Save size={18} /> Publish Workflow</>}
                             </button>
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 380px) 1fr', gap: '2rem', alignItems: 'flex-start' }}>
-
-                        {/* Left Column: Properties */}
-                        <div className={styles.card} style={{ padding: '2rem' }}>
-                            <h5 style={{ margin: '0 0 1.5rem 0', fontSize: '1.125rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <FileText size={18} color="var(--brand)" /> General Properties
-                            </h5>
-
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>Workflow Name *</label>
-                                <input
-                                    className={styles.input}
-                                    value={activeWorkflow.name}
-                                    onChange={e => setActiveWorkflow({ ...activeWorkflow, name: e.target.value })}
-                                    placeholder="e.g., IT Hardware Over $500"
-                                    autoFocus
-                                />
-                            </div>
-
-
-
-                            <div className={styles.formGroup}>
-                                <label className={styles.label}>Workflow Priority (Higher is applied first) *</label>
-                                <input
-                                    className={styles.input}
-                                    type="number"
-                                    value={activeWorkflow.priority}
-                                    onChange={e => setActiveWorkflow({ ...activeWorkflow, priority: parseInt(e.target.value) || 0 })}
-                                    placeholder="0"
-                                />
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: '#F9FAFB', borderRadius: '0.5rem', border: '1px solid var(--border)' }}>
-                                <div>
-                                    <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Workflow Status</div>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Enable or disable routing</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '3rem', alignItems: 'flex-start' }}>
+                        {/* Properties Panel */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                            <div className={styles.card} style={{ padding: '1.75rem' }}>
+                                <h5 style={{ margin: '0 0 1.25rem 0', fontWeight: 900, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Info size={18} color="var(--brand)" /> Metadata
+                                </h5>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Journey Name</label>
+                                    <input className={styles.input} value={activeWorkflow.name} onChange={e => setActiveWorkflow({ ...activeWorkflow, name: e.target.value })} placeholder="e.g. Executive Approval Flow" />
                                 </div>
-                                <label className={styles.toggleSwitch}>
-                                    <input
-                                        type="checkbox"
-                                        checked={activeWorkflow.isActive}
-                                        onChange={e => setActiveWorkflow({ ...activeWorkflow, isActive: e.target.checked })}
-                                    />
-                                    <span className={styles.slider}></span>
-                                </label>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Priority Order</label>
+                                    <input type="number" className={styles.input} value={activeWorkflow.priority} onChange={e => setActiveWorkflow({ ...activeWorkflow, priority: parseInt(e.target.value) || 0 })} />
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: '#F9FAFB', borderRadius: '10px' }}>
+                                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>Enable Flow</span>
+                                    <label className={styles.toggleSwitch}>
+                                        <input type="checkbox" checked={activeWorkflow.isActive} onChange={e => setActiveWorkflow({ ...activeWorkflow, isActive: e.target.checked })} />
+                                        <span className={styles.slider}></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div style={{ padding: '1.5rem', background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', borderRadius: '16px', color: 'white', position: 'relative', overflow: 'hidden' }}>
+                                <Zap size={40} style={{ position: 'absolute', right: -10, top: -10, opacity: 0.1 }} />
+                                <h6 style={{ margin: '0 0 0.5rem 0', fontWeight: 900, color: 'var(--brand)' }}>Quick Tip</h6>
+                                <p style={{ margin: 0, fontSize: '0.75rem', lineHeight: 1.5, opacity: 0.8 }}>
+                                    Routes are triggered based on the requisition amount. Lower thresholds are checked first.
+                                </p>
                             </div>
                         </div>
 
-                        {/* Right Column: Steps Builder */}
-                        <div className={styles.card} style={{ padding: '2rem' }}>
-                            <h5 style={{ margin: '0 0 1.5rem 0', fontSize: '1.125rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'space-between' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Layers size={18} color="var(--brand)" /> Approval Chain
-                                </div>
-                                <span style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)', background: '#F3F4F6', padding: '0.25rem 0.75rem', borderRadius: '999px' }}>
-                                    {activeWorkflow.steps.length} {activeWorkflow.steps.length === 1 ? 'Step' : 'Steps'}
-                                </span>
-                            </h5>
-
-                            {/* Add Step Form */}
-                            <div style={{ border: '1px dashed #D1D5DB', borderRadius: '0.5rem', padding: '1.5rem', marginBottom: '2rem', background: '#F8FAFC' }}>
-                                <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>Add New Stage</div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                                    <div>
-                                        <label className={styles.label} style={{ fontSize: '0.75rem' }}>Stage Name</label>
-                                        <input
-                                            className={styles.input}
-                                            value={stepForm.name}
-                                            onChange={e => setStepForm({ ...stepForm, name: e.target.value })}
-                                            placeholder="e.g., Finance Review"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className={styles.label} style={{ fontSize: '0.75rem' }}>Approver Role</label>
-                                        <select
-                                            className={styles.input}
-                                            value={stepForm.approverRole}
-                                            onChange={e => setStepForm({ ...stepForm, approverRole: e.target.value })}
-                                        >
-                                            <option value="APPROVER">Department Approver</option>
-                                            <option value="FINANCE">Finance Team</option>
-                                            <option value="ADMIN">System Admin</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className={styles.label} style={{ fontSize: '0.75rem' }}>Min Amount ($)</label>
-                                        <input
-                                            className={styles.input}
-                                            type="number"
-                                            value={stepForm.thresholdMin || ''}
-                                            onChange={e => setStepForm({ ...stepForm, thresholdMin: Number(e.target.value) })}
-                                            placeholder="0"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className={styles.label} style={{ fontSize: '0.75rem' }}>Max Amount ($)</label>
-                                        <input
-                                            className={styles.input}
-                                            type="number"
-                                            value={stepForm.thresholdMax || ''}
-                                            onChange={e => setStepForm({ ...stepForm, thresholdMax: e.target.value ? Number(e.target.value) : undefined })}
-                                            placeholder="No limit"
-                                        />
-                                    </div>
-                                </div>
-                                <button
-                                    className={styles.secondaryButton}
-                                    style={{ width: '100%', justifyContent: 'center', background: 'white' }}
-                                    onClick={handleAddStep}
-                                    disabled={!stepForm.name}
-                                >
-                                    <Plus size={16} /> Append to Chain
-                                </button>
+                        {/* Pipeline Designer */}
+                        <div>
+                            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <Layout size={20} color="var(--brand)" />
+                                <span style={{ fontWeight: 900, fontSize: '1.1rem' }}>The Approval Pipeline</span>
                             </div>
 
-                            {/* Steps Visualization */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                {activeWorkflow.steps.length === 0 ? (
-                                    <div style={{ textAlign: 'center', padding: '3rem 1rem', color: '#9CA3AF', background: '#F9FAFB', borderRadius: '0.5rem', border: '1px dashed #E5E7EB' }}>
-                                        <GitMerge size={32} style={{ margin: '0 auto 1rem auto', opacity: 0.5 }} />
-                                        <p style={{ margin: 0, fontSize: '0.875rem' }}>No approval steps appended yet.<br />Use the form above to build the chain.</p>
-                                    </div>
-                                ) : (
-                                    activeWorkflow.steps.map((step, index) => (
-                                        <div key={step.id} style={{ display: 'flex', alignItems: 'flex-start', position: 'relative' }}>
-                                            {/* Connecting Line */}
-                                            {index > 0 && (
-                                                <div style={{ position: 'absolute', top: '-1rem', left: '15px', width: '2px', height: '1.5rem', background: '#E5E7EB', zIndex: 0 }} />
-                                            )}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', position: 'relative' }}>
+                                {/* The Pipeline Connector */}
+                                <div style={{ position: 'absolute', top: 0, bottom: 0, left: '20px', width: '3px', background: 'linear-gradient(to bottom, var(--brand) 0%, #E5E7EB 100%)', zIndex: 1 }} />
 
-                                            {/* Step Node */}
-                                            <div style={{ position: 'relative', zIndex: 1, width: '32px', height: '32px', borderRadius: '50%', background: 'var(--brand)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '0.875rem', marginTop: '0.5rem', boxShadow: '0 0 0 4px white' }}>
-                                                {index + 1}
-                                            </div>
-
-                                            {/* Step Content */}
-                                            <div style={{ flex: 1, marginLeft: '1rem', background: 'white', border: '1px solid var(--border)', borderRadius: '0.5rem', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 1px 2px rgba(0,0,0,0.02)' }}>
-                                                <div>
-                                                    <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '0.25rem' }}>{step.name}</div>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '0.75rem' }}>
-                                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-secondary)' }}>
-                                                            <Users size={12} /> {step.approverRole}
-                                                        </span>
-                                                        <span style={{ color: '#059669', background: '#ECFDF5', padding: '0.125rem 0.5rem', borderRadius: '999px', fontWeight: 600 }}>
-                                                            {step.thresholdMax ? `$${(step.thresholdMin || 0).toLocaleString()} - $${step.thresholdMax.toLocaleString()}` : `$${(step.thresholdMin || 0).toLocaleString()}+`}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    onClick={() => handleRemoveStep(step.id)}
-                                                    style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#EF4444', cursor: 'pointer', width: '32px', height: '32px', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}
-                                                    title="Remove Step"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
+                                {(activeWorkflow.steps || []).map((step, idx) => (
+                                    <div key={step.id} style={{ display: 'flex', gap: '1.5rem', position: 'relative', zIndex: 10 }}>
+                                        <div style={{
+                                            width: 44,
+                                            height: 44,
+                                            borderRadius: '50%',
+                                            background: 'white',
+                                            border: '3px solid var(--brand)',
+                                            color: 'var(--brand)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontWeight: 900,
+                                            boxShadow: '0 4px 10px rgba(0,0,0,0.05)'
+                                        }}>
+                                            {idx + 1}
                                         </div>
-                                    ))
-                                )}
+                                        <div className={styles.card} style={{ flex: 1, padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderLeft: '4px solid var(--brand)' }}>
+                                            <div>
+                                                <div style={{ fontWeight: 800, fontSize: '1.1rem', marginBottom: '0.25rem' }}>{step.name}</div>
+                                                <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.8rem' }}>
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#637381' }}>
+                                                        <ShieldCheck size={14} /> {step.approverRole}
+                                                    </span>
+                                                    <span style={{ background: '#ECFDF5', color: '#059669', padding: '0.125rem 0.6rem', borderRadius: '100px', fontWeight: 800 }}>
+                                                        Min. Threshold: ${(step.thresholdMin || 0).toLocaleString()}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <button onClick={() => handleRemoveStep(step.id)} style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #FEE2E2', background: '#FEF2F2', color: '#EF4444', cursor: 'pointer' }}>
+                                                <Trash2 size={16} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {/* Add New Step Component */}
+                                <div style={{ display: 'flex', gap: '1.5rem', position: 'relative', zIndex: 10 }}>
+                                    <div style={{
+                                        width: 44,
+                                        height: 44,
+                                        borderRadius: '50%',
+                                        background: '#F9FAFB',
+                                        border: '3px dashed #CBD5E1',
+                                        color: '#94A3B8',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontWeight: 900
+                                    }}>
+                                        +
+                                    </div>
+                                    <div className={styles.card} style={{ flex: 1, padding: '2rem', border: '2px dashed #E2E8F0', background: '#F8FAFC' }}>
+                                        <div style={{ fontSize: '0.9rem', fontWeight: 900, marginBottom: '1.5rem' }}>Append Approval Stage</div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.5fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
+                                            <div>
+                                                <label className={styles.label} style={{ fontSize: '0.7rem' }}>Stage Label</label>
+                                                <input className={styles.input} style={{ height: '44px' }} value={stepForm.name} onChange={e => setStepForm({ ...stepForm, name: e.target.value })} placeholder="e.g. Budget Holder" />
+                                            </div>
+                                            <div>
+                                                <label className={styles.label} style={{ fontSize: '0.7rem' }}>Authorized Role</label>
+                                                <select className={styles.input} style={{ height: '44px' }} value={stepForm.approverRole} onChange={e => setStepForm({ ...stepForm, approverRole: e.target.value })}>
+                                                    <option value="APPROVER">Department Head</option>
+                                                    <option value="FINANCE">Finance Lead</option>
+                                                    <option value="ADMIN">Managing Director</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className={styles.label} style={{ fontSize: '0.7rem' }}>Min Amount ($)</label>
+                                                <input type="number" className={styles.input} style={{ height: '44px' }} value={stepForm.thresholdMin} onChange={e => setStepForm({ ...stepForm, thresholdMin: parseInt(e.target.value) || 0 })} />
+                                            </div>
+                                            <button className={styles.primaryButton} style={{ height: '44px', width: '44px', padding: 0, justifyContent: 'center' }} onClick={handleAddStep} disabled={!stepForm.name}>
+                                                <Plus size={20} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* End Signal */}
+                                <div style={{ display: 'flex', gap: '1.5rem', position: 'relative', zIndex: 10, marginTop: '1rem' }}>
+                                    <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}>
+                                        <CheckCircle2 size={24} />
+                                    </div>
+                                    <div style={{ alignSelf: 'center', fontSize: '0.9rem', fontWeight: 800, color: '#10B981' }}>Approval Journey Complete</div>
+                                </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             )}

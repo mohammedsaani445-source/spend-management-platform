@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
                             if (snapshot.exists()) {
                                 const userData = snapshot.val();
-
+                                // User found in a tenant
                                 if (userData.isActive === false) {
                                     await auth.signOut();
                                     setUser(null);
@@ -71,8 +71,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                 });
                                 setLoading(false);
                             } else {
-                                console.error("[Auth] User mapped to tenant but profile missing.");
-                                setUser(null);
+                                // Mapped to tenant but no profile? Check pending
+                                const pendingRef = ref(db, `${DB_PREFIX}/users_pending/${firebaseUser.uid}`);
+                                const pendingSnap = await get(pendingRef);
+                                if (pendingSnap.exists()) {
+                                    // User is pending, don't sign out but keep user null
+                                    setUser(null);
+                                } else {
+                                    console.error("[Auth] User mapped to tenant but profile missing.");
+                                    setUser(null);
+                                }
                                 setLoading(false);
                             }
                         } catch (err) {
