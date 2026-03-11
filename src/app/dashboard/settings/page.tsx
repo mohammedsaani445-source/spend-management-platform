@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import UserManagement from "@/components/admin/UserManagement";
 import LogoutModal from "@/components/layout/LogoutModal";
 import * as OTPAuth from "otpauth";
@@ -22,8 +24,19 @@ import HierarchyManager from "@/components/admin/HierarchyManager";
 type Tab = 'PROFILE' | 'SECURITY' | 'NOTIFICATIONS' | 'TEAM' | 'WORKFLOWS' | 'AUDIT' | 'HIERARCHY';
 
 export default function SettingsPage() {
+    return (
+        <Suspense fallback={<Loader text="Initializing settings..." />}>
+            <SettingsContent />
+        </Suspense>
+    );
+}
+
+function SettingsContent() {
     const { user, updateProfile } = useAuth();
-    const [activeTab, setActiveTab] = useState<Tab>('PROFILE');
+    const searchParams = useSearchParams();
+    const initialTab = (searchParams.get('tab')?.toUpperCase() as Tab) || 'PROFILE';
+
+    const [activeTab, setActiveTab] = useState<Tab>(initialTab);
     const [formData, setFormData] = useState({
         displayName: "",
         jobTitle: "",
@@ -62,6 +75,16 @@ export default function SettingsPage() {
             });
         }
     }, [user]);
+
+    useEffect(() => {
+        const tab = searchParams.get('tab');
+        if (tab) {
+            const upperTab = tab.toUpperCase() as Tab;
+            if (['PROFILE', 'SECURITY', 'NOTIFICATIONS', 'TEAM', 'WORKFLOWS', 'AUDIT', 'HIERARCHY'].includes(upperTab)) {
+                setActiveTab(upperTab);
+            }
+        }
+    }, [searchParams]);
 
     const generate2FA = async () => {
         if (!user) return;
@@ -263,15 +286,16 @@ export default function SettingsPage() {
                     <div className={styles.card}>
                         {activeTab === 'PROFILE' && (
                             <div>
+                                <h3 className={styles.sectionTitle}>Digital Identity</h3>
                                 <div className={styles.profileHeader}>
                                     <div className={styles.avatar}>
                                         {user.displayName?.[0] || 'U'}
                                     </div>
                                     <div>
-                                        <h3 className={styles.profileName}>{user.displayName}</h3>
-                                        <p className={styles.profileEmail}>{user.email}</p>
+                                        <h3 className={styles.profileName}>{user.displayName || "Personal Branding"}</h3>
+                                        <p className={styles.profileEmail}>{user.jobTitle || "Professional at Apex Procure"}</p>
                                         <div className={styles.badge}>
-                                            <CheckCircle2 size={14} /> VERIFIED ENTERPRISE ACCOUNT
+                                            <CheckCircle2 size={14} /> IDENTITY VERIFIED
                                         </div>
                                     </div>
                                 </div>
@@ -279,33 +303,48 @@ export default function SettingsPage() {
                                 <div className={styles.formGrid}>
                                     <div className={styles.formGroup}>
                                         <label className={styles.label}>Full Name</label>
-                                        <input type="text" className={styles.input} value={formData.displayName} onChange={e => setFormData({ ...formData, displayName: e.target.value })} required />
+                                        <input type="text" className={styles.input} value={formData.displayName} onChange={e => setFormData({ ...formData, displayName: e.target.value })} placeholder="John Doe" required />
                                     </div>
                                     <div className={styles.formGroup}>
-                                        <label className={styles.label}>Email Address</label>
-                                        <input type="email" className={styles.input} value={user.email} disabled />
-                                    </div>
-                                    <div className={styles.formGroup}>
-                                        <label className={styles.label}>Job Title</label>
-                                        <input type="text" className={styles.input} placeholder="e.g. Procurement Manager" value={formData.jobTitle} onChange={e => setFormData({ ...formData, jobTitle: e.target.value })} />
+                                        <label className={styles.label}>Job Title/Role</label>
+                                        <input type="text" className={styles.input} placeholder="e.g. Procurement Specialsit" value={formData.jobTitle} onChange={e => setFormData({ ...formData, jobTitle: e.target.value })} />
                                     </div>
                                     <div className={styles.formGroup}>
                                         <label className={styles.label}>Phone Number</label>
                                         <input type="tel" className={styles.input} placeholder="+1 (555) 000-0000" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
                                     </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Location / Branch</label>
+                                        <input type="text" className={styles.input} placeholder="e.g. Headquarters" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
+                                    </div>
                                 </div>
 
                                 <div className={styles.formGroup} style={{ marginTop: '1.5rem' }}>
                                     <label className={styles.label}>Professional Bio</label>
-                                    <textarea className={styles.textarea} placeholder="Describe your role and expertise..." value={formData.bio} onChange={e => setFormData({ ...formData, bio: e.target.value })} />
+                                    <textarea className={styles.textarea} placeholder="Describe your management style and procurement expertise..." value={formData.bio} onChange={e => setFormData({ ...formData, bio: e.target.value })} />
                                 </div>
                             </div>
                         )}
 
                         {activeTab === 'SECURITY' && (
                             <div>
-                                <h3 className={styles.sectionTitle}>Security Authentication</h3>
+                                <h3 className={styles.sectionTitle}>Account Access & Security</h3>
 
+                                <div className={styles.formGrid} style={{ marginBottom: '2rem' }}>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Primary Email Address</label>
+                                        <input type="email" className={styles.input} value={user.email} disabled />
+                                        <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#6B7280' }}>Contact Admin to update primary email.</p>
+                                    </div>
+                                    <div className={styles.formGroup}>
+                                        <label className={styles.label}>Login Status</label>
+                                        <div style={{ padding: '0.75rem 1rem', background: '#F9FAFB', borderRadius: '10px', fontSize: '0.9375rem', color: '#111827', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                            <Shield size={16} color="#10B981" /> Authenticated via Google
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <h3 className={styles.sectionTitle} style={{ fontSize: '1.125rem' }}>Authentication Protocols</h3>
                                 <div className={styles.securityCard}>
                                     <div>
                                         <h4 className={styles.securityHeader}>
@@ -323,7 +362,7 @@ export default function SettingsPage() {
                                     </div>
                                 </div>
 
-                                <h3 className={styles.sectionTitle}>Data Privacy</h3>
+                                <h3 className={styles.sectionTitle} style={{ fontSize: '1.125rem' }}>Preferences & Privacy</h3>
                                 <div>
                                     <div className={styles.preferenceItem}>
                                         <div className={styles.prefContent}>
@@ -336,8 +375,8 @@ export default function SettingsPage() {
                                     </div>
                                     <div className={styles.preferenceItem} style={{ borderBottom: 'none', marginBottom: 0, paddingBottom: 0 }}>
                                         <div className={styles.prefContent}>
-                                            <div className={styles.prefTitle}>Login History Tracking</div>
-                                            <div className={styles.prefDesc}>Keep a secure log of all devices and locations used to access your account.</div>
+                                            <div className={styles.prefTitle}>Security Logging</div>
+                                            <div className={styles.prefDesc}>Keep a secure log of all sensitive actions performed on your account.</div>
                                         </div>
                                         <div className={`${styles.toggleSwitch} ${styles.toggleSwitchEnabled}`}>
                                             <div className={`${styles.toggleKnob} ${styles.toggleKnobEnabled}`} />

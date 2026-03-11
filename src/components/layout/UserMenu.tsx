@@ -53,10 +53,10 @@ export default function UserMenu() {
                         </div>
                     </div>
 
-                    <Link href="/dashboard/settings" className={styles.menuItem} onClick={() => setIsOpen(false)}>
+                    <Link href="/dashboard/settings?tab=profile" className={styles.menuItem} onClick={() => setIsOpen(false)}>
                         <UserIcon size={16} className="text-cool-slate" style={{ marginRight: '8px' }} /> My Profile
                     </Link>
-                    <Link href="/dashboard/settings" className={styles.menuItem} onClick={() => setIsOpen(false)}>
+                    <Link href="/dashboard/settings?tab=security" className={styles.menuItem} onClick={() => setIsOpen(false)}>
                         <Settings size={16} className="text-cool-slate" style={{ marginRight: '8px' }} /> Account Settings
                     </Link>
                     <div className={styles.menuItem} onClick={() => {

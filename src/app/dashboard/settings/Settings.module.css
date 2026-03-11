@@ -137,6 +137,11 @@
     border: 1px solid #F3F4F6;
     padding: 2.5rem;
     animation: fadeIn 0.3s ease-out;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.03), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
 }
 
 /* Profile Section */
@@ -272,6 +277,17 @@
     font-weight: 800;
     margin-bottom: 1.5rem;
     color: #111827;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sectionTitle::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #F3F4F6;
+    margin-left: 1rem;
 }
 
 .securityCard {
