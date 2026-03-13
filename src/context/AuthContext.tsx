@@ -67,6 +67,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                     department: userData.department || 'General',
                                     locationId: userData.locationId || 'default',
                                     isActive: userData.isActive !== false,
+                                    twoFactorEnabled: userData.twoFactorEnabled || false,
+                                    twoFactorSecret: userData.twoFactorSecret || "",
+                                    marketingEmails: userData.marketingEmails ?? true,
+                                    securityAlerts: userData.securityAlerts ?? true,
+                                    phone: userData.phone || "",
+                                    bio: userData.bio || "",
+                                    location: userData.location || "",
+                                    jobTitle: userData.jobTitle || "",
                                     createdAt: new Date(userData.createdAt || Date.now())
                                 });
                                 setLoading(false);
