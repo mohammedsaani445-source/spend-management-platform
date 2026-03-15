@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { uploadFile } from "@/lib/storage";
 import Loader from "@/components/common/Loader";
 import { CloudUpload, FileCheck, FileText, X, ShieldCheck } from "lucide-react";
 
@@ -40,15 +39,40 @@ export default function FileUploader({
         if (onUploadStart) onUploadStart();
 
         try {
-            const timestamp = Date.now();
-            const storagePath = `${pathPrefix}/${timestamp}_${file.name}`;
-            const url = await uploadFile(file, storagePath);
+            // 1. Prepare Base64
+            const base64 = await new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const data = (reader.result as string).split(',')[1];
+                    resolve(data);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+
+            // 2. Server-Side Upload
+            const response = await fetch('/api/upload', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    base64Data: base64,
+                    fileName: file.name,
+                    mimeType: file.type
+                })
+            });
+
+            if (!response.ok) {
+                const errData = await response.json().catch(() => ({ error: "Upload failed" }));
+                throw new Error(errData.error);
+            }
+
+            const { url } = await response.json();
             setFileName(file.name);
             setUploadStage('SUCCESS');
             onUploadComplete(url, file.name);
         } catch (error) {
             setUploadStage('ERROR');
-            console.error(error);
+            console.error("[FileUploader] Error:", error);
         }
     };
 

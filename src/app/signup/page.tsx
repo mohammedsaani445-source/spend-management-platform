@@ -85,7 +85,7 @@ export default function SignupPage() {
             await set(ref(db, `${DB_PREFIX}/users_pending/${userAuthResult.user.uid}`), {
                 email: userAuthResult.user.email,
                 displayName: fullName,
-                role: 'REQUESTER',
+                role: 'STANDARD_REQUESTER',
                 status: 'PENDING',
                 isActive: false,
                 createdAt: Date.now()
@@ -111,7 +111,7 @@ export default function SignupPage() {
             await set(ref(db, `${DB_PREFIX}/users_pending/${result.user.uid}`), {
                 email: result.user.email,
                 displayName: result.user.displayName || 'User',
-                role: 'REQUESTER',
+                role: 'STANDARD_REQUESTER',
                 status: 'PENDING',
                 isActive: false,
                 createdAt: Date.now()

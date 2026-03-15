@@ -1,5 +1,5 @@
 import { db, DB_PREFIX } from "./firebase";
-import { ref, push, set, onValue, update, remove, query, orderByChild, equalTo } from "firebase/database";
+import { ref, push, set, get, onValue, update, remove, query, orderByChild, equalTo } from "firebase/database";
 import { Notification } from "@/types";
 
 const getNotificationsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/notifications`);
@@ -80,3 +80,57 @@ export const clearNotifications = async (tenantId: string, userId: string, notif
         console.error("Error clearing notifications:", error);
     }
 };
+
+/**
+ * Notify a single user by userId.
+ */
+export const notifyUser = async (
+    tenantId: string,
+    userId: string,
+    type: Notification['type'],
+    title: string,
+    message: string,
+    link?: string
+) => {
+    return createNotification({ tenantId, userId, type, title, message, link });
+};
+
+/**
+ * Notify all users with a specific role.
+ * Queries the users collection to find matching role users, then creates a notification for each.
+ */
+export const notifyRole = async (
+    tenantId: string,
+    role: string,
+    type: Notification['type'],
+    title: string,
+    message: string,
+    link?: string
+) => {
+    try {
+        const usersRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/users`);
+        const usersSnap = await get(usersRef);
+        if (!usersSnap.exists()) return;
+
+        const users = usersSnap.val();
+        const promises: Promise<any>[] = [];
+
+        for (const [uid, user] of Object.entries(users) as [string, any][]) {
+            if (user.role === role || role === 'ALL') {
+                promises.push(createNotification({
+                    tenantId,
+                    userId: uid,
+                    type,
+                    title,
+                    message,
+                    link,
+                }));
+            }
+        }
+
+        await Promise.allSettled(promises);
+    } catch (error) {
+        console.error("[Notifications] Error notifying role:", error);
+    }
+};
+

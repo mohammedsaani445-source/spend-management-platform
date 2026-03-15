@@ -4,8 +4,10 @@ import { Requisition, RequisitionStatus, AppUser } from "@/types";
 import { evaluateWorkflow, getCurrentStepApprovers, processApprovalAction } from "./approvals";
 import { runComplianceCheck } from "./compliance_checker";
 import { PaymentService } from "./payments";
-import { extractInvoiceData as extractQuoteData } from "./ocr";
+import { extractInvoiceDataServer as extractQuoteData } from "./ocr";
 import { canViewEntity } from "./permissions";
+import { getBudgets } from "./budgets";
+import { getSpendAnalytics } from "./analytics";
 
 const getRequisitionsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/requisitions`);
 const getRequisitionRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/requisitions/${id}`);
@@ -32,7 +34,39 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
         const reqsRef = getRequisitionsRef(tenantId);
         const newReqRef = push(reqsRef);
 
-        // Sanitize data to remove undefined values (RTDB doesn't like them)
+        // --- BUDGET CHECK GATE (Phase 58: Strategic Enforcement) ---
+        let status: RequisitionStatus = 'PENDING';
+        
+        try {
+            const { validateRequisitionBudget } = await import("./budgets");
+            const validation = await validateRequisitionBudget(tenantId, requisition.department, requisition.totalAmount);
+            
+            if (validation.isOverBudget) {
+                if (validation.enforcementLevel === 'HARD') {
+                    // ❌ CRITICAL GATE: Block submission
+                    const { logAction } = await import("./audit");
+                    await logAction({
+                        tenantId,
+                        actorId: requisition.requesterId,
+                        actorName: requisition.requesterName,
+                        action: 'CREATE',
+                        entityType: 'REQUISITION',
+                        entityId: 'BLOCKED',
+                        description: `Requisition BLOCKED (HARD Enforcement). Amount: ${requisition.totalAmount} exceeds available budget of ${validation.remaining} for ${requisition.department}.`
+                    });
+
+                    throw new Error(`Budget Exceeded: Your department has ${validation.remaining} ${validation.currency} remaining, which is insufficient for this request (${requisition.totalAmount}).`);
+                } else {
+                    // ⚠️ SOFT GATE: Proceed with flag
+                    status = 'OVER_BUDGET';
+                    console.warn(`[Budget Gate] Requisition is OVER_BUDGET. Amount: ${requisition.totalAmount}, Remaining: ${validation.remaining}`);
+                }
+            }
+        } catch (budgetError: any) {
+            if (budgetError.message.includes("Budget Exceeded")) throw budgetError;
+            console.error("Budget check failed, defaulting to PENDING", budgetError);
+        }
+
         const cleanReq = {
             ...requisition,
             vendorId: requisition.vendorId || null,
@@ -40,7 +74,7 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
             currency: requisition.currency || 'USD',
             id: newReqRef.key,
             createdAt: new Date().toISOString(),
-            status: 'PENDING' as RequisitionStatus,
+            status,
             approverId: approver.uid,
             approverName: approver.name || 'Auto-Approver',
             workflowId: workflow?.id || null,
@@ -80,7 +114,7 @@ export const subscribeToRequisitions = (user: AppUser, callback: (reqs: Requisit
     const reqsRef = getRequisitionsRef(tenantId);
 
     // For Admins/Finance/Superusers, listen to all requisitions
-    if (user.role === 'ADMIN' || user.role === 'FINANCE' || user.role === 'SUPERUSER') {
+    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST'].includes(user.role)) {
         const unsubscribe = onValue(reqsRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
@@ -171,6 +205,14 @@ export const approveRequisition = async (tenantId: string, reqId: string) => {
                 complianceScore: compliance.riskScore,
                 complianceFindings: compliance.findings
             });
+
+            // 🛡️ Phase 58: Reserve Funds (Move to Committed)
+            try {
+                const { reserveFunds } = await import("./budgets");
+                await reserveFunds(tenantId, req.department, Number(req.totalAmount));
+            } catch (err) {
+                console.error("[Budget] Fund reservation failed:", err);
+            }
 
             // Direct Pay on final approval
             await PaymentService.initiateDirectTransfer(tenantId, req as any);

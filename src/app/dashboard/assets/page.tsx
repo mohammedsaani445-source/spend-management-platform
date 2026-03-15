@@ -11,9 +11,6 @@ export default function AssetsPage() {
                     <h1 className={styles.pageTitle}>Company Assets</h1>
                     <p className={styles.pageSubtitle}>Track and manage fixed assets and equipment lifecycle.</p>
                 </div>
-                <button className={styles.primaryButton}>
-                    <span>+</span> Register New Asset
-                </button>
             </div>
 
             <div style={{ marginTop: '2rem' }}>

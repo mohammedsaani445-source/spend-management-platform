@@ -1,6 +1,7 @@
 import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, update, query, orderByChild, equalTo, remove } from "firebase/database";
-import { Warehouse, SKU, StockLevel, InventoryLog, Asset } from "@/types";
+import { Warehouse, SKU, StockLevel, InventoryLog, Asset, ItemReceipt, AppUser } from "@/types";
+import { logAction } from "./audit";
 
 const getWarehousesRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/warehouses`);
 const getSkusRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/skus`);
@@ -203,4 +204,84 @@ export const getInventoryLogs = async (tenantId: string): Promise<InventoryLog[]
     const snapshot = await get(getInventoryLogsRef(tenantId));
     if (snapshot.exists()) return Object.values(snapshot.val());
     return [];
+};
+
+/**
+ * Promotes a receipt line item to the Asset Registry.
+ */
+export const promoteReceiptToAsset = async (
+    tenantId: string,
+    receiptId: string,
+    lineIndex: number,
+    assetData: Omit<Asset, 'id' | 'createdAt'>,
+    user: AppUser
+): Promise<string> => {
+    try {
+        const { createAsset } = await import("./assets");
+        
+        // 1. Create the Asset
+        const assetId = await createAsset(assetData as Asset, user);
+
+        // 2. Mark the Receipt Line as Promoted
+        const receiptRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/receipts/${receiptId}`);
+        const snap = await get(receiptRef);
+        if (snap.exists()) {
+            const receipt: ItemReceipt = snap.val();
+            const updatedLines = receipt.lines.map((l, i) => 
+                i === lineIndex ? { ...l, isPromoted: true, promotionId: assetId } : l
+            );
+            await update(receiptRef, { lines: updatedLines });
+        }
+
+        return assetId!;
+    } catch (error) {
+        console.error("Error promoting to asset:", error);
+        throw error;
+    }
+};
+
+/**
+ * Promotes a receipt line item to Inventory Stock.
+ */
+export const promoteReceiptToStock = async (
+    tenantId: string,
+    receiptId: string,
+    lineIndex: number,
+    skuId: string,
+    skuName: string,
+    warehouseId: string,
+    warehouseName: string,
+    quantity: number,
+    user: AppUser,
+    notes?: string
+): Promise<string> => {
+    try {
+        // 1. Log the movement (which updates stock levels)
+        const logId = await logInventoryAction(tenantId, {
+            skuId,
+            skuName,
+            warehouseId,
+            warehouseName,
+            action: 'RECEIPT',
+            quantity,
+            performedBy: user.uid,
+            notes: notes || `Promoted from Receipt ${receiptId}`
+        });
+
+        // 2. Mark the Receipt Line as Promoted
+        const receiptRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/receipts/${receiptId}`);
+        const snap = await get(receiptRef);
+        if (snap.exists()) {
+            const receipt: ItemReceipt = snap.val();
+            const updatedLines = receipt.lines.map((l, i) => 
+                i === lineIndex ? { ...l, isPromoted: true, promotionId: logId } : l
+            );
+            await update(receiptRef, { lines: updatedLines });
+        }
+
+        return logId!;
+    } catch (error) {
+        console.error("Error promoting to stock:", error);
+        throw error;
+    }
 };

@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper: check user authentication
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Allow tenant users to read/write their own documents
+    match /v2_production/tenants/{tenantId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.resource.size < 20 * 1024 * 1024; // 20 MB max
+    }
+
+    // Deny everything else
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

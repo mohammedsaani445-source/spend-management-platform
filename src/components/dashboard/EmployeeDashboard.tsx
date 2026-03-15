@@ -5,6 +5,7 @@ import { AppUser, Requisition } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import SecurityBanner from "@/components/common/SecurityBanner";
 
 interface EmployeeDashboardProps {
     user: AppUser;
@@ -58,6 +59,7 @@ export default function EmployeeDashboard({ user, requisitions }: EmployeeDashbo
 
     return (
         <div style={{ color: 'var(--text-primary)' }}>
+            <SecurityBanner user={user} />
 
             {/* Welcome Banner */}
             <div className="welcome-bar-inner" style={{

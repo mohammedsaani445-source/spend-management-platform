@@ -5,7 +5,7 @@ import { formatCurrency } from '@/lib/currencies';
 
 // Simple Bar Chart Component
 export const SpendBarChart = memo(function SpendBarChart({ data, currency = 'USD' }: { data: { label: string, value: number, color?: string }[], currency?: string }) {
-    const maxValue = Math.max(...data.map(d => d.value));
+    const maxValue = data.length > 0 ? Math.max(...data.map(d => d.value), 0.01) : 1;
 
     return (
         <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', height: '200px', paddingTop: '1rem' }}>
@@ -41,7 +41,8 @@ export const BudgetDonutChart = memo(function BudgetDonutChart({ total, used }: 
     const stroke = 8;
     const normalizedRadius = radius - stroke * 2;
     const circumference = normalizedRadius * 2 * Math.PI;
-    const percent = Math.min((used / total) * 100, 100);
+    const safeTotal = total || 1;
+    const percent = Math.min((used / safeTotal) * 100, 100);
     const strokeDashoffset = circumference - (percent / 100) * circumference;
 
     // Determine color
@@ -49,7 +50,7 @@ export const BudgetDonutChart = memo(function BudgetDonutChart({ total, used }: 
     if (percent > 80) color = '#eab308'; // Warning
     if (percent > 100) color = 'var(--error)';
 
-    const percentage = Math.min((used / total) * 100, 100); // Recalculate percentage for the new SVG structure
+    const percentage = Math.min((used / safeTotal) * 100, 100);
 
     return (
         <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

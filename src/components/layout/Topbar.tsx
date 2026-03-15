@@ -28,8 +28,6 @@ const ROUTE_TITLES: Record<string, string> = {
     '/dashboard/compliance': 'Compliance',
     '/dashboard/notifications': 'Notifications',
     '/dashboard/integrations': 'Integrations',
-    '/dashboard/support': 'Support',
-    '/dashboard/settings': 'Settings',
 };
 
 interface TopbarProps {

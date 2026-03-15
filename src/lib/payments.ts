@@ -166,26 +166,62 @@ export const processBillPayment = async (
             paymentRunId: runId,
         });
 
-        // Mark corresponding invoice as PAID (for non-scheduled
+        // Mark corresponding invoice as PAID (for non-scheduled)
         if (!isScheduled) {
             const invRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices/${bill.invoiceId}`);
             await update(invRef, { status: 'PAID' });
+
+            // If linked to a PO, update PO status to FULFILLED/CLOSED
+            if (bill.poNumber) {
+                const posRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders`);
+                const poSnap = await get(posRef);
+                if (poSnap.exists()) {
+                    const pos = poSnap.val();
+                    const poId = Object.keys(pos).find(key => pos[key].poNumber === bill.poNumber);
+                    if (poId) {
+                        await update(ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders/${poId}`), {
+                            status: 'FULFILLED'
+                        });
+                    }
+                }
+            }
+
+            // 🛡️ Phase 58: Transition Committed to Spent
+            try {
+                const { transitionCommittedToSpent } = await import("./budgets");
+                await transitionCommittedToSpent(tenantId, bill.department, Number(bill.amount));
+            } catch (err) {
+                console.error("[Budget] Transition to spent failed:", err);
+            }
         }
     }
 
-    // Audit log
+    // Audit log (Phase 45 Forensic Logging)
     try {
         const { logAction } = await import("./audit");
         await logAction({
             tenantId,
             actorId: createdBy,
             actorName: createdByName,
-            action: 'UPDATE',
-            entityType: 'INVOICE',
-            entityId: billIds.join(','),
-            description: `Payment run ${refNum} for ${billIds.length} bill(s) totalling ${totalAmount} ${currency} via ${paymentMethod}`,
+            action: 'PAYMENT_PROCESSED',
+            entityType: 'PAYMENT',
+            entityId: runId,
+            description: `Payment Run ${refNum} processed for ${billIds.length} bills. Total amount: ${currency} ${totalAmount}. Status: ${newBillStatus}`
         });
-    } catch { /* non-blocking */ }
+
+        // 🔔 Notification Triggers (Phase 57)
+        const { notifyRole } = await import("./notifications");
+        await notifyRole(
+            tenantId,
+            'FINANCE_APPROVER',
+            isScheduled ? 'PAYMENT_SCHEDULED' : 'PAYMENT_PROCESSED',
+            isScheduled ? 'Payment Scheduled' : 'Payment Processed',
+            `A payment run of ${currency} ${totalAmount.toFixed(2)} (${billIds.length} bills) has been ${isScheduled ? 'scheduled for ' + paymentDate : 'processed'} by ${createdByName}.`,
+            `/dashboard/payments`
+        );
+    } catch (err) {
+        console.error("Failed to log payment audit/notify:", err);
+    }
 
     return runId;
 };
@@ -193,6 +229,25 @@ export const processBillPayment = async (
 /** Void a bill (if unpaid/scheduled). */
 export const voidBill = async (tenantId: string, billId: string): Promise<void> => {
     await update(getBillRef(tenantId, billId), { status: 'VOID' });
+
+    // 🔔 Notification Trigger
+    try {
+        const snap = await get(getBillRef(tenantId, billId));
+        if (snap.exists()) {
+            const bill = snap.val();
+            const { notifyRole } = await import("./notifications");
+            await notifyRole(
+                tenantId,
+                'FINANCE_APPROVER',
+                'BILL_VOIDED',
+                'Bill Voided',
+                `Bill for invoice ${bill.invoiceNumber} (${bill.vendorName}) has been voided.`,
+                `/dashboard/payments`
+            );
+        }
+    } catch (err) {
+        console.error("Failed to trigger void notification:", err);
+    }
 };
 
 /** Get all payment run history. */

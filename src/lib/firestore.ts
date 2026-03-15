@@ -15,7 +15,7 @@ export const createUserProfile = async (user: User) => {
             email: user.email || "",
             displayName: user.displayName || "User",
             photoURL: user.photoURL || "",
-            role: 'REQUESTER',
+            role: 'STANDARD_REQUESTER',
             userType: 'PRO',
             tenantId: 'default-tenant',
             department: 'General',

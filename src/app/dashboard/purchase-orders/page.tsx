@@ -16,10 +16,13 @@ const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
     SENT: { bg: 'var(--warning-bg)', color: 'var(--warning)' },
     OPENED: { bg: 'var(--brand-soft)', color: 'var(--brand)' },
     ACKNOWLEDGED: { bg: 'var(--info-bg)', color: 'var(--info)' },
+    SHIPPED: { bg: '#e0f2fe', color: '#0369a1' },
+    DELIVERED: { bg: '#dcfce7', color: '#15803d' },
     RECEIVED: { bg: 'var(--success-soft)', color: 'var(--success)' },
     FULFILLED: { bg: 'var(--success-soft)', color: 'var(--success)' },
     CANCELLED: { bg: 'var(--error-bg)', color: 'var(--error)' },
     CLOSED: { bg: 'var(--background)', color: 'var(--text-secondary)' },
+    DISCREPANCY_FLAGGED: { bg: '#fff7ed', color: '#f97316' },
 };
 
 export default function PurchaseOrdersPage() {
@@ -140,11 +143,11 @@ export default function PurchaseOrdersPage() {
                     />
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem', overflowX: 'auto', paddingBottom: '4px', maxWidth: '100%' }}>
-                    {['ALL', 'ISSUED', 'SENT', 'RECEIVED', 'CANCELLED'].map(s => (
+                    {['ALL', 'ISSUED', 'SENT', 'ACKNOWLEDGED', 'SHIPPED', 'RECEIVED', 'DISCREPANCY_FLAGGED', 'CANCELLED'].map(s => (
                         <button key={s} onClick={() => setStatusFilter(s)}
                             className={statusFilter === s ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}
                             style={{ flexShrink: 0 }}>
-                            {s === 'ALL' ? 'All' : s[0] + s.slice(1).toLowerCase()}
+                            {s === 'ALL' ? 'All' : s.replace('_', ' ').toLowerCase().split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' ')}
                         </button>
                     ))}
                 </div>
@@ -217,6 +220,7 @@ export default function PurchaseOrdersPage() {
             {selectedPO && (
                 <PODetailModal
                     po={selectedPO}
+                    user={user!}
                     onClose={() => setSelectedPO(null)}
                     onReceive={handleReceive}
                     onCancel={handleCancel}

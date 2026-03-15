@@ -1,14 +1,19 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { PurchaseOrder, CommunicationLog } from "@/types";
+import { PurchaseOrder, CommunicationLog, AppUser } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
 import EmailComposerModal from "./EmailComposerModal";
 import { getCommunicationHistory } from "@/lib/communications";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import { useModal } from "@/context/ModalContext";
+import { resolveDiscrepancy } from "@/lib/purchaseOrders";
+import { AlertTriangle, CheckCircle2, XCircle, Package } from "lucide-react";
+import ReceiveOrderModal from "./ReceiveOrderModal";
 
 interface PODetailModalProps {
     po: PurchaseOrder;
+    user: AppUser;
     onClose: () => void;
     onReceive: (id: string, poNumber: string) => void;
     onCancel?: (id: string, poNumber: string) => void;
@@ -17,15 +22,19 @@ interface PODetailModalProps {
 
 export default function PODetailModal({
     po,
+    user,
     onClose,
     onReceive,
     onCancel,
     onEmailVendor
 }: PODetailModalProps) {
     useScrollLock(true);
+    const { showConfirm, showAlert, showError } = useModal();
+    const [isResolving, setIsResolving] = useState(false);
     const [showEmailComposer, setShowEmailComposer] = useState(false);
     const [communicationHistory, setCommunicationHistory] = useState<CommunicationLog[]>([]);
     const [showHistory, setShowHistory] = useState(false);
+    const [showReceiveModal, setShowReceiveModal] = useState(false);
     const [liveDeliveryHistory, setLiveDeliveryHistory] = useState(po.deliveryHistory || []);
 
     // Load communication history
@@ -34,6 +43,29 @@ export default function PODetailModal({
             getCommunicationHistory(po.tenantId, po.id).then(setCommunicationHistory);
         }
     }, [po.id, po.tenantId]);
+
+    const isAuthorizedToResolve = ['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'PROCUREMENT_OFFICER'].includes(user.role);
+
+    const handleResolve = async (action: 'MATCH' | 'REJECT') => {
+        const confirmed = await showConfirm(
+            action === 'MATCH' ? "Force Match PO" : "Reject Discrepancy",
+            action === 'MATCH' 
+                ? "This will accept the variance and move the PO to Billed status. Proceed?" 
+                : "This will maintain the discrepancy status until record adjustment. Proceed?"
+        );
+        if (!confirmed) return;
+
+        setIsResolving(true);
+        try {
+            await resolveDiscrepancy(user.tenantId, po.id!, action, "Manual resolution from detail view", user);
+            await showAlert("Success", `PO discrepancy ${action === 'MATCH' ? 'resolved' : 'noted'}.`);
+            onClose();
+        } catch (error) {
+            await showError("Resolution Failed", "Could not update status.");
+        } finally {
+            setIsResolving(false);
+        }
+    };
 
     return (
         <div className="modal-backdrop">
@@ -232,6 +264,50 @@ export default function PODetailModal({
                         maxHeight: '100%'
                     }} className="no-print">
 
+                        {/* 3-Way Match Resolution Logic Gate */}
+                        {po.status === 'DISCREPANCY_FLAGGED' && (
+                            <div className="card" style={{ 
+                                backgroundColor: '#fff7ed', 
+                                border: '2px solid #f97316',
+                                padding: '1.25rem'
+                            }}>
+                                <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                                    <AlertTriangle color="#f97316" size={24} style={{ flexShrink: 0 }} />
+                                    <div>
+                                        <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#9a3412', margin: '0 0 0.25rem 0' }}>3-Way Match Discrepancy</h3>
+                                        <p style={{ fontSize: '0.75rem', color: '#c2410c', margin: 0, lineHeight: 1.4 }}>
+                                            {po.discrepancyNote || "Record variance detected between PO, Receipt, and Invoice."}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {isAuthorizedToResolve ? (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                        <button 
+                                            className="btn btn-primary" 
+                                            style={{ width: '100%', backgroundColor: '#f97316', borderColor: '#ea580c' }}
+                                            onClick={() => handleResolve('MATCH')}
+                                            disabled={isResolving}
+                                        >
+                                            <CheckCircle2 size={16} /> Force Match (Resolve)
+                                        </button>
+                                        <button 
+                                            className="btn btn-outline" 
+                                            style={{ width: '100%', borderColor: '#f97316', color: '#f97316' }}
+                                            onClick={() => handleResolve('REJECT')}
+                                            disabled={isResolving}
+                                        >
+                                            <XCircle size={16} /> Request Correction
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div style={{ fontSize: '0.7rem', color: '#9a3412', fontStyle: 'italic', textAlign: 'center' }}>
+                                        Awaiting review by Finance or Procurement officer.
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className="card" style={{ backgroundColor: 'var(--surface-raised)' }}>
                             <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1rem' }}>Actions</h3>
 
@@ -278,14 +354,19 @@ export default function PODetailModal({
                                         )}
                                         <div style={{
                                             width: '20px', height: '20px', borderRadius: '50%',
-                                            backgroundColor: log.action === 'SENT' ? 'var(--accent)' : 'var(--success)',
+                                            backgroundColor: log.action === 'SENT' ? 'var(--accent)' : 
+                                                            log.action === 'SHIPPED' ? '#0369a1' : 'var(--success)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.7rem', zIndex: 1
                                         }}>
-                                            {log.action === 'SENT' ? '✉️' : log.action === 'OPENED' ? '👀' : '✅'}
+                                            {log.action === 'SENT' ? '✉️' : 
+                                             log.action === 'OPENED' ? '👀' : 
+                                             log.action === 'SHIPPED' ? '🚚' : '✅'}
                                         </div>
                                         <div>
                                             <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>
-                                                {log.action === 'SENT' ? 'Link Emailed' : log.action === 'OPENED' ? 'Opened by Vendor' : 'Acknowledged by Vendor'}
+                                                {log.action === 'SENT' ? 'Link Emailed' : 
+                                                 log.action === 'OPENED' ? 'Opened by Vendor' : 
+                                                 log.action === 'SHIPPED' ? 'Order Shipped' : 'Acknowledged by Vendor'}
                                             </div>
                                             <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>
                                                 {new Date(log.timestamp).toLocaleString()} {log.performedBy === 'VENDOR' ? '(Ref: Vendor Port)' : ''}
@@ -301,6 +382,26 @@ export default function PODetailModal({
                                 )}
                             </div>
 
+                            {po.shippingDetails && (
+                                <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border)' }}>
+                                    <h4 style={{ fontSize: '0.8rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-primary)' }}>📦 Shipping Information</h4>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Carrier</div>
+                                            <div>{po.shippingDetails.carrier}</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Tracking #</div>
+                                            <div style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--brand)' }}>{po.shippingDetails.trackingNumber}</div>
+                                        </div>
+                                        <div>
+                                            <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Est. Delivery</div>
+                                            <div>{po.shippingDetails.estimatedDelivery ? new Date(po.shippingDetails.estimatedDelivery).toLocaleDateString() : 'TBD'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
                             {po.firstViewedAt && (
                                 <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--border)', fontSize: '0.75rem' }}>
                                     <strong>Total Views:</strong> {liveDeliveryHistory.filter(h => h.action === 'OPENED').length || 0}
@@ -308,18 +409,18 @@ export default function PODetailModal({
                             )}
                         </div>
 
-                        {po.status === 'ISSUED' && (
+                        {(po.status === 'ISSUED' || po.status === 'SHIPPED') && (
                             <div className="card" style={{ border: '2px solid var(--accent)', backgroundColor: 'var(--surface-raised)' }}>
                                 <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.5rem' }}>Goods Receipt</h3>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-                                    Confirm that the items have been delivered to the warehouse.
+                                    Confirm that the items have been delivered and verify quality.
                                 </p>
                                 <button
                                     className="btn btn-accent"
-                                    style={{ width: '100%' }}
-                                    onClick={() => onReceive(po.id!, po.poNumber)}
+                                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                    onClick={() => setShowReceiveModal(true)}
                                 >
-                                    ✅ Mark as Received
+                                    <Package size={18} /> Record Goods Receipt
                                 </button>
                             </div>
                         )}
@@ -433,6 +534,19 @@ export default function PODetailModal({
                             // Also open the history to show the new communication
                             setShowHistory(true);
                         }
+                    }}
+                />
+            )}
+            {/* Receive Goods Modal */}
+            {showReceiveModal && (
+                <ReceiveOrderModal
+                    po={po}
+                    user={user}
+                    onClose={() => setShowReceiveModal(false)}
+                    onSuccess={(receiptId) => {
+                        setShowReceiveModal(false);
+                        if (onReceive) onReceive(po.id!, po.poNumber);
+                        onClose();
                     }}
                 />
             )}

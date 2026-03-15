@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebase-admin";
+import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
 import { Resend } from "resend";
 
 const DB_PREFIX = "v2_production";
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         }
 
         const requesterRole = requesterSnap.val().role;
-        if (requesterRole !== 'ADMIN' && requesterRole !== 'SUPERUSER') {
+        if (!['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER'].includes(requesterRole)) {
             return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
         }
 

@@ -1,6 +1,7 @@
 import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, orderByChild, equalTo, onValue } from "firebase/database";
-import { Invoice, InvoiceStatus, AppUser } from "@/types";
+import { Invoice, InvoiceStatus, AppUser, PurchaseOrder } from "@/types";
+import { performThreeWayMatch } from "./matching";
 
 const getInvoicesRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices`);
 const getInvoiceRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices/${id}`);
@@ -26,7 +27,32 @@ export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id
             autoExtracted: invoice.autoExtracted || false
         });
 
-        return newInvRef.key;
+        const newId = newInvRef.key;
+
+        // 🔔 Notification Trigger (Phase 57)
+        try {
+            const { notifyRole } = await import("./notifications");
+            await notifyRole(
+                tenantId,
+                'FINANCE_MANAGER',
+                'INVOICE_SUBMITTED',
+                'New Invoice Uploaded',
+                `A new invoice (${invoice.invoiceNumber}) for ${invoice.vendorName} has been uploaded and is pending review.`,
+                `/dashboard/invoices`
+            );
+        } catch (err) {
+            console.error("Notify error:", err);
+        }
+
+        // Phase 44: Automate 3-way match trigger
+        if (invoice.poId) {
+            // Trigger matching logic in background
+            performThreeWayMatch(tenantId, invoice.poId).catch(err => 
+                console.error(`[Invoices] Automated Match Failed for PO ${invoice.poId}:`, err)
+            );
+        }
+
+        return newId;
     } catch (error) {
         console.error("Error creating invoice: ", error);
         throw error;
@@ -43,7 +69,7 @@ export const subscribeToInvoices = (user: AppUser, callback: (invoices: Invoice[
     const invRef = getInvoicesRef(tenantId);
 
     // Admins and Finance see all 
-    if (user.role === 'ADMIN' || user.role === 'FINANCE') {
+    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'ACCOUNTS_PAYABLE'].includes(user.role)) {
         const unsubscribe = onValue(invRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
@@ -100,6 +126,65 @@ export const updateInvoiceStatus = async (tenantId: string, invId: string, statu
         await update(invRef, { status });
     } catch (error: any) {
         console.error(`[Invoices] Error updating invoice ${invId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * Specifically for vendors submitting invoices via the portal.
+ */
+export const createVendorInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id' | 'createdAt'>, po: PurchaseOrder) => {
+    try {
+        const invId = await createInvoice(tenantId, {
+            ...invoice,
+            status: 'SUBMITTED',
+            poId: po.id,
+            poNumber: po.poNumber
+        });
+
+        // Audit Log
+        const { logAction } = await import("./audit");
+        await logAction({
+            tenantId,
+            actorId: po.vendorId,
+            actorName: invoice.vendorName,
+            action: 'CREATE',
+            entityType: 'INVOICE',
+            entityId: invId!,
+            description: `Invoice ${invoice.invoiceNumber} submitted by vendor for PO ${po.poNumber}.`
+        });
+
+        // Trigger matches
+        await performThreeWayMatch(tenantId, po.id as string);
+
+        // Notify Finance (Phase 57: Upgraded)
+        try {
+            const { notifyUser, notifyRole } = await import("./notifications");
+            // Notify PO Issuer
+            await notifyUser(
+                tenantId,
+                po.issuedBy,
+                'INVOICE_SUBMITTED',
+                'Vendor Invoice Submitted',
+                `${invoice.vendorName} has submitted invoice ${invoice.invoiceNumber} for your PO ${po.poNumber}.`,
+                '/dashboard/invoices'
+            );
+            // Notify Finance Team
+            await notifyRole(
+                tenantId,
+                'ACCOUNTS_PAYABLE',
+                'INVOICE_SUBMITTED',
+                'New Vendor Invoice',
+                `Vendor ${invoice.vendorName} submitted invoice ${invoice.invoiceNumber} for tracking.`,
+                '/dashboard/invoices'
+            );
+        } catch (err) {
+            console.error("Notify error:", err);
+        }
+
+        return invId;
+    } catch (error) {
+        console.error("[Invoices] Error creating vendor invoice:", error);
         throw error;
     }
 };

@@ -1,6 +1,7 @@
 import { db, DB_PREFIX } from "./firebase";
 import { ref, get, update } from "firebase/database";
-import { PurchaseOrder, ItemReceipt, Invoice, POStatus } from "@/types";
+import { PurchaseOrder, ItemReceipt, Invoice, POStatus, AppUser } from "@/types";
+import { logAction } from "./audit";
 
 /**
  * Performs a 3-way match:
@@ -8,12 +9,12 @@ import { PurchaseOrder, ItemReceipt, Invoice, POStatus } from "@/types";
  * 2. Receipt: What was delivered?
  * 3. Invoice: What was billed?
  */
-export const performThreeWayMatch = async (tenantId: string, poId: string) => {
+export const performThreeWayMatch = async (tenantId: string, poId: string, actor?: AppUser) => {
     try {
         const poRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders/${poId}`);
         const poSnap = await get(poRef);
-
-        if (!poSnap.exists()) return;
+        
+        if (!poSnap.exists()) throw new Error("PO not found");
         const po = poSnap.val() as PurchaseOrder;
 
         // 1. Fetch Receipts
@@ -28,57 +29,115 @@ export const performThreeWayMatch = async (tenantId: string, poId: string) => {
         const allInvoices = invoicesSnap.exists() ? Object.values(invoicesSnap.val()) as Invoice[] : [];
         const poInvoices = allInvoices.filter(i => i.poId === poId);
 
-        // 3. Automated Check
+        // 3. Automated Check (Line-Item Precision)
         let isMatched = true;
         let discrepancyNote = "";
 
-        // Aggregated Totals
-        const totalOrdered = po.items.reduce((sum, i) => sum + i.quantity, 0);
-        const totalReceived = poReceipts.reduce((sum, r) =>
-            sum + (r.lines ? r.lines.reduce((isum, l) => isum + l.receivedQty, 0) : (r.items ? r.items.reduce((isum, ii) => isum + ii.quantityReceived, 0) : 0)), 0);
-        const totalBilled = poInvoices.reduce((sum, i) => sum + i.amount, 0);
+        // Aggregated Item Stats for Comparison
+        const poItems = po.items;
+        const itemMatches: Record<number, { ordered: number, received: number, invoiced: number, orderedPrice: number, invoicedPrice: number }> = {};
 
-        // Rule A: Quantity Match (PO vs Receipt)
-        if (totalReceived < totalOrdered) {
-            isMatched = false;
-            discrepancyNote += `Short delivery: Ordered ${totalOrdered}, Received ${totalReceived}. `;
-        }
+        poItems.forEach((item, index) => {
+            itemMatches[index] = {
+                ordered: item.quantity,
+                received: 0,
+                invoiced: 0,
+                orderedPrice: item.unitPrice,
+                invoicedPrice: item.unitPrice // default to ordered price
+            };
+        });
 
-        // Rule B: Price Match (PO vs Invoice)
-        // Note: Simple total sum check for now, in a pro system we'd check line items
-        if (totalBilled > po.totalAmount) {
-            isMatched = false;
-            discrepancyNote += `Overbilling: PO amount ${po.totalAmount}, Invoiced ${totalBilled}. `;
-        }
+        // Sum up Receipts per line item
+        poReceipts.forEach(receipt => {
+            if (receipt.lines) {
+                receipt.lines.forEach(line => {
+                    if (itemMatches[line.itemIndex]) {
+                        itemMatches[line.itemIndex].received += line.receivedQty;
+                    }
+                });
+            }
+        });
 
-        // 4. Update PO Status
-        let poStatus: POStatus = isMatched ? 'FULFILLED' : 'DISCREPANCY_FLAGGED';
+        // Sum up Invoices per line item & check price variance
+        poInvoices.forEach(invoice => {
+            if (invoice.lines) {
+                invoice.lines.forEach(line => {
+                    if (itemMatches[line.itemIndex]) {
+                        itemMatches[line.itemIndex].invoiced += line.receivedQty; // Quantity Billed
+                        // Track price variance (highest billed price for this line)
+                        if (line.unitPrice > itemMatches[line.itemIndex].invoicedPrice) {
+                            itemMatches[line.itemIndex].invoicedPrice = line.unitPrice;
+                        }
+                    }
+                });
+            } else {
+                // Fallback for invoices without lines (total level check)
+                const currentInvoiceTotal = invoice.amount;
+                if (currentInvoiceTotal > po.totalAmount * 1.05) {
+                    isMatched = false;
+                    discrepancyNote += `Invoice ${invoice.invoiceNumber}: Total (${currentInvoiceTotal}) exceeds PO total (${po.totalAmount}) by >5%. `;
+                }
+            }
+        });
 
-        // If it was already RECEIVED and we have a discrepancy, flag it immediately
+        // 4. Line-by-Line Validation (The "Golden Triangle")
+        Object.entries(itemMatches).forEach(([idx, stats]) => {
+            const index = parseInt(idx);
+            
+            // Quantity Check: Billed vs Received
+            if (stats.invoiced > stats.received) {
+                isMatched = false;
+                discrepancyNote += `Item ${index}: Billed qty (${stats.invoiced}) exceeds Received qty (${stats.received}). `;
+            }
+
+            // Quantity Check: Billed vs Ordered
+            if (stats.invoiced > stats.ordered) {
+                isMatched = false;
+                discrepancyNote += `Item ${index}: Billed qty (${stats.invoiced}) exceeds PO Ordered qty (${stats.ordered}). `;
+            }
+
+            // Price Check: Unit Price Variance
+            if (stats.invoicedPrice > stats.orderedPrice) {
+                isMatched = false;
+                discrepancyNote += `Item ${index}: Unit Price Variance! Billed ${stats.invoicedPrice} vs PO ${stats.orderedPrice}. `;
+            }
+        });
+
+        // 5. Update PO State
+        let finalStatus: POStatus = po.status;
+        
         if (!isMatched) {
-            poStatus = 'DISCREPANCY_FLAGGED';
+            finalStatus = 'DISCREPANCY_FLAGGED';
+        } else if (poInvoices.length > 0) {
+            // Check if fully billed
+            const fullyBilled = Object.values(itemMatches).every(s => s.invoiced >= s.ordered);
+            finalStatus = fullyBilled ? 'BILLED' : 'RECEIVED';
         }
 
         await update(poRef, {
             isMatched,
-            discrepancyNote: isMatched ? "All records reconciled matching PO, Receipt and Invoice." : discrepancyNote,
-            status: poStatus
+            matchDiscrepancyNote: discrepancyNote || null,
+            status: finalStatus,
+            lastBatchMatchDate: new Date().toISOString()
         });
 
-        // 5. Audit Log for Matching
-        const { logAction } = await import("./audit");
+        // 6. Forensic Audit Log (Phase 45 Compliance)
         await logAction({
             tenantId,
-            actorId: 'SYSTEM_BOT',
-            actorName: 'Three-Way Match Engine',
-            action: 'UPDATE',
-            entityType: 'PO',
+            actorId: actor?.uid || 'SYSTEM_BOT',
+            actorEmail: actor?.email || 'system@apexprocure.ai',
+            actorName: actor?.displayName || 'Match Engine',
+            action: isMatched ? 'MATCH_VERIFIED' : 'MATCH_DISCREPANCY',
+            entityType: 'PURCHASE_ORDER',
             entityId: poId,
-            description: isMatched ? "3-Way Match Verified successfully." : `3-Way Match Flagged: ${discrepancyNote}`
+            description: isMatched 
+                ? `3-way match verified for PO ${po.poNumber}. Status: ${finalStatus}` 
+                : `3-way match discrepancy flagged for PO ${po.poNumber}: ${discrepancyNote}`
         });
 
         return { isMatched, discrepancyNote };
     } catch (error) {
-        console.error("Error in 3-way matching:", error);
+        console.error("Match Error:", error);
+        throw error;
     }
 };

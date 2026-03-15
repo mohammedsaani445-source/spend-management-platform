@@ -37,6 +37,21 @@ export const createContract = async (contract: Omit<Contract, 'id' | 'createdAt'
             description: `Created ${contract.type} contract for ${contract.vendorName}`
         });
 
+        // 🔔 Notification Trigger (Phase 57)
+        try {
+            const { notifyRole } = await import("./notifications");
+            await notifyRole(
+                user.tenantId,
+                'PLATFORM_SUPERUSER', // Or PROCUREMENT_MANAGER if role exists
+                'SYSTEM',
+                'New Contract Created',
+                `A new ${contract.type} contract has been created for ${contract.vendorName}.`,
+                `/dashboard/contracts`
+            );
+        } catch (err) {
+            console.error("Notify error:", err);
+        }
+
         return newContractRef.key;
     } catch (error) {
         console.error("Error creating contract:", error);

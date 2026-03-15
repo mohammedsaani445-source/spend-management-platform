@@ -1,35 +1,36 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import { Search, Filter, Package, Truck, CheckCircle, AlertCircle, Calendar, ArrowRight, ClipboardCheck, Zap } from "lucide-react";
+import { 
+    Search, Filter, Package, Truck, CheckCircle, 
+    AlertCircle, Calendar, ClipboardCheck, 
+    Zap, Shield, Info, Layers, Activity
+} from "lucide-react";
 import Loader from "@/components/common/Loader";
-import { PurchaseOrder, ItemReceipt, GoodsReceiptLine, AppUser } from "@/types";
+import { PurchaseOrder, ItemReceipt, GoodsReceiptLine, AppUser, Invoice } from "@/types";
 import { getPurchaseOrders } from "@/lib/purchaseOrders";
 import { getReceipts, createReceipt, updateReceiptQuality, unreceiveItems } from "@/lib/receipts";
 import { ReceiptCaptureModal } from "@/components/receipts/ReceiptCaptureModal";
+import { MatchingConsole } from "@/components/admin/MatchingConsole";
+import { PromoteToRegistryModal } from "@/components/inventory/PromoteToRegistryModal";
 import { formatCurrency } from "@/lib/currencies";
 import { useAuth } from "@/context/AuthContext";
 import { useModal } from "@/context/ModalContext";
+import { ref, get } from "firebase/database";
+import { db, DB_PREFIX } from "@/lib/firebase";
 
 // ─── Status colours ───────────────────────────────────────────────────────────
-const MATCH_STYLES: Record<string, { bg: string; color: string; label: string }> = {
-    MATCHED: { bg: "#E9FBF0", color: "#00AB55", label: "3-Way Matched ✓" },
-    PARTIAL: { bg: "#FFF7CD", color: "#B76E00", label: "Partial Match" },
-    UNMATCHED: { bg: "#FFE7D9", color: "#B72136", label: "Not Matched" },
-    PENDING: { bg: "#F4F6F8", color: "#637381", label: "Awaiting Receipt" },
-};
-
-const QUALITY_STYLES: Record<string, { bg: string; color: string }> = {
-    PASSED: { bg: "#E9FBF0", color: "#00AB55" },
-    FAILED: { bg: "#FFE7D9", color: "#B72136" },
-    PARTIAL: { bg: "#FFF7CD", color: "#B76E00" },
-    PENDING: { bg: "#F4F6F8", color: "#637381" },
+const MATCH_STYLES: Record<string, { bg: string; color: string; label: string; icon: any }> = {
+    MATCHED: { bg: "rgba(0, 171, 85, 0.1)", color: "#00AB55", label: "MATCHED", icon: Shield },
+    PARTIAL: { bg: "rgba(255, 171, 0, 0.1)", color: "#FFAB00", label: "PARTIAL", icon: AlertCircle },
+    UNMATCHED: { bg: "rgba(255, 72, 66, 0.1)", color: "#FF4842", label: "VARIANCE", icon: AlertCircle },
+    PENDING: { bg: "rgba(145, 158, 171, 0.1)", color: "#919EAB", label: "AWAITING", icon: Info },
 };
 
 function getMatchStatus(po: PurchaseOrder): string {
     if (!po.receiptIds || po.receiptIds.length === 0) return "PENDING";
     if (po.isMatched) return "MATCHED";
-    return "PARTIAL";
+    return po.status === 'DISCREPANCY_FLAGGED' ? "UNMATCHED" : "PARTIAL";
 }
 
 export default function ReceivingPage() {
@@ -38,6 +39,7 @@ export default function ReceivingPage() {
 
     const [pos, setPos] = useState<PurchaseOrder[]>([]);
     const [receipts, setReceipts] = useState<ItemReceipt[]>([]);
+    const [invoices, setInvoices] = useState<Invoice[]>([]);
     const [loading, setLoading] = useState(true);
     const [tab, setTab] = useState<"pending" | "history">("pending");
     const [search, setSearch] = useState("");
@@ -45,12 +47,17 @@ export default function ReceivingPage() {
     // ── Receive Modal state ──────────────────────────────────────────────────
     const [selectedPO, setSelectedPO] = useState<PurchaseOrder | null>(null);
     const [showModal, setShowModal] = useState(false);
+    const [showMatchConsole, setShowMatchConsole] = useState(false);
     const [isAutoReceive, setIsAutoReceive] = useState(false);
     const [receiptLines, setReceiptLines] = useState<GoodsReceiptLine[]>([]);
     const [packingSlipName, setPackingSlipName] = useState("");
     const [notes, setNotes] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [isScanOpen, setIsScanOpen] = useState(false);
+    
+    // ── Promotion state ──────────────────────────────────────────────────────
+    const [receiptToPromote, setReceiptToPromote] = useState<ItemReceipt | null>(null);
+    const [lineIndexToPromote, setLineIndexToPromote] = useState<number | null>(null);
 
     const fetchData = useCallback(async () => {
         if (!user) return;
@@ -59,7 +66,13 @@ export default function ReceivingPage() {
             getPurchaseOrders(user),
             getReceipts(user),
         ]);
-        // Only show POs eligible for receiving
+
+        // Fetch Invoices for Match Console
+        const invRef = ref(db, `${DB_PREFIX}/tenants/${user.tenantId}/invoices`);
+        const invSnap = await get(invRef);
+        const invData = invSnap.exists() ? Object.values(invSnap.val()) as Invoice[] : [];
+        
+        setInvoices(invData);
         setPos(poData.filter(po => !["CANCELLED", "CLOSED"].includes(po.status)));
         setReceipts(receiptData);
         setLoading(false);
@@ -67,46 +80,39 @@ export default function ReceivingPage() {
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
-    // ── Stats ────────────────────────────────────────────────────────────────
     const stats = useMemo(() => {
         const today = new Date().toDateString();
         const receivedToday = receipts.filter(r => new Date(r.createdAt).toDateString() === today).length;
         const pending = pos.filter(po => !po.receiptIds || po.receiptIds.length === 0).length;
-        const partial = pos.filter(po => po.status === "RECEIVED" && !po.isMatched).length;
         const matched = pos.filter(po => po.isMatched).length;
         const matchRate = pos.length > 0 ? Math.round((matched / pos.length) * 100) : 0;
-        return { receivedToday, pending, partial, matchRate };
+        return { receivedToday, pending, matchRate };
     }, [pos, receipts]);
 
-    // ── Filter POs ───────────────────────────────────────────────────────────
     const filteredPOs = useMemo(() => {
         const q = search.toLowerCase();
         return pos.filter(po =>
             po.poNumber.toLowerCase().includes(q) ||
-            po.vendorName.toLowerCase().includes(q) ||
-            po.department.toLowerCase().includes(q)
+            po.vendorName.toLowerCase().includes(q)
         );
     }, [pos, search]);
 
-    // ── Open Receive Modal ───────────────────────────────────────────────────
     const openReceiveModal = (po: PurchaseOrder) => {
         setSelectedPO(po);
         setIsAutoReceive(false);
         setPackingSlipName("");
         setNotes("");
-        // Pre-populate lines from PO items
         setReceiptLines(po.items.map((item, i) => ({
             itemIndex: i,
             description: item.description,
             orderedQty: item.quantity,
-            receivedQty: item.quantity,        // default to full quantity
+            receivedQty: item.quantity,
             unitPrice: item.unitPrice,
             qualityStatus: "PASSED" as const,
         })));
         setShowModal(true);
     };
 
-    // ── Submit receipt ───────────────────────────────────────────────────────
     const handleSubmitReceipt = async () => {
         if (!user || !selectedPO) return;
         const anyReceived = receiptLines.some(l => l.receivedQty > 0);
@@ -132,9 +138,10 @@ export default function ReceivingPage() {
                 overallQualityStatus: "PASSED",
                 packingSlipName,
                 notes,
-            });
+            }, user);
             setShowModal(false);
             await fetchData();
+            showAlert("Success", "Goods receipt recorded and 3-way match triggered.");
         } catch (e: any) {
             await showError("Error", e.message || "Failed to record receipt.");
         } finally {
@@ -144,395 +151,296 @@ export default function ReceivingPage() {
 
     const handleScanSuccess = (data: any) => {
         setIsScanOpen(false);
-        // Automagically fill the receipt lines from OCR data
         if (data.items && data.items.length > 0) {
             const updatedLines = receiptLines.map(line => {
                 const match = data.items.find((item: any) =>
                     item.description.toLowerCase().includes(line.description.toLowerCase()) ||
                     line.description.toLowerCase().includes(item.description.toLowerCase())
                 );
-                if (match) {
-                    return { ...line, receivedQty: match.quantity };
-                }
+                if (match) return { ...line, receivedQty: match.quantity };
                 return line;
             });
             setReceiptLines(updatedLines);
         }
         if (data.invoiceNumber) setPackingSlipName(data.invoiceNumber);
-        showAlert("AI Scan Complete", "Inferred quantities and packing slip details from the image.");
     };
 
-    // ── Unreceive ────────────────────────────────────────────────────────────
-    const handleUnreceive = async (receipt: ItemReceipt) => {
-        const confirmed = await showConfirm("Confirm Unreceive",
-            `Are you sure you want to un-receive this shipment from ${receipt.poVendorName || "vendor"}? This will revert the PO status.`);
-        if (!confirmed) return;
-        try {
-            await unreceiveItems(user!.tenantId, receipt.id);
-            await fetchData();
-        } catch (e: any) {
-            await showError("Error", e.message || "Unreceive failed.");
-        }
-    };
-
-    // ── QC Pass / Fail ───────────────────────────────────────────────────────
-    const handleQC = async (receipt: ItemReceipt, status: "PASSED" | "FAILED") => {
-        const confirmed = await showConfirm(
-            `Mark as ${status}`,
-            `Mark all items in this receipt as ${status}?`
-        );
-        if (!confirmed) return;
-        try {
-            await updateReceiptQuality(user!.tenantId, receipt.id, status);
-            await fetchData();
-        } catch (e: any) {
-            await showError("Error", e.message || "Failed to update quality status.");
-        }
-    };
-
-    if (loading) return (
-        <div className="page-container">
-            <Loader text="Loading shipments..." />
-        </div>
-    );
+    if (loading) return <div className="page-container"><Loader text="Initializing Receiving Logic..." /></div>;
 
     return (
-        <div className="page-container">
-            {/* ── Header ─────────────────────────────────────────────────── */}
-            <div className="page-header">
+        <div className="page-container" style={{ 
+            background: 'var(--surface-2)',
+            minHeight: '100vh',
+            padding: '2rem'
+        }}>
+            {/* Header Area */}
+            <div style={{ marginBottom: '2.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                 <div>
-                    <h1 className="page-title">Receiving</h1>
-                    <p className="page-subtitle">Record goods receipts, verify quality, and close purchase orders</p>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>Receiving Console</h1>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>Audit-grade goods verification and 3-way matching.</p>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ padding: '8px 16px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: 'var(--shadow-sm)' }}>
+                        <Activity size={16} color="#00AB55" />
+                        <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#00AB55' }}>MATCH ENGINE: ACTIVE</span>
+                    </div>
                 </div>
             </div>
 
-            {/* ── Stats Strip ────────────────────────────────────────────── */}
-            <div className="kpi-grid" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
+            {/* Premium KPI Strip */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
                 {[
-                    { label: "Received Today", value: stats.receivedToday, color: "#5C6AC4", bg: "#E8EAF6", icon: "📦" },
-                    { label: "Awaiting Receipt", value: stats.pending, color: "#B76E00", bg: "#FFF7CD", icon: "⏳" },
-                    { label: "Partially Received", value: stats.partial, color: "#006098", bg: "#CAFDF5", icon: "📋" },
-                    { label: "3-Way Match Rate", value: `${stats.matchRate}%`, color: "#00AB55", bg: "#E9FBF0", icon: "✅" },
-                ].map(s => (
-                    <div key={s.label} style={{ background: "white", border: "1px solid #DFE3E8", borderRadius: 12, padding: "1.25rem" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.75rem" }}>
-                            <span style={{ fontSize: "0.75rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#637381" }}>{s.label}</span>
-                            <div style={{ width: 32, height: 32, background: s.bg, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>{s.icon}</div>
+                    { label: "Scan Velocity", value: stats.receivedToday, sub: "Items today", icon: Zap, color: "#5C6AC4" },
+                    { label: "Pipeline Depth", value: stats.pending, sub: "Open POs", icon: Layers, color: "#FFAB00" },
+                    { label: "Audit Health", value: `${stats.matchRate}%`, sub: "Match Rate", icon: Shield, color: "#00AB55" },
+                ].map((s, i) => (
+                    <div key={i} style={{ 
+                        background: 'var(--surface)', 
+                        border: '1px solid var(--border)', 
+                        borderRadius: '20px', 
+                        padding: '1.5rem',
+                        position: 'relative',
+                        overflow: 'hidden',
+                        boxShadow: 'var(--shadow-xl)'
+                    }}>
+                        <div style={{ position: 'absolute', top: '-10px', right: '-10px', opacity: 0.1 }}>
+                            <s.icon size={80} color={s.color} />
                         </div>
-                        <div style={{ fontSize: "1.6rem", fontWeight: 800, color: s.color }}>{s.value}</div>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>{s.label}</div>
+                        <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--text-primary)' }}>{s.value}</div>
+                        <div style={{ fontSize: '0.75rem', color: s.color, fontWeight: 700 }}>{s.sub}</div>
                     </div>
                 ))}
             </div>
 
-            {/* ── Tab Bar ────────────────────────────────────────────────── */}
-            <div style={{ display: "flex", gap: "0.25rem", background: "#F4F6F8", padding: "0.25rem", borderRadius: 10, width: "fit-content", marginBottom: "1rem", overflowX: 'auto', maxWidth: '100%' }}>
-                {(["pending", "history"] as const).map(t => (
-                    <button key={t} onClick={() => setTab(t)} style={{
-                        padding: "0.5rem 1.25rem", borderRadius: 8, border: "none", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", transition: "all 0.15s",
-                        background: tab === t ? "white" : "transparent",
-                        color: tab === t ? "#5C6AC4" : "#637381",
-                        boxShadow: tab === t ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
-                    }}>
-                        {t === "pending" ? "Open POs" : "Receipt History"}
+            {/* Modern Tab Control */}
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', padding: '4px', background: 'var(--surface-2)', borderRadius: '12px', width: 'fit-content', border: '1px solid var(--border)' }}>
+                {['pending', 'history'].map((t) => (
+                    <button 
+                        key={t}
+                        onClick={() => setTab(t as any)}
+                        style={{
+                            padding: '8px 20px',
+                            borderRadius: '10px',
+                            border: 'none',
+                            background: tab === t ? 'var(--brand)' : 'transparent',
+                            color: tab === t ? 'white' : 'var(--text-secondary)',
+                            fontWeight: 800,
+                            fontSize: '0.8125rem',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        {t === 'pending' ? 'Open Shipments' : 'Audit History'}
                     </button>
                 ))}
             </div>
 
-            {/* ── Search ─────────────────────────────────────────────────── */}
-            {tab === "pending" && (
-                <div style={{ position: "relative", maxWidth: 380, marginBottom: "1rem" }}>
-                    <span style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "#919EAB" }}>🔍</span>
-                    <input type="text" placeholder="Search PO#, vendor, department..."
-                        value={search} onChange={e => setSearch(e.target.value)}
-                        className="form-input" style={{ paddingLeft: "2.25rem" }} />
+            {/* List View */}
+            <div style={{ 
+                background: 'var(--surface)', 
+                border: '1px solid var(--border)', 
+                borderRadius: '24px',
+                overflow: 'hidden',
+                boxShadow: 'var(--shadow-xl)'
+            }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                        <tr style={{ background: 'var(--surface-2)' }}>
+                            <th style={{ textAlign: 'left', padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase' }}>Purchase Order</th>
+                            <th style={{ textAlign: 'left', padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase' }}>Vendor</th>
+                            <th style={{ textAlign: 'left', padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase' }}>Amount</th>
+                            <th style={{ textAlign: 'left', padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase' }}>Status</th>
+                            <th style={{ textAlign: 'left', padding: '1rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase' }}>3-Way Match</th>
+                            <th style={{ textAlign: 'right', padding: '1rem 1.5rem' }}></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {(tab === 'pending' ? filteredPOs : receipts).map((item: any, i) => {
+                            const po = tab === 'pending' ? item : pos.find(p => p.id === item.poId);
+                            if (!po) return null;
+                            const matchKey = getMatchStatus(po);
+                            const match = MATCH_STYLES[matchKey];
+                            
+                            return (
+                                <tr key={i} style={{ borderTop: '1px solid var(--border)', transition: 'background 0.2s' }} className="hover:bg-slate-50">
+                                    <td style={{ padding: '1rem 1.5rem' }}>
+                                        <div style={{ fontWeight: 800, color: 'var(--text-primary)', fontSize: '0.875rem' }}>{po.poNumber}</div>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{new Date(po.issuedAt).toLocaleDateString()}</div>
+                                    </td>
+                                    <td style={{ padding: '1rem 1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{po.vendorName}</td>
+                                    <td style={{ padding: '1rem 1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>{formatCurrency(po.totalAmount, po.currency || 'USD')}</td>
+                                    <td style={{ padding: '1rem 1.5rem' }}>
+                                        <span style={{ 
+                                            padding: '4px 12px', 
+                                            borderRadius: '6px', 
+                                            fontSize: '0.7rem', 
+                                            fontWeight: 800, 
+                                            background: po.status === 'RECEIVED' ? 'rgba(0, 171, 85, 0.1)' : 'rgba(255, 171, 0, 0.1)',
+                                            color: po.status === 'RECEIVED' ? '#00AB55' : '#FFAB00'
+                                        }}>
+                                            {po.status}
+                                        </span>
+                                    </td>
+                                    <td style={{ padding: '1rem 1.5rem' }}>
+                                        <div 
+                                            onClick={() => { setSelectedPO(po); setShowMatchConsole(true); }}
+                                            style={{ 
+                                                display: 'inline-flex', 
+                                                alignItems: 'center', 
+                                                gap: '6px', 
+                                                padding: '4px 12px', 
+                                                borderRadius: '6px', 
+                                                background: match.bg, 
+                                                color: match.color,
+                                                fontSize: '0.7rem',
+                                                fontWeight: 800,
+                                                cursor: 'pointer',
+                                                border: `1px solid ${match.color}33`
+                                            }}
+                                        >
+                                            <match.icon size={12} />
+                                            {match.label}
+                                        </div>
+                                    </td>
+                                    <td style={{ padding: '1rem 1.5rem', textAlign: 'right' }}>
+                                        {tab === 'pending' ? (
+                                            <button className="btn btn-primary btn-sm" onClick={() => openReceiveModal(po)}>Receive Items</button>
+                                        ) : (
+                                            <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedPO(po); setShowMatchConsole(true); }}>View Pulse</button>
+                                        )}
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Receipt Drill-down in History */}
+            {tab === "history" && receipts.length > 0 && (
+                <div style={{ marginTop: '2rem' }}>
+                    <h3 style={{ fontSize: '0.875rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '1rem', paddingLeft: '0.5rem' }}>Recorded Receipt Audit</h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {receipts.map(r => (
+                            <div key={r.id} style={{
+                                background: 'var(--surface)',
+                                border: '1px solid var(--border)',
+                                borderRadius: '20px',
+                                padding: '1.25rem',
+                                boxShadow: 'var(--shadow-xl)'
+                            }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', alignItems: 'center' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                        <div style={{ padding: '0.5rem', borderRadius: '10px', background: 'var(--brand-soft)', color: 'var(--brand)' }}>
+                                            <Package size={18} />
+                                        </div>
+                                        <div>
+                                            <div style={{ fontSize: '0.875rem', fontWeight: 800, color: 'var(--text-primary)' }}>{r.poNumber} · {r.id.slice(0, 8)}</div>
+                                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Received by {r.receivedByName} on {new Date(r.createdAt).toLocaleDateString()}</div>
+                                        </div>
+                                    </div>
+                                    <div style={{
+                                        padding: '0.4rem 0.8rem', borderRadius: '8px', 
+                                        background: r.overallQualityStatus === 'PASSED' ? 'rgba(0, 171, 85, 0.1)' : 'rgba(255, 72, 66, 0.1)',
+                                        color: r.overallQualityStatus === 'PASSED' ? '#00AB55' : '#FF4842',
+                                        fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase'
+                                    }}>
+                                        {r.overallQualityStatus}
+                                    </div>
+                                </div>
+                                <div style={{ background: 'var(--surface-2)', borderRadius: '12px', overflow: 'hidden', border: '1px solid var(--border)' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ background: 'var(--surface-3)' }}>
+                                                <th style={{ textAlign: 'left', padding: '0.75rem', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Description</th>
+                                                <th style={{ textAlign: 'center', padding: '0.75rem', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Qty</th>
+                                                <th style={{ textAlign: 'center', padding: '0.75rem', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Quality</th>
+                                                <th style={{ textAlign: 'right', padding: '0.75rem', fontSize: '0.65rem', color: 'var(--text-secondary)' }}>Promote to Pulse</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {r.lines.map((l, idx) => (
+                                                <tr key={idx} style={{ borderTop: '1px solid var(--border)' }}>
+                                                    <td style={{ padding: '0.75rem', fontSize: '0.8125rem', color: 'var(--text-primary)' }}>{l.description}</td>
+                                                    <td style={{ padding: '0.75rem', textAlign: 'center', fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-primary)' }}>{l.receivedQty}</td>
+                                                    <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                                                        <span style={{ color: l.qualityStatus === 'PASSED' ? '#00AB55' : '#FF4842', fontSize: '0.7rem', fontWeight: 800 }}>{l.qualityStatus}</span>
+                                                    </td>
+                                                    <td style={{ padding: '0.75rem', textAlign: 'right' }}>
+                                                        {l.isPromoted ? (
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#5C6AC4', fontSize: '0.7rem', fontWeight: 900, justifyContent: 'flex-end' }}>
+                                                                <CheckCircle size={14} /> PROMOTED
+                                                            </div>
+                                                        ) : (
+                                                            <button 
+                                                                onClick={() => { setReceiptToPromote(r); setLineIndexToPromote(idx); }}
+                                                                style={{
+                                                                    padding: '4px 12px', borderRadius: '6px', background: 'rgba(52, 211, 153, 0.1)', color: '#34d399',
+                                                                    border: '1px solid rgba(52, 211, 153, 0.2)', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                PROMOTE
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
 
-            {/* ══════════════════════════════════════════════════════════════
-                TAB: Open POs Awaiting Receipt
-            ══════════════════════════════════════════════════════════════ */}
-            {tab === "pending" && (
-                filteredPOs.length === 0 ? (
-                    <div className="card">
-                        <div className="empty-state">
-                            <div className="empty-state-icon">📦</div>
-                            <h3>No POs awaiting receipt</h3>
-                            <p>All purchase orders have been received or are cancelled.</p>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="table-wrapper responsive-table">
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>PO Number</th>
-                                    <th>Vendor</th>
-                                    <th className="hidden-mobile">Department</th>
-                                    <th className="hidden-mobile">Items</th>
-                                    <th className="hidden-mobile">Expected By</th>
-                                    <th style={{ textAlign: "right" }}>Total Value</th>
-                                    <th>Status</th>
-                                    <th className="hidden-mobile">3-Way Match</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredPOs.map(po => {
-                                    const matchKey = getMatchStatus(po);
-                                    const match = MATCH_STYLES[matchKey];
-                                    const poReceipts = receipts.filter(r => r.poId === po.id);
-                                    const canReceive = !["CLOSED", "CANCELLED"].includes(po.status);
-                                    return (
-                                        <tr key={po.id}>
-                                            <td data-label="PO Number">
-                                                <div style={{ fontWeight: 700, color: "#5C6AC4", fontFamily: "monospace" }}>{po.poNumber}</div>
-                                                <div style={{ fontSize: "0.75rem", color: "#919EAB" }}>
-                                                    {new Date(po.issuedAt).toLocaleDateString()}
-                                                </div>
-                                            </td>
-                                            <td data-label="Vendor" style={{ fontWeight: 600 }}>{po.vendorName}</td>
-                                            <td data-label="Department" className="hidden-mobile">
-                                                <span style={{ fontSize: "0.8rem", background: "#E8EAF6", color: "#5C6AC4", padding: "2px 8px", borderRadius: 6, fontWeight: 600 }}>
-                                                    {po.department}
-                                                </span>
-                                            </td>
-                                            <td data-label="Items" className="hidden-mobile" style={{ color: "#637381" }}>{po.items.length} line{po.items.length !== 1 ? "s" : ""}</td>
-                                            <td data-label="Expected By" className="hidden-mobile" style={{ color: "#637381", fontSize: "0.875rem" }}>
-                                                {po.expectedDeliveryDate
-                                                    ? new Date(po.expectedDeliveryDate).toLocaleDateString()
-                                                    : "—"}
-                                            </td>
-                                            <td data-label="Total Value" style={{ textAlign: "right", fontWeight: 700 }}>
-                                                {formatCurrency(po.totalAmount, po.currency || "USD")}
-                                            </td>
-                                            <td data-label="Status">
-                                                <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 10px", borderRadius: 9999, fontSize: "0.75rem", fontWeight: 700, background: po.status === "RECEIVED" ? "#E9FBF0" : "#FFF7CD", color: po.status === "RECEIVED" ? "#00AB55" : "#B76E00" }}>
-                                                    ● {po.status}
-                                                </span>
-                                            </td>
-                                            <td data-label="3-Way Match" className="hidden-mobile">
-                                                <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "2px 10px", borderRadius: 9999, background: match.bg, color: match.color }}>
-                                                    {match.label}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-                                                    {canReceive && (
-                                                        <button
-                                                            className="btn btn-primary btn-sm"
-                                                            onClick={() => openReceiveModal(po)}>
-                                                            {poReceipts.length > 0 ? "Receive More" : "Receive"}
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                )
-            )}
-
-            {/* ══════════════════════════════════════════════════════════════
-                TAB: Receipt History
-            ══════════════════════════════════════════════════════════════ */}
-            {tab === "history" && (
-                receipts.length === 0 ? (
-                    <div className="card">
-                        <div className="empty-state">
-                            <div className="empty-state-icon">📋</div>
-                            <h3>No receipts recorded yet</h3>
-                            <p>Receipts will appear here once goods are received against a PO.</p>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="table-wrapper responsive-table">
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>PO Number</th>
-                                    <th>Vendor</th>
-                                    <th className="hidden-mobile">Received By</th>
-                                    <th className="hidden-mobile">Lines</th>
-                                    <th className="hidden-mobile">Type</th>
-                                    <th>Quality</th>
-                                    <th className="hidden-mobile">Packing Slip</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {[...receipts]
-                                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                                    .map(receipt => {
-                                        const qStyle = QUALITY_STYLES[receipt.overallQualityStatus] || QUALITY_STYLES.PENDING;
-                                        const createdAt = new Date(receipt.createdAt);
-                                        const withinWindow = (Date.now() - createdAt.getTime()) / 3_600_000 < 24;
-                                        return (
-                                            <tr key={receipt.id}>
-                                                <td data-label="Date" style={{ color: "#637381", fontSize: "0.8125rem" }}>
-                                                    {createdAt.toLocaleDateString()}{" "}
-                                                    <span className="hidden-mobile" style={{ color: "#919EAB", fontSize: "0.75rem" }}>
-                                                        {createdAt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                                    </span>
-                                                </td>
-                                                <td data-label="PO Number" style={{ fontWeight: 700, color: "#5C6AC4", fontFamily: "monospace" }}>
-                                                    {receipt.poNumber || receipt.poId.slice(-6)}
-                                                </td>
-                                                <td data-label="Vendor" style={{ fontWeight: 600 }}>{receipt.poVendorName || "—"}</td>
-                                                <td data-label="Received By" className="hidden-mobile" style={{ color: "#637381" }}>{receipt.receivedByName}</td>
-                                                <td data-label="Lines" className="hidden-mobile" style={{ color: "#637381" }}>{receipt.lines?.length ?? 0} line(s)</td>
-                                                <td data-label="Type" className="hidden-mobile">
-                                                    {receipt.isAutoReceive
-                                                        ? <span style={{ fontSize: "0.75rem", background: "#CAFDF5", color: "#006098", padding: "2px 8px", borderRadius: 9999, fontWeight: 700 }}>Auto-Receive</span>
-                                                        : <span style={{ fontSize: "0.75rem", background: "#E8EAF6", color: "#5C6AC4", padding: "2px 8px", borderRadius: 9999, fontWeight: 700 }}>Physical</span>
-                                                    }
-                                                </td>
-                                                <td data-label="Quality">
-                                                    <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: 'flex-end' }}>
-                                                        <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "2px 10px", borderRadius: 9999, fontSize: "0.75rem", fontWeight: 700, background: qStyle.bg, color: qStyle.color }}>
-                                                            ● {receipt.overallQualityStatus}
-                                                        </span>
-                                                        <div className="hidden-mobile" style={{ display: 'flex', gap: 4 }}>
-                                                            {receipt.overallQualityStatus === "PASSED" ? null : (
-                                                                <button onClick={() => handleQC(receipt, "PASSED")} style={{ fontSize: "0.7rem", padding: "2px 6px", borderRadius: 4, border: "1px solid #00AB55", color: "#00AB55", background: "none", cursor: "pointer" }}>Pass</button>
-                                                            )}
-                                                            {receipt.overallQualityStatus === "FAILED" ? null : (
-                                                                <button onClick={() => handleQC(receipt, "FAILED")} style={{ fontSize: "0.7rem", padding: "2px 6px", borderRadius: 4, border: "1px solid #B72136", color: "#B72136", background: "none", cursor: "pointer" }}>Fail</button>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td data-label="Packing Slip" className="hidden-mobile">
-                                                    {receipt.packingSlipUrl
-                                                        ? <a href={receipt.packingSlipUrl} target="_blank" rel="noreferrer" style={{ color: "#5C6AC4", fontWeight: 600, fontSize: "0.8rem" }}>📎 View</a>
-                                                        : receipt.packingSlipName
-                                                            ? <span style={{ color: "#637381", fontSize: "0.8rem" }}>📎 {receipt.packingSlipName}</span>
-                                                            : <span style={{ color: "#DFE3E8" }}>—</span>
-                                                    }
-                                                </td>
-                                                <td data-label="Actions">
-                                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                        {withinWindow && (
-                                                            <button
-                                                                onClick={() => handleUnreceive(receipt)}
-                                                                style={{ fontSize: "0.75rem", padding: "3px 10px", borderRadius: 6, border: "1px solid #DFE3E8", color: "#637381", background: "white", cursor: "pointer" }}>
-                                                                Unreceive
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                            </tbody>
-                        </table>
-                    </div>
-                )
-            )}
-
-            {/* ══════════════════════════════════════════════════════════════
-                RECEIVE MODAL
-            ══════════════════════════════════════════════════════════════ */}
+            {/* Recording Modal Overhaul */}
             {showModal && selectedPO && (
-                <div className="modal-backdrop">
-                    <div className="modal" style={{ maxWidth: 720, width: "95%" }}>
-                        {/* Header */}
-                        <div className="modal-header">
+                <div className="modal-backdrop" style={{ background: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal" style={{ maxWidth: 800, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '32px', boxShadow: '0 20px 50px rgba(0,0,0,0.1)' }}>
+                        <div className="modal-header" style={{ borderBottom: '1px solid var(--border)', padding: '1.5rem 2rem' }}>
                             <div>
-                                <h2 className="modal-title">Record Receipt — {selectedPO.poNumber}</h2>
-                                <p style={{ fontSize: "0.875rem", color: "#637381", marginTop: 2 }}>
-                                    {selectedPO.vendorName} · {formatCurrency(selectedPO.totalAmount, selectedPO.currency || "USD")}
-                                </p>
+                                <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)' }}>Log Delivery Pulse</h2>
+                                <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>PO {selectedPO.poNumber} · {selectedPO.vendorName}</p>
                             </div>
-                            <button onClick={() => setShowModal(false)} style={{ background: "none", border: "none", fontSize: "1.5rem", color: "#637381", cursor: "pointer" }}>×</button>
+                            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '1.5rem', cursor: 'pointer' }}>×</button>
                         </div>
 
-                        <div style={{ padding: '0 20px', marginBottom: '1rem' }}>
-                            <button
-                                className="btn btn-secondary"
-                                style={{ width: '100%', gap: '8px', border: '1px dashed var(--brand)', color: 'var(--brand)', background: 'var(--brand-soft)' }}
-                                onClick={() => setIsScanOpen(true)}
-                            >
-                                <Zap size={16} /> AI Scan Packing Slip
-                            </button>
-                        </div>
-
-                        <div className="modal-body">
-                            {/* Auto-receive toggle */}
-                            <div style={{ display: "flex", alignItems: "flex-start", gap: "1rem", background: "#F4F6F8", borderRadius: 10, padding: "1rem", marginBottom: "1.25rem" }}>
-                                <input
-                                    type="checkbox"
-                                    id="auto-receive"
-                                    checked={isAutoReceive}
-                                    onChange={e => setIsAutoReceive(e.target.checked)}
-                                    style={{ marginTop: 2, accentColor: "#5C6AC4", width: 16, height: 16 }}
-                                />
+                        <div className="modal-body" style={{ padding: '2rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2rem' }}>
                                 <div>
-                                    <label htmlFor="auto-receive" style={{ fontWeight: 700, fontSize: "0.9rem", cursor: "pointer" }}>Auto-Receive (Services / Digital Goods)</label>
-                                    <p style={{ fontSize: "0.8rem", color: "#637381", marginTop: 2 }}>
-                                        Skip physical inspection. All items will be marked as fully received and PASSED.
-                                        Use for software licenses, subscriptions, and services.
-                                    </p>
-                                </div>
-                            </div>
+                                    <div style={{ marginBottom: '1.5rem' }}>
+                                        <button className="btn btn-primary" style={{ width: '100%', gap: '10px', background: 'var(--brand)', height: '48px' }} onClick={() => setIsScanOpen(true)}>
+                                            <Zap size={18} /> AI Scan Packing Slip
+                                        </button>
+                                    </div>
 
-                            {/* Line Items Table */}
-                            {!isAutoReceive && (
-                                <div style={{ marginBottom: "1.25rem" }}>
-                                    <h4 style={{ fontWeight: 700, marginBottom: "0.75rem", fontSize: "0.9rem", color: "#212B36" }}>Line Items</h4>
-                                    <div style={{ border: "1px solid #DFE3E8", borderRadius: 10, overflow: "hidden" }}>
-                                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                                    <div style={{ background: 'var(--surface-2)', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                                        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                                             <thead>
-                                                <tr style={{ background: "#F4F6F8" }}>
-                                                    <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#637381", textAlign: "left" }}>Description</th>
-                                                    <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#637381", textAlign: "center" }}>Ordered</th>
-                                                    <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#637381", textAlign: "center" }}>Received</th>
-                                                    <th style={{ padding: "0.75rem 1rem", fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em", color: "#637381", textAlign: "center" }}>Quality</th>
+                                                <tr>
+                                                    <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Item Pulse</th>
+                                                    <th style={{ padding: '1rem', textAlign: 'center', fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Expected</th>
+                                                    <th style={{ padding: '1rem', textAlign: 'center', fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Verified</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {receiptLines.map((line, i) => (
-                                                    <tr key={i} style={{ borderTop: "1px solid #DFE3E8" }}>
-                                                        <td style={{ padding: "0.75rem 1rem", fontSize: "0.875rem" }}>{line.description}</td>
-                                                        <td style={{ padding: "0.75rem 1rem", textAlign: "center", color: "#637381" }}>{line.orderedQty}</td>
-                                                        <td style={{ padding: "0.75rem 1rem", textAlign: "center" }}>
-                                                            <input
-                                                                type="number"
-                                                                min={0}
-                                                                max={line.orderedQty}
-                                                                value={line.receivedQty}
+                                                    <tr key={i} style={{ borderTop: '1px solid var(--border)' }}>
+                                                        <td style={{ padding: '1rem', color: 'var(--text-primary)', fontSize: '0.875rem', fontWeight: 600 }}>{line.description}</td>
+                                                        <td style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-secondary)', fontWeight: 700 }}>{line.orderedQty}</td>
+                                                        <td style={{ padding: '1rem', textAlign: 'center' }}>
+                                                            <input 
+                                                                type="number" 
+                                                                value={line.receivedQty} 
                                                                 onChange={e => {
-                                                                    const updated = [...receiptLines];
-                                                                    updated[i] = { ...updated[i], receivedQty: Math.max(0, Math.min(line.orderedQty, Number(e.target.value))) };
-                                                                    setReceiptLines(updated);
+                                                                    const up = [...receiptLines];
+                                                                    up[i].receivedQty = Number(e.target.value);
+                                                                    setReceiptLines(up);
                                                                 }}
-                                                                style={{ width: 64, textAlign: "center", padding: "4px 8px", border: "1px solid #DFE3E8", borderRadius: 6, fontSize: "0.875rem" }}
+                                                                style={{ width: '60px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-primary)', padding: '4px 8px', borderRadius: '6px', textAlign: 'center', fontWeight: 800 }} 
                                                             />
-                                                        </td>
-                                                        <td style={{ padding: "0.75rem 1rem", textAlign: "center" }}>
-                                                            <div style={{ display: "flex", gap: "0.25rem", justifyContent: "center" }}>
-                                                                {(["PASSED", "FAILED"] as const).map(st => (
-                                                                    <button
-                                                                        key={st}
-                                                                        onClick={() => {
-                                                                            const updated = [...receiptLines];
-                                                                            updated[i] = { ...updated[i], qualityStatus: st };
-                                                                            setReceiptLines(updated);
-                                                                        }}
-                                                                        style={{
-                                                                            padding: "3px 10px", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700, cursor: "pointer",
-                                                                            border: line.qualityStatus === st ? "none" : "1px solid #DFE3E8",
-                                                                            background: line.qualityStatus === st ? (st === "PASSED" ? "#E9FBF0" : "#FFE7D9") : "white",
-                                                                            color: line.qualityStatus === st ? (st === "PASSED" ? "#00AB55" : "#B72136") : "#637381",
-                                                                        }}
-                                                                    >
-                                                                        {st === "PASSED" ? "✓ Pass" : "✗ Fail"}
-                                                                    </button>
-                                                                ))}
-                                                            </div>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -540,70 +448,69 @@ export default function ReceivingPage() {
                                         </table>
                                     </div>
                                 </div>
-                            )}
 
-                            {/* Auto-receive confirmation lines */}
-                            {isAutoReceive && (
-                                <div style={{ marginBottom: "1.25rem", background: "#E9FBF0", borderRadius: 10, padding: "1rem" }}>
-                                    <p style={{ fontWeight: 600, color: "#00AB55", fontSize: "0.9rem" }}>✅ Auto-Receive Active</p>
-                                    <p style={{ fontSize: "0.8rem", color: "#637381", marginTop: 4 }}>
-                                        All {selectedPO.items.length} line(s) will be marked as fully received and quality PASSED.
-                                    </p>
-                                </div>
-                            )}
-
-                            {/* Packing Slip */}
-                            <div style={{ marginBottom: "1rem" }}>
-                                <label className="form-label">Packing Slip / Delivery Note (optional)</label>
-                                <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
-                                    <label style={{
-                                        display: "flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem",
-                                        border: "1px dashed #DFE3E8", borderRadius: 8, cursor: "pointer",
-                                        fontSize: "0.875rem", color: "#637381", background: "#F9FAFB"
-                                    }}>
-                                        📎 Upload Packing Slip
-                                        <input
-                                            type="file" accept="image/*,.pdf" style={{ display: "none" }}
-                                            onChange={e => {
-                                                const file = e.target.files?.[0];
-                                                if (file) setPackingSlipName(file.name);
-                                            }}
+                                <div style={{ background: 'var(--surface-2)', borderRadius: '24px', padding: '1.5rem', border: '1px solid var(--border)' }}>
+                                    <h4 style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '1rem' }}>Audit Details</h4>
+                                    
+                                    <div style={{ marginBottom: '1.25rem' }}>
+                                        <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'block', marginBottom: '0.5rem' }}>Packing Slip Reference</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder="PO-SHP-2831" 
+                                            value={packingSlipName}
+                                            onChange={e => setPackingSlipName(e.target.value)}
+                                            style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-primary)', padding: '12px', borderRadius: '12px', fontSize: '0.875rem' }} 
                                         />
-                                    </label>
-                                    {packingSlipName && (
-                                        <span style={{ fontSize: "0.8rem", color: "#00AB55", fontWeight: 600 }}>✓ {packingSlipName}</span>
-                                    )}
+                                    </div>
+
+                                    <div style={{ padding: '1rem', background: 'rgba(0, 171, 85, 0.05)', border: '1px solid rgba(0, 171, 85, 0.2)', borderRadius: '16px', marginBottom: '1.5rem' }}>
+                                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', color: '#00AB55' }}>
+                                            <Shield size={16} />
+                                            <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>AUDIT COMPLIANT</span>
+                                        </div>
+                                        <p style={{ fontSize: '0.7rem', color: 'rgba(0, 171, 85, 0.6)', marginTop: '4px' }}>This entry will trigger an automated 3-way match across PO and Invoices.</p>
+                                    </div>
+
+                                    <button className="btn btn-primary" style={{ width: '100%', height: '50px', borderRadius: '16px', fontWeight: 800 }} onClick={handleSubmitReceipt} disabled={submitting}>
+                                        {submitting ? 'RECORDING PULSE...' : 'RECORD & VERIFY'}
+                                    </button>
                                 </div>
                             </div>
-
-                            {/* Notes */}
-                            <div>
-                                <label className="form-label">Notes (optional)</label>
-                                <textarea
-                                    rows={2}
-                                    className="form-input"
-                                    placeholder="Condition of goods, discrepancies, carrier info..."
-                                    value={notes}
-                                    onChange={e => setNotes(e.target.value)}
-                                    style={{ resize: "vertical" }}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="modal-footer">
-                            <button className="btn btn-secondary" onClick={() => setShowModal(false)} disabled={submitting}>Cancel</button>
-                            <button className="btn btn-primary" onClick={handleSubmitReceipt} disabled={submitting}>
-                                {submitting ? "Recording..." : "✓ Record Receipt"}
-                            </button>
                         </div>
                     </div>
                 </div>
             )}
+
+            {/* Match Pulse Console Modal */}
+            {showMatchConsole && selectedPO && (
+                <div className="modal-backdrop" style={{ background: 'rgba(0,0,0,0.6)' }}>
+                    <div style={{ maxWidth: '900px', width: '100%', margin: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+                            <button onClick={() => setShowMatchConsole(false)} style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-primary)', padding: '8px 20px', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', boxShadow: 'var(--shadow-lg)' }}>Close Console</button>
+                        </div>
+                        <MatchingConsole po={selectedPO} receipts={receipts} invoices={invoices} />
+                    </div>
+                </div>
+            )}
+
             <ReceiptCaptureModal
                 isOpen={isScanOpen}
                 onClose={() => setIsScanOpen(false)}
                 onSuccess={handleScanSuccess}
             />
+
+            {receiptToPromote && lineIndexToPromote !== null && (
+                <PromoteToRegistryModal
+                    receipt={receiptToPromote}
+                    lineIndex={lineIndexToPromote}
+                    onClose={() => { setReceiptToPromote(null); setLineIndexToPromote(null); }}
+                    onPromoted={() => {
+                        setReceiptToPromote(null);
+                        setLineIndexToPromote(null);
+                        fetchData();
+                    }}
+                />
+            )}
         </div>
     );
 }

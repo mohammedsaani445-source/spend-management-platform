@@ -1,4 +1,17 @@
-export type UserRole = 'ADMIN' | 'SUPERUSER' | 'REQUESTER' | 'APPROVER' | 'PURCHASER' | 'RECEIVER' | 'REPORTER' | 'FINANCE' | 'AP_USER' | 'FINANCE_MANAGER' | 'STRATEGIC_SOURCER';
+export type UserRole =
+    | 'STANDARD_REQUESTER'
+    | 'AUTHORIZED_APPROVER'
+    | 'PROCUREMENT_OFFICER'
+    | 'OPERATIONS_RECEIVER'
+    | 'ACCOUNTS_PAYABLE'
+    | 'FINANCE_MANAGER'
+    | 'FINANCE_SPECIALIST'
+    | 'STRATEGIC_SOURCER'
+    | 'DATA_ANALYST'
+    | 'WORKSPACE_ADMIN'
+    | 'PLATFORM_SUPERUSER'
+    | 'ADMIN'; // Keep ADMIN for legacy compatibility if needed
+
 export type UserType = 'BASIC' | 'PRO';
 
 export interface DashboardEvent {
@@ -17,7 +30,9 @@ export interface Notification {
     id: string;
     tenantId: string;
     userId: string;
-    type: 'APPROVAL_REQUEST' | 'PO_ACKNOWLEDGED' | 'PO_OPENED' | 'BUDGET_ALERT' | 'SYSTEM';
+    type: 'APPROVAL_REQUEST' | 'PO_ACKNOWLEDGED' | 'PO_OPENED' | 'BUDGET_ALERT' | 'SYSTEM' | 'PO_SHIPPED'
+        | 'PAYMENT_PROCESSED' | 'PAYMENT_SCHEDULED' | 'CONTRACT_EXPIRING' | 'INVOICE_SUBMITTED'
+        | 'APPROVAL_GRANTED' | 'APPROVAL_REJECTED' | 'PAYMENT_FAILED' | 'BILL_VOIDED';
     title: string;
     message: string;
     link?: string;
@@ -103,15 +118,37 @@ export interface Vendor {
     paymentTerms?: string;
     status: 'ACTIVE' | 'INACTIVE';
     createdAt: Date;
-    // Phase 18: Intelligent Insights
-    performanceScore?: number; // 0-100
-    reliability?: number; // 0-100 (On-Time Delivery Rate)
-    averageDelay?: number; // Average days late (negative means early)
     paymentMethod?: 'ACH' | 'WIRE' | 'STRIPE' | 'PLUG'; // Phase 7
     directPayEnabled?: boolean; // Phase 7: Auto-pay on approval
+    scorecard?: VendorScorecard; // Phase 59
+    complianceStatus?: 'COMPLIANT' | 'NON_COMPLIANT' | 'EXPIRING' | 'PENDING'; // Phase 59
+    documents?: VendorDocument[]; // Phase 59
 }
 
-export type RequisitionStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'ORDERED';
+export interface VendorScorecard {
+    overallScore: number; // 0-100
+    leadTimeScore: number; // Based on PO vs GR dates
+    qualityScore: number;   // Based on GR quality status
+    invoiceAccuracyScore: number; // Based on discrepancies
+    totalOrders: number;
+    lastUpdated: string;
+}
+
+export type VendorDocumentType = 'W9' | 'INSURANCE' | 'COMPLIANCE' | 'TAX_CERT' | 'OTHER';
+
+export interface VendorDocument {
+    id: string;
+    vendorId: string;
+    name: string;
+    type: VendorDocumentType;
+    url: string;
+    status: 'ACTIVE' | 'EXPIRED' | 'PENDING';
+    expiryDate?: string;
+    uploadedAt: string;
+    uploadedBy: string;
+}
+
+export type RequisitionStatus = 'DRAFT' | 'PENDING' | 'OVER_BUDGET' | 'APPROVED' | 'REJECTED' | 'FULFILLED' | 'CANCELED' | 'ORDERED';
 
 export interface RequisitionItem {
     id: string;
@@ -160,12 +197,19 @@ export interface ApprovalHistoryEntry {
 
 export interface DeliveryLog {
     timestamp: string;
-    action: 'SENT' | 'OPENED' | 'ACKNOWLEDGED';
+    action: 'SENT' | 'OPENED' | 'ACKNOWLEDGED' | 'SHIPPED';
     performedBy: string; // 'VENDOR' or 'USER_ID'
     details?: string;
 }
 
-export type POStatus = 'ISSUED' | 'SENT' | 'OPENED' | 'ACKNOWLEDGED' | 'RECEIVED' | 'BILLED' | 'CLOSED' | 'CANCELLED' | 'FULFILLED' | 'DISCREPANCY_FLAGGED';
+export type POStatus = 'ISSUED' | 'SENT' | 'OPENED' | 'ACKNOWLEDGED' | 'RECEIVED' | 'BILLED' | 'CLOSED' | 'CANCELLED' | 'FULFILLED' | 'DISCREPANCY_FLAGGED' | 'SHIPPED' | 'DELIVERED';
+
+export interface ShippingDetails {
+    carrier: string;
+    trackingNumber: string;
+    shippedAt: string;
+    estimatedDelivery?: string;
+}
 
 export interface PurchaseOrder {
     id?: string;
@@ -195,9 +239,13 @@ export interface PurchaseOrder {
     approvalHistory?: ApprovalHistoryEntry[];
     currentStepIndex?: number;
     workflowId?: string;
+    issuedByName?: string;
+    shippingAddress?: string;
+    createdAt?: string;
+    shippingDetails?: ShippingDetails;
 }
 
-export type InvoiceStatus = 'DRAFT' | 'PENDING' | 'PAID' | 'APPROVED' | 'REJECTED';
+export type InvoiceStatus = 'DRAFT' | 'PENDING' | 'PAID' | 'APPROVED' | 'REJECTED' | 'SUBMITTED';
 
 export interface Invoice {
     id?: string;
@@ -215,6 +263,7 @@ export interface Invoice {
     fileName?: string;
     fileUrl?: string;
     createdAt: Date;
+    lines?: GoodsReceiptLine[]; // Phase 44: Line-item matching
     // AI Metadata
     confidence?: number;
     confidenceReasoning?: string;
@@ -224,17 +273,53 @@ export interface Invoice {
 }
 
 
+export type BudgetEnforcementLevel = 'SOFT' | 'HARD';
+
 export interface Budget {
     id?: string;
     department: string;
     amount: number;
+    committedAmount?: number; // (Phase 58) Funds reserved via approved POs
     currency?: string;
     fiscalYear: string;
+    enforcementLevel?: BudgetEnforcementLevel; // (Phase 58) SOFT (warn) vs HARD (block)
     entityId?: string; // Phase 2: Multi-entity
     entityName?: string;
     glCodes?: string[]; // Allowed GL codes for this budget
     createdAt?: Date; // Optional as it might be added on creation
     updatedAt?: string;
+}
+
+export interface BudgetUtilization {
+    budget: number;
+    committed: number;
+    spent: number;
+    remaining: number;
+    utilizationPercent: number;
+    currency: string;
+    enforcementLevel: BudgetEnforcementLevel;
+}
+
+// Phase 58: Budget Adjustments
+export type BudgetAdjustmentStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type BudgetAdjustmentType = 'INCREASE' | 'TRANSFER';
+
+export interface BudgetAdjustment {
+    id?: string;
+    tenantId: string;
+    requesterId: string;
+    requesterName: string;
+    department: string;
+    amount: number;
+    currency: string;
+    type: BudgetAdjustmentType;
+    targetDepartment?: string; // For transfers
+    reason: string;
+    status: BudgetAdjustmentStatus;
+    approverId?: string;
+    approverName?: string;
+    createdAt: string;
+    processedAt?: string;
 }
 
 // Communication & Vendor Tracking Types
@@ -291,8 +376,50 @@ export interface Asset {
     createdAt: Date;
 }
 
-export type AuditAction = 'CREATE' | 'UPDATE' | 'DELETE' | 'APPROVE' | 'REJECT' | 'ACCESS' | 'LOGIN';
-export type AuditEntityType = 'REQUISITION' | 'PO' | 'INVOICE' | 'BUDGET' | 'USER' | 'VENDOR' | 'ASSET' | 'CONTRACT' | 'SKU' | 'WAREHOUSE' | 'INVENTORY';
+export type AuditAction = 
+    | 'LOGIN' | 'LOGOUT' | 'PR_CREATED' | 'PR_APPROVED' | 'PR_REJECTED' 
+    | 'PO_CREATED' | 'PO_SENT' | 'RECEIPT_CREATED' | 'INVOICE_UPLOADED'
+    | 'MATCH_VERIFIED' | 'MATCH_DISCREPANCY' | 'PAYMENT_PROCESSED'
+    | 'USER_CREATED' | 'USER_DISABLED' | 'TENDER_CREATED' | 'BID_SUBMITTED'
+    | 'CREATE' | 'UPDATE' | 'DELETE' | 'APPROVE' | 'REJECT';
+
+export type AuditEntityType = 
+    | 'USER' | 'REQUISITION' | 'PURCHASE_ORDER' | 'RECEIPT' | 'INVOICE' 
+    | 'PAYMENT' | 'TENDER' | 'BID' | 'WORKFLOW' | 'BUDGET' | 'VENDOR' | 'CONTRACT';
+
+// --- Phase 45: Blind Bidding & Compliance ---
+
+export interface Tender {
+    id: string;
+    title: string;
+    description: string;
+    status: 'OPEN' | 'CLOSED' | 'EVALUATING' | 'AWARDED';
+    deadline: string;
+    createdBy: string;
+    currency: string;
+    items: RequisitionItem[]; // Assuming RequisitionItem is suitable for PurchaseOrderItem
+    budget?: number; // Phase 21: Added for strategic sourcing
+    isSealed?: boolean; // Phase 45: Blind bidding
+    awardedTo?: string; // Bid ID
+    awardedAt?: string;
+    poId?: string;
+    poNumber?: string;
+}
+
+export interface Bid {
+    id: string;
+    tenderId: string;
+    vendorId: string;
+    vendorName: string;
+    amount: number;
+    currency: string;
+    submittedAt: string;
+    status: 'PENDING' | 'REJECTED' | 'ACCEPTED';
+    isBlind: boolean; // For Phase 45 compliance
+    notes?: string; // Phase 21: Bid notes/justification
+    poId?: string;
+    poNumber?: string;
+}
 
 export interface AuditLog {
     id?: string;
@@ -533,6 +660,8 @@ export interface GoodsReceiptLine {
     unitPrice: number;
     qualityStatus: 'PASSED' | 'FAILED' | 'PENDING';
     failureReason?: string;
+    isPromoted?: boolean;      // Phase 68
+    promotionId?: string;      // Phase 68: Asset ID or Stock Log ID
 }
 
 export interface ItemReceipt {

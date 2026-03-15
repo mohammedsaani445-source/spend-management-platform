@@ -10,46 +10,55 @@ export const checkPermission = (user: AppUser, action: PermissionAction, scope: 
     // 2. Custom Permissions Check (In Phase 27: Custom Roles)
     // For now, we use a role-to-permission mapping for default internal roles
     const rolePermissions: Record<UserRole, { action: PermissionAction, scope: PermissionScope }[]> = {
-        'APPROVER': [
-            { action: 'READ', scope: 'ALL' },
-            { action: 'APPROVE', scope: 'ALL' }
+        'STANDARD_REQUESTER': [
+            { action: 'CREATE', scope: 'REQUISITION' },
+            { action: 'READ', scope: 'REQUISITION' },
+            { action: 'READ', scope: 'PO' }
         ],
-        'FINANCE': [
+        'AUTHORIZED_APPROVER': [
+            { action: 'READ', scope: 'ALL' },
+            { action: 'APPROVE', scope: 'REQUISITION' }
+        ],
+        'PROCUREMENT_OFFICER': [
             { action: 'READ', scope: 'ALL' },
             { action: 'WRITE', scope: 'ALL' },
             { action: 'DELETE', scope: 'ALL' }
         ],
-        'REQUESTER': [
-            { action: 'CREATE', scope: 'REQUISITION' },
-            { action: 'READ', scope: 'REQUISITION' }
+        'OPERATIONS_RECEIVER': [
+            { action: 'READ', scope: 'ALL' },
+            { action: 'WRITE', scope: 'ALL' }
         ],
-        'AP_USER': [
+        'ACCOUNTS_PAYABLE': [
             { action: 'READ', scope: 'ALL' },
             { action: 'WRITE', scope: 'ALL' }
         ],
         'FINANCE_MANAGER': [
             { action: 'READ', scope: 'ALL' },
-            { action: 'APPROVE', scope: 'ALL' }
+            { action: 'APPROVE', scope: 'ALL' },
+            { action: 'WRITE', scope: 'ALL' }
+        ],
+        'FINANCE_SPECIALIST': [
+            { action: 'READ', scope: 'ALL' },
+            { action: 'WRITE', scope: 'BUDGET' }
         ],
         'STRATEGIC_SOURCER': [
             { action: 'READ', scope: 'ALL' },
-            { action: 'CREATE', scope: 'ALL' }
+            { action: 'WRITE', scope: 'VENDOR' },
+            { action: 'WRITE', scope: 'CONTRACT' },
+            { action: 'READ', scope: 'BUDGET' }
         ],
-        'PURCHASER': [
-            { action: 'READ', scope: 'ALL' },
-            { action: 'WRITE', scope: 'PO' }
-        ],
-        'SUPERUSER': [
-            { action: 'ADMIN', scope: 'ALL' }
-        ],
-        'RECEIVER': [
-            { action: 'READ', scope: 'ALL' },
-            { action: 'WRITE', scope: 'ALL' }
-        ],
-        'REPORTER': [
+        'DATA_ANALYST': [
             { action: 'READ', scope: 'ALL' }
         ],
-        'ADMIN': [] // Handled above
+        'WORKSPACE_ADMIN': [
+            { action: 'ADMIN', scope: 'ALL' }
+        ],
+        'PLATFORM_SUPERUSER': [
+            { action: 'ADMIN', scope: 'ALL' }
+        ],
+        'ADMIN': [
+            { action: 'ADMIN', scope: 'ALL' }
+        ]
     };
 
     const permissions = rolePermissions[user.role] || [];
@@ -60,7 +69,7 @@ export const checkPermission = (user: AppUser, action: PermissionAction, scope: 
  * Determines if a user can view a specific entity based on departmental isolation.
  */
 export const canViewEntity = (user: AppUser, entity: { requesterId?: string, departmentId?: string, locationId?: string }): boolean => {
-    if (user.role === 'ADMIN' || user.role === 'FINANCE') return true;
+    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST', 'PROCUREMENT_OFFICER', 'ACCOUNTS_PAYABLE'].includes(user.role)) return true;
 
     // If it's their own record, they can always see it
     if (entity.requesterId === user.uid) return true;

@@ -1,6 +1,6 @@
 import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, orderByChild, equalTo, onValue } from "firebase/database";
-import { PurchaseOrder, Requisition, POStatus, AppUser } from "@/types";
+import { PurchaseOrder, Requisition, POStatus, AppUser, Tender, Bid, ShippingDetails } from "@/types";
 import { getVendor } from "./vendors";
 
 const getPOsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders`);
@@ -61,7 +61,7 @@ export const subscribeToPurchaseOrders = (user: AppUser, callback: (pos: Purchas
     const poRef = getPOsRef(tenantId);
 
     // Admins, Finance, Superusers see all 
-    if (user.role === 'ADMIN' || user.role === 'FINANCE' || user.role === 'SUPERUSER') {
+    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST'].includes(user.role)) {
         const unsubscribe = onValue(poRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
@@ -116,6 +116,19 @@ export const updatePOStatus = async (tenantId: string, poId: string, status: POS
         }
         if (status === 'CANCELLED') {
             updates.cancelledAt = new Date().toISOString();
+            
+            // --- Phase 58: Strategic Budget Enforcement ---
+            // Release funds back to Budget
+            try {
+                const snapshot = await get(poRef);
+                if (snapshot.exists()) {
+                    const po = snapshot.val();
+                    const { releaseFunds } = await import("./budgets");
+                    await releaseFunds(tenantId, po.department, po.totalAmount);
+                }
+            } catch (budgetError) {
+                console.error("[Budget] Failed to release funds on PO cancellation:", budgetError);
+            }
         }
         if (status === 'FULFILLED') {
             updates.fulfilledAt = new Date().toISOString();
@@ -207,5 +220,204 @@ export const getPurchaseOrderById = async (tenantId: string, id: string): Promis
     } catch (error) {
         console.error("Error fetching PO by ID", error);
         return null;
+    }
+};
+export const resolveDiscrepancy = async (tenantId: string, poId: string, resolution: 'MATCH' | 'REJECT', note: string, actor: AppUser) => {
+    try {
+        const poRef = getPORef(tenantId, poId);
+        const updates: any = {
+            status: resolution === 'MATCH' ? 'BILLED' : 'DISCREPANCY_FLAGGED',
+            isMatched: resolution === 'MATCH',
+            discrepancyNote: `Resolved as ${resolution}: ${note} (by ${actor.displayName})`
+        };
+
+        if (resolution === 'MATCH') {
+            updates.reconciledAt = new Date().toISOString();
+            updates.reconciledBy = actor.uid;
+        }
+
+        await update(poRef, updates);
+
+        // Audit Log
+        const { logAction } = await import("./audit");
+        await logAction({
+            tenantId,
+            actorId: actor.uid,
+            actorName: actor.displayName,
+            action: 'UPDATE',
+            entityType: 'PURCHASE_ORDER',
+            entityId: poId,
+            description: `3-Way Match Discrepancy Resolved (${resolution}). Note: ${note}`
+        });
+    } catch (error) {
+        console.error("Error resolving discrepancy:", error);
+        throw error;
+    }
+};
+
+/**
+ * Creates a Purchase Order from an awarded bid and its parent tender.
+ */
+export const createPOFromAwardedBid = async (
+    tenantId: string,
+    tender: Tender,
+    bid: Bid,
+    actor: AppUser
+) => {
+    try {
+        const poNumber = await generatePONumber();
+        const poRef = getPOsRef(tenantId);
+        const newPORef = push(poRef);
+
+        // Map Tender items or create a generic one if empty
+        const items = tender.items && tender.items.length > 0 
+            ? tender.items 
+            : [{
+                id: crypto.randomUUID(),
+                description: `Sourcing Award: ${tender.title}`,
+                quantity: 1,
+                unitPrice: bid.amount,
+                total: bid.amount
+            }];
+
+        const newPO: PurchaseOrder = {
+            tenantId,
+            poNumber,
+            requisitionId: tender.id, // Linking to tender as the "source"
+            vendorId: bid.vendorId,
+            vendorName: bid.vendorName,
+            items: items as any,
+            totalAmount: bid.amount,
+            currency: bid.currency,
+            status: 'ISSUED',
+            issuedAt: new Date().toISOString() as any,
+            issuedBy: actor.uid,
+            department: actor.department || 'Procurement',
+            locationId: actor.locationId,
+            expectedDeliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() as any,
+            issuedByName: actor.displayName,
+            vendorEmail: bid.vendorId // Placeholder for vendor email if not found, usually we'd fetch it
+        };
+
+        await set(newPORef, newPO);
+
+        return { id: newPORef.key, poNumber };
+    } catch (error) {
+        console.error("[PurchaseOrders] Error creating PO from bid:", error);
+        throw error;
+    }
+};
+
+/**
+ * Acknowledges a Purchase Order by a vendor.
+ */
+export const acknowledgePO = async (tenantId: string, po: PurchaseOrder, vendorName: string) => {
+    try {
+        const poRef = getPORef(tenantId, po.id!);
+        
+        const timestamp = new Date().toISOString();
+        const deliveryEvent = {
+            timestamp,
+            action: 'ACKNOWLEDGED' as const,
+            performedBy: 'VENDOR',
+            details: `Order acknowledged by ${vendorName}`
+        };
+
+        const history = po.deliveryHistory || [];
+
+        await update(poRef, {
+            status: 'ACKNOWLEDGED',
+            deliveryHistory: [...history, deliveryEvent]
+        });
+
+        // Audit Log
+        const { logAction } = await import("./audit");
+        await logAction({
+            tenantId,
+            actorId: po.vendorId, // Vendor ID as actor
+            actorName: vendorName,
+            action: 'UPDATE',
+            entityType: 'PURCHASE_ORDER',
+            entityId: po.id!,
+            description: `PO ${po.poNumber} acknowledged by vendor ${vendorName}`
+        });
+
+        // Notify Procurement Officer
+        const { createNotification } = await import("./notifications");
+        if (po.issuedBy) {
+            await createNotification({
+                tenantId,
+                userId: po.issuedBy,
+                type: 'PO_ACKNOWLEDGED',
+                title: 'Order Acknowledged',
+                message: `${vendorName} has accepted PO ${po.poNumber}`,
+                link: `/dashboard/purchase-orders/${po.id}`
+            });
+        }
+
+        return true;
+    } catch (error) {
+        console.error("[PurchaseOrders] Error acknowledging PO:", error);
+        throw error;
+    }
+};
+
+/**
+ * Marks a Purchase Order as SHIPPED and saves tracking details.
+ */
+export const shipOrder = async (
+    tenantId: string, 
+    po: PurchaseOrder, 
+    shippingDetails: ShippingDetails,
+    vendorName: string
+) => {
+    try {
+        const poRef = getPORef(tenantId, po.id!);
+        
+        const timestamp = new Date().toISOString();
+        const deliveryEvent = {
+            timestamp,
+            action: 'SHIPPED' as const,
+            performedBy: 'VENDOR',
+            details: `Order shipped via ${shippingDetails.carrier}. Tracking: ${shippingDetails.trackingNumber}`
+        };
+
+        const history = po.deliveryHistory || [];
+
+        await update(poRef, {
+            status: 'SHIPPED',
+            shippingDetails,
+            deliveryHistory: [...history, deliveryEvent]
+        });
+
+        // Audit Log
+        const { logAction } = await import("./audit");
+        await logAction({
+            tenantId,
+            actorId: po.vendorId,
+            actorName: vendorName,
+            action: 'UPDATE',
+            entityType: 'PURCHASE_ORDER',
+            entityId: po.id!,
+            description: `PO ${po.poNumber} marked as SHIPPED. Carrier: ${shippingDetails.carrier}, Tracking: ${shippingDetails.trackingNumber}`
+        });
+
+        // Notify Procurement Officer
+        const { createNotification } = await import("./notifications");
+        if (po.issuedBy) {
+            await createNotification({
+                tenantId,
+                userId: po.issuedBy,
+                type: 'PO_SHIPPED',
+                title: 'Order Shipped',
+                message: `${vendorName} has shipped PO ${po.poNumber}. Tracking: ${shippingDetails.trackingNumber}`,
+                link: `/dashboard/purchase-orders/${po.id}`
+            });
+        }
+
+        return true;
+    } catch (error) {
+        console.error("[PurchaseOrders] Error shipping PO:", error);
+        throw error;
     }
 };

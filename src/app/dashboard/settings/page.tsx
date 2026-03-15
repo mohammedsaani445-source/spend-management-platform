@@ -11,7 +11,7 @@ import QRCode from "qrcode";
 import {
     User, Shield, Bell, ScrollText, Network,
     GitMerge, Users, LogOut, CheckCircle2,
-    Smartphone, X
+    Smartphone, X, Coins
 } from "lucide-react";
 import Loader from "@/components/common/Loader";
 import styles from "./Settings.module.css";
@@ -20,8 +20,9 @@ import { useScrollLock } from "@/hooks/useScrollLock";
 import WorkflowBuilder from "@/components/admin/WorkflowBuilder";
 import AuditLogViewer from "@/components/admin/AuditLogViewer";
 import HierarchyManager from "@/components/admin/HierarchyManager";
+import CurrencySettings from "@/components/admin/CurrencySettings";
 
-type Tab = 'PROFILE' | 'SECURITY' | 'NOTIFICATIONS' | 'TEAM' | 'WORKFLOWS' | 'AUDIT' | 'HIERARCHY';
+type Tab = 'PROFILE' | 'SECURITY' | 'NOTIFICATIONS' | 'TEAM' | 'WORKFLOWS' | 'AUDIT' | 'HIERARCHY' | 'POLICY' | 'CURRENCY';
 
 export default function SettingsPage() {
     return (
@@ -46,7 +47,9 @@ function SettingsContent() {
         twoFactorEnabled: false,
         twoFactorSecret: "",
         marketingEmails: true,
-        securityAlerts: true
+        securityAlerts: true,
+        budgetEnforcementLevel: 'SOFT' as 'SOFT' | 'HARD',
+        baseCurrency: 'USD'
     });
 
     const [isSaving, setIsSaving] = useState(false);
@@ -71,8 +74,28 @@ function SettingsContent() {
                 twoFactorEnabled: user.twoFactorEnabled || false,
                 twoFactorSecret: user.twoFactorSecret || "",
                 marketingEmails: user.marketingEmails ?? true,
-                securityAlerts: user.securityAlerts ?? true
+                securityAlerts: user.securityAlerts ?? true,
+                budgetEnforcementLevel: 'SOFT', // Default, will be updated if we fetch it
+                baseCurrency: (user as any).currency || 'USD'
             });
+
+            // Fetch tenant settings for policy
+            const fetchSettings = async () => {
+                const { db, DB_PREFIX } = await import("@/lib/firebase");
+                const { ref, get } = await import("firebase/database");
+                const settingsSnap = await get(ref(db, `${DB_PREFIX}/tenants/${user.tenantId}/settings`));
+                if (settingsSnap.exists()) {
+                    const settings = settingsSnap.val();
+                    setFormData(prev => ({ 
+                        ...prev, 
+                        budgetEnforcementLevel: settings.budgetEnforcementLevel || 'SOFT',
+                        baseCurrency: settings.baseCurrency || user.currency || 'USD'
+                    }));
+                } else {
+                    setFormData(prev => ({ ...prev, baseCurrency: (user as any).currency || 'USD' }));
+                }
+            };
+            fetchSettings();
         }
     }, [user]);
 
@@ -80,11 +103,17 @@ function SettingsContent() {
         const tab = searchParams.get('tab');
         if (tab) {
             const upperTab = tab.toUpperCase() as Tab;
-            if (['PROFILE', 'SECURITY', 'NOTIFICATIONS', 'TEAM', 'WORKFLOWS', 'AUDIT', 'HIERARCHY'].includes(upperTab)) {
+            if (['PROFILE', 'SECURITY', 'NOTIFICATIONS', 'TEAM', 'WORKFLOWS', 'AUDIT', 'HIERARCHY', 'POLICY', 'CURRENCY'].includes(upperTab)) {
                 setActiveTab(upperTab);
             }
         }
-    }, [searchParams]);
+        
+        // Phase 45: Mandatory 2FA Setup
+        if (searchParams.get('setupSecret') === 'true' && !formData.twoFactorEnabled) {
+            generate2FA();
+            setIs2FAModalOpen(true);
+        }
+    }, [searchParams, formData.twoFactorEnabled]);
 
     const generate2FA = async () => {
         if (!user) return;
@@ -161,15 +190,30 @@ function SettingsContent() {
         return score;
     };
 
+    const handleBaseCurrencyUpdate = async (newCurrency: string) => {
+        setFormData(prev => ({ ...prev, baseCurrency: newCurrency }));
+        // Also update AuthContext user state to ensure session is current
+        if (user) {
+            await updateProfile({ ...formData, baseCurrency: newCurrency } as any);
+        }
+    };
+
     const handleSave = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
         setIsSaving(true);
         try {
             await updateProfile(formData);
+            
+            // If on policy tab, also update tenant settings
+            if (activeTab === 'POLICY' || activeTab === 'PROFILE') {
+                const { setGlobalEnforcementLevel } = await import("@/lib/budgets");
+                await setGlobalEnforcementLevel(user!.tenantId, formData.budgetEnforcementLevel);
+            }
+
             setSaveSuccess(true);
             setTimeout(() => setSaveSuccess(false), 3000);
         } catch (error) {
-            alert("Failed to update profile.");
+            alert("Failed to update settings.");
         } finally {
             setIsSaving(false);
         }
@@ -268,7 +312,7 @@ function SettingsContent() {
                         <Bell size={18} className={styles.navIcon} /> Notifications
                     </button>
 
-                    {(user.role === 'ADMIN' || user.role === 'SUPERUSER') && (
+                    {(['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'SUPERUSER'].includes(user.role)) && (
                         <>
                             <div className={styles.navSection}>Administrative</div>
                             <button onClick={() => setActiveTab('AUDIT')} className={`${styles.navLink} ${activeTab === 'AUDIT' ? styles.navLinkActive : ''}`} data-label="Security Audit Log">
@@ -277,11 +321,17 @@ function SettingsContent() {
                             <button onClick={() => setActiveTab('HIERARCHY')} className={`${styles.navLink} ${activeTab === 'HIERARCHY' ? styles.navLinkActive : ''}`} data-label="Organizational Hierarchy">
                                 <Network size={18} className={styles.navIcon} /> Organizational Hierarchy
                             </button>
+                            <button onClick={() => setActiveTab('POLICY')} className={`${styles.navLink} ${activeTab === 'POLICY' ? styles.navLinkActive : ''}`} data-label="Procurement Policy">
+                                <Shield size={18} className={styles.navIcon} /> Procurement Policy
+                            </button>
                             <button onClick={() => setActiveTab('WORKFLOWS')} className={`${styles.navLink} ${activeTab === 'WORKFLOWS' ? styles.navLinkActive : ''}`} data-label="Workflow Designer">
                                 <GitMerge size={18} className={styles.navIcon} /> Workflow Designer
                             </button>
                             <button onClick={() => setActiveTab('TEAM')} className={`${styles.navLink} ${activeTab === 'TEAM' ? styles.navLinkActive : ''}`} data-label="Team Management">
                                 <Users size={18} className={styles.navIcon} /> Team Management
+                            </button>
+                            <button onClick={() => setActiveTab('CURRENCY')} className={`${styles.navLink} ${activeTab === 'CURRENCY' ? styles.navLinkActive : ''}`} data-label="Currency & Intelligence">
+                                <Coins size={18} className={styles.navIcon} /> Currency & Intelligence
                             </button>
                         </>
                     )}
@@ -381,12 +431,25 @@ function SettingsContent() {
                                     <div>
                                         <h4 className={styles.securityHeader}>
                                             Two-Factor Authentication (2FA)
-                                            <span className={`${styles.statusBadge} ${formData.twoFactorEnabled ? styles.statusProtected : styles.statusUnprotected}`}>
+                                            <span className={`${styles.statusBadge} ${formData.twoFactorEnabled ? styles.statusProtected : styles.statusUnprotected}`} style={{ marginRight: '0.5rem' }}>
                                                 {formData.twoFactorEnabled ? 'PROTECTED' : 'NOT ENABLED'}
                                             </span>
+                                            {!formData.twoFactorEnabled && (
+                                                <span style={{
+                                                    fontSize: '0.625rem',
+                                                    fontWeight: 800,
+                                                    padding: '2px 6px',
+                                                    borderRadius: '4px',
+                                                    background: '#E6F7FF',
+                                                    color: '#1890FF',
+                                                    border: '1px solid #91D5FF',
+                                                    letterSpacing: '0.02em',
+                                                    verticalAlign: 'middle'
+                                                }}>HIGHLY RECOMMENDED</span>
+                                            )}
                                         </h4>
                                         <p className={styles.securityDesc}>
-                                            Add an extra layer of security to your enterprise account.
+                                            Add an extra layer of security to your account with a mobile authenticator app.
                                         </p>
                                     </div>
                                     <div onClick={handle2FAToggle} className={`${styles.toggleSwitch} ${formData.twoFactorEnabled ? styles.toggleSwitchEnabled : styles.toggleSwitchDisabled}`}>
@@ -442,12 +505,74 @@ function SettingsContent() {
                             </div>
                         )}
 
+                        {activeTab === 'POLICY' && (
+                            <div>
+                                <h3 className={styles.sectionTitle}>Procurement & Budget Policy</h3>
+                                <p className={styles.sectionDesc} style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)' }}>
+                                    Define how the system enforces financial controls and budget limits across all departments.
+                                </p>
+
+                                <div className={styles.securityCard} style={{ cursor: 'default' }}>
+                                    <div style={{ flex: 1 }}>
+                                        <h4 className={styles.securityHeader}>
+                                            Budget Enforcement Level
+                                            <span className={`${styles.statusBadge} ${formData.budgetEnforcementLevel === 'HARD' ? styles.statusProtected : styles.statusUnprotected}`} style={{ marginLeft: '1rem' }}>
+                                                {formData.budgetEnforcementLevel} ENFORCEMENT
+                                            </span>
+                                        </h4>
+                                        <p className={styles.securityDesc} style={{ marginTop: '0.5rem' }}>
+                                            {formData.budgetEnforcementLevel === 'HARD' 
+                                                ? "Strict: Users are blocked from submitting requisitions that exceed their department's remaining budget."
+                                                : "Flexible: Users receive a warning but can still submit requisitions over budget. Approvers will see an 'OVER_BUDGET' flag."}
+                                        </p>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <button 
+                                            type="button"
+                                            className={`${styles.badge} ${formData.budgetEnforcementLevel === 'SOFT' ? styles.badgeActive : ''}`}
+                                            style={{ cursor: 'pointer', border: formData.budgetEnforcementLevel === 'SOFT' ? '1px solid var(--accent)' : '1px solid var(--border)', background: formData.budgetEnforcementLevel === 'SOFT' ? 'var(--accent-light)' : 'transparent' }}
+                                            onClick={() => setFormData({ ...formData, budgetEnforcementLevel: 'SOFT' })}
+                                        >
+                                            SOFT
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            className={`${styles.badge} ${formData.budgetEnforcementLevel === 'HARD' ? styles.badgeActive : ''}`}
+                                            style={{ cursor: 'pointer', border: formData.budgetEnforcementLevel === 'HARD' ? '1px solid var(--error)' : '1px solid var(--border)', background: formData.budgetEnforcementLevel === 'HARD' ? 'rgba(239, 68, 68, 0.1)' : 'transparent' }}
+                                            onClick={() => setFormData({ ...formData, budgetEnforcementLevel: 'HARD' })}
+                                        >
+                                            HARD
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className={styles.formGroup} style={{ marginTop: '2rem', padding: '1rem', background: 'rgba(255, 147, 79, 0.05)', borderRadius: '12px', borderLeft: '4px solid var(--brand)' }}>
+                                    <h5 style={{ fontWeight: 700, marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                        <CheckCircle2 size={16} /> Impact of Policy Changes
+                                    </h5>
+                                    <ul style={{ fontSize: '0.875rem', color: 'var(--text-main)', paddingLeft: '1.25rem', lineHeight: 1.6 }}>
+                                        <li>Funds are reserved ('Committed') immediately upon final requisition approval.</li>
+                                        <li>Cancellations or rejections automatically release committed funds back to the department.</li>
+                                        <li>Audit logs will track every policy adjustment for compliance reporting.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+
                         {activeTab === 'TEAM' && <UserManagement />}
                         {activeTab === 'WORKFLOWS' && <WorkflowBuilder />}
                         {activeTab === 'AUDIT' && <AuditLogViewer />}
                         {activeTab === 'HIERARCHY' && <HierarchyManager />}
 
-                        {!['TEAM', 'WORKFLOWS', 'AUDIT', 'HIERARCHY'].includes(activeTab) && (
+                        {activeTab === 'CURRENCY' && (
+                            <CurrencySettings 
+                                tenantId={user.tenantId} 
+                                currentBaseCurrency={formData.baseCurrency} 
+                                onBaseCurrencyChange={handleBaseCurrencyUpdate}
+                            />
+                        )}
+
+                        {!['TEAM', 'WORKFLOWS', 'AUDIT', 'HIERARCHY', 'CURRENCY'].includes(activeTab) && (
                             <div className={styles.actionsFooter}>
                                 {saveSuccess && (
                                     <span className={styles.successMessage}>

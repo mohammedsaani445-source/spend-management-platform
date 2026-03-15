@@ -136,9 +136,18 @@ export default function LoginPage() {
                     setIsVerifying(false);
                     return;
                 }
+
+                // Phase 45: Mandatory 2FA for sensitive roles
+                const sensitiveRoles = ['ADMIN', 'WORKSPACE_ADMIN', 'FINANCE_MANAGER', 'PROCUREMENT_OFFICER'];
+                if (sensitiveRoles.includes(userData.role) && !userData.twoFactorEnabled) {
+                    // Redirect to mandatory setup page
+                    router.push("/dashboard/settings?tab=security&setupSecret=true");
+                    return;
+                }
             }
             router.push("/dashboard");
         } catch (err) {
+            console.error("2FA Check Error:", err);
             router.push("/dashboard");
         }
     };

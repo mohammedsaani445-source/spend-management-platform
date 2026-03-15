@@ -8,8 +8,8 @@ import {
     Home, ShieldCheck, ShoppingBag, FileText, Package,
     ReceiptText, CreditCard, Receipt,
     Store, Handshake, Wallet, Boxes, Server,
-    LineChart, Target, ClipboardCheck,
-    Blocks, LifeBuoy, Settings as SettingsIcon
+    LineChart, Target, ClipboardCheck, BarChart3, Shield,
+    Blocks, LayoutDashboard
 } from "lucide-react";
 import styles from "./Layout.module.css";
 
@@ -34,7 +34,7 @@ const NAV_GROUPS = [
     {
         label: "Manage",
         items: [
-            { name: "Vendors", href: "/dashboard/vendors", icon: <Store size={20} /> },
+            { name: "Vendors", href: "/dashboard/vendors", icon: <LayoutDashboard size={20} /> },
             { name: "Contracts", href: "/dashboard/contracts", icon: <Handshake size={20} /> },
             { name: "Budgets", href: "/dashboard/budgets", icon: <Wallet size={20} /> },
             { name: "Inventory", href: "/dashboard/inventory", icon: <Boxes size={20} /> },
@@ -45,8 +45,10 @@ const NAV_GROUPS = [
         label: "Insights",
         items: [
             { name: "Analytics", href: "/dashboard/analytics", icon: <LineChart size={20} /> },
+            { name: "Reports", href: "/dashboard/reports", icon: <BarChart3 size={20} /> },
             { name: "Sourcing", href: "/dashboard/sourcing", icon: <Target size={20} /> },
             { name: "Compliance", href: "/dashboard/compliance", icon: <ClipboardCheck size={20} /> },
+            { name: "Audit Trail", href: "/dashboard/audit-trail", icon: <Shield size={20} /> },
         ]
     }
 ];
@@ -54,8 +56,6 @@ const NAV_GROUPS = [
 
 const ADMIN_ITEMS = [
     { name: "Integrations", href: "/dashboard/integrations", icon: <Blocks size={20} /> },
-    { name: "Support", href: "/dashboard/support", icon: <LifeBuoy size={20} /> },
-    { name: "Settings", href: "/dashboard/settings", icon: <SettingsIcon size={20} /> },
 ];
 
 interface SidebarProps {
@@ -75,6 +75,55 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
     const isActive = (href: string, exact?: boolean) =>
         exact ? pathname === href : pathname.startsWith(href);
 
+    const getVisibleItems = () => {
+        if (!user) return [];
+
+        const role = user.role || 'STANDARD_REQUESTER';
+
+        // Admin roles see everything
+        if (['ADMIN', 'PLATFORM_SUPERUSER', 'WORKSPACE_ADMIN', 'SUPERUSER'].includes(role)) return NAV_GROUPS;
+
+        const filteredGroups = NAV_GROUPS.map(group => {
+            const visibleItems = group.items.filter(item => {
+                const name = item.name;
+
+                // Mappings based on Technical Specifications
+                switch (role) {
+                    case 'STANDARD_REQUESTER':
+                        return ['Dashboard', 'Requisitions', 'Purchase Orders'].includes(name);
+                    case 'AUTHORIZED_APPROVER':
+                        return ['Dashboard', 'Approvals', 'Purchase Orders', 'Budgets'].includes(name);
+                    case 'PROCUREMENT_OFFICER':
+                        return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Receiving', 'Inventory', 'Vendors', 'Contracts', 'Sourcing'].includes(name);
+                    case 'OPERATIONS_RECEIVER':
+                        return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Receiving', 'Inventory', 'Assets'].includes(name);
+                    case 'ACCOUNTS_PAYABLE':
+                        return ['Dashboard', 'Invoices', 'Payments', 'Vendors'].includes(name);
+                    case 'FINANCE_MANAGER':
+                        return ['Dashboard', 'Approvals', 'Invoices', 'Payments', 'Budgets', 'Analytics'].includes(name);
+                    case 'FINANCE_SPECIALIST':
+                        return ['Dashboard', 'Invoices', 'Payments', 'Budgets', 'Vendors', 'Analytics', 'Compliance'].includes(name);
+                    case 'STRATEGIC_SOURCER':
+                        return ['Dashboard', 'Budgets', 'Vendors', 'Contracts', 'Sourcing', 'Analytics'].includes(name);
+                    case 'DATA_ANALYST':
+                        return ['Dashboard', 'Analytics', 'Sourcing', 'Compliance'].includes(name);
+                    case 'WORKSPACE_ADMIN':
+                    case 'PLATFORM_SUPERUSER':
+                    case 'ADMIN':
+                        return true;
+                    default:
+                        return ['Dashboard'].includes(name);
+                }
+            });
+
+            return { ...group, items: visibleItems };
+        }).filter(group => group.items.length > 0);
+
+        return filteredGroups;
+    };
+
+    const visibleGroups = getVisibleItems();
+
     return (
         <aside className={`${styles.sidebar} ${isCollapsed ? styles.sidebarCollapsed : ''} ${isMobileMenuOpen ? styles.sidebarMobileOpen : ''}`}>
             {/* Logo */}
@@ -88,7 +137,7 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
 
             {/* Navigation */}
             <nav className={styles.navSection}>
-                {NAV_GROUPS.map((group) => (
+                {visibleGroups.map((group) => (
                     <div key={group.label}>
                         <div className={styles.sectionTitle}>
                             {!isCollapsed ? group.label : <span style={{ opacity: 0.5 }}>—</span>}
@@ -120,7 +169,8 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                     </div>
                     <ul style={{ listStyle: 'none' }}>
                         {ADMIN_ITEMS.map((item) => {
-                            const show = item.href === '/dashboard/notifications' || user?.role === 'ADMIN';
+                            // Only Admin roles see Admin items
+                            const show = ['WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'ADMIN', 'SYSTEM_ADMIN'].includes(user?.role || '');
                             if (!show) return null;
                             return (
                                 <li key={item.name}>

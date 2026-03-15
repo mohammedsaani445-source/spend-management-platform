@@ -5,7 +5,6 @@ import {
 } from 'lucide-react';
 import { AIProcessingFeedback } from './AIProcessingFeedback';
 import { FraudAlert } from '../common/FraudAlert';
-import { extractReceiptData, extractInvoiceData } from '@/lib/ocr';
 import { suggestGLCode } from '@/lib/categorization';
 import { checkDuplicateInvoice, validateVendor, detectSpendAnomaly } from '@/lib/fraud';
 import { useScrollLock } from '@/hooks/useScrollLock';
@@ -48,13 +47,34 @@ export const ReceiptCaptureModal: React.FC<ReceiptCaptureModalProps> = ({ isOpen
         try {
             // 1. Uploading State
             setProcessingStatus('UPLOADING');
-            await new Promise(r => setTimeout(r, 800)); // Simulate upload latency
+            
+            // Helper to convert file to base64
+            const toBase64 = (file: File): Promise<string> => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result as string);
+                reader.onerror = error => reject(error);
+            });
+
+            const base64Data = await toBase64(selectedFile);
+            const base64Clean = base64Data.split(',')[1];
 
             // 2. OCR Extraction
             setProcessingStatus('EXTRACTING');
-            const data = mode === 'INVOICE'
-                ? await extractInvoiceData(URL.createObjectURL(selectedFile), user?.tenantId)
-                : await extractReceiptData(URL.createObjectURL(selectedFile), user?.tenantId);
+            
+            const response = await fetch('/api/ocr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    base64Data: base64Clean,
+                    fileName: selectedFile.name,
+                    mimeType: selectedFile.type
+                })
+            });
+
+            if (!response.ok) throw new Error('OCR Failed');
+            const data = await response.json();
+            
             setExtractedData(data);
 
             // 3. Categorization

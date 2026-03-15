@@ -56,18 +56,6 @@ export default function UserMenu() {
                     <Link href="/dashboard/settings?tab=profile" className={styles.menuItem} onClick={() => setIsOpen(false)}>
                         <UserIcon size={16} className="text-cool-slate" style={{ marginRight: '8px' }} /> My Profile
                     </Link>
-                    <Link href="/dashboard/settings?tab=security" className={styles.menuItem} onClick={() => setIsOpen(false)}>
-                        <Settings size={16} className="text-cool-slate" style={{ marginRight: '8px' }} /> Account Settings
-                    </Link>
-                    <div className={styles.menuItem} onClick={() => {
-                        window.dispatchEvent(new CustomEvent('open-help-center'));
-                        setIsOpen(false);
-                    }}>
-                        <HelpCircle size={16} className="text-cool-slate" style={{ marginRight: '8px' }} /> Help & Support
-                    </div>
-                    <div className={styles.menuItem}>
-                        <Shield size={16} className="text-cool-slate" style={{ marginRight: '8px' }} /> Security & Privacy
-                    </div>
 
 
 

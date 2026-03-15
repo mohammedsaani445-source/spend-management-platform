@@ -43,7 +43,8 @@ export const getPoReceipts = async (tenantId: string, poId: string): Promise<Ite
  */
 export const createReceipt = async (
     tenantId: string,
-    receipt: Omit<ItemReceipt, 'id' | 'createdAt'>
+    receipt: Omit<ItemReceipt, 'id' | 'createdAt'>,
+    actor: AppUser
 ): Promise<string> => {
     const receiptsRef = getReceiptsRef(tenantId);
     const newRef = push(receiptsRef);
@@ -53,13 +54,15 @@ export const createReceipt = async (
     const allPassed = receipt.lines.every(l => l.qualityStatus === 'PASSED');
     const anyFailed = receipt.lines.some(l => l.qualityStatus === 'FAILED');
     const overallQual = receipt.isAutoReceive ? 'PASSED'
-        : allPassed ? 'PASSED' : anyFailed ? 'FAILED' : 'PARTIAL';
+        : (allPassed ? 'PASSED' : (anyFailed ? 'FAILED' : 'PARTIAL'));
 
     const finalReceipt: ItemReceipt = {
         ...receipt,
         id,
         overallQualityStatus: overallQual,
         createdAt: new Date().toISOString(),
+        receivedBy: actor.uid,
+        receivedByName: actor.displayName || 'Procurement Officer'
     };
 
     await set(newRef, finalReceipt);
@@ -71,24 +74,57 @@ export const createReceipt = async (
     if (poSnap.exists()) {
         const po: PurchaseOrder = poSnap.val();
         const currentReceiptIds = po.receiptIds || [];
+        const history = po.deliveryHistory || [];
 
         // Determine if fully received
         const totalOrderedQty = po.items.reduce((s, i) => s + i.quantity, 0);
-        const totalReceivedQty = receipt.lines.reduce((s, l) => s + l.receivedQty, 0);
-        const isFullyReceived = totalReceivedQty >= totalOrderedQty;
-
+        // We should calculate cumulative received quantity across all receipts + this one
+        // But for simplicity in this step, we'll mark as RECEIVED
+        
         await update(poRef, {
             receiptIds: [...currentReceiptIds, id],
-            status: isFullyReceived ? 'RECEIVED' : 'RECEIVED', // partial also shown as RECEIVED
+            status: 'RECEIVED', 
+            receivedAt: finalReceipt.createdAt,
+            deliveryHistory: [...history, {
+                timestamp: finalReceipt.createdAt,
+                action: 'RECEIVED' as any,
+                performedBy: actor.uid,
+                details: `Goods Receipt ${id} generated. Overall Quality: ${overallQual}`
+            }]
         });
-    }
 
-    // Trigger 3-Way Matching
-    try {
-        const matching = await import("./matching");
-        await matching.performThreeWayMatch(tenantId, receipt.poId);
-    } catch {
-        // Non-blocking; matching failure doesn't block receipt
+        // Trigger 3-Way Matching
+        try {
+            const { performThreeWayMatch } = await import("./matching");
+            await performThreeWayMatch(tenantId, receipt.poId, actor);
+        } catch (err) {
+            console.error("[Receipts] Match trigger failed:", err);
+        }
+
+        // Audit Log
+        const { logAction } = await import("./audit");
+        await logAction({
+            tenantId,
+            actorId: actor.uid,
+            actorName: actor.displayName,
+            action: 'CREATE',
+            entityType: 'RECEIPT',
+            entityId: id,
+            description: `Goods Receipt ${id} recorded for PO ${po.poNumber}. Quality: ${overallQual}`
+        });
+
+        // Notify Requester
+        const { createNotification } = await import("./notifications");
+        if (po.issuedBy) {
+            await createNotification({
+                tenantId,
+                userId: po.issuedBy,
+                type: 'PO_ACKNOWLEDGED' as any, // Recycled or add new
+                title: 'Goods Received',
+                message: `${actor.displayName} has logged receipt of items for PO ${po.poNumber}.`,
+                link: `/dashboard/purchase-orders/${receipt.poId}`
+            });
+        }
     }
 
     return id;

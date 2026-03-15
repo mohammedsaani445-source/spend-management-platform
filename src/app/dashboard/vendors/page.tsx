@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Vendor } from "@/types";
 import { getVendors, addVendor } from "@/lib/vendors";
+import { generatePortalLink } from "@/lib/portal";
 import { useModal } from "@/context/ModalContext";
 import { useAuth } from "@/context/AuthContext";
 import VendorDetailModal from "@/components/vendors/VendorDetailModal";
@@ -35,6 +36,23 @@ function StatusPill({ status }: { status: string }) {
     );
 }
 
+function ComplianceBadge({ status }: { status?: string }) {
+    if (!status) return <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--text-disabled)', display: 'inline-block' }} title="Not verified" />;
+    const map: Record<string, { color: string; label: string }> = {
+        COMPLIANT:     { color: 'var(--success)', label: 'Compliant' },
+        NON_COMPLIANT: { color: 'var(--error)', label: 'Non-compliant' },
+        EXPIRING:      { color: 'var(--warning)', label: 'Expiring soon' },
+        PENDING:       { color: '#94a3b8', label: 'Pending' },
+    };
+    const { color, label } = map[status] || { color: '#94a3b8', label: status };
+    return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', fontWeight: 600, color }}>
+            <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0, display: 'inline-block' }} />
+            {label}
+        </span>
+    );
+}
+
 const defaultForm = {
     name: "", contactName: "", email: "", phone: "",
     address: "", taxId: "", category: "General",
@@ -51,6 +69,8 @@ export default function VendorsPage() {
     const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
     const [search, setSearch] = useState('');
     const [formData, setFormData] = useState(defaultForm);
+
+    const [sendingPortalFor, setSendingPortalFor] = useState<string | null>(null);
 
     useScrollLock(isFormOpen);
 
@@ -78,6 +98,17 @@ export default function VendorsPage() {
         }
     };
 
+    const handleSendPortalLink = async (vendor: Vendor) => {
+        if (!user || !vendor.id) return;
+        try {
+            const link = await generatePortalLink(user.tenantId, vendor.id);
+            await navigator.clipboard.writeText(link);
+            await showAlert("Portal Link Copied", `Secure portal link for ${vendor.name} has been copied to your clipboard. It expires in 7 days.\n\n${link}`);
+        } catch (error: any) {
+            await showError("Error", `Failed to generate portal link: ${error.message}`);
+        }
+    };
+
     const filtered = vendors.filter(v =>
         v.name.toLowerCase().includes(search.toLowerCase()) ||
         v.email.toLowerCase().includes(search.toLowerCase()) ||
@@ -100,7 +131,7 @@ export default function VendorsPage() {
             </div>
 
             {/* Stats strip */}
-            <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
                 {[
                     { label: 'Total Vendors', value: vendors.length, color: 'var(--brand)', bg: 'var(--brand-soft)' },
                     { label: 'Active', value: activeCount, color: 'var(--success)', bg: 'var(--success-bg)' },
@@ -142,15 +173,16 @@ export default function VendorsPage() {
                     </div>
                 </div>
             ) : (
-                <div className="table-wrapper responsive-table">
+                <div className="table-wrapper">
                     <table className="data-table">
                         <thead>
                             <tr>
                                 <th>Company</th>
-                                <th className="hidden-mobile">Contact</th>
-                                <th className="hidden-mobile">Email</th>
+                                <th>Contact</th>
+                                <th>Email</th>
                                 <th>Category</th>
-                                <th className="hidden-mobile">Payment</th>
+                                <th>Payment</th>
+                                <th>Compliance</th>
                                 <th>Status</th>
                                 <th></th>
                             </tr>
@@ -158,27 +190,26 @@ export default function VendorsPage() {
                         <tbody>
                             {filtered.map(vendor => (
                                 <tr key={vendor.id} onClick={() => setSelectedVendor(vendor)} style={{ cursor: 'pointer' }}>
-                                    <td data-label="Company">
+                                    <td>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                                             <VendorAvatar name={vendor.name} />
                                             <span style={{ fontWeight: 600 }}>{vendor.name}</span>
                                         </div>
                                     </td>
-                                    <td data-label="Contact" className="hidden-mobile">{vendor.contactName}</td>
-                                    <td data-label="Email" className="hidden-mobile" style={{ color: 'var(--text-secondary)' }}>{vendor.email}</td>
-                                    <td data-label="Category">
+                                    <td>{vendor.contactName}</td>
+                                    <td style={{ color: 'var(--text-secondary)' }}>{vendor.email}</td>
+                                    <td>
                                         <span style={{ fontSize: '0.8125rem', background: 'var(--surface-hover)', color: 'var(--text-secondary)', padding: '2px 8px', borderRadius: 6, fontWeight: 500 }}>
                                             {vendor.category || 'General'}
                                         </span>
                                     </td>
-                                    <td data-label="Payment" className="hidden-mobile" style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>{vendor.paymentMethod || 'ACH'}</td>
-                                    <td data-label="Status"><StatusPill status={vendor.status} /></td>
+                                    <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>{vendor.paymentMethod || 'ACH'}</td>
+                                    <td><ComplianceBadge status={vendor.complianceStatus} /></td>
+                                    <td><StatusPill status={vendor.status} /></td>
                                     <td>
-                                        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                            <button className="btn btn-ghost btn-sm" onClick={e => { e.stopPropagation(); setSelectedVendor(vendor); }}>
-                                                View →
-                                            </button>
-                                        </div>
+                                        <button className="btn btn-ghost btn-sm" onClick={e => { e.stopPropagation(); setSelectedVendor(vendor); }}>
+                                            View →
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -192,11 +223,13 @@ export default function VendorsPage() {
                 <VendorDetailModal
                     vendor={selectedVendor}
                     onClose={() => setSelectedVendor(null)}
+                    onUpdate={() => fetchVendors()}
                     onEdit={v => {
                         setFormData({ name: v.name, contactName: v.contactName, email: v.email, phone: v.phone || "", address: v.address || "", taxId: v.taxId || "", category: v.category || "General", paymentMethod: v.paymentMethod || "ACH", directPayEnabled: v.directPayEnabled || false });
                         setSelectedVendor(null);
                         setIsFormOpen(true);
                     }}
+                    onSendPortalLink={() => handleSendPortalLink(selectedVendor)}
                 />
             )}
 
@@ -209,7 +242,7 @@ export default function VendorsPage() {
                             <button onClick={() => setIsFormOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.25rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>×</button>
                         </div>
                         <form onSubmit={handleSubmit}>
-                            <div className="modal-body grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                            <div className="modal-body" style={{ display: 'grid', gap: '1rem' }}>
                                 {[
                                     { label: 'Company Name *', key: 'name', type: 'text', required: true },
                                     { label: 'Contact Name *', key: 'contactName', type: 'text', required: true },

@@ -1,8 +1,8 @@
-import { db } from "./firebase";
+import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, update } from "firebase/database";
 import { ApiKey } from "@/types";
 
-const COLLECTION_NAME = "api_keys";
+const COLLECTION_NAME = `${DB_PREFIX}/api_keys`;
 
 /**
  * Generates a new API Key.

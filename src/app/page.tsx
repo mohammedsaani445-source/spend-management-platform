@@ -10,16 +10,21 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { useIntersection } from "@/hooks/useIntersection";
+import ProductTour from "@/components/common/ProductTour";
 import styles from "./Procurify.module.css";
 import motion from "./Animations.module.css";
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
   // Intersection Refs
   const [heroRef, heroInView] = useIntersection();
   const [compRef, compInView] = useIntersection();
   const [gridRef, gridInView] = useIntersection();
+  const [p2pRef, p2pInView] = useIntersection();
+  const [assetsRef, assetsInView] = useIntersection();
+  const [aiRef, aiInView] = useIntersection();
   const [mobileRef, mobileInView] = useIntersection();
   const [ctaRef, ctaInView] = useIntersection();
 
@@ -64,15 +69,19 @@ export default function LandingPage() {
             <Link href="/login" className="btn btn-primary btn-lg" style={{ borderRadius: "100px", padding: "0 2.5rem" }}>
               Book a Demo <ArrowRight size={18} />
             </Link>
-            <button className="btn btn-secondary btn-lg" style={{ borderRadius: "100px", padding: "0 2.5rem" }}>
+            <button 
+              onClick={() => setShowTour(true)}
+              className={`btn btn-secondary btn-lg ${styles.tourButtonGlow}`}
+              style={{ borderRadius: "100px", padding: "0 2.5rem" }}
+            >
               <PlayCircle size={18} /> Watch Product Tour
             </button>
           </div>
         </div>
 
-        <div className={`${styles.heroVisual} ${heroInView ? motion.scale : ""}`} style={{ opacity: 0 }}>
+        <div className={`${styles.heroVisual} ${heroInView ? motion.scale : ""}`}>
           <Image
-            src="/hero-crystal-light.png"
+            src="/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/hero_apex_dashboard_ultra_1773601444075.png"
             alt="Apex Procure Dashboard"
             width={1200}
             height={700}
@@ -105,8 +114,95 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* --- FEATURE CLUSTERS --- */}
-      <section id="features" style={{ padding: '100px 0' }} ref={gridRef as any}>
+      {/* --- PLATFORM DEEP DIVES --- */}
+      <section id="features" className={styles.meshBackground}>
+        {/* P2P Section */}
+        <div className={styles.featureDetail} ref={p2pRef as any}>
+          <div className={`${styles.featureContent} ${p2pInView ? motion.reveal : ""}`} style={{ opacity: 0 }}>
+            <span className={styles.benefitLabel}>Procure-to-Pay</span>
+            <h2 className={styles.featureTitle}>From request to payment, <span style={{color: '#E8572A'}}>completely unified.</span></h2>
+            <p className={styles.featureDescription}>
+              Eliminate "rogue spend" with a centralized platform that scales with your growth. 
+              Manage requisitions, purchase orders, and vendor payments in one seamless flow.
+            </p>
+            <div className={styles.featureList}>
+              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> 3-Way OCR Matching (PO, Invoice, Receipt)</div>
+              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Custom Multi-level Approval Workflows</div>
+              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Real-time Budget vs. Actual Tracking</div>
+            </div>
+            <Link href="/login" className="btn btn-primary" style={{ marginTop: '2.5rem', borderRadius: '100px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              Explore P2P Flow <ArrowRight size={18} />
+            </Link>
+          </div>
+          <div className={`${styles.featureVisual} ${p2pInView ? motion.scale : ""}`} style={{ opacity: 0 }}>
+            <Image 
+              src="/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/p2p_ultra_hd_v2_1773601464478.png" 
+              alt="P2P Dashboard" 
+              width={700} height={500} 
+              style={{ width: '100%', height: 'auto', borderRadius: '20px' }}
+            />
+          </div>
+        </div>
+
+        {/* Assets Section */}
+        <div className={`${styles.featureDetail} ${styles.featureDetailReverse}`} ref={assetsRef as any}>
+          <div className={`${styles.featureContent} ${assetsInView ? motion.reveal : ""}`} style={{ opacity: 0 }}>
+            <span className={styles.benefitLabel}>Enterprise Asset Management</span>
+            <h2 className={styles.featureTitle}>Every asset. <span style={{color: '#E8572A'}}>Tracked.</span> Every lifecycle. <span style={{color: '#E8572A'}}>Mastered.</span></h2>
+            <p className={styles.featureDescription}>
+              Stop losing track of enterprise infrastructure. Our asset registry tracks everything 
+              from acquisition price to maintenance cycles and disposal.
+            </p>
+            <div className={styles.featureList}>
+              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Automated Asset Tagging & Serial Tracking</div>
+              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Departmental & Location Attribution</div>
+              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Real-time "Active Pulse" Health Monitoring</div>
+            </div>
+            <Link href="/login" className="btn btn-primary" style={{ marginTop: '2.5rem', borderRadius: '100px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              Manage Your Fleet <ArrowRight size={18} />
+            </Link>
+          </div>
+          <div className={`${styles.featureVisual} ${assetsInView ? motion.scale : ""}`} style={{ opacity: 0 }}>
+            <Image 
+              src="/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/platform_showcase_assets_1773600981351.png" 
+              alt="Asset Registry UI" 
+              width={700} height={500} 
+              style={{ width: '100%', height: 'auto', borderRadius: '20px' }}
+            />
+          </div>
+        </div>
+
+        {/* AI Section */}
+        <div className={styles.featureDetail} ref={aiRef as any}>
+          <div className={`${styles.featureContent} ${aiInView ? motion.reveal : ""}`} style={{ opacity: 0 }}>
+            <span className={styles.benefitLabel}>The Mind of Apex</span>
+            <h2 className={styles.featureTitle}>Financial Intelligence, <span style={{color: '#E8572A'}}>Autonomous & Proactive.</span></h2>
+            <p className={styles.featureDescription}>
+              Meet Apex, your autonomous AI analyst. It doesn't just report numbers—it finds 
+              savings opportunities, predicts budget breaches, and flags fraud before it happens.
+            </p>
+            <div className={styles.featureList}>
+              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Proactive Savings Opportunity Alerts</div>
+              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Natural Language Financial Analysis</div>
+              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Guardrail AI™ Fraud Detection</div>
+            </div>
+            <Link href="/login" className="btn btn-primary" style={{ marginTop: '2.5rem', borderRadius: '100px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              Meet Apex AI <ArrowRight size={18} />
+            </Link>
+          </div>
+          <div className={`${styles.featureVisual} ${aiInView ? motion.scale : ""}`} style={{ opacity: 0 }}>
+            <Image 
+              src="/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/ai_ultra_hd_v2_1773601484996.png" 
+              alt="AI Financial Analyst" 
+              width={700} height={500} 
+              style={{ width: '100%', height: 'auto', borderRadius: '20px' }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* --- REFINED GRID (ADDITIONAL FEATURES) --- */}
+      <section style={{ padding: '100px 0' }} ref={gridRef as any}>
         <h2 className={styles.sectionTitle}>Everything you need to scale.</h2>
         <div className={styles.grid}>
           {[
@@ -151,9 +247,6 @@ export default function LandingPage() {
               <div className={styles.icon}>{item.icon}</div>
               <h3 className={styles.cardTitle}>{item.title}</h3>
               <p className={styles.cardText}>{item.text}</p>
-              <Link href={`/features/${item.slug}`} className={styles.navLink} style={{ color: '#E8572A', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                Learn More <ChevronRight size={16} />
-              </Link>
             </div>
           ))}
         </div>
@@ -219,6 +312,8 @@ export default function LandingPage() {
           © {new Date().getFullYear()} Apex Procure Inc. All rights reserved.
         </div>
       </footer>
+
+      {showTour && <ProductTour onClose={() => setShowTour(false)} />}
     </div>
   );
 }

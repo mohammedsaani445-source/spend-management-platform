@@ -30,7 +30,7 @@ export default function UserManagement() {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("");
 
-    const ROLES: UserRole[] = ["ADMIN", "SUPERUSER", "APPROVER", "FINANCE", "REQUESTER", "AP_USER", "FINANCE_MANAGER", "STRATEGIC_SOURCER", "PURCHASER", "RECEIVER", "REPORTER"];
+    const ROLES: UserRole[] = ["ADMIN", "WORKSPACE_ADMIN", "PLATFORM_SUPERUSER", "STANDARD_REQUESTER", "AUTHORIZED_APPROVER", "PROCUREMENT_OFFICER", "OPERATIONS_RECEIVER", "ACCOUNTS_PAYABLE", "FINANCE_MANAGER", "FINANCE_SPECIALIST", "STRATEGIC_SOURCER", "DATA_ANALYST"];
     const [activeSubTab, setActiveSubTab] = useState<'DIRECTORY' | 'REQUESTS'>('DIRECTORY');
 
     useEffect(() => {

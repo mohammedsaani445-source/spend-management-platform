@@ -103,6 +103,10 @@
             ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
             ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
           },
+          "settings": {
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
+          },
           "auditLogs": {
             ".indexOn": [
               "timestamp"
@@ -161,7 +165,34 @@
           "payment_runs": {
             ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
             ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
+          },
+          "tenders": {
+            ".indexOn": ["status", "deadline"],
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'WORKSPACE_ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'PROCUREMENT_OFFICER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'STRATEGIC_SOURCER')"
+          },
+          "rfps": {
+            ".indexOn": ["status", "deadline"],
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'PROCUREMENT_OFFICER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'STRATEGIC_SOURCER')"
+          },
+          "quotations": {
+            ".indexOn": ["rfpId", "vendorId"],
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null || !data.exists()"
+          },
+          "bids": {
+            ".indexOn": ["tenderId", "vendorId"],
+            ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
+            ".write": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId"
           }
+        }
+      },
+      "api_keys": {
+        ".read": "auth != null",
+        "$keyId": {
+          ".read": "auth != null && data.child('tenantId').val() === root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val()",
+          ".write": "auth != null && (root.child('v2_production').child('userTenants').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('userTenants').child(auth.uid).child('role').val() === 'SUPERUSER' || !data.exists())"
         }
       },
       "portalSessions": {

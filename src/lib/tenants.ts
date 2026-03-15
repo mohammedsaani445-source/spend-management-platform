@@ -7,6 +7,13 @@ export interface Tenant {
     currency: string;
     createdAt: number;
     plan?: 'BASIC' | 'PRO' | 'ENTERPRISE';
+    settings?: TenantSettings;
+}
+
+export interface TenantSettings {
+    baseCurrency: string;
+    requireThreeWayMatch?: boolean;
+    budgetEnforcementLevel?: 'SOFT' | 'HARD';
 }
 
 export const getAllTenants = async (): Promise<Tenant[]> => {
@@ -77,4 +84,27 @@ export const backfillTenantRegistry = async (): Promise<number> => {
         await update(ref(db), updates);
     }
     return count;
+};
+
+export const updateTenantCurrency = async (tenantId: string, currency: string) => {
+    const tenantRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}`);
+    const registryRef = ref(db, `${DB_PREFIX}/tenant_registry/${tenantId}`);
+    
+    const { update } = await import("firebase/database");
+    
+    const updates: any = {};
+    updates[`${DB_PREFIX}/tenants/${tenantId}/currency`] = currency;
+    updates[`${DB_PREFIX}/tenants/${tenantId}/settings/baseCurrency`] = currency;
+    updates[`${DB_PREFIX}/tenant_registry/${tenantId}/currency`] = currency;
+    
+    await update(ref(db), updates);
+};
+
+export const getTenant = async (id: string): Promise<Tenant | null> => {
+    const tenantRef = ref(db, `${DB_PREFIX}/tenants/${id}`);
+    const snapshot = await get(tenantRef);
+    if (snapshot.exists()) {
+        return { id, ...snapshot.val() } as Tenant;
+    }
+    return null;
 };

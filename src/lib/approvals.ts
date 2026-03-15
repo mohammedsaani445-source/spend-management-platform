@@ -151,35 +151,146 @@ export const processApprovalAction = async (
         approvalHistory: updatedHistory
     };
 
+    // --- CONFLICT OF INTEREST GATE (Logic Gate 3.3) ---
+    if (action === 'APPROVE') {
+        const requesterId = entityType === 'REQUISITION' 
+            ? (entity as Requisition).requesterId 
+            : (entity as PurchaseOrder).issuedBy;
+            
+        if (actor.uid === requesterId) {
+            // Log the blocked attempt
+            await logAction({
+                tenantId,
+                actorId: actor.uid,
+                actorName: actor.name,
+                action: 'APPROVE',
+                entityType: entityType === 'REQUISITION' ? 'REQUISITION' : 'PURCHASE_ORDER',
+                entityId,
+                description: `Blocked self-approval attempt by ${actor.name} for ${entityType} ${entityId}`
+            });
+            throw new Error("Conflict of Interest: You cannot approve your own record.");
+        }
+    }
+
+    const auditActionMap: Record<string, any> = {
+        'APPROVE': entityType === 'REQUISITION' ? 'PR_APPROVED' : 'PO_SENT', // PO_SENT is the closest for PO approval step
+        'REJECT': entityType === 'REQUISITION' ? 'PR_REJECTED' : 'UPDATE',
+        'REVISION_REQUESTED': 'UPDATE'
+    };
+
     if (action === 'REJECT') {
         updates.status = 'REJECTED';
-    } else if (action === 'REVISION_REQUESTED') {
-        updates.status = 'PENDING'; // Or a new status like 'REVISION_NEEDED'
-    } else {
-        // APPROVE: Advance to next step
-        const nextStepIndex = (entity.currentStepIndex || 0) + 1;
-
-        // Log action for the current step
         await logAction({
             tenantId,
             actorId: actor.uid,
             actorName: actor.name,
-            actorEmail: actor.email,
-            action: 'APPROVE',
-            entityType: entityType,
-            entityId: entityId,
-            description: `Approved stage: ${currentStepName}`
+            action: auditActionMap['REJECT'],
+            entityType: entityType === 'REQUISITION' ? 'REQUISITION' : 'PURCHASE_ORDER',
+            entityId,
+            description: `Rejected ${entityType}: ${comment || 'No comment'}`
+        });
+
+        // 🛡️ Phase 58: Release funds if previously reserved
+        if (entity.status === 'APPROVED' || entity.status === 'PENDING') {
+            try {
+                const { releaseFunds } = await import("./budgets");
+                const amount = (entity as any).totalAmount;
+                await releaseFunds(tenantId, entity.department, amount);
+            } catch (err) {
+                console.error("[Budget] Release failed during rejection:", err);
+            }
+        }
+
+        // 🔔 Notification Trigger
+        try {
+            const { notifyUser } = await import("./notifications");
+            const requesterId = entityType === 'REQUISITION' ? (entity as Requisition).requesterId : (entity as PurchaseOrder).issuedBy;
+            await notifyUser(
+                tenantId,
+                requesterId,
+                'APPROVAL_REJECTED',
+                `${entityType} Rejected`,
+                `Your ${entityType === 'REQUISITION' ? 'requisition' : 'purchase order'} ${entityId} has been rejected by ${actor.name}.`,
+                `/dashboard/${entityType === 'REQUISITION' ? 'requisitions' : 'purchase-orders'}`
+            );
+        } catch (err) {
+            console.error("Notify error:", err);
+        }
+    } else if (action === 'REVISION_REQUESTED') {
+        updates.status = 'PENDING';
+        await logAction({
+            tenantId,
+            actorId: actor.uid,
+            actorName: actor.name,
+            action: 'UPDATE',
+            entityType: entityType === 'REQUISITION' ? 'REQUISITION' : 'PURCHASE_ORDER',
+            entityId,
+            description: `Revision requested for ${entityType}: ${comment || 'No comment'}`
+        });
+
+        // 🔔 Notification Trigger
+        try {
+            const { notifyUser } = await import("./notifications");
+            const requesterId = entityType === 'REQUISITION' ? (entity as Requisition).requesterId : (entity as PurchaseOrder).issuedBy;
+            await notifyUser(
+                tenantId,
+                requesterId,
+                'SYSTEM',
+                'Revision Requested',
+                `Revision has been requested for your ${entityType === 'REQUISITION' ? 'requisition' : 'purchase order'} ${entityId} by ${actor.name}.`,
+                `/dashboard/${entityType === 'REQUISITION' ? 'requisitions' : 'purchase-orders'}`
+            );
+        } catch (err) {
+            console.error("Notify error:", err);
+        }
+    } else {
+        // APPROVE: Advance to next step
+        const nextStepIndex = (entity.currentStepIndex || 0) + 1;
+
+        await logAction({
+            tenantId,
+            actorId: actor.uid,
+            actorName: actor.name,
+            action: auditActionMap['APPROVE'],
+            entityType: entityType === 'REQUISITION' ? 'REQUISITION' : 'PURCHASE_ORDER',
+            entityId,
+            description: `Approved stage "${currentStepName}" for ${entityType}.`
         });
 
         if (!workflow || nextStepIndex >= workflow.steps.length) {
             updates.status = 'APPROVED';
             if (workflow) updates.currentStepIndex = nextStepIndex; // Marks completion
+
+            // 🔔 Notification Trigger (Final Approval)
+            try {
+                const { notifyUser } = await import("./notifications");
+                const requesterId = entityType === 'REQUISITION' ? (entity as Requisition).requesterId : (entity as PurchaseOrder).issuedBy;
+                await notifyUser(
+                    tenantId,
+                    requesterId,
+                    'APPROVAL_GRANTED',
+                    `${entityType} Approved`,
+                    `Your ${entityType === 'REQUISITION' ? 'requisition' : 'purchase order'} ${entityId} has been fully approved.`,
+                    `/dashboard/${entityType === 'REQUISITION' ? 'requisitions' : 'purchase-orders'}`
+                );
+            } catch (err) {
+                console.error("Notify error:", err);
+            }
+
+            // 🛡️ Phase 58: Reserve Funds (Final Approval)
+            try {
+                const { reserveFunds } = await import("./budgets");
+                const amount = (entity as any).totalAmount;
+                await reserveFunds(tenantId, entity.department, amount);
+            } catch (err) {
+                console.error("[Budget] Fund reservation failed:", err);
+            }
         } else {
             // Find next applicable step (handles thresholds)
             let finalNextIndex = nextStepIndex;
             while (finalNextIndex < workflow.steps.length) {
                 const step = workflow.steps[finalNextIndex];
-                const amount = entityType === 'REQUISITION' ? (entity as Requisition).totalAmount : (entity as PurchaseOrder).totalAmount;
+                const amount = (entity as any).totalAmount;
 
                 const min = step.thresholdMin ?? 0;
                 const max = step.thresholdMax ?? Infinity;
@@ -192,12 +303,54 @@ export const processApprovalAction = async (
 
             if (finalNextIndex >= workflow.steps.length) {
                 updates.status = 'APPROVED';
+                
+                // 🔔 Notification Trigger (Final Approval - skipped steps)
+                try {
+                    const { notifyUser } = await import("./notifications");
+                    const requesterId = entityType === 'REQUISITION' ? (entity as Requisition).requesterId : (entity as PurchaseOrder).issuedBy;
+                    await notifyUser(
+                        tenantId,
+                        requesterId,
+                        'APPROVAL_GRANTED',
+                        `${entityType} Approved`,
+                        `Your ${entityType === 'REQUISITION' ? 'requisition' : 'purchase order'} ${entityId} has been fully approved.`,
+                        `/dashboard/${entityType === 'REQUISITION' ? 'requisitions' : 'purchase-orders'}`
+                    );
+                } catch (err) {
+                    console.error("Notify error:", err);
+                }
+
+                // 🛡️ Phase 58: Reserve Funds (Final Approval via skipped steps)
+                try {
+                    const { reserveFunds } = await import("./budgets");
+                    const amount = (entity as any).totalAmount;
+                    await reserveFunds(tenantId, entity.department, amount);
+                } catch (err) {
+                    console.error("[Budget] Fund reservation failed (skipped steps):", err);
+                }
             } else {
                 updates.currentStepIndex = finalNextIndex;
                 const nextApprovers = await getCurrentStepApprovers(tenantId, workflow, finalNextIndex, entityType === 'REQUISITION' ? (entity as Requisition).requesterId : (entity as PurchaseOrder).issuedBy);
                 if (nextApprovers.length > 0) {
                     updates.approverId = nextApprovers[0].uid;
                     updates.approverName = nextApprovers[0].name;
+
+                    // 🔔 Notification Trigger (Next Approver)
+                    try {
+                        const { notifyUser } = await import("./notifications");
+                        for (const app of nextApprovers) {
+                            await notifyUser(
+                                tenantId,
+                                app.uid,
+                                'APPROVAL_REQUEST',
+                                'Approval Required',
+                                `A ${entityType} (${entityId}) requires your approval.`,
+                                `/dashboard/approvals`
+                            );
+                        }
+                    } catch (err) {
+                        console.error("Notify error:", err);
+                    }
                 }
             }
         }

@@ -17,7 +17,7 @@ export const createUserProfile = async (user: { uid: string, email: string | nul
                 email: user.email || "",
                 displayName: user.displayName || "User",
                 photoURL: user.photoURL || "",
-                role: 'REQUESTER',
+                role: 'STANDARD_REQUESTER',
                 userType: 'PRO',
                 department: 'General',
                 locationId: 'default',
