@@ -94,7 +94,7 @@ export default function LandingPage() {
       {/* --- THE "WHY" (COMPARISON) --- */}
       <section className={styles.comparison} ref={compRef as any}>
         <div className={styles.comparisonInner}>
-          <div className={`${styles.comparisonCard} ${compInView ? motion.reveal : ""}`} style={{ opacity: 0 }}>
+          <div className={`${styles.comparisonCard} ${compInView ? motion.reveal : ""}`}>
             <XCircle color="#B72136" size={32} style={{ marginBottom: '1.5rem' }} />
             <h3 className={styles.comparisonTitle}>The Manual Way</h3>
             <div className={styles.comparisonItem}>• Fragmented emails & spreadsheet tracking</div>
@@ -103,7 +103,7 @@ export default function LandingPage() {
             <div className={styles.comparisonItem}>• High risk of duplicate or fraudulent invoices</div>
           </div>
 
-          <div className={`${styles.comparisonCard} ${compInView ? motion.reveal : ""}`} style={{ opacity: 0, border: '2px solid #E8572A' }}>
+          <div className={`${styles.comparisonCard} ${compInView ? motion.reveal : ""}`} style={{ border: '2px solid #E8572A' }}>
             <CheckCircle color="#00AB55" size={32} style={{ marginBottom: '1.5rem' }} />
             <h3 className={styles.comparisonTitle}>The Apex Way</h3>
             <div className={styles.comparisonItem} style={{ color: '#1A1A1A', fontWeight: 600 }}><CheckCircle2 size={18} color="#00AB55" /> Centralized real-time requisitioning</div>
@@ -243,7 +243,7 @@ export default function LandingPage() {
               slug: "spend-insights"
             }
           ].map((item, idx) => (
-            <div key={idx} className={`${styles.card} ${gridInView ? motion.reveal : ""} ${motion['delay' + (idx % 3 + 1) as keyof typeof motion]}`} style={{ opacity: 0 }}>
+            <div key={idx} className={`${styles.card} ${gridInView ? motion.reveal : ""} ${motion['delay' + (idx % 3 + 1) as keyof typeof motion]}`}>
               <div className={styles.icon}>{item.icon}</div>
               <h3 className={styles.cardTitle}>{item.title}</h3>
               <p className={styles.cardText}>{item.text}</p>
@@ -255,7 +255,7 @@ export default function LandingPage() {
       {/* --- MOBILE MASTERY --- */}
       <section className={styles.mobileSection} ref={mobileRef as any}>
         <div className={styles.mobileInner}>
-          <div className={mobileInView ? motion.reveal : ""} style={{ opacity: 0 }}>
+          <div className={mobileInView ? motion.reveal : ""}>
             <span style={{ color: '#E8572A', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Mobile Native</span>
             <h2 className={styles.heroTitle} style={{ color: 'white', marginTop: '1rem' }}>Total Control in Your Pocket.</h2>
             <p className={styles.heroSubtitle} style={{ color: '#919EAB', textAlign: 'left', marginLeft: 0 }}>
@@ -270,7 +270,7 @@ export default function LandingPage() {
               Explore Mobile Features
             </Link>
           </div>
-          <div className={mobileInView ? motion.scale : ""} style={{ opacity: 0, display: 'flex', justifyContent: 'center' }}>
+          <div className={mobileInView ? motion.scale : ""} style={{ display: 'flex', justifyContent: 'center' }}>
             <Image src="/mobile-mockup.png" alt="Mobile App" width={300} height={600} className={motion.float} />
           </div>
         </div>
@@ -278,7 +278,7 @@ export default function LandingPage() {
 
       {/* --- FINAL CTA --- */}
       <section className={styles.cta} ref={ctaRef as any}>
-        <div className={`${styles.ctaBox} ${ctaInView ? motion.scale : ""} ${motion.glow}`} style={{ opacity: 0 }}>
+        <div className={`${styles.ctaBox} ${ctaInView ? motion.scale : ""} ${motion.glow}`}>
           <h2 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '1.5rem' }}>Take the first step to proactive spend management.</h2>
           <p style={{ fontSize: '1.25rem', opacity: 0.9, marginBottom: '3rem' }}>Join the forward-thinking finance teams using Apex Procure.</p>
           <Link href="/login" className="btn btn-secondary btn-lg" style={{ background: 'white', color: '#E8572A', fontSize: '1.25rem', borderRadius: '100px', padding: '0 3.5rem' }}>
