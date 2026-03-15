@@ -1,5 +1,7 @@
 {
-  "projects": {},
+  "projects": {
+    "npx firebase deploy --only database": "spend-management-platform"
+  },
   "targets": {},
   "etags": {}
 }

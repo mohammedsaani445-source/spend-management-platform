@@ -81,7 +81,7 @@ export default function LandingPage() {
 
         <div className={`${styles.heroVisual} ${heroInView ? motion.scale : ""}`}>
           <Image
-            src="/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/hero_apex_dashboard_ultra_1773601444075.png"
+            src="/hero_apex_dashboard_ultra_1773601444075.png"
             alt="Apex Procure Dashboard"
             width={1200}
             height={700}
@@ -118,7 +118,7 @@ export default function LandingPage() {
       <section id="features" className={styles.meshBackground}>
         {/* P2P Section */}
         <div className={styles.featureDetail} ref={p2pRef as any}>
-          <div className={`${styles.featureContent} ${p2pInView ? motion.reveal : ""}`} style={{ opacity: 0 }}>
+          <div className={`${styles.featureContent} ${p2pInView ? motion.reveal : ""}`}>
             <span className={styles.benefitLabel}>Procure-to-Pay</span>
             <h2 className={styles.featureTitle}>From request to payment, <span style={{color: '#E8572A'}}>completely unified.</span></h2>
             <p className={styles.featureDescription}>
@@ -134,9 +134,9 @@ export default function LandingPage() {
               Explore P2P Flow <ArrowRight size={18} />
             </Link>
           </div>
-          <div className={`${styles.featureVisual} ${p2pInView ? motion.scale : ""}`} style={{ opacity: 0 }}>
+          <div className={`${styles.featureVisual} ${p2pInView ? motion.scale : ""}`}>
             <Image 
-              src="/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/p2p_ultra_hd_v2_1773601464478.png" 
+              src="/p2p_ultra_hd_v2_1773601464478.png" 
               alt="P2P Dashboard" 
               width={700} height={500} 
               style={{ width: '100%', height: 'auto', borderRadius: '20px' }}
@@ -146,7 +146,7 @@ export default function LandingPage() {
 
         {/* Assets Section */}
         <div className={`${styles.featureDetail} ${styles.featureDetailReverse}`} ref={assetsRef as any}>
-          <div className={`${styles.featureContent} ${assetsInView ? motion.reveal : ""}`} style={{ opacity: 0 }}>
+          <div className={`${styles.featureContent} ${assetsInView ? motion.reveal : ""}`}>
             <span className={styles.benefitLabel}>Enterprise Asset Management</span>
             <h2 className={styles.featureTitle}>Every asset. <span style={{color: '#E8572A'}}>Tracked.</span> Every lifecycle. <span style={{color: '#E8572A'}}>Mastered.</span></h2>
             <p className={styles.featureDescription}>
@@ -162,9 +162,9 @@ export default function LandingPage() {
               Manage Your Fleet <ArrowRight size={18} />
             </Link>
           </div>
-          <div className={`${styles.featureVisual} ${assetsInView ? motion.scale : ""}`} style={{ opacity: 0 }}>
+          <div className={`${styles.featureVisual} ${assetsInView ? motion.scale : ""}`}>
             <Image 
-              src="/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/platform_showcase_assets_1773600981351.png" 
+              src="/platform_showcase_assets_1773600981351.png" 
               alt="Asset Registry UI" 
               width={700} height={500} 
               style={{ width: '100%', height: 'auto', borderRadius: '20px' }}
@@ -174,7 +174,7 @@ export default function LandingPage() {
 
         {/* AI Section */}
         <div className={styles.featureDetail} ref={aiRef as any}>
-          <div className={`${styles.featureContent} ${aiInView ? motion.reveal : ""}`} style={{ opacity: 0 }}>
+          <div className={`${styles.featureContent} ${aiInView ? motion.reveal : ""}`}>
             <span className={styles.benefitLabel}>The Mind of Apex</span>
             <h2 className={styles.featureTitle}>Financial Intelligence, <span style={{color: '#E8572A'}}>Autonomous & Proactive.</span></h2>
             <p className={styles.featureDescription}>
@@ -190,9 +190,9 @@ export default function LandingPage() {
               Meet Apex AI <ArrowRight size={18} />
             </Link>
           </div>
-          <div className={`${styles.featureVisual} ${aiInView ? motion.scale : ""}`} style={{ opacity: 0 }}>
+          <div className={`${styles.featureVisual} ${aiInView ? motion.scale : ""}`}>
             <Image 
-              src="/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/ai_ultra_hd_v2_1773601484996.png" 
+              src="/ai_ultra_hd_v2_1773601484996.png" 
               alt="AI Financial Analyst" 
               width={700} height={500} 
               style={{ width: '100%', height: 'auto', borderRadius: '20px' }}

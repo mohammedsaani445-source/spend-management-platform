@@ -16,25 +16,25 @@ const TOUR_STEPS: TourStep[] = [
         tag: "Procure-to-Pay",
         title: "The Requisition Flow",
         description: "Experience the ease of requesting spend. From the first click to the final approval, every step is optimized for speed and clarity.",
-        image: "/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/apex_tour_p2p_cinematic_1773601842141.png"
+        image: "/apex_tour_p2p_cinematic_1773601842141.png"
     },
     {
         tag: "Autonomous AP",
         title: "3-Way Match Perfection",
         description: "Our AI OCR engine automatically matches Purchase Orders, Invoices, and Receipts, eliminating manual data entry and human error.",
-        image: "/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/apex_tour_matching_cinematic_1773601859432.png"
+        image: "/apex_tour_matching_cinematic_1773601859432.png"
     },
     {
         tag: "Asset Intelligence",
         title: "Complete Fleet Control",
         description: "Track the health, location, and value of every enterprise asset in real-time with our high-fidelity registry.",
-        image: "/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/apex_tour_assets_cinematic_1773601874048.png"
+        image: "/apex_tour_assets_cinematic_1773601874048.png"
     },
     {
         tag: "AI Strategy",
         title: "Apex: Your Financial Brain",
         description: "Engage with Apex AI to uncover savings, flag risks, and get proactive budget insights through a native chat interface.",
-        image: "/brain/81ffa77a-56fa-42fd-b9f2-52c3daed31e4/apex_tour_ai_cinematic_1773601891009.png"
+        image: "/apex_tour_ai_cinematic_1773601891009.png"
     }
 ];
 
