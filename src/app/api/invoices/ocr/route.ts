@@ -8,7 +8,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 export async function POST(req: NextRequest) {
     try {
         const { url, fileName } = await req.json();
-        const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        const apiKey = process.env.GEMINI_API_KEY;
 
         console.log(`[OCR Gateway] Initiating AI Extraction for ${fileName}...`);
 
