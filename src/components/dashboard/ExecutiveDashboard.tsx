@@ -58,17 +58,19 @@ export default function ExecutiveDashboard({ user, stats, pos, currency, onCurre
     }, []);
 
     return (
-        <div className="animate-in" style={{ background: 'var(--surface-2)', padding: '2rem', borderRadius: 'var(--radius-xl)' }}>
+        <div className="animate-in dashboard-container" style={{ borderRadius: 'var(--radius-xl)' }}>
             <SecurityBanner user={user} />
 
             {/* === WELCOME BAR === */}
-            <div className="welcome-bar-inner" style={{
+            <div className="welcome-bar" style={{
                 background: 'var(--brand)',
                 borderRadius: '16px', padding: '1.75rem 2.25rem',
                 display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                 marginBottom: '2rem', color: 'white',
                 boxShadow: '0 8px 32px rgba(232, 87, 42, 0.2)',
-                border: 'none'
+                border: 'none',
+                flexWrap: 'wrap',
+                gap: '1.5rem'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
                     <div style={{ 
@@ -119,7 +121,7 @@ export default function ExecutiveDashboard({ user, stats, pos, currency, onCurre
             </div>
 
             {/* === KPI GRID === */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
+            <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
                 <Link href="/dashboard/purchase-orders" style={{ textDecoration: 'none' }}>
                     <div className="hover-lift" style={{ borderRadius: '24px', padding: '1.5rem', border: '1px solid var(--border)', background: 'var(--surface)', boxShadow: 'var(--shadow-sm)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>

@@ -121,11 +121,26 @@
   }
 }
 
-/* Responsive Table (Card View) */
-.responsive-table {
-  /* Container for ensuring standard tables don't break desktop */
+.dashboard-container {
+  background: var(--surface-2);
+  padding: 2rem;
 }
 
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  
+  .welcome-bar {
+    padding: 1.25rem 1.5rem !important;
+  }
+  
+  .welcome-bar h1 {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Responsive Table (Card View) */
 @media (max-width: 768px) {
 
   .responsive-table table,
@@ -197,9 +212,11 @@
 }
 
 html {
-  font-size: 14px;
+  font-size: 16px; /* Base for REM scaling */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden; /* Prevent horizontal scroll globally */
+  width: 100%;
 }
 
 body {
@@ -207,6 +224,54 @@ body {
   background-color: var(--background);
   color: var(--text-primary);
   line-height: 1.57;
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+}
+
+/* --- Mobile-First Layout Utilities --- */
+.container {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container { max-width: 720px; }
+}
+@media (min-width: 1024px) {
+  .container { max-width: 960px; }
+}
+@media (min-width: 1280px) {
+  .container { max-width: 1200px; }
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mobile-only {
+  display: block !important;
+}
+.desktop-only {
+  display: none !important;
+}
+
+@media (min-width: 1024px) {
+  .mobile-only { display: none !important; }
+  .desktop-only { display: block !important; }
+}
+
+.touch-target {
+  min-height: 48px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Prevent scroll leakage when modals are open */

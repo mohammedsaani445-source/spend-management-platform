@@ -65,14 +65,14 @@ export default function LandingPage() {
             Apex Procure centralizes your spend, automates your AP, and gives
             you 100% visibility. Eliminate the "where did our budget go?" moments forever.
           </p>
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-            <Link href="/login" className="btn btn-primary btn-lg" style={{ borderRadius: "100px", padding: "0 2.5rem" }}>
+          <div className={styles.heroActions} style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
+            <Link href="/login" className="btn btn-primary btn-lg" style={{ borderRadius: "100px", padding: "0 2.5rem", width: "auto", minWidth: "200px" }}>
               Book a Demo <ArrowRight size={18} />
             </Link>
             <button 
               onClick={() => setShowTour(true)}
               className={`btn btn-secondary btn-lg ${styles.tourButtonGlow}`}
-              style={{ borderRadius: "100px", padding: "0 2.5rem" }}
+              style={{ borderRadius: "100px", padding: "0 2.5rem", width: "auto", minWidth: "200px" }}
             >
               <PlayCircle size={18} /> Watch Product Tour
             </button>
