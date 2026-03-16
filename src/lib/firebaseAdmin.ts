@@ -9,12 +9,16 @@ function getAdminApp() {
     
     const BUCKET_NAME = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
     const rawKey = process.env.FIREBASE_PRIVATE_KEY || "";
-    const formattedKey = rawKey
-        ?.replace(/\\n/g, '\n')
-        ?.replace(/\r/g, '')
-        ?.replace(/^"(.*)"$/, '$1')
-        ?.replace(/^'(.*)'$/, '$1')
-        .trim();
+    
+    // BULLETPROOF PARSING: Handle Vercel's inconsistent string treatment
+    let key = rawKey.trim();
+    
+    // Strip surrounding quotes if present (Vercel sometimes adds these)
+    if (key.startsWith('"') && key.endsWith('"')) key = key.slice(1, -1);
+    if (key.startsWith("'") && key.endsWith("'")) key = key.slice(1, -1);
+    
+    // Handle both literal newlines and escaped newlines (\n)
+    const formattedKey = key.replace(/\\n/g, '\n');
 
     const firebaseAdminConfig = {
         projectId: process.env.FIREBASE_PROJECT_ID,
