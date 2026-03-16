@@ -75,7 +75,7 @@ export default function RequisitionsList() {
                     <h1 className="page-title">Purchase Requisitions</h1>
                     <p className="page-subtitle">Manage and track all purchase requests across your organization</p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <div className="mobile-action-grid">
                     <Link href="/dashboard/requisitions/new" className="btn btn-primary">
                         + New Request
                     </Link>
@@ -83,7 +83,7 @@ export default function RequisitionsList() {
             </div>
 
             {/* Stat strip */}
-            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
+            <div className="mobile-action-grid" style={{ marginBottom: '1.5rem' }}>
                 {[
                     { label: 'Total', value: requisitions.length, color: 'var(--brand)', bg: 'var(--brand-soft)' },
                     { label: 'Pending', value: requisitions.filter(r => r.status === 'PENDING').length, color: 'var(--warning)', bg: 'var(--warning-bg)' },
@@ -92,7 +92,7 @@ export default function RequisitionsList() {
                 ].map(s => (
                     <div key={s.label} style={{
                         background: 'white', border: '1px solid var(--border)', borderRadius: '10px',
-                        padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.875rem', minWidth: '120px'
+                        padding: '1rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.875rem', flex: '1 1 120px'
                     }}>
                         <div style={{ width: '36px', height: '36px', background: s.bg, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: s.color, fontWeight: 700, fontSize: '1rem' }}>
                             {s.value}
@@ -103,7 +103,7 @@ export default function RequisitionsList() {
             </div>
 
             {/* Filter row */}
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
                 {['ALL', 'PENDING', 'APPROVED', 'REJECTED', 'ORDERED'].map(s => (
                     <button key={s} onClick={() => setFilterStatus(s)} className={filterStatus === s ? 'btn btn-primary btn-sm' : 'btn btn-secondary btn-sm'}>
                         {s === 'ALL' ? 'All' : s[0] + s.slice(1).toLowerCase()}
@@ -122,40 +122,40 @@ export default function RequisitionsList() {
                     </div>
                 </div>
             ) : (
-                <div className="table-wrapper">
+                <div className="table-wrapper responsive-table">
                     <table className="data-table">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>REQ #</th>
-                                <th>Requester</th>
-                                <th>Description</th>
-                                <th>Vendor</th>
-                                <th>Total</th>
-                                <th>Status</th>
+                                <th style={{ textAlign: 'left' }}>Date</th>
+                                <th style={{ textAlign: 'left' }}>REQ #</th>
+                                <th style={{ textAlign: 'left' }}>Requester</th>
+                                <th style={{ textAlign: 'left' }}>Description</th>
+                                <th style={{ textAlign: 'left' }}>Vendor</th>
+                                <th style={{ textAlign: 'left' }}>Total</th>
+                                <th style={{ textAlign: 'left' }}>Status</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filtered.map(req => (
                                 <tr key={req.id} onClick={() => setSelectedReq(req)} style={{ cursor: 'pointer' }}>
-                                    <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>{req.createdAt.toLocaleDateString()}</td>
-                                    <td>
+                                    <td data-label="Date" style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>{req.createdAt.toLocaleDateString()}</td>
+                                    <td data-label="REQ #">
                                         <span style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--brand)', fontSize: '0.875rem' }}>
                                             #{req.id?.slice(-6).toUpperCase()}
                                         </span>
                                     </td>
-                                    <td style={{ fontWeight: 500 }}>{req.requesterName}</td>
-                                    <td style={{ color: 'var(--text-secondary)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    <td data-label="Requester" style={{ fontWeight: 500 }}>{req.requesterName}</td>
+                                    <td data-label="Description" style={{ color: 'var(--text-secondary)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                         {(req as any).description || '—'}
                                     </td>
-                                    <td>{req.vendorName || '—'}</td>
-                                    <td>
+                                    <td data-label="Vendor">{req.vendorName || '—'}</td>
+                                    <td data-label="Total">
                                         <span style={{ fontWeight: 700 }}>{formatCurrency(req.totalAmount, req.currency)}</span>
                                         {req.complianceScore && req.complianceScore > 20 && (
                                             <span style={{ marginLeft: '0.5rem', fontSize: '0.7rem', color: 'var(--error)', fontWeight: 700 }} title="Risk detected">🚩</span>
                                         )}
                                     </td>
-                                    <td><StatusBadge status={req.status} /></td>
+                                    <td data-label="Status"><StatusBadge status={req.status} /></td>
                                 </tr>
                             ))}
                         </tbody>
