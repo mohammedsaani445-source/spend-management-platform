@@ -10,10 +10,18 @@ function getAdminApp() {
     const BUCKET_NAME = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
     const rawKey = process.env.FIREBASE_PRIVATE_KEY || "";
     
-    // BULLETPROOF PARSING: Handle Vercel's inconsistent string treatment
     let key = rawKey.trim();
     
-    // Strip surrounding quotes if present (Vercel sometimes adds these)
+    // BASE64 FALLBACK: If the key doesn't look like PEM, check if it's Base64
+    if (!key.includes("-----BEGIN PRIVATE KEY-----") && key.length > 100) {
+        try {
+            key = Buffer.from(key, 'base64').toString('utf-8');
+        } catch (e) {
+            console.error("Failed to decode Base64 Firebase key");
+        }
+    }
+    
+    // Strip surrounding quotes if present
     if (key.startsWith('"') && key.endsWith('"')) key = key.slice(1, -1);
     if (key.startsWith("'") && key.endsWith("'")) key = key.slice(1, -1);
     
