@@ -98,9 +98,6 @@
   --z-modal-backdrop: 9000;
   --z-modal: 10000;
   --z-toast: 11000;
-
-  /* ---- Mobile Spacing ---- */
-  --mobile-padding: 1rem;
 }
 
 /* =============================================
@@ -127,27 +124,25 @@
 .dashboard-container {
   background: var(--surface-2);
   padding: 2rem;
-  transition: padding 0.2s ease;
-}
-
-@media (max-width: 1024px) {
-  .dashboard-container {
-    padding: var(--mobile-padding);
-  }
 }
 
 @media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  
   .welcome-bar {
-    padding: 1.125rem 1.25rem !important;
+    padding: 1.25rem 1.5rem !important;
   }
   
   .welcome-bar h1 {
-    font-size: 1.15rem !important;
+    font-size: 1.25rem !important;
   }
 }
 
 /* Responsive Table (Card View) */
 @media (max-width: 768px) {
+
   .responsive-table table,
   .responsive-table thead,
   .responsive-table tbody,
@@ -165,43 +160,42 @@
 
   .responsive-table tr {
     border: 1px solid var(--border);
-    margin-bottom: 1.5rem;
-    border-radius: 16px;
+    margin-bottom: 1rem;
+    border-radius: var(--radius-lg);
     background: var(--surface);
+    padding: 0.5rem;
+    position: relative;
     box-shadow: var(--shadow-sm);
-    padding: 0.75rem 0;
-    overflow: hidden;
   }
 
   .responsive-table td {
-    border: none !important;
-    border-bottom: 1px solid var(--surface-2) !important;
+    border: none;
+    border-bottom: 1px solid var(--brand-xsoft);
     position: relative;
-    padding: 1.125rem 1.25rem !important;
     padding-left: 45% !important;
     text-align: right !important;
-    min-height: 3.5rem;
+    min-height: 48px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    font-size: 0.875rem;
   }
 
   .responsive-table td:last-child {
-    border-bottom: none !important;
+    border-bottom: 0;
   }
 
   .responsive-table td:before {
     position: absolute;
-    left: 1.25rem;
+    left: 0.75rem;
     width: 40%;
     padding-right: 10px;
     white-space: nowrap;
     text-align: left;
-    font-weight: 800;
-    font-size: 0.65rem;
+    font-weight: 700;
+    font-size: 0.7rem;
     color: var(--text-secondary);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
     content: attr(data-label);
   }
 }

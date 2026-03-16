@@ -97,14 +97,14 @@ export default function InventoryDashboard() {
     if (loading) return <Loader text="Synchronizing Inventory Pulse..." />;
 
     return (
-        <div className="animate-in dashboard-container" style={{ background: 'var(--surface)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
+        <div className="animate-in" style={{ background: 'var(--surface)', borderRadius: 'var(--radius-xl)', padding: '2rem', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
             {/* Header Area */}
-            <div className="page-header" style={{ marginBottom: '2.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
                 <div>
                     <h1 style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>Inventory Dashboard</h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>Global SKU management and real-time stock orchestration.</p>
                 </div>
-                <div className="mobile-action-grid">
+                <div style={{ display: 'flex', gap: '0.75rem' }}>
                     <button onClick={() => setShowLookupModal(true)} style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8125rem' }}>
                         <Search size={18} /> Lookup
                     </button>
@@ -121,7 +121,7 @@ export default function InventoryDashboard() {
             </div>
 
             {/* KPI Strip */}
-            <div className="responsive-grid" style={{ marginBottom: '2.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
                 {[
                     { label: "Inventory Value", value: formatCurrency(stats.totalStockValue, 'USD'), icon: Database, color: "var(--brand)" },
                     { label: "Low Stock Alert", value: stats.lowStockCount, sub: "Items below min", icon: AlertTriangle, color: stats.lowStockCount > 0 ? "var(--error)" : "var(--text-disabled)" },
@@ -144,18 +144,18 @@ export default function InventoryDashboard() {
             </div>
 
             {/* List Control */}
-            <div className="responsive-table" style={{ 
+            <div style={{ 
                 background: 'var(--surface)', border: '1px solid var(--border)', 
                 borderRadius: '24px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)'
             }}>
-                <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-2)', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div style={{ position: 'relative', width: '100%', maxWidth: '280px' }}>
+                <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-2)' }}>
+                    <div style={{ position: 'relative' }}>
                         <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-disabled)' }} />
                         <input 
                             placeholder="Filter Catalog..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            style={{ padding: '0.6rem 1rem 0.6rem 2.25rem', borderRadius: '10px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.8125rem', width: '100%' }}
+                            style={{ padding: '0.6rem 1rem 0.6rem 2.25rem', borderRadius: '10px', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: '0.8125rem', width: '280px' }}
                         />
                     </div>
                 </div>
@@ -179,25 +179,25 @@ export default function InventoryDashboard() {
 
                             return (
                                 <tr key={sku.id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }} className="hover:bg-brand-xsoft">
-                                    <td data-label="Item" style={{ padding: '1.25rem 1.5rem' }}>
+                                    <td style={{ padding: '1.25rem 1.5rem' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                                             <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--brand-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)' }}>
                                                 <Package size={18} />
                                             </div>
-                                            <div style={{ textAlign: 'left' }}>
+                                            <div>
                                                 <div style={{ fontWeight: 700, color: 'var(--text-primary)', fontSize: '0.875rem' }}>{sku.name}</div>
                                                 <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>{sku.code}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td data-label="Category" style={{ textAlign: 'center' }}>
+                                    <td style={{ textAlign: 'center' }}>
                                         <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-secondary)', background: 'var(--surface-2)', padding: '4px 10px', borderRadius: '6px', border: '1px solid var(--border)' }}>{sku.category}</span>
                                     </td>
-                                    <td data-label="Available" style={{ textAlign: 'center' }}>
+                                    <td style={{ textAlign: 'center' }}>
                                         <div style={{ fontSize: '1.125rem', fontWeight: 900, color: isLow ? 'var(--error)' : 'var(--text-primary)' }}>{total}</div>
                                         <div style={{ fontSize: '0.65rem', color: 'var(--text-disabled)', fontWeight: 800 }}>{sku.unit}</div>
                                     </td>
-                                    <td data-label="Safety Stock" style={{ textAlign: 'center' }}>
+                                    <td style={{ textAlign: 'center' }}>
                                         <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: 700 }}>MIN: {sku.minStockLevel}</div>
                                         {isLow && (
                                             <div style={{ color: 'var(--error)', fontSize: '0.6rem', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '3px', justifyContent: 'center', marginTop: '4px' }}>
@@ -205,7 +205,7 @@ export default function InventoryDashboard() {
                                             </div>
                                         )}
                                     </td>
-                                    <td data-label="Breakdown" style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
+                                    <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'flex-end' }}>
                                             {itemLevels.map(l => {
                                                 const wh = warehouses.find(w => w.id === l.warehouseId);
@@ -217,7 +217,7 @@ export default function InventoryDashboard() {
                                             })}
                                         </div>
                                     </td>
-                                    <td data-label="Actions" style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
+                                    <td style={{ padding: '1.25rem 1.5rem', textAlign: 'right' }}>
                                         <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                                             <button onClick={() => setEditingSKU(sku)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                                 <Edit size={14} />
