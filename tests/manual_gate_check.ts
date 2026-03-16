@@ -7,7 +7,7 @@ import { AppUser, Requisition } from '../src/types';
 async function testConflictOfInterestGate() {
     const actor: Partial<AppUser> = {
         uid: 'user123',
-        name: 'Test User',
+        displayName: 'Test User',
         tenantId: 'tenant1',
         role: 'AUTHORIZED_APPROVER'
     };
@@ -21,15 +21,14 @@ async function testConflictOfInterestGate() {
 
     console.log("Testing Conflict of Interest Gate...");
     try {
-        await processApprovalAction(
-            'tenant1',
-            'REQUISITION',
-            'req1',
-            'APPROVE',
-            actor as AppUser,
-            'Self approval test',
-            entity as any
-        );
+        await processApprovalAction({
+            tenantId: 'tenant1',
+            entityType: 'REQUISITION',
+            entityId: 'req1',
+            action: 'APPROVE',
+            actor: actor as any,
+            comment: 'Self-approval test'
+        });
         console.error("FAIL: Self-approval should have been blocked!");
     } catch (error: any) {
         if (error.message === "Conflict of Interest: You cannot approve your own record.") {

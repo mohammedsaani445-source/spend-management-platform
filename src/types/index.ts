@@ -81,6 +81,7 @@ export interface AppUser {
     createdAt: Date;
     managerId?: string; // Phase 26: Reporting Lines
     departmentId?: string;
+    currency?: string;
 }
 
 export interface Location {
@@ -384,8 +385,8 @@ export type AuditAction =
     | 'CREATE' | 'UPDATE' | 'DELETE' | 'APPROVE' | 'REJECT';
 
 export type AuditEntityType = 
-    | 'USER' | 'REQUISITION' | 'PURCHASE_ORDER' | 'RECEIPT' | 'INVOICE' 
-    | 'PAYMENT' | 'TENDER' | 'BID' | 'WORKFLOW' | 'BUDGET' | 'VENDOR' | 'CONTRACT';
+    | 'USER' | 'REQUISITION' | 'PURCHASE_ORDER' | 'PO' | 'RECEIPT' | 'INVOICE' 
+    | 'PAYMENT' | 'TENDER' | 'BID' | 'WORKFLOW' | 'BUDGET' | 'VENDOR' | 'CONTRACT' | 'ASSET';
 
 // --- Phase 45: Blind Bidding & Compliance ---
 
