@@ -59,19 +59,9 @@ export default function Topbar({ onMobileMenuToggle }: TopbarProps) {
         <header className={styles.topbar}>
             {/* Mobile Menu Toggle */}
             {onMobileMenuToggle && (
-                <button 
-                    className={styles.mobileMenuToggle} 
-                    onClick={onMobileMenuToggle} 
-                    title="Open Menu"
-                    aria-label="Toggle Navigation"
-                >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Logo size={28} className={styles.logoIcon} />
-                        <span style={{ fontWeight: 700, color: 'var(--brand)', fontSize: '0.9rem' }} className="mobile-only">
-                            APEX
-                        </span>
-                    </div>
-                </button>
+                <div className={styles.mobileMenuToggle} onClick={onMobileMenuToggle} title="Open Menu">
+                    <Logo size={28} className={styles.logoIcon} />
+                </div>
             )}
 
             {/* Breadcrumbs */}

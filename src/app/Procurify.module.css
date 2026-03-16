@@ -42,14 +42,8 @@
 
 .navLinks {
     display: flex;
-    gap: 1.5rem;
+    gap: 2rem;
     align-items: center;
-}
-
-@media (max-width: 1024px) {
-    .navLinks {
-        display: none;
-    }
 }
 
 .navLink {
@@ -74,15 +68,15 @@
 
 .heroTag {
     display: inline-block;
-    padding: 6px 14px;
+    padding: 8px 16px;
     background: #FFF5F3;
     color: #E8572A;
     border-radius: 100px;
     font-weight: 800;
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
 }
 
 .heroTitle {
@@ -123,36 +117,29 @@
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 2rem;
-}
-
-@media (max-width: 768px) {
-    .comparisonInner {
-        grid-template-columns: 1fr;
-    }
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
 }
 
 .comparisonCard {
     background: #FFFFFF;
-    padding: 2rem;
-    border-radius: 20px;
+    padding: 3rem;
+    border-radius: 24px;
     border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .comparisonTitle {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
     font-weight: 800;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .comparisonItem {
     display: flex;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-    font-size: 0.95rem;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 1rem;
     color: #637381;
-    align-items: flex-start;
 }
 
 /* --- Features Grid --- */
@@ -165,15 +152,15 @@
 
 .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 4% 80px;
+    padding: 0 4% 100px;
 }
 
 .card {
-    padding: 2rem;
+    padding: 2.5rem;
     background: #FFFFFF;
     border: 1px solid #DFE3E8;
     border-radius: 20px;
@@ -181,35 +168,34 @@
 }
 
 .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
     border-color: #E8572A;
 }
 
 .icon {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     background: #FFF5F3;
     color: #E8572A;
-    border-radius: 10px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 1.25rem;
-    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
 }
 
 .cardTitle {
-    font-size: 1.15rem;
+    font-size: 1.25rem;
     font-weight: 800;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1rem;
 }
 
 .cardText {
-    font-size: 0.95rem;
     color: #637381;
     line-height: 1.6;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 /* --- Mobile Mastery --- */

@@ -30,11 +30,7 @@
     border-right: 1px solid #DFE3E8;
     overflow-x: hidden;
     overflow-y: auto;
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.15s ease;
-}
-
-.sidebarMobileOpen {
-    left: 0 !important;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebarCollapsed {
@@ -905,44 +901,7 @@
 
 /* =============================================
    LOGOUT MODAL
-   =============================================*/
-/* Backdrop for mobile sidebar */
-.sidebarBackdrop,
-.mobileOverlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.5);
-    backdrop-filter: blur(4px);
-    z-index: calc(var(--z-sidebar) - 1);
-    animation: fadeIn 0.2s ease-out;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-}
-
-.mobileOverlayOpen {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.mainWrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    margin-left: var(--sidebar-width);
-    transition: margin-left 0.15s ease;
-    min-width: 0;
-}
-
-.mainWrapperCollapsed {
-    margin-left: var(--sidebar-collapsed-width);
-}
-
-@media (max-width: 1024px) {
-    .mainWrapper {
-        margin-left: 0 !important;
-    }
-}
+   ============================================= */
 .modalBackdrop {
     position: fixed;
     inset: 0;
