@@ -119,7 +119,7 @@ export default function ExecutiveDashboard({ user, stats, pos, currency, onCurre
             </div>
 
             {/* === KPI GRID === */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
+            <div className="metric-grid" style={{ marginBottom: '2.5rem' }}>
                 <Link href="/dashboard/purchase-orders" style={{ textDecoration: 'none' }}>
                     <div className="hover-lift" style={{ borderRadius: '24px', padding: '1.5rem', border: '1px solid var(--border)', background: 'var(--surface)', boxShadow: 'var(--shadow-sm)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
@@ -180,7 +180,7 @@ export default function ExecutiveDashboard({ user, stats, pos, currency, onCurre
             </div>
 
             {/* === MAIN GRID === */}
-            <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
+            <div className="responsive-layout-grid">
 
                 {/* LEFT COLUMN */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', minWidth: 0 }}>

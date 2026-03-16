@@ -77,27 +77,8 @@
   /* ---- Typography ---- */
   --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
-  /* Legacy aliases (updated to brand) */
-  --primary: var(--brand);
-  --primary-light: var(--brand-light);
-  --accent: var(--brand);
-  --accent-hover: var(--brand-dark);
-  --accent-soft: var(--brand-soft);
-  --text-main: #212B36;
-  --text-muted: #919EAB;
-  --glass-bg: #FFFFFF;
-  --shadow-premium: 0 4px 8px rgba(33, 43, 54, 0.12);
-  --shadow-xl: 0 8px 24px rgba(33, 43, 54, 0.18);
-
-  /* ---- Z-Index Tokens (Layering Priority) ---- */
-  --z-base: 1;
-  --z-sticky: 100;
-  --z-sidebar: 1000;
-  --z-topbar: 2000;
-  --z-dropdown: 3000;
-  --z-modal-backdrop: 9000;
-  --z-modal: 10000;
-  --z-toast: 11000;
+  /* ---- Mobile Safe Area ---- */
+  --mobile-safe-gap: 1rem;
 }
 
 /* =============================================
@@ -109,81 +90,47 @@
   flex-wrap: wrap;
 }
 
-@media (max-width: 640px) {
+/* Fluid Metric Grid */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+/* Global Responsive Layout Grid */
+.responsive-layout-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+@media (max-width: 1024px) {
+  .responsive-layout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .metric-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
   .mobile-action-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     width: 100%;
   }
-
-  .mobile-action-grid>*:last-child:nth-child(odd) {
-    grid-column: span 2;
-  }
 }
 
-/* Responsive Table (Card View) */
-.responsive-table {
-  /* Container for ensuring standard tables don't break desktop */
-}
 
-@media (max-width: 768px) {
-
-  .responsive-table table,
-  .responsive-table thead,
-  .responsive-table tbody,
-  .responsive-table th,
-  .responsive-table td,
-  .responsive-table tr {
-    display: block !important;
-  }
-
-  .responsive-table thead tr {
-    position: absolute;
-    top: -9999px;
-    left: -9999px;
-  }
-
-  .responsive-table tr {
-    border: 1px solid var(--border);
-    margin-bottom: 1rem;
-    border-radius: var(--radius-lg);
-    background: var(--surface);
-    padding: 0.5rem;
-    position: relative;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .responsive-table td {
-    border: none;
-    border-bottom: 1px solid var(--brand-xsoft);
-    position: relative;
-    padding-left: 45% !important;
-    text-align: right !important;
-    min-height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    font-size: 0.875rem;
-  }
-
-  .responsive-table td:last-child {
-    border-bottom: 0;
-  }
-
-  .responsive-table td:before {
-    position: absolute;
-    left: 0.75rem;
-    width: 40%;
-    padding-right: 10px;
-    white-space: nowrap;
-    text-align: left;
-    font-weight: 700;
-    font-size: 0.7rem;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    content: attr(data-label);
-  }
-}
+/* =============================================
+   RESET & BASE
+   ============================================= */
 
 /* =============================================
    RESET & BASE
@@ -357,7 +304,8 @@ select {
   justify-content: center;
   gap: 0.5rem;
   padding: 0 1rem;
-  height: 36px;
+  height: 44px; /* Standardize for touch */
+  min-width: 44px;
   font-size: 0.875rem;
   font-weight: 600;
   border-radius: var(--radius-md);

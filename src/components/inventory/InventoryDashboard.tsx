@@ -104,7 +104,7 @@ export default function InventoryDashboard() {
                     <h1 style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>Inventory Dashboard</h1>
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>Global SKU management and real-time stock orchestration.</p>
                 </div>
-                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <div className="mobile-action-grid">
                     <button onClick={() => setShowLookupModal(true)} style={{ padding: '0.75rem 1.25rem', borderRadius: '12px', background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.8125rem' }}>
                         <Search size={18} /> Lookup
                     </button>
@@ -121,7 +121,7 @@ export default function InventoryDashboard() {
             </div>
 
             {/* KPI Strip */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2.5rem' }}>
+            <div className="metric-grid" style={{ marginBottom: '2.5rem' }}>
                 {[
                     { label: "Inventory Value", value: formatCurrency(stats.totalStockValue, 'USD'), icon: Database, color: "var(--brand)" },
                     { label: "Low Stock Alert", value: stats.lowStockCount, sub: "Items below min", icon: AlertTriangle, color: stats.lowStockCount > 0 ? "var(--error)" : "var(--text-disabled)" },
