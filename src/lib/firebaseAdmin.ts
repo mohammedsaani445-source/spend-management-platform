@@ -8,13 +8,11 @@ function getAdminApp() {
     if (admin.apps.length > 0) return admin.app();
     
     const BUCKET_NAME = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
-    const rawKey = process.env.FIREBASE_PRIVATE_KEY || "";
-    // Robust cleaning: handle both literal and escaped newlines, and strip surrounding quotes
     const formattedKey = rawKey
-        .replace(/\\n/g, '\n')
-        .replace(/\n\s+/g, '\n') // Remove indentation spaces after newlines
-        .replace(/^"(.*)"$/, '$1')
-        .replace(/^'(.*)'$/, '$1')
+        ?.replace(/\\n/g, '\n')
+        ?.replace(/\r/g, '')
+        ?.replace(/^"(.*)"$/, '$1')
+        ?.replace(/^'(.*)'$/, '$1')
         .trim();
 
     const firebaseAdminConfig = {
