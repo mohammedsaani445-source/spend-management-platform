@@ -8,6 +8,7 @@ function getAdminApp() {
     if (admin.apps.length > 0) return admin.app();
     
     const BUCKET_NAME = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
+    const rawKey = process.env.FIREBASE_PRIVATE_KEY || "";
     const formattedKey = rawKey
         ?.replace(/\\n/g, '\n')
         ?.replace(/\r/g, '')
