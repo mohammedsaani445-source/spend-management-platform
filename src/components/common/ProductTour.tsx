@@ -40,6 +40,10 @@ const TOUR_STEPS: TourStep[] = [
 
 export default function ProductTour({ onClose }: { onClose: () => void }) {
     const [isMobile, setIsMobile] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0);
+    const [isPlaying, setIsPlaying] = useState(true);
+    const [progress, setProgress] = useState(0);
+    const step = TOUR_STEPS[currentStep];
 
     useEffect(() => {
         const checkMobile = () => setIsMobile(window.innerWidth <= 768);
