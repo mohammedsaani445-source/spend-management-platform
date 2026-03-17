@@ -79,6 +79,14 @@
 
   /* ---- Mobile Safe Area ---- */
   --mobile-safe-gap: 1rem;
+
+  /* ---- Z-Indices (Industry Grade) ---- */
+  --z-topbar: 1000;
+  --z-sidebar: 2000;
+  --z-dropdown: 3000;
+  --z-modal-backdrop: 4000;
+  --z-modal: 5000;
+  --z-toast: 6000;
 }
 
 /* =============================================
