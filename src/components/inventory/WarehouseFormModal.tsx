@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import styles from "@/components/layout/Layout.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { RefreshCw, MapPin } from "lucide-react";
+import Portal from "@/components/common/Portal";
 
 interface WarehouseFormModalProps {
     initialData?: Warehouse;
@@ -45,21 +46,22 @@ export default function WarehouseFormModal({ initialData, onClose, onSaved }: Wa
     };
 
     return (
-        <div className="modal-backdrop" style={{ zIndex: 1100 }}>
-            <div className="modal" style={{ maxWidth: '500px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
-                <div className="modal-header" style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{
-                            width: '32px', height: '32px', borderRadius: '8px',
-                            background: 'var(--brand-soft)', display: 'flex',
-                            alignItems: 'center', justifyContent: 'center'
-                        }}>
-                            <MapPin size={18} style={{ color: 'var(--brand)' }} />
+        <Portal>
+            <div className="modal-backdrop" style={{ animation: "fadeIn 0.2s ease-out", zIndex: 1100 }}>
+                <div className="modal" style={{ maxWidth: '500px', width: '95%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: "slideUp 0.3s ease-out", padding: 0, overflow: 'hidden' }}>
+                    <div className="modal-header" style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{
+                                width: '32px', height: '32px', borderRadius: '8px',
+                                background: 'var(--brand-soft)', display: 'flex',
+                                alignItems: 'center', justifyContent: 'center'
+                            }}>
+                                <MapPin size={18} style={{ color: 'var(--brand)' }} />
+                            </div>
+                            <h2 className="modal-title" style={{ margin: 0, fontSize: "1.25rem" }}>{initialData?.id ? 'Edit Warehouse' : 'Create New Warehouse'}</h2>
                         </div>
-                        <h2 className="modal-title">{initialData?.id ? 'Edit Warehouse' : 'Create New Warehouse'}</h2>
+                        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.15s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>&times;</button>
                     </div>
-                    <button onClick={onClose} className="closeButton" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.25rem' }}>&times;</button>
-                </div>
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
                     <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
@@ -111,19 +113,9 @@ export default function WarehouseFormModal({ initialData, onClose, onSaved }: Wa
                         </div>
                     </div>
 
-                    <div className="modal-footer" style={{
-                        position: 'sticky',
-                        bottom: 0,
-                        zIndex: 10,
-                        borderTop: '1px solid var(--border)',
-                        padding: '1rem 1.5rem',
-                        background: 'var(--surface-2)',
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        gap: '1rem'
-                    }}>
-                        <button type="button" className="btn" onClick={onClose} disabled={loading}>Cancel</button>
-                        <button type="submit" className="btn btn-primary" disabled={loading}>
+                    <div className="modal-footer" style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0, display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                        <button type="button" className="btn btn-secondary" onClick={onClose} disabled={loading}>Cancel</button>
+                        <button type="submit" className="btn btn-primary" disabled={loading} style={{ minWidth: '130px' }}>
                             {loading ? (
                                 <><RefreshCw size={18} className="animate-spin" style={{ marginRight: '8px' }} /> Saving...</>
                             ) : (
@@ -134,5 +126,6 @@ export default function WarehouseFormModal({ initialData, onClose, onSaved }: Wa
                 </form>
             </div>
         </div>
+    </Portal>
     );
 }

@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { SKU, Warehouse, StockLevel } from "@/types";
 import { adjustStock } from "@/lib/inventory";
 import { useAuth } from "@/context/AuthContext";
+import Portal from "@/components/common/Portal";
 import styles from "@/components/layout/Layout.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { Plus, Minus, ArrowRight, Package, AlertCircle, CheckCircle2, RefreshCw, Camera } from "lucide-react";
@@ -105,19 +106,18 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
     };
 
     return (
-        <div className="modal-backdrop">
-            <div className="modal" style={{ maxWidth: '520px' }}>
-                <div className="modal-header">
-                    <h2 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <RefreshCw size={18} className={loading ? "animate-spin" : ""} />
-                        Inventory Quick Scan
-                    </h2>
-                    <button onClick={onClose} className="closeButton" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.25rem' }}>&times;</button>
-                </div>
+        <Portal>
+            <div className="modal-backdrop" style={{ animation: "fadeIn 0.2s ease-out" }}>
+                <div className="modal" style={{ maxWidth: '520px', width: '95%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: "slideUp 0.3s ease-out", padding: 0, overflow: 'hidden' }}>
+                    <div className="modal-header" style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
+                        <h2 className="modal-title" style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0, fontSize: "1.25rem" }}>
+                            <RefreshCw size={18} className={loading ? "animate-spin" : ""} color="var(--brand)" />
+                            Inventory Quick Scan
+                        </h2>
+                        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.15s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>&times;</button>
+                    </div>
 
-                <div className="modal-body" style={{ padding: 0 }}>
-                    {/* Header Mode Toggle */}
-                    <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0' }}>
+                    <div style={{ flexShrink: 0, display: 'flex', borderBottom: '1px solid #e2e8f0' }}>
                         <button
                             type="button"
                             onClick={() => setMode("INBOUND")}
@@ -128,7 +128,7 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
                                 fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
                             }}
                         >
-                            <Plus size={18} /> INBOUND / RECEIVE
+                            <Plus size={18} /> INBOUND
                         </button>
                         <button
                             type="button"
@@ -140,11 +140,12 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
                                 fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
                             }}
                         >
-                            <Minus size={18} /> OUTBOUND / ISSUE
+                            <Minus size={18} /> OUTBOUND
                         </button>
                     </div>
 
-                    <form onSubmit={handleSubmit} style={{ padding: '1.5rem' }}>
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                        <div className="modal-body" style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
 
                         {/* Quick Scan Barcode Area */}
                         <div style={{
@@ -327,8 +328,9 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
                             />
                         </div>
 
-                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                            <button type="button" className="btn" style={{ flex: 1 }} onClick={onClose}>Discard</button>
+                        </div>
+                        <div className="modal-footer" style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0, display: 'flex', gap: '1rem' }}>
+                            <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={onClose}>Discard</button>
                             <button
                                 type="submit"
                                 className="btn btn-primary"
@@ -343,6 +345,6 @@ export default function StockAdjustmentModal({ skus, warehouses, levels, onClose
                     </form>
                 </div>
             </div>
-        </div>
+        </Portal>
     );
 }

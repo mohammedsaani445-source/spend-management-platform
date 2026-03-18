@@ -98,19 +98,19 @@ const ExecutiveDashboard: React.FC = () => {
                         <div className={styles.barGroup}>
                             <span className={styles.barLabel}>Budget Utilization</span>
                             <div className={styles.barContainer}>
-                                <div className={styles.barFill} style={{ width: '78%', background: 'linear-gradient(90deg, #6366f1, #a855f7)' }} />
+                                <div className={styles.barFill} style={{ width: '78%', background: 'linear-gradient(90deg, var(--brand), #ff8c42)' }} />
                             </div>
                         </div>
                         <div className={styles.barGroup}>
                             <span className={styles.barLabel}>Procurement Velocity</span>
                             <div className={styles.barContainer}>
-                                <div className={styles.barFill} style={{ width: '62%', background: 'linear-gradient(90deg, #10b981, #34d399)' }} />
+                                <div className={styles.barFill} style={{ width: '62%', background: 'linear-gradient(90deg, var(--success), #34d399)' }} />
                             </div>
                         </div>
                         <div className={styles.barGroup}>
                             <span className={styles.barLabel}>Vendor Compliance</span>
                             <div className={styles.barContainer}>
-                                <div className={styles.barFill} style={{ width: '91%', background: 'linear-gradient(90deg, #f59e0b, #fbbf24)' }} />
+                                <div className={styles.barFill} style={{ width: '91%', background: 'linear-gradient(90deg, var(--warning-dark), var(--warning))' }} />
                             </div>
                         </div>
                     </div>

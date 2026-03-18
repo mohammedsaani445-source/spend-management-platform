@@ -4,11 +4,29 @@ import { useMemo, useState } from "react";
 import { Requisition, Budget } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import Portal from "@/components/common/Portal";
+import { 
+    X, 
+    Calendar, 
+    Building, 
+    FileText, 
+    ShieldCheck, 
+    AlertCircle,
+    CheckCircle2,
+    Clock,
+    User,
+    ChevronRight,
+    MessageSquare,
+    Zap,
+    TrendingUp,
+    TrendingDown,
+    History
+} from "lucide-react";
 
 interface ApprovalDetailModalProps {
     requisition: Requisition;
-    budget?: Budget; // Optional: Budget for the department
-    deptSpend: number; // Total spend for the department so far
+    budget?: Budget;
+    deptSpend: number;
     onClose: () => void;
     onApprove: (id: string, comment?: string) => void;
     onReject: (id: string, comment?: string) => void;
@@ -25,17 +43,13 @@ export default function ApprovalDetailModal({
     onRevision
 }: ApprovalDetailModalProps) {
     useScrollLock(true);
-
     const [comment, setComment] = useState("");
 
-    // Calculate Budget Impact
     const impact = useMemo(() => {
         if (!budget) return null;
-
         const currentUsage = (deptSpend / budget.amount) * 100;
         const purchaseImpact = (requisition.totalAmount / budget.amount) * 100;
         const newUsage = currentUsage + purchaseImpact;
-
         return {
             currentUsage,
             newUsage,
@@ -45,145 +59,272 @@ export default function ApprovalDetailModal({
     }, [budget, deptSpend, requisition.totalAmount]);
 
     return (
-        <div className="modal-backdrop">
-            <div className="modal" style={{ width: '800px', maxWidth: '95%', maxHeight: '90vh' }}>
-                {/* Header */}
-                <div style={{ padding: '1.5rem 2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'white', position: 'sticky', top: 0, zIndex: 'var(--z-sticky)' as any }}>
-                    <div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.25rem' }}>
-                            Approval Request
+        <Portal>
+            <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && onClose()}>
+                <div className="premium-card" style={{ 
+                    width: '1000px', 
+                    maxWidth: '95%', 
+                    height: '90vh',
+                    maxHeight: '900px', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    backgroundColor: 'var(--background)',
+                    position: 'relative',
+                    animation: 'modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}>
+                    {/* Header - Fixed */}
+                    <div style={{ 
+                        padding: '1.25rem 2.5rem', 
+                        borderBottom: '1px solid var(--border)', 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        backgroundColor: 'white',
+                        zIndex: 10
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div style={{ padding: '0.625rem', background: 'var(--brand-soft)', borderRadius: '12px', color: 'var(--brand)' }}>
+                                <ShieldCheck size={24} />
+                            </div>
+                            <div>
+                                <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>Review Approval Request</h2>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-disabled)', fontWeight: 600 }}>
+                                    #{requisition.id?.slice(-8).toUpperCase()} • Workflow Tier {(requisition.currentStepIndex || 0) + 1}
+                                </div>
+                            </div>
                         </div>
-                        <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>{requisition.items[0]?.description || 'Purchase Request'}</h2>
+                        <button onClick={onClose} className="btn btn-ghost btn-icon" style={{ width: '40px', height: '40px' }}>
+                            <X size={24} />
+                        </button>
                     </div>
-                    <button onClick={onClose} style={{ fontSize: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}>&times;</button>
-                </div>
 
-                <div style={{ padding: '2rem' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: '2rem' }}>
-
-                        {/* Main Info */}
-                        <div>
-                            {/* Budget Insight */}
-                            {budget && impact && (
-                                <div style={{ marginBottom: '2rem', padding: '1.5rem', background: impact.isOverBudget ? '#fff1f2' : '#f0fdf4', borderRadius: 'var(--radius-md)', border: `1px solid ${impact.isOverBudget ? '#fecad1' : '#bbf7d0'}` }}>
-                                    <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem', color: impact.isOverBudget ? '#991b1b' : '#166534' }}>Budget Impact Analysis</h3>
-
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
-                                        <span>Current Spend: <strong>{formatCurrency(deptSpend, budget.currency)}</strong></span>
-                                        <span>Limit: {formatCurrency(budget.amount, budget.currency)}</span>
+                    {/* Split Responsive Container */}
+                    <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }} className="responsive-modal-container">
+                        
+                        {/* Left Panel: Document View (Scrollable) */}
+                        <div style={{ flex: 1, overflowY: 'auto', padding: '2.5rem', backgroundColor: '#f8fafc' }}>
+                            <div className="document-view" style={{ 
+                                padding: '3rem', 
+                                boxShadow: '0 10px 40px rgba(0,0,0,0.04)',
+                                backgroundColor: 'white'
+                            }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem', borderBottom: '2px solid var(--border)', paddingBottom: '2rem' }}>
+                                    <div>
+                                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '0.5rem' }}>Purchase Order Request</div>
+                                        <div style={{ display: 'flex', gap: '1.5rem', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Calendar size={14}/> {new Date().toLocaleDateString()}</span>
+                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Building size={14}/> {requisition.department}</span>
+                                        </div>
                                     </div>
-
-                                    <div style={{ height: '10px', width: '100%', backgroundColor: 'rgba(0,0,0,0.1)', borderRadius: '5px', overflow: 'hidden', position: 'relative', marginBottom: '1rem' }}>
-                                        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${Math.min(impact.currentUsage, 100)}%`, backgroundColor: 'rgba(0,0,0,0.3)' }}></div>
-                                        <div style={{
-                                            position: 'absolute',
-                                            left: `${Math.min(impact.currentUsage, 100)}%`,
-                                            top: 0, bottom: 0,
-                                            width: `${Math.min(impact.newUsage - impact.currentUsage, 100 - impact.currentUsage)}%`,
-                                            backgroundColor: impact.isOverBudget ? 'var(--error)' : 'var(--primary)',
-                                        }}></div>
-                                    </div>
-
-                                    <div style={{ fontSize: '0.875rem', fontWeight: 600, color: impact.isOverBudget ? 'var(--error)' : 'var(--success)' }}>
-                                        {impact.isOverBudget
-                                            ? `⚠️ EXCEEDS BUDGET BY ${formatCurrency(Math.abs(impact.remaining), budget.currency)}`
-                                            : `✅ Within Budget (${formatCurrency(impact.remaining, budget.currency)} remaining)`
-                                        }
+                                    <div style={{ textAlign: 'right' }}>
+                                        <div style={{ fontSize: '0.75rem', color: 'var(--text-disabled)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Amount Due</div>
+                                        <div style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--text-primary)' }}>{formatCurrency(requisition.totalAmount, requisition.currency)}</div>
                                     </div>
                                 </div>
-                            )}
 
-                            <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>Line Items</h3>
-                            <div style={{ border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
-                                    <thead style={{ backgroundColor: '#f9fafb', borderBottom: '1px solid var(--border)' }}>
-                                        <tr>
-                                            <th style={{ padding: '0.75rem 1rem' }}>Description</th>
-                                            <th style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>Qty</th>
-                                            <th style={{ padding: '0.75rem 1rem', textAlign: 'right' }}>Total</th>
+                                <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '3rem' }}>
+                                    <thead>
+                                        <tr style={{ borderBottom: '2px solid #f1f5f9' }}>
+                                            <th style={{ textAlign: 'left', padding: '1rem 0', color: 'var(--text-disabled)', fontSize: '0.7rem', textTransform: 'uppercase' }}>Description</th>
+                                            <th style={{ textAlign: 'center', padding: '1rem 0', color: 'var(--text-disabled)', fontSize: '0.7rem', textTransform: 'uppercase', width: '80px' }}>Qty</th>
+                                            <th style={{ textAlign: 'right', padding: '1rem 0', color: 'var(--text-disabled)', fontSize: '0.7rem', textTransform: 'uppercase', width: '120px' }}>Total</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {requisition.items.map((item, i) => (
-                                            <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
-                                                <td style={{ padding: '0.75rem 1rem' }}>
-                                                    <div style={{ fontWeight: 600 }}>{item.description}</div>
-                                                    {item.glCode && <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>GL: {item.glCode}</div>}
+                                            <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                                <td style={{ padding: '1.5rem 0' }}>
+                                                    <div style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{item.description}</div>
+                                                    {item.glCode && <div style={{ fontSize: '0.75rem', color: 'var(--text-disabled)', marginTop: '0.25rem' }}>Account: {item.glCode}</div>}
                                                 </td>
-                                                <td style={{ padding: '0.75rem 1rem', textAlign: 'center' }}>{item.quantity}</td>
-                                                <td style={{ padding: '0.75rem 1rem', textAlign: 'right', fontWeight: 600 }}>{formatCurrency(item.total, requisition.currency)}</td>
+                                                <td style={{ textAlign: 'center', fontWeight: 600 }}>{item.quantity}</td>
+                                                <td style={{ textAlign: 'right', fontWeight: 800 }}>{formatCurrency(item.total, requisition.currency)}</td>
                                             </tr>
                                         ))}
                                     </tbody>
-                                    <tfoot style={{ backgroundColor: '#f9fafb', fontWeight: 800 }}>
-                                        <tr>
-                                            <td colSpan={2} style={{ padding: '1rem', textAlign: 'right' }}>Total Amount</td>
-                                            <td style={{ padding: '1rem', textAlign: 'right', color: 'var(--primary)', fontSize: '1.1rem' }}>{formatCurrency(requisition.totalAmount, requisition.currency)}</td>
-                                        </tr>
-                                    </tfoot>
                                 </table>
+
+                                <div style={{ background: 'var(--surface-2)', padding: '2rem', borderRadius: '16px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.75rem' }}>
+                                        <FileText size={18} color="var(--brand)" />
+                                        <h5 style={{ margin: 0, fontSize: '0.875rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--brand)' }}>Business Justification</h5>
+                                    </div>
+                                    <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: 'var(--text-primary)', fontStyle: 'italic', margin: 0 }}>
+                                        "{requisition.justification}"
+                                    </p>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Sidebar */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                            <div className="card" style={{ backgroundColor: '#f8fafc', padding: '1.25rem' }}>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '1rem', fontWeight: 700 }}>Approval Chain</div>
+                        {/* Right Panel: Decision Hub (White/Orange Theme) */}
+                        <div className="right-panel" style={{ 
+                            width: '400px', 
+                            backgroundColor: 'white', 
+                            borderLeft: '1px solid var(--border)',
+                            overflowY: 'auto',
+                            padding: '2.5rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '2rem'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ width: '32px', height: '32px', background: 'var(--brand-soft)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)' }}>
+                                    <Zap size={18} />
+                                </div>
+                                <h3 style={{ fontSize: '1rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Decision Hub</h3>
+                            </div>
 
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', position: 'relative' }}>
-                                    {/* History */}
+                            {/* Budget Visualization */}
+                            {budget && impact && (
+                                <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+                                        <div>
+                                            <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-disabled)', textTransform: 'uppercase' }}>Budget Context</div>
+                                            <div style={{ fontSize: '1.25rem', fontWeight: 900 }}>
+                                                {((impact.newUsage)).toFixed(1)}% <span style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-secondary)' }}>Capacity</span>
+                                            </div>
+                                        </div>
+                                        <div style={{ padding: '4px 10px', background: impact.isOverBudget ? '#fee2e2' : '#f0fdf4', borderRadius: '6px', color: impact.isOverBudget ? '#ef4444' : '#10b981', fontSize: '0.7rem', fontWeight: 800 }}>
+                                            {impact.isOverBudget ? 'RISK: OVER' : 'OPTIMAL'}
+                                        </div>
+                                    </div>
+
+                                    {/* Modern Progress Bar */}
+                                    <div style={{ height: '32px', background: 'white', borderRadius: '10px', overflow: 'hidden', display: 'flex', border: '1px solid #e2e8f0', marginBottom: '1rem', position: 'relative' }}>
+                                        <div style={{ width: `${Math.min(impact.currentUsage, 100)}%`, height: '100%', background: '#e2e8f0' }} />
+                                        <div style={{ 
+                                            width: `${Math.min(requisition.totalAmount / budget.amount * 100, 100 - impact.currentUsage)}%`, 
+                                            height: '100%', 
+                                            background: impact.isOverBudget ? '#ef4444' : 'var(--brand)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: 'white',
+                                            fontSize: '0.65rem',
+                                            fontWeight: 900
+                                        }}>
+                                            REQ
+                                        </div>
+                                    </div>
+                                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Spent: {formatCurrency(deptSpend, budget.currency)}</span>
+                                        <span style={{ fontWeight: 700 }}>Rem: {formatCurrency(impact.remaining, budget.currency)}</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Approval History */}
+                            <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+                                    <History size={16} color="var(--brand)" />
+                                    <h4 style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-disabled)', margin: 0 }}>Approval Chain</h4>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative', paddingLeft: '0.5rem' }}>
+                                    <div style={{ position: 'absolute', top: '10px', bottom: '10px', left: '16px', width: '2px', background: '#f1f5f9' }} />
+                                    
                                     {requisition.approvalHistory?.map((entry, idx) => (
-                                        <div key={idx} style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem' }}>
-                                            <div style={{ color: 'var(--success)', fontSize: '1.2rem' }}>✓</div>
+                                        <div key={idx} style={{ display: 'flex', gap: '1rem', position: 'relative', zIndex: 1 }}>
+                                            <div style={{ width: '24px', height: '24px', borderRadius: '12px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', border: '2px solid #10b981' }}>
+                                                <CheckCircle2 size={14} />
+                                            </div>
                                             <div>
-                                                <div style={{ fontWeight: 700 }}>{entry.stepName}</div>
-                                                <div style={{ color: 'var(--text-secondary)' }}>{entry.actorName} approved</div>
-                                                <div style={{ fontSize: '0.75rem', opacity: 0.6 }}>{new Date(entry.timestamp).toLocaleDateString()}</div>
+                                                <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>{entry.actorName}</div>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--text-disabled)', textTransform: 'uppercase' }}>{entry.stepName} • Approved</div>
                                             </div>
                                         </div>
                                     ))}
-
-                                    {/* Current/Future Placeholder */}
-                                    <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', opacity: 0.6 }}>
-                                        <div style={{ color: 'var(--primary)', fontSize: '1.2rem' }}>○</div>
+                                    
+                                    <div style={{ display: 'flex', gap: '1rem', position: 'relative', zIndex: 1 }}>
+                                        <div style={{ width: '24px', height: '24px', borderRadius: '12px', background: 'var(--brand-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand)', border: '2px solid var(--brand)' }}>
+                                            <User size={14} />
+                                        </div>
                                         <div>
-                                            <div style={{ fontWeight: 700 }}>Pending Review</div>
-                                            <div style={{ fontStyle: 'italic' }}>Sequential Tier {(requisition.currentStepIndex || 0) + 1}</div>
+                                            <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>Decision Required</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'var(--text-disabled)', textTransform: 'uppercase' }}>Workflow Tier {(requisition.currentStepIndex || 0) + 1}</div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="card" style={{ backgroundColor: '#f8fafc', padding: '1.25rem' }}>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Justification</div>
-                                <div style={{ fontSize: '0.875rem', lineHeight: 1.6 }}>{requisition.justification}</div>
+                            {/* Comment Input */}
+                            <div style={{ marginTop: 'auto', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                                    <MessageSquare size={16} color="var(--text-secondary)" />
+                                    <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>Your Rationale</label>
+                                </div>
+                                <textarea 
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    placeholder="Add notes for your decision..."
+                                    style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.875rem', background: '#f8fafc', outline: 'none' }}
+                                    rows={3}
+                                />
+                            </div>
+
+                            {/* Actions */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                <div style={{ display: 'flex', gap: '0.75rem' }}>
+                                    <button 
+                                        onClick={() => onReject(requisition.id!, comment)}
+                                        className="btn" 
+                                        style={{ flex: 1, padding: '0.875rem', background: '#fff1f2', color: '#e11d48', border: '1px solid #fda4af', fontWeight: 800, borderRadius: '12px' }}
+                                    >
+                                        Reject
+                                    </button>
+                                    <button 
+                                        onClick={() => onApprove(requisition.id!, comment)}
+                                        className="btn"
+                                        style={{ flex: 2, padding: '0.875rem', background: 'var(--brand)', color: 'white', border: 'none', fontWeight: 900, borderRadius: '12px', boxShadow: '0 4px 15px rgba(232, 87, 42, 0.3)' }}
+                                    >
+                                        Approve
+                                    </button>
+                                </div>
+                                {onRevision && (
+                                    <button 
+                                        onClick={() => onRevision(requisition.id!, comment)}
+                                        className="btn"
+                                        style={{ width: '100%', padding: '0.875rem', background: 'white', color: 'var(--text-secondary)', border: '1px solid var(--border)', fontWeight: 800, borderRadius: '12px' }}
+                                    >
+                                        Request Revision
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>
 
-                    {/* Comment Field */}
-                    <div style={{ marginTop: '2rem' }}>
-                        <label style={{ fontSize: '0.875rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Decision Comment (Optional)</label>
-                        <textarea
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            placeholder="Add a reason for your approval or rejection..."
-                            rows={2}
-                            style={{ width: '100%', borderRadius: '12px', border: '1px solid var(--border)', padding: '0.75rem' }}
-                        />
-                    </div>
-
-                    {/* Footer Actions */}
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-                        <button onClick={onClose} className="btn" style={{ padding: '0.75rem 1.5rem' }}>Cancel</button>
-                        {onRevision && (
-                            <button onClick={() => onRevision(requisition.id!, comment)} className="btn" style={{ padding: '0.75rem 1.5rem', border: '1px solid var(--border)' }}>Request Revision</button>
-                        )}
-                        <button onClick={() => onReject(requisition.id!, comment)} className="btn" style={{ padding: '0.75rem 1.5rem', backgroundColor: '#fee2e2', color: '#991b1b', border: '1px solid #fecad1' }}>Reject</button>
-                        <button onClick={() => onApprove(requisition.id!, comment)} className="btn btn-primary" style={{ padding: '0.75rem 2.5rem', fontWeight: 700 }}>Approve Request</button>
-                    </div>
+                    <style jsx>{`
+                        @media (max-width: 1024px) {
+                            .premium-card {
+                                width: 100vw !important;
+                                height: 100vh !important;
+                                max-height: 100vh !important;
+                                border-radius: 0 !important;
+                                top: 0 !important;
+                                left: 0 !important;
+                                margin: 0 !important;
+                            }
+                            .responsive-modal-container {
+                                flex-direction: column !important;
+                                overflow-y: auto !important;
+                            }
+                            .right-panel {
+                                width: 100% !important;
+                                border-left: none !important;
+                                border-top: 1px solid var(--border) !important;
+                                padding: 2rem !important;
+                            }
+                            .document-view {
+                                padding: 1.5rem !important;
+                            }
+                        }
+                        @keyframes modalSlideUp {
+                            from { opacity: 0; transform: translateY(40px) scale(0.95); }
+                            to { opacity: 1; transform: translateY(0) scale(1); }
+                        }
+                    `}</style>
                 </div>
             </div>
-        </div>
+        </Portal>
     );
 }

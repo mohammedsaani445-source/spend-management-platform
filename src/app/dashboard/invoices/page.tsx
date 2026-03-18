@@ -13,9 +13,10 @@ import CustomSelect from "@/components/ui/CustomSelect";
 import InvoiceUpload from "@/components/invoices/InvoiceUpload";
 import Loader from "@/components/common/Loader";
 import { ReceiptCaptureModal } from "@/components/receipts/ReceiptCaptureModal";
-import { Zap, Edit2, AlertTriangle } from "lucide-react";
+import { Zap, Edit2, AlertTriangle, X, FileCheck, Plus, BarChart3, Clock, Target, ShieldCheck, CheckCheck } from "lucide-react";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { recordCorrection } from "@/lib/feedback";
+import Portal from "@/components/common/Portal";
 
 const INV_STATUS_STYLES: Record<string, { bg: string; color: string }> = {
     PENDING: { bg: 'var(--warning-bg)', color: 'var(--warning)' },
@@ -234,17 +235,19 @@ export default function InvoicesPage() {
                     <h1 className="page-title">Invoices</h1>
                     <p className="page-subtitle">Manage vendor invoices, 3-way matching, and payment approvals</p>
                 </div>
-                <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Record Invoice</button>
+                <button className="btn btn-primary" onClick={() => setShowModal(true)}>
+                    <Plus size={18} style={{ marginRight: 6 }} /> Record Invoice
+                </button>
             </div>
 
             {/* Stats */}
             <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                 {[
-                    { label: 'Total Volume', value: formatCurrency(stats.totalAmount, stats.displayCurrency), color: 'var(--brand)', bg: 'var(--brand-soft)', icon: '📊' },
-                    { label: 'Pending Payment', value: formatCurrency(stats.pending, stats.displayCurrency), color: 'var(--warning)', bg: 'var(--warning-bg)', icon: '⏳' },
-                    { label: 'AI Accuracy', value: `${stats.aiAccuracy}%`, color: 'var(--success)', bg: 'var(--success-soft)', icon: '🎯' },
-                    { label: 'Fraud Alerts', value: stats.anomalies, color: 'var(--error)', bg: 'var(--error-bg)', icon: '🛡️' },
-                    { label: 'Match Rate', value: `${stats.matchRate}%`, color: 'var(--brand)', bg: 'var(--brand-soft)', icon: '🤝' },
+                    { label: 'Total Volume', value: formatCurrency(stats.totalAmount, stats.displayCurrency), color: 'var(--brand)', bg: 'var(--brand-soft)', icon: <BarChart3 size={20} /> },
+                    { label: 'Pending Payment', value: formatCurrency(stats.pending, stats.displayCurrency), color: 'var(--warning)', bg: 'var(--warning-bg)', icon: <Clock size={20} /> },
+                    { label: 'AI Accuracy', value: `${stats.aiAccuracy}%`, color: 'var(--success)', bg: 'var(--success-soft)', icon: <Target size={20} /> },
+                    { label: 'Fraud Alerts', value: stats.anomalies, color: 'var(--error)', bg: 'var(--error-bg)', icon: <ShieldCheck size={20} /> },
+                    { label: 'Match Rate', value: `${stats.matchRate}%`, color: 'var(--brand)', bg: 'var(--brand-soft)', icon: <CheckCheck size={20} /> },
                 ].map(s => (
                     <div key={s.label} style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, padding: '1rem', borderTop: `4px solid ${s.color}` }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
@@ -277,140 +280,153 @@ export default function InvoicesPage() {
 
             {/* Record Invoice Modal */}
             {showModal && (
-                <div className="modal-backdrop">
-                    <div className="modal">
-                        <div className="modal-header">
-                            <h2 className="modal-title">Record Vendor Invoice</h2>
-                            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', fontSize: '1.25rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>×</button>
-                        </div>
-                        <form onSubmit={handleSubmit}>
-                            <div className="modal-body" style={{ display: 'grid', gap: '1rem' }}>
-                                <div style={{
-                                    padding: '1rem',
-                                    background: 'var(--brand-soft)',
-                                    borderRadius: '12px',
-                                    border: '1px dashed var(--brand)',
-                                    marginBottom: '0.5rem',
-                                    textAlign: 'center'
-                                }}>
-                                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--brand)', marginBottom: '0.25rem' }}>
-                                        <Zap size={14} style={{ marginRight: '4px' }} /> Automated AI Extraction
-                                    </div>
-                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                                        Upload your document below, and our AI will instantly extract details and match them to your Purchase Order.
-                                    </div>
-                                </div>
-
-                                {duplicateWarning && (
+                <Portal>
+                    <div className="modal-backdrop" style={{ animation: "fadeIn 0.2s ease-out" }}>
+                        <div className="modal" style={{ maxWidth: 640, width: "95%", maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: "slideUp 0.3s ease-out", padding: 0, overflow: 'hidden' }}>
+                            <div className="modal-header" style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
+                                <h2 className="modal-title" style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, fontSize: "1.25rem" }}>
+                                    <FileCheck size={24} color="var(--brand)" /> Record Vendor Invoice
+                                </h2>
+                                <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.15s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}><X size={24} /></button>
+                            </div>
+                            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                                <div className="modal-body" style={{ display: 'grid', gap: '1.25rem', padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
                                     <div style={{
-                                        padding: '1rem',
-                                        background: 'var(--error-bg)',
-                                        borderRadius: '12px',
-                                        border: '1px solid var(--error)',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.75rem',
-                                        color: 'var(--error)',
-                                        fontSize: '0.85rem',
-                                        fontWeight: 600
+                                        padding: '1.25rem',
+                                        background: 'var(--brand-soft)',
+                                        borderRadius: '16px',
+                                        border: '1px solid var(--brand-light)',
+                                        marginBottom: '0.5rem',
+                                        textAlign: 'left',
+                                        position: 'relative',
+                                        overflow: 'hidden',
+                                        flexShrink: 0
                                     }}>
-                                        <AlertTriangle size={18} />
-                                        {duplicateWarning}
-                                    </div>
-                                )}
-                                <CustomSelect
-                                    label="Select Purchase Order"
-                                    value={formData.poId}
-                                    onChange={(val) => {
-                                        const po = pos.find(p => p.id === val);
-                                        setFormData({ ...formData, poId: val, currency: po?.currency || 'USD', invoiceNumber: po ? `INV-${po.poNumber}` : "" });
-                                    }}
-                                    options={[
-                                        { label: "-- Select PO --", value: "" },
-                                        ...pos.filter(p => p.status !== 'CLOSED').map(po => ({
-                                            label: `${po.poNumber} — ${po.vendorName} (${formatCurrency(po.totalAmount, po.currency)})`,
-                                            value: po.id!
-                                        }))
-                                    ]}
-                                    placeholder="Select PO"
-                                />
-                                <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                                    <div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <label className="form-label">Invoice #</label>
-                                            {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                        <div style={{ position: 'absolute', right: -10, top: -10, opacity: 0.1, transform: 'rotate(15deg)' }}>
+                                            <Zap size={80} color="var(--brand)" />
                                         </div>
-                                        <input type="text" required className="form-input"
-                                            value={formData.invoiceNumber}
-                                            onChange={e => setFormData({ ...formData, invoiceNumber: e.target.value })}
-                                            onBlur={e => handleCorrection('invoiceNumber', e.target.value)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="form-label">Currency</label>
-                                        <input type="text" readOnly className="form-input" value={formData.currency}
-                                            style={{ background: 'var(--background)', color: 'var(--text-secondary)', cursor: 'not-allowed' }} />
-                                    </div>
-                                    <div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <label className="form-label">Amount ({formData.currency})</label>
-                                            {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                        <div style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--brand)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--brand)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                <Zap size={14} fill="white" />
+                                            </div>
+                                            Automated AI Extraction
                                         </div>
-                                        <input type="number" step="0.01" required className="form-input"
-                                            value={formData.amount}
-                                            onChange={e => setFormData({ ...formData, amount: Number(e.target.value) })}
-                                            onBlur={e => handleCorrection('totalAmount', Number(e.target.value))}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <label className="form-label">Issue Date</label>
-                                            {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, maxWidth: '90%' }}>
+                                            Upload your document below, and our proprietary AI will instantly extract line items, match them to your Purchase Order, and flag any anomalies.
                                         </div>
-                                        <input type="date" required className="form-input"
-                                            value={formData.issueDate}
-                                            onChange={e => setFormData({ ...formData, issueDate: e.target.value })}
-                                            onBlur={e => handleCorrection('issueDate', e.target.value)}
-                                        />
                                     </div>
-                                    <div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <label className="form-label">Due Date</label>
-                                            {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+
+                                    {duplicateWarning && (
+                                        <div style={{
+                                            padding: '1rem',
+                                            background: 'var(--error-bg)',
+                                            borderRadius: '12px',
+                                            border: '1px solid var(--error)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.75rem',
+                                            color: 'var(--error)',
+                                            fontSize: '0.85rem',
+                                            fontWeight: 600
+                                        }}>
+                                            <AlertTriangle size={18} />
+                                            {duplicateWarning}
                                         </div>
-                                        <input type="date" required className="form-input"
-                                            value={formData.dueDate}
-                                            onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
-                                            onBlur={e => handleCorrection('dueDate', e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="form-label">Invoice Attachment & AI Analysis</label>
-                                    <InvoiceUpload
-                                        onUploadComplete={(url, name, aiData) => {
-                                            if (url) {
-                                                // If AI data is provided (merged flow), populate the form
-                                                if (aiData) {
-                                                    handleScanSuccess(aiData);
-                                                }
-                                                setFormData({ ...formData, fileName: name, fileUrl: url });
-                                            } else {
-                                                setFormData({ ...formData, fileName: "", fileUrl: "" });
-                                            }
+                                    )}
+                                    <CustomSelect
+                                        label="Select Purchase Order"
+                                        value={formData.poId}
+                                        onChange={(val) => {
+                                            const po = pos.find(p => p.id === val);
+                                            setFormData({ ...formData, poId: val, currency: po?.currency || 'USD', invoiceNumber: po ? `INV-${po.poNumber}` : "" });
                                         }}
+                                        options={[
+                                            { label: "-- Select PO --", value: "" },
+                                            ...pos.filter(p => p.status !== 'CLOSED').map(po => ({
+                                                label: `${po.poNumber} — ${po.vendorName} (${formatCurrency(po.totalAmount, po.currency)})`,
+                                                value: po.id!
+                                            }))
+                                        ]}
+                                        placeholder="Select PO"
                                     />
+                                    <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                                        <div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <label className="form-label">Invoice #</label>
+                                                {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                            </div>
+                                            <input type="text" required className="form-input"
+                                                value={formData.invoiceNumber}
+                                                onChange={e => setFormData({ ...formData, invoiceNumber: e.target.value })}
+                                                onBlur={e => handleCorrection('invoiceNumber', e.target.value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="form-label">Currency</label>
+                                            <input type="text" readOnly className="form-input" value={formData.currency}
+                                                style={{ background: 'var(--background)', color: 'var(--text-secondary)', cursor: 'not-allowed' }} />
+                                        </div>
+                                        <div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <label className="form-label">Amount ({formData.currency})</label>
+                                                {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                            </div>
+                                            <input type="number" step="0.01" required className="form-input"
+                                                value={formData.amount}
+                                                onChange={e => setFormData({ ...formData, amount: Number(e.target.value) })}
+                                                onBlur={e => handleCorrection('totalAmount', Number(e.target.value))}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                        <div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <label className="form-label">Issue Date</label>
+                                                {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                            </div>
+                                            <input type="date" required className="form-input"
+                                                value={formData.issueDate}
+                                                onChange={e => setFormData({ ...formData, issueDate: e.target.value })}
+                                                onBlur={e => handleCorrection('issueDate', e.target.value)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <label className="form-label">Due Date</label>
+                                                {formData.autoExtracted && <Edit2 size={12} style={{ color: 'var(--brand)', cursor: 'help' }} />}
+                                            </div>
+                                            <input type="date" required className="form-input"
+                                                value={formData.dueDate}
+                                                onChange={e => setFormData({ ...formData, dueDate: e.target.value })}
+                                                onBlur={e => handleCorrection('dueDate', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="form-label">Invoice Attachment & AI Analysis</label>
+                                        <InvoiceUpload
+                                            onUploadComplete={(url, name, aiData) => {
+                                                if (url) {
+                                                    // If AI data is provided (merged flow), populate the form
+                                                    if (aiData) {
+                                                        handleScanSuccess(aiData);
+                                                    }
+                                                    setFormData({ ...formData, fileName: name, fileUrl: url });
+                                                } else {
+                                                    setFormData({ ...formData, fileName: "", fileUrl: "" });
+                                                }
+                                            }}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="btn btn-primary">Save Invoice</button>
-                            </div>
-                        </form>
+                                <div className="modal-footer" style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
+                                    <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+                                    <button type="submit" className="btn btn-primary" style={{ minWidth: '140px' }}>Save Invoice</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
+                </Portal>
             )}
 
             {/* Table */}

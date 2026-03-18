@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { createTender } from "@/lib/bidding";
-import { X, Calendar, DollarSign, FileText } from "lucide-react";
-import styles from "@/app/dashboard/sourcing/Sourcing.module.css";
+import { X, Calendar, DollarSign, FileText, ShieldCheck, Info } from "lucide-react";
+import Portal from "@/components/common/Portal";
 
 interface CreateTenderModalProps {
     isOpen: boolean;
@@ -47,99 +47,112 @@ export default function CreateTenderModal({ isOpen, onClose, tenantId }: CreateT
     };
 
     return (
-        <div className={styles.modalOverlay}>
-            <div className={styles.modal}>
-                <div className={styles.modalHeader}>
-                    <div className={styles.modalTitleArea}>
-                        <FileText size={24} className={styles.brandIcon} />
-                        <div>
-                            <h2>Issue New Strategic Tender</h2>
-                            <p>Define your procurement requirements and invitation criteria.</p>
+        <Portal>
+            <div className="modal-backdrop" style={{ animation: "fadeIn 0.2s ease-out" }}>
+                <div className="modal" style={{ maxWidth: '640px', width: '95%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: "slideUp 0.3s ease-out", padding: 0, overflow: 'hidden' }}>
+                    <div className="modal-header" style={{ padding: "1.5rem", borderBottom: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                            <div style={{ padding: 10, borderRadius: 12, background: 'var(--brand-soft)', color: 'var(--brand)' }}>
+                                <FileText size={24} />
+                            </div>
+                            <div>
+                                <h2 style={{ margin: 0, fontSize: "1.25rem", color: 'var(--text-primary)' }}>Issue New Strategic Tender</h2>
+                                <p style={{ margin: 0, fontSize: "0.85rem", color: 'var(--text-secondary)' }}>Define procurement requirements and invitation criteria.</p>
+                            </div>
                         </div>
+                        <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.15s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}><X size={24} /></button>
                     </div>
-                    <button className={styles.iconBtn} onClick={onClose}>
-                        <X size={20} />
-                    </button>
+
+                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                        <div className="modal-body" style={{ display: 'grid', gap: '1.25rem', padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+                            <div className="form-group">
+                                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', display: 'block' }}>Tender Title</label>
+                                <input 
+                                    name="title" 
+                                    required 
+                                    placeholder="e.g. FY26 Infrastructure Upgrade - Phase 1" 
+                                    className="form-input"
+                                    style={{ borderRadius: '10px' }}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', display: 'block' }}>Scope of Work & Specification</label>
+                                <textarea 
+                                    name="description" 
+                                    required 
+                                    rows={4} 
+                                    placeholder="Provide detailed requirements for vendors..."
+                                    className="form-input"
+                                    style={{ borderRadius: '12px', minHeight: '100px', paddingTop: '10px' }}
+                                ></textarea>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <DollarSign size={14} /> Estimated Budget
+                                    </label>
+                                    <input 
+                                        name="budget" 
+                                        type="number" 
+                                        required 
+                                        placeholder="0.00"
+                                        className="form-input"
+                                        style={{ borderRadius: '10px' }}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                        <Calendar size={14} /> Submission Deadline
+                                    </label>
+                                    <input 
+                                        name="deadline" 
+                                        type="date" 
+                                        required 
+                                        className="form-input"
+                                        style={{ borderRadius: '10px' }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                                <div className="form-group">
+                                    <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', display: 'block' }}>Base Currency</label>
+                                    <select name="currency" className="form-select" style={{ borderRadius: '10px' }}>
+                                        <option value="USD">USD - US Dollar</option>
+                                        <option value="EUR">EUR - Euro</option>
+                                        <option value="GBP">GBP - British Pound</option>
+                                        <option value="CAD">CAD - Canadian Dollar</option>
+                                    </select>
+                                </div>
+                                <div className="form-group" style={{ display: 'flex', alignItems: 'center', paddingTop: '1.5rem' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}>
+                                        <input name="isSealed" type="checkbox" defaultChecked style={{ width: 18, height: 18, accentColor: 'var(--brand)' }} />
+                                        <span>Enforce Sealed Bidding Policy</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', background: 'var(--info-bg)', borderRadius: '12px', border: '1px solid var(--info-border)' }}>
+                                <Info size={20} color="var(--info)" style={{ flexShrink: 0 }} />
+                                <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--info-dark)', lineHeight: 1.4 }}>
+                                    Launch this tender as an RFP to invited vendors. All submissions will be encrypted until the deadline.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="modal-footer" style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
+                            <button type="button" onClick={onClose} className="btn btn-secondary" disabled={loading}>
+                                Cancel
+                            </button>
+                            <button type="submit" className="btn btn-primary" disabled={loading} style={{ minWidth: '160px' }}>
+                                {loading ? "Launching Tender..." : "Issue Tender RFP"}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-
-                <form className={styles.createForm} onSubmit={handleSubmit}>
-                    <div className={styles.formGroup}>
-                        <label>Tender Title</label>
-                        <input 
-                            name="title" 
-                            required 
-                            placeholder="e.g. FY26 Infrastructure Upgrade - Phase 1" 
-                            className={styles.modalInput}
-                        />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label>Scope of Work & Specification</label>
-                        <textarea 
-                            name="description" 
-                            required 
-                            rows={4} 
-                            placeholder="Provide detailed requirements for vendors..."
-                            className={styles.modalTextarea}
-                        ></textarea>
-                    </div>
-
-                    <div className={styles.formRow}>
-                        <div className={styles.formGroup}>
-                            <label>Estimated Budget</label>
-                            <div className={styles.inputWithIcon}>
-                                <DollarSign size={16} />
-                                <input 
-                                    name="budget" 
-                                    type="number" 
-                                    required 
-                                    placeholder="0.00"
-                                    className={styles.modalInput}
-                                />
-                            </div>
-                        </div>
-                        <div className={styles.formGroup}>
-                            <label>Submission Deadline</label>
-                            <div className={styles.inputWithIcon}>
-                                <Calendar size={16} />
-                                <input 
-                                    name="deadline" 
-                                    type="date" 
-                                    required 
-                                    className={styles.modalInput}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className={styles.formRow}>
-                        <div className={styles.formGroup}>
-                            <label>Base Currency</label>
-                            <select name="currency" className={styles.modalSelect}>
-                                <option value="USD">USD - US Dollar</option>
-                                <option value="EUR">EUR - Euro</option>
-                                <option value="GBP">GBP - British Pound</option>
-                                <option value="CAD">CAD - Canadian Dollar</option>
-                            </select>
-                        </div>
-                        <div className={styles.formGroup} style={{ justifyContent: 'center', paddingTop: '1.5rem' }}>
-                            <label className={styles.checkboxLabel}>
-                                <input name="isSealed" type="checkbox" defaultChecked />
-                                <span>Enforce Sealed Bidding Policy</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div className={styles.modalActions}>
-                        <button type="button" onClick={onClose} className={styles.secondaryBtn} disabled={loading}>
-                            Cancel
-                        </button>
-                        <button type="submit" className={styles.primaryBtn} disabled={loading}>
-                            {loading ? "Launching Tender..." : "Issue Tender RFP"}
-                        </button>
-                    </div>
-                </form>
             </div>
-        </div>
+        </Portal>
     );
 }

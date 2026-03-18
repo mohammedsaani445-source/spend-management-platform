@@ -8,6 +8,8 @@ import { useModal } from "@/context/ModalContext";
 import { useAuth } from "@/context/AuthContext";
 import VendorDetailModal from "@/components/vendors/VendorDetailModal";
 import { useScrollLock } from "@/hooks/useScrollLock";
+import Portal from "@/components/common/Portal";
+import { X, Plus, Search, Filter, Mail, Phone, MapPin, Globe, CreditCard, ExternalLink, ShieldCheck, Building } from "lucide-react";
 
 const VENDOR_CATEGORIES = ["General", "IT Services", "Office Supplies", "Logistics", "Marketing", "Other"];
 
@@ -152,7 +154,9 @@ export default function VendorsPage() {
 
             {/* Search */}
             <div style={{ position: 'relative', marginBottom: '1rem', maxWidth: 400 }}>
-                <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>🔍</span>
+                <span style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center' }}>
+                    <Search size={16} />
+                </span>
                 <input
                     value={search} onChange={e => setSearch(e.target.value)}
                     placeholder="Search vendors..."
@@ -166,7 +170,9 @@ export default function VendorsPage() {
             ) : filtered.length === 0 ? (
                 <div className="card">
                     <div className="empty-state">
-                        <div className="empty-state-icon">🏢</div>
+                        <div className="empty-state-icon" style={{ background: 'var(--brand-soft)', color: 'var(--brand)' }}>
+                            <Building size={40} />
+                        </div>
                         <h3>{vendors.length === 0 ? 'No vendors yet' : 'No results found'}</h3>
                         <p>{vendors.length === 0 ? 'Add your first vendor to get started.' : 'Try adjusting your search.'}</p>
                         {vendors.length === 0 && <button className="btn btn-primary" onClick={() => setIsFormOpen(true)}>Add Vendor</button>}
@@ -235,58 +241,63 @@ export default function VendorsPage() {
 
             {/* Add Modal */}
             {isFormOpen && (
-                <div className="modal-backdrop">
-                    <div className="modal">
-                        <div className="modal-header">
-                            <h2 className="modal-title">Add New Vendor</h2>
-                            <button onClick={() => setIsFormOpen(false)} style={{ background: 'none', border: 'none', fontSize: '1.25rem', color: 'var(--text-secondary)', cursor: 'pointer' }}>×</button>
-                        </div>
-                        <form onSubmit={handleSubmit}>
-                            <div className="modal-body" style={{ display: 'grid', gap: '1rem' }}>
-                                {[
-                                    { label: 'Company Name *', key: 'name', type: 'text', required: true },
-                                    { label: 'Contact Name *', key: 'contactName', type: 'text', required: true },
-                                    { label: 'Email *', key: 'email', type: 'email', required: true },
-                                    { label: 'Phone', key: 'phone', type: 'tel', required: false },
-                                    { label: 'Address', key: 'address', type: 'text', required: false },
-                                    { label: 'Tax ID', key: 'taxId', type: 'text', required: false },
-                                ].map(f => (
-                                    <div key={f.key}>
-                                        <label className="form-label">{f.label}</label>
-                                        <input
-                                            required={f.required} type={f.type} className="form-input"
-                                            value={(formData as any)[f.key]}
-                                            onChange={e => setFormData({ ...formData, [f.key]: e.target.value })}
-                                        />
+                <Portal>
+                    <div className="modal-backdrop" style={{ animation: "fadeIn 0.2s ease-out" }}>
+                        <div className="modal" style={{ maxWidth: 540, width: "95%", maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: "slideUp 0.3s ease-out", padding: 0, overflow: 'hidden' }}>
+                            <div className="modal-header" style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
+                                <h2 className="modal-title" style={{ margin: 0, fontSize: "1.25rem" }}>Add New Vendor</h2>
+                                <button onClick={() => setIsFormOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.15s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}><X size={24} /></button>
+                            </div>
+                            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                                <div className="modal-body" style={{ display: 'grid', gap: '1.25rem', padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+                                    {[
+                                        { label: 'Company Name *', key: 'name', type: 'text', required: true },
+                                        { label: 'Contact Name *', key: 'contactName', type: 'text', required: true },
+                                        { label: 'Email *', key: 'email', type: 'email', required: true },
+                                        { label: 'Phone', key: 'phone', type: 'tel', required: false },
+                                        { label: 'Address', key: 'address', type: 'text', required: false },
+                                        { label: 'Tax ID', key: 'taxId', type: 'text', required: false },
+                                    ].map(f => (
+                                        <div key={f.key}>
+                                            <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', display: 'block' }}>{f.label}</label>
+                                            <input
+                                                required={f.required} type={f.type} className="form-input"
+                                                style={{ borderRadius: '10px' }}
+                                                value={(formData as any)[f.key]}
+                                                onChange={e => setFormData({ ...formData, [f.key]: e.target.value })}
+                                            />
+                                        </div>
+                                    ))}
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                        <div>
+                                            <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', display: 'block' }}>Category</label>
+                                            <select className="form-select" style={{ borderRadius: '10px' }} value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}>
+                                                {VENDOR_CATEGORIES.map(c => <option key={c}>{c}</option>)}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="form-label" style={{ fontWeight: 700, fontSize: '0.85rem', marginBottom: '0.5rem', display: 'block' }}>Payment Method</label>
+                                            <select className="form-select" style={{ borderRadius: '10px' }} value={formData.paymentMethod} onChange={e => setFormData({ ...formData, paymentMethod: e.target.value as any })}>
+                                                <option value="ACH">ACH Transfer</option>
+                                                <option value="WIRE">Wire Transfer</option>
+                                                <option value="STRIPE">Stripe Connect</option>
+                                                <option value="PLUG">Direct Pay Plug</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                ))}
-                                <div>
-                                    <label className="form-label">Category</label>
-                                    <select className="form-select" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}>
-                                        {VENDOR_CATEGORIES.map(c => <option key={c}>{c}</option>)}
-                                    </select>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.9rem', cursor: 'pointer', background: 'var(--background)', padding: '0.75rem', borderRadius: '10px', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'var(--brand-soft)'} onMouseLeave={e => e.currentTarget.style.background = 'var(--background)'}>
+                                        <input type="checkbox" style={{ width: 18, height: 18, accentColor: 'var(--brand)' }} checked={formData.directPayEnabled} onChange={e => setFormData({ ...formData, directPayEnabled: e.target.checked })} />
+                                        <span style={{ fontWeight: 600 }}>Enable Direct Pay on Approval</span>
+                                    </label>
                                 </div>
-                                <div>
-                                    <label className="form-label">Payment Method</label>
-                                    <select className="form-select" value={formData.paymentMethod} onChange={e => setFormData({ ...formData, paymentMethod: e.target.value as any })}>
-                                        <option value="ACH">ACH Transfer</option>
-                                        <option value="WIRE">Wire Transfer</option>
-                                        <option value="STRIPE">Stripe Connect</option>
-                                        <option value="PLUG">Direct Pay Plug</option>
-                                    </select>
+                                <div className="modal-footer" style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
+                                    <button type="button" className="btn btn-secondary" onClick={() => setIsFormOpen(false)}>Cancel</button>
+                                    <button type="submit" className="btn btn-primary" style={{ minWidth: '120px' }}>Save Vendor</button>
                                 </div>
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.875rem', cursor: 'pointer' }}>
-                                    <input type="checkbox" checked={formData.directPayEnabled} onChange={e => setFormData({ ...formData, directPayEnabled: e.target.checked })} />
-                                    Enable Direct Pay on Approval
-                                </label>
-                            </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={() => setIsFormOpen(false)}>Cancel</button>
-                                <button type="submit" className="btn btn-primary">Save Vendor</button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
-                </div>
+                </Portal>
             )}
         </div>
     );

@@ -14,6 +14,7 @@ import BudgetDetailModal from "@/components/budgets/BudgetDetailModal";
 import { Plus, Wallet, TrendingUp, AlertCircle, Calendar, Briefcase, CreditCard, AlertTriangle, PieChart, Info, ArrowUpRight, X } from "lucide-react";
 import Loader from "@/components/common/Loader";
 import styles from "@/components/layout/Layout.module.css";
+import Portal from "@/components/common/Portal";
 
 const DEPT_OPTIONS = ["General", "IT", "Marketing", "Operations", "Finance", "HR"];
 
@@ -239,47 +240,49 @@ export default function BudgetsPage() {
 
             {/* Create/Edit Modal */}
             {showModal && (
-                <div className="modal-backdrop" style={{ animation: "fadeIn 0.2s ease-out" }}>
-                    <div className="modal" style={{ maxWidth: 480, width: "95%", animation: "slideUp 0.3s ease-out", padding: 0, overflow: "hidden" }}>
-                        <div className="modal-header" style={{ padding: "1.5rem", borderBottom: "1px solid var(--border)", background: "var(--surface-hover)" }}>
-                            <h2 className="modal-title" style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, fontSize: "1.25rem" }}>
-                                {editingId ? <><Briefcase size={24} color="var(--brand)" /> Edit Budget</> : <><Plus size={24} color="var(--brand)" /> Set Department Budget</>}
-                            </h2>
-                            <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.15s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}><X size={24} /></button>
+                <Portal>
+                    <div className="modal-backdrop" style={{ animation: "fadeIn 0.2s ease-out" }}>
+                        <div className="modal" style={{ maxWidth: 480, width: "95%", maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: "slideUp 0.3s ease-out", padding: 0, overflow: "hidden" }}>
+                            <div className="modal-header" style={{ padding: "1.5rem", borderBottom: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
+                                <h2 className="modal-title" style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, fontSize: "1.25rem" }}>
+                                    {editingId ? <><Briefcase size={24} color="var(--brand)" /> Edit Budget</> : <><Plus size={24} color="var(--brand)" /> Set Department Budget</>}
+                                </h2>
+                                <button onClick={() => setShowModal(false)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.15s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}><X size={24} /></button>
+                            </div>
+                            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
+                                <div className="modal-body" style={{ display: 'grid', gap: '1.25rem', padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                        <div>
+                                            <label className="form-label">Fiscal Year</label>
+                                            <input className="form-input" type="text" readOnly value="2026" style={{ background: 'var(--surface-hover)', color: 'var(--text-secondary)' }} />
+                                        </div>
+                                        <div>
+                                            <label className="form-label">Department</label>
+                                            <select className="form-select" value={formData.department} onChange={e => setFormData({ ...formData, department: e.target.value })}>
+                                                {DEPT_OPTIONS.map(d => <option key={d}>{d}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <CustomSelect
+                                        label="Currency"
+                                        value={formData.currency}
+                                        onChange={val => setFormData({ ...formData, currency: val })}
+                                        options={CURRENCIES.map(c => ({ label: `${c.code} - ${c.name}`, value: c.code, icon: c.flag }))}
+                                    />
+                                    <div>
+                                        <label className="form-label">Budget Limit</label>
+                                        <input type="number" step="1000" required className="form-input"
+                                            value={formData.amount} onChange={e => setFormData({ ...formData, amount: Number(e.target.value) })} />
+                                    </div>
+                                </div>
+                                <div className="modal-footer" style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
+                                    <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
+                                    <button type="submit" className="btn btn-primary">{editingId ? 'Save Changes' : 'Create Budget'}</button>
+                                </div>
+                            </form>
                         </div>
-                        <form onSubmit={handleSubmit}>
-                            <div className="modal-body" style={{ display: 'grid', gap: '1.25rem', padding: '1.5rem' }}>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div>
-                                        <label className="form-label">Fiscal Year</label>
-                                        <input className="form-input" type="text" readOnly value="2026" style={{ background: 'var(--surface-hover)', color: 'var(--text-secondary)' }} />
-                                    </div>
-                                    <div>
-                                        <label className="form-label">Department</label>
-                                        <select className="form-select" value={formData.department} onChange={e => setFormData({ ...formData, department: e.target.value })}>
-                                            {DEPT_OPTIONS.map(d => <option key={d}>{d}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
-                                <CustomSelect
-                                    label="Currency"
-                                    value={formData.currency}
-                                    onChange={val => setFormData({ ...formData, currency: val })}
-                                    options={CURRENCIES.map(c => ({ label: `${c.code} - ${c.name}`, value: c.code, icon: c.flag }))}
-                                />
-                                <div>
-                                    <label className="form-label">Budget Limit</label>
-                                    <input type="number" step="1000" required className="form-input"
-                                        value={formData.amount} onChange={e => setFormData({ ...formData, amount: Number(e.target.value) })} />
-                                </div>
-                            </div>
-                            <div className="modal-footer" style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border)", background: "var(--surface-hover)" }}>
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                                <button type="submit" className="btn btn-primary">{editingId ? 'Save Changes' : 'Create Budget'}</button>
-                            </div>
-                        </form>
                     </div>
-                </div>
+                </Portal>
             )}
 
             {/* Detail Modal */}

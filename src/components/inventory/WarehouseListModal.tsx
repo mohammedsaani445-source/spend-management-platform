@@ -4,12 +4,12 @@ import { useState } from "react";
 import { Warehouse } from "@/types";
 import { deleteWarehouse } from "@/lib/inventory";
 import { useAuth } from "@/context/AuthContext";
-import styles from "@/components/layout/Layout.module.css";
 import tableStyles from "@/components/assets/Assets.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { Plus, Edit, Trash2, MapPin, X } from "lucide-react";
 import WarehouseFormModal from "./WarehouseFormModal";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
+import Portal from "@/components/common/Portal";
 
 interface WarehouseListModalProps {
     warehouses: Warehouse[];
@@ -37,10 +37,10 @@ export default function WarehouseListModal({ warehouses, onClose, onRefresh }: W
     };
 
     return (
-        <>
-            <div className="modal-backdrop" style={{ zIndex: 1050 }}>
-                <div className="modal" style={{ maxWidth: '800px', width: '90%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
-                    <div className="modal-header" style={{ position: 'sticky', top: 0, zIndex: 10, background: 'var(--surface)', borderBottom: '1px solid var(--border)' }}>
+        <Portal>
+            <div className="modal-backdrop" style={{ animation: "fadeIn 0.2s ease-out", zIndex: 1050 }}>
+                <div className="modal" style={{ maxWidth: '800px', width: '95%', maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: "slideUp 0.3s ease-out", padding: 0, overflow: 'hidden' }}>
+                    <div className="modal-header" style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div style={{
                                 width: '32px', height: '32px', borderRadius: '8px',
@@ -49,19 +49,19 @@ export default function WarehouseListModal({ warehouses, onClose, onRefresh }: W
                             }}>
                                 <MapPin size={18} style={{ color: 'var(--brand)' }} />
                             </div>
-                            <h2 className="modal-title">Storage Locations (Warehouses)</h2>
+                            <h2 className="modal-title" style={{ margin: 0, fontSize: "1.25rem" }}>Storage Locations (Warehouses)</h2>
                         </div>
                         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                             <button className="btn btn-primary" style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }} onClick={() => setShowCreateModal(true)}>
                                 <Plus size={14} style={{ marginRight: '4px' }} /> Add New
                             </button>
-                            <button onClick={onClose} className="closeButton" style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.25rem' }}>
+                            <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.15s' }} onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}>
                                 <X size={20} />
                             </button>
                         </div>
                     </div>
 
-                    <div style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
+                    <div className="modal-body" style={{ padding: '1.5rem', overflowY: 'auto', flex: 1 }}>
                         <div className={tableStyles.container} style={{ border: 'none', boxShadow: 'none' }}>
                             <div className={tableStyles.tableWrapper}>
                                 <table className={tableStyles.table}>
@@ -143,6 +143,6 @@ export default function WarehouseListModal({ warehouses, onClose, onRefresh }: W
                     onCancel={() => setWhToDelete(null)}
                 />
             )}
-        </>
+        </Portal>
     );
 }
