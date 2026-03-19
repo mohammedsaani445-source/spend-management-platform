@@ -188,6 +188,19 @@
           }
         }
       },
+      "tenant_registry": {
+        ".read": "auth != null",
+        "$tenantId": {
+          ".write": "auth != null && (root.child('v2_production').child('tenants').child(root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val()).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child(root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val()).child('users').child(auth.uid).child('role').val() === 'PLATFORM_SUPERUSER' || !data.exists())"
+        }
+      },
+      "users_pending": {
+        ".read": "auth != null && (root.child('v2_production').child('tenants').child(root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val()).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child(root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val()).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child(root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val()).child('users').child(auth.uid).child('role').val() === 'PLATFORM_SUPERUSER')",
+        "$uid": {
+          ".read": "auth != null && ($uid === auth.uid || root.child('v2_production').child('tenants').child(root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val()).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child(root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val()).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child(root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val()).child('users').child(auth.uid).child('role').val() === 'PLATFORM_SUPERUSER')",
+          ".write": "auth != null"
+        }
+      },
       "api_keys": {
         ".read": "auth != null",
         "$keyId": {
