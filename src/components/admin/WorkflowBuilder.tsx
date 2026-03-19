@@ -170,9 +170,17 @@ export default function WorkflowBuilder() {
                                             {(wf.steps || []).length} {(wf.steps || []).length === 1 ? 'Stage' : 'Stages'} Approval
                                         </span>
                                     </div>
-                                    <div style={{ background: wf.isActive ? '#ECFDF5' : '#F4F6F8', color: wf.isActive ? '#10B981' : '#637381', fontSize: '0.7rem', padding: '0.2rem 0.6rem', borderRadius: '100px', fontWeight: 800 }}>
+                                    <div style={{ background: wf.isActive ? '#ECFDF5' : '#F4F6F8', color: wf.isActive ? '#10B981' : '#637381', fontSize: '0.7rem', padding: '0.2rem 0.6rem', borderRadius: '100px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                        {wf.isActive ? <CheckCircle2 size={12} /> : null}
                                         {wf.isActive ? 'ACTIVE' : 'DRAFT'}
                                     </div>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
+                                    <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', background: '#Eff6ff', color: '#1d4ed8', borderRadius: '4px', fontWeight: 800 }}>
+                                        {wf.entityType?.replace(/_/g, ' ')}
+                                    </span>
+                                    <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>• Priority {wf.priority || 0}</span>
                                 </div>
 
                                 <div style={{ background: '#F9FAFB', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem', flex: 1 }}>
@@ -242,7 +250,18 @@ export default function WorkflowBuilder() {
                                     <input className={styles.input} value={activeWorkflow.name} onChange={e => setActiveWorkflow({ ...activeWorkflow, name: e.target.value })} placeholder="e.g. Executive Approval Flow" />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.label}>Priority Order</label>
+                                    <label className={styles.label}>Application Scope (Tab)</label>
+                                    <select className={styles.input} value={activeWorkflow.entityType} onChange={e => setActiveWorkflow({ ...activeWorkflow, entityType: e.target.value as any })}>
+                                        <option value="REQUISITION">Requisitions Tab</option>
+                                        <option value="PO">Purchase Orders Tab</option>
+                                        <option value="INVOICE">Invoices Tab</option>
+                                        <option value="VENDOR_ONBOARDING">Vendor Onboarding</option>
+                                        <option value="BUDGET_ADJUSTMENT">Budget Adjustments</option>
+                                    </select>
+                                    <p style={{ fontSize: '0.65rem', color: '#6B7280', marginTop: '0.4rem' }}>Which part of the system should follow this flow?</p>
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label className={styles.label}>Execution Priority</label>
                                     <input type="number" className={styles.input} value={activeWorkflow.priority} onChange={e => setActiveWorkflow({ ...activeWorkflow, priority: parseInt(e.target.value) || 0 })} />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: '#F9FAFB', borderRadius: '10px' }}>
