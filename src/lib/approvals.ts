@@ -74,6 +74,37 @@ export const getCurrentStepApprovers = async (tenantId: string, workflow: Workfl
                         }
                     }
                 }
+            } else if (step.approverRole === 'DEPARTMENT_HEAD') {
+                const requesterSnap = await get(ref(db, `${DB_PREFIX}/tenants/${tenantId}/users/${requesterId}`));
+                if (requesterSnap.exists()) {
+                    const reqUser = requesterSnap.val() as AppUser;
+                    if (reqUser.departmentId) {
+                        const deptSnap = await get(ref(db, `${DB_PREFIX}/tenants/${tenantId}/departments/${reqUser.departmentId}`));
+                        if (deptSnap.exists()) {
+                            const dept = deptSnap.val();
+                            if (dept.managerId) {
+                                const managerSnap = await get(ref(db, `${DB_PREFIX}/tenants/${tenantId}/users/${dept.managerId}`));
+                                if (managerSnap.exists()) {
+                                    const m = managerSnap.val();
+                                    approvers.push({ uid: m.uid, name: m.displayName, email: m.email });
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                // Fallback: If no department manager found, look for Workspace Admin
+                if (approvers.length === 0) {
+                    const usersRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/users`);
+                    const q = query(usersRef, orderByChild('role'), equalTo('WORKSPACE_ADMIN'));
+                    const snapshot = await get(q);
+                    if (snapshot.exists()) {
+                        const users = Object.values(snapshot.val()) as AppUser[];
+                        if (users.length > 0) {
+                            approvers.push({ uid: users[0].uid, name: users[0].displayName, email: users[0].email });
+                        }
+                    }
+                }
             } else {
                 const usersRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/users`);
                 const q = query(usersRef, orderByChild('role'), equalTo(step.approverRole));
