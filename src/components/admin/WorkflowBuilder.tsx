@@ -26,23 +26,9 @@ export default function WorkflowBuilder() {
     // Simple Step Form
     const [stepForm, setStepForm] = useState<Partial<WorkflowStep>>({
         name: "",
-        approverRole: "DEPARTMENT_HEAD",
+        approverRole: "APPROVER",
         thresholdMin: 0
     });
-
-    const SYSTEM_ROLES = [
-        { id: 'DEPARTMENT_HEAD', label: 'Department Head (Dynamic)', icon: Users },
-        { id: 'REPORT_TO_MANAGER', label: 'Direct Manager (Dynamic)', icon: ArrowRight },
-        { id: 'PROCUREMENT_OFFICER', label: 'Procurement Officer', icon: ShieldCheck },
-        { id: 'STRATEGIC_SOURCER', label: 'Strategic Sourcer', icon: Zap },
-        { id: 'FINANCE_MANAGER', label: 'Finance Manager', icon: Layers },
-        { id: 'FINANCE_SPECIALIST', label: 'Finance Specialist', icon: Layers },
-        { id: 'ACCOUNTS_PAYABLE', label: 'Accounts Payable', icon: Save },
-        { id: 'OPERATIONS_RECEIVER', label: 'Operations Receiver', icon: ArrowDown },
-        { id: 'WORKSPACE_ADMIN', label: 'Workspace Admin', icon: ShieldCheck },
-        { id: 'PLATFORM_SUPERUSER', label: 'Platform Superuser', icon: ShieldCheck },
-        { id: 'AUTHORIZED_APPROVER', label: 'Authorized Approver', icon: CheckCircle2 }
-    ];
 
     useEffect(() => {
         if (user?.tenantId) fetchWorkflows();
@@ -65,7 +51,7 @@ export default function WorkflowBuilder() {
         setActiveWorkflow({
             id: "",
             tenantId: user?.tenantId || "",
-            name: "Enterprise Approval Route",
+            name: "New Approval Route",
             isActive: true,
             priority: 0,
             entityType: 'REQUISITION',
@@ -73,22 +59,6 @@ export default function WorkflowBuilder() {
             createdAt: new Date().toISOString()
         });
         setView('EDIT');
-    };
-
-    const handleLoadMasterTemplate = () => {
-        if (!user) return;
-        const masterSteps: WorkflowStep[] = [
-            { id: `step_m1_${Date.now()}`, name: "Department Authorization", approverRole: "DEPARTMENT_HEAD", thresholdMin: 0 },
-            { id: `step_m2_${Date.now()}`, name: "Value Analysis", approverRole: "PROCUREMENT_OFFICER", thresholdMin: 1000 },
-            { id: `step_m3_${Date.now()}`, name: "Sourcing Strategy Review", approverRole: "STRATEGIC_SOURCER", thresholdMin: 10000 },
-            { id: `step_m4_${Date.now()}`, name: "Financial Audit", approverRole: "FINANCE_MANAGER", thresholdMin: 25000 },
-            { id: `step_m5_${Date.now()}`, name: "Executive Final Approval", approverRole: "PLATFORM_SUPERUSER", thresholdMin: 100000 },
-        ];
-        setActiveWorkflow({
-            ...activeWorkflow!,
-            name: "Master Multi-Department Journey",
-            steps: masterSteps
-        });
     };
 
     const handleAddStep = () => {
@@ -100,7 +70,7 @@ export default function WorkflowBuilder() {
             thresholdMin: stepForm.thresholdMin || 0
         };
         setActiveWorkflow({ ...activeWorkflow, steps: [...(activeWorkflow.steps || []), newStep] });
-        setStepForm({ name: "", approverRole: "DEPARTMENT_HEAD", thresholdMin: 0 });
+        setStepForm({ name: "", approverRole: "APPROVER", thresholdMin: 0 });
     };
 
     const handleRemoveStep = (stepId: string) => {
@@ -170,17 +140,9 @@ export default function WorkflowBuilder() {
                                             {(wf.steps || []).length} {(wf.steps || []).length === 1 ? 'Stage' : 'Stages'} Approval
                                         </span>
                                     </div>
-                                    <div style={{ background: wf.isActive ? '#ECFDF5' : '#F4F6F8', color: wf.isActive ? '#10B981' : '#637381', fontSize: '0.7rem', padding: '0.2rem 0.6rem', borderRadius: '100px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                        {wf.isActive ? <CheckCircle2 size={12} /> : null}
+                                    <div style={{ background: wf.isActive ? '#ECFDF5' : '#F4F6F8', color: wf.isActive ? '#10B981' : '#637381', fontSize: '0.7rem', padding: '0.2rem 0.6rem', borderRadius: '100px', fontWeight: 800 }}>
                                         {wf.isActive ? 'ACTIVE' : 'DRAFT'}
                                     </div>
-                                </div>
-
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                                    <span style={{ fontSize: '0.7rem', padding: '0.2rem 0.5rem', background: '#Eff6ff', color: '#1d4ed8', borderRadius: '4px', fontWeight: 800 }}>
-                                        {wf.entityType?.replace(/_/g, ' ')}
-                                    </span>
-                                    <span style={{ fontSize: '0.7rem', color: '#9CA3AF' }}>• Priority {wf.priority || 0}</span>
                                 </div>
 
                                 <div style={{ background: '#F9FAFB', borderRadius: '12px', padding: '1.25rem', marginBottom: '1.5rem', flex: 1 }}>
@@ -228,9 +190,6 @@ export default function WorkflowBuilder() {
                             </h3>
                         </div>
                         <div style={{ display: 'flex', gap: '1rem' }}>
-                            <button className={styles.secondaryButton} onClick={handleLoadMasterTemplate}>
-                                <Zap size={16} /> Load Master Template
-                            </button>
                             <button className={styles.secondaryButton} onClick={() => setView('LIST')}>Discard</button>
                             <button className={styles.primaryButton} onClick={handleSaveWorkflow} disabled={saving}>
                                 {saving ? 'Saving...' : <><Save size={18} /> Publish Workflow</>}
@@ -250,18 +209,7 @@ export default function WorkflowBuilder() {
                                     <input className={styles.input} value={activeWorkflow.name} onChange={e => setActiveWorkflow({ ...activeWorkflow, name: e.target.value })} placeholder="e.g. Executive Approval Flow" />
                                 </div>
                                 <div className={styles.formGroup}>
-                                    <label className={styles.label}>Application Scope (Tab)</label>
-                                    <select className={styles.input} value={activeWorkflow.entityType} onChange={e => setActiveWorkflow({ ...activeWorkflow, entityType: e.target.value as any })}>
-                                        <option value="REQUISITION">Requisitions Tab</option>
-                                        <option value="PO">Purchase Orders Tab</option>
-                                        <option value="INVOICE">Invoices Tab</option>
-                                        <option value="VENDOR_ONBOARDING">Vendor Onboarding</option>
-                                        <option value="BUDGET_ADJUSTMENT">Budget Adjustments</option>
-                                    </select>
-                                    <p style={{ fontSize: '0.65rem', color: '#6B7280', marginTop: '0.4rem' }}>Which part of the system should follow this flow?</p>
-                                </div>
-                                <div className={styles.formGroup}>
-                                    <label className={styles.label}>Execution Priority</label>
+                                    <label className={styles.label}>Priority Order</label>
                                     <input type="number" className={styles.input} value={activeWorkflow.priority} onChange={e => setActiveWorkflow({ ...activeWorkflow, priority: parseInt(e.target.value) || 0 })} />
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem', background: '#F9FAFB', borderRadius: '10px' }}>
@@ -355,9 +303,9 @@ export default function WorkflowBuilder() {
                                             <div>
                                                 <label className={styles.label} style={{ fontSize: '0.7rem' }}>Authorized Role</label>
                                                 <select className={styles.input} style={{ height: '44px' }} value={stepForm.approverRole} onChange={e => setStepForm({ ...stepForm, approverRole: e.target.value })}>
-                                                    {SYSTEM_ROLES.map(role => (
-                                                        <option key={role.id} value={role.id}>{role.label}</option>
-                                                    ))}
+                                                    <option value="APPROVER">Department Head</option>
+                                                    <option value="FINANCE">Finance Lead</option>
+                                                    <option value="ADMIN">Managing Director</option>
                                                 </select>
                                             </div>
                                             <div>
