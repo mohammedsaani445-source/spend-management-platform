@@ -9,7 +9,7 @@ export const HELP_ARTICLES: HelpArticle[] = [
         id: '1',
         category: 'GETTING_STARTED',
         title: 'Platform Overview',
-        content: 'Welcome to the Spend Management Platform. This guide covers the basics of navigating the dashboard, managing requisitions, and tracking purchase orders.'
+        content: 'Welcome to the Procurement Platform. This guide covers the basics of navigating the dashboard, managing requisitions, and tracking purchase orders.'
     },
     {
         id: '2',

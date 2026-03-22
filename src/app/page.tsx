@@ -56,14 +56,14 @@ export default function LandingPage() {
       {/* --- HERO SECTION --- */}
       <header className={styles.hero} ref={heroRef as any}>
         <div className={heroInView ? motion.reveal : ""}>
-          <span className={`${styles.heroTag} ${motion.fade}`}>Spend Management for the Modern Enterprise</span>
+          <span className={`${styles.heroTag} ${motion.fade}`}>The Apex of Enterprise Procurement</span>
           <h1 className={styles.heroTitle}>
             Procurement that's <br />
             <span style={{ color: "#E8572A" }}>Proactive</span>, Not Reactive.
           </h1>
           <p className={styles.heroSubtitle}>
-            Apex Procure centralizes your spend, automates your AP, and gives
-            you 100% visibility. Eliminate the "where did our budget go?" moments forever.
+            Apex Procure centralizes your purchasing, automates your AP, and gives
+            you 100% visibility. Eliminate procurement leaks and budget overruns forever.
           </p>
           <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
             <Link href="/login" className="btn btn-primary btn-lg" style={{ borderRadius: "100px", padding: "0 2.5rem" }}>
@@ -108,7 +108,7 @@ export default function LandingPage() {
             <h3 className={styles.comparisonTitle}>The Apex Way</h3>
             <div className={styles.comparisonItem} style={{ color: '#1A1A1A', fontWeight: 600 }}><CheckCircle2 size={18} color="#00AB55" /> Centralized real-time requisitioning</div>
             <div className={styles.comparisonItem} style={{ color: '#1A1A1A', fontWeight: 600 }}><CheckCircle2 size={18} color="#00AB55" /> 24-hour autonomous approval flows</div>
-            <div className={styles.comparisonItem} style={{ color: '#1A1A1A', fontWeight: 600 }}><CheckCircle2 size={18} color="#00AB55" /> Instant spend vs budget visibility</div>
+            <div className={styles.comparisonItem} style={{ color: '#1A1A1A', fontWeight: 600 }}><CheckCircle2 size={18} color="#00AB55" /> Instant procurement vs budget visibility</div>
             <div className={styles.comparisonItem} style={{ color: '#1A1A1A', fontWeight: 600 }}><CheckCircle2 size={18} color="#00AB55" /> AI Guardrails protecting every dollar</div>
           </div>
         </div>
@@ -279,8 +279,8 @@ export default function LandingPage() {
       {/* --- FINAL CTA --- */}
       <section className={styles.cta} ref={ctaRef as any}>
         <div className={`${styles.ctaBox} ${ctaInView ? motion.scale : ""} ${motion.glow}`}>
-          <h2 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '1.5rem' }}>Take the first step to proactive spend management.</h2>
-          <p style={{ fontSize: '1.25rem', opacity: 0.9, marginBottom: '3rem' }}>Join the forward-thinking finance teams using Apex Procure.</p>
+          <h2 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '1.5rem' }}>Take the first step to proactive procurement.</h2>
+          <p style={{ fontSize: '1.25rem', opacity: 0.9, marginBottom: '3rem' }}>Join the forward-thinking procurement teams using Apex Procure.</p>
           <Link href="/login" className="btn btn-secondary btn-lg" style={{ background: 'white', color: '#E8572A', fontSize: '1.25rem', borderRadius: '100px', padding: '0 3.5rem' }}>
             Book Your Free Demo
           </Link>

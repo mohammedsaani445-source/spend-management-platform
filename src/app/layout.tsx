@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Apexprocure",
-  description: "Procurement and Spend Management Solution",
+  description: "Enterprise Procurement & Supply Chain Solution",
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },

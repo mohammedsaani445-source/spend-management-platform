@@ -498,7 +498,7 @@ function SettingsContent() {
                                         <input type="checkbox" className={styles.checkboxInput} checked={formData.marketingEmails} onChange={e => setFormData({ ...formData, marketingEmails: e.target.checked })} />
                                         <div className={styles.prefContent}>
                                             <div className={styles.prefTitle}>Feature Updates & Product News</div>
-                                            <div className={styles.prefDesc}>Weekly digest of new enterprise features and spend management best practices.</div>
+                                            <div className={styles.prefDesc}>Weekly digest of new enterprise features and procurement best practices.</div>
                                         </div>
                                     </div>
                                 </div>

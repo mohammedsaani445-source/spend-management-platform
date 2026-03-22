@@ -23,7 +23,7 @@ const ROUTE_TITLES: Record<string, string> = {
     '/dashboard/budgets': 'Budgets',
     '/dashboard/inventory': 'Inventory',
     '/dashboard/assets': 'Asset Register',
-    '/dashboard/analytics': 'Spend Analytics',
+    '/dashboard/analytics': 'Procurement Analytics',
     '/dashboard/sourcing': 'Sourcing',
     '/dashboard/compliance': 'Compliance',
     '/dashboard/notifications': 'Notifications',

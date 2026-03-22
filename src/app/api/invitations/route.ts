@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
                 await resend.emails.send({
                     from: process.env.EMAIL_FROM || 'Apexprocure <onboarding@resend.dev>',
                     to: [email],
-                    subject: `You've been invited to join Apexprocure Spend Management`,
+                    subject: `You've been invited to join Apexprocure Procurement`,
                     html: `
                         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
                             <h2 style="color: #1e293b; margin-bottom: 16px;">Welcome to Apexprocure</h2>

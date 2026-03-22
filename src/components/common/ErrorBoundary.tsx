@@ -57,7 +57,7 @@ class ErrorBoundary extends Component<Props, State> {
                             Something went wrong
                         </h2>
                         <p style={{ color: '#64748b', marginBottom: '2rem', lineHeight: 1.6 }}>
-                            An unexpected error occurred in the Spend Management Command Center.
+                            An unexpected error occurred in the Procurement Command Center.
                             Our team has been notified.
                         </p>
                         <div style={{

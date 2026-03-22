@@ -151,7 +151,7 @@ export default function FeatureDetail() {
             <section className={styles.ctaSection}>
                 <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1.5rem' }}>Ready to Experience the Difference?</h2>
                 <p style={{ opacity: 0.8, maxWidth: '600px', margin: '0 auto 3rem' }}>
-                    Join the elite finance teams using Apex Procure to automate their spend management.
+                    Join the elite procurement teams using Apex Procure to automate their procurement cycles.
                 </p>
                 <Link href="/login" className="btn btn-primary btn-lg">
                     Create Your Free Account
