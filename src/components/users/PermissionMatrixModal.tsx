@@ -22,7 +22,7 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
         <Portal>
             <AnimatePresence>
                 {isOpen && (
-                    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-0 md:p-8">
+                    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 md:p-8">
                     {/* Backdrop */}
                     <motion.div 
                         initial={{ opacity: 0 }}
@@ -37,22 +37,21 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="bg-[var(--surface)] border-x md:border border-[var(--border)] rounded-none md:rounded-2xl w-full max-w-7xl h-full md:h-auto md:max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative z-10"
+                        className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-7xl h-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative z-10"
                     >
                         {/* Header */}
-                        <div className="p-4 md:p-8 border-b border-[var(--border)] flex flex-row items-center justify-between gap-4 bg-slate-50/50 flex-shrink-0">
-                            <div className="flex items-center gap-4 md:gap-6">
-                                <div className="w-10 h-10 md:w-16 md:h-16 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm flex-shrink-0">
-                                    <Table className="hidden md:block" size={32} strokeWidth={2} />
-                                    <Table className="md:hidden" size={20} strokeWidth={2} />
+                        <div className="p-6 md:p-8 border-b border-[var(--border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-slate-50/50">
+                            <div className="flex items-center gap-6">
+                                <div className="w-16 h-16 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+                                    <Table size={32} strokeWidth={2} />
                                 </div>
                                 <div>
-                                    <h2 className="text-lg md:text-2xl font-bold text-slate-900 tracking-tight">
-                                        Permissions
+                                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+                                        Permission Matrix
                                     </h2>
-                                    <p className="text-slate-500 font-medium mt-0.5 text-xs md:text-sm flex items-center gap-2">
-                                        <Shield size={12} className="text-slate-400" />
-                                        Access Matrix
+                                    <p className="text-slate-500 font-medium mt-1 text-sm flex items-center gap-2">
+                                        <Shield size={14} className="text-slate-400" />
+                                        Comprehensive overview of role access across system modules.
                                     </p>
                                 </div>
                             </div>
@@ -66,13 +65,13 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 overflow-auto custom-scrollbar p-3 md:p-6 bg-slate-50/30">
+                        <div className="flex-1 overflow-auto custom-scrollbar p-6 bg-slate-50/30">
                             <div className="table-wrapper rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-sm overflow-hidden">
                                 <table className="data-table w-full text-sm text-left">
                                     <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-[var(--border)] sticky top-0 z-40 shadow-sm">
                                         <tr>
-                                            <th className="px-4 py-3 md:px-6 md:py-4 font-semibold sticky left-0 z-50 bg-slate-50 border-r border-[var(--border)] shadow-sm min-w-[120px] md:min-w-[200px]">
-                                                Module
+                                            <th className="px-6 py-4 font-semibold sticky left-0 z-50 bg-slate-50 border-r border-[var(--border)] shadow-sm min-w-[200px]">
+                                                Module \ Role
                                             </th>
                                             {activeRoles.map(role => (
                                                 <th 
@@ -105,10 +104,10 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
                                                 onMouseLeave={() => setHoveredRow(null)}
                                                 className="hover:bg-slate-50/80 transition-colors"
                                             >
-                                                <td className={`px-4 py-3 md:px-6 md:py-4 font-medium sticky left-0 z-30 bg-[var(--surface)] border-r border-[var(--border)] shadow-sm transition-colors ${
+                                                <td className={`px-6 py-4 font-medium sticky left-0 z-30 bg-[var(--surface)] border-r border-[var(--border)] shadow-sm transition-colors ${
                                                     hoveredRow === module ? 'text-blue-600 bg-blue-50/30' : 'text-slate-700'
                                                 }`}>
-                                                    <div className="flex items-center gap-2 text-xs md:text-sm">
+                                                    <div className="flex items-center gap-2">
                                                         {module}
                                                     </div>
                                                 </td>
@@ -148,30 +147,33 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
                         </div>
 
                         {/* Legend */}
-                        <div className="p-4 md:p-6 border-t border-[var(--border)] bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4 md:gap-6 flex-shrink-0">
-                            <div className="flex flex-wrap items-center justify-center gap-4 md:gap-8">
-                                <div className="flex items-center gap-2 md:gap-3">
-                                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-                                        <ShieldCheck size={14} className="text-emerald-600" />
+                        <div className="p-6 border-t border-[var(--border)] bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div className="flex flex-wrap items-center justify-center gap-8">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+                                        <ShieldCheck size={16} className="text-emerald-600" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] md:text-xs font-semibold text-slate-700 leading-tight">Full</p>
+                                        <p className="text-xs font-semibold text-slate-700">Full Access</p>
+                                        <p className="text-[10px] text-slate-500">Read & Write</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 md:gap-3">
-                                    <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center">
-                                        <ShieldAlert size={14} className="text-amber-600" />
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center">
+                                        <ShieldAlert size={16} className="text-amber-600" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] md:text-xs font-semibold text-slate-700 leading-tight">Limited</p>
+                                        <p className="text-xs font-semibold text-slate-700">Limited Access</p>
+                                        <p className="text-[10px] text-slate-500">Read Only or Scoped</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-2 md:gap-3">
-                                    <div className="w-6 h-6 md:w-8 md:h-8 flex items-center justify-center grayscale opacity-50">
-                                        <span className="w-3 h-0.5 bg-slate-400 rounded-full" />
+                                <div className="flex items-center gap-3">
+                                    <div className="w-8 h-8 flex items-center justify-center grayscale opacity-50">
+                                        <span className="w-4 h-0.5 bg-slate-400 rounded-full" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] md:text-xs font-semibold text-slate-700 leading-tight">None</p>
+                                        <p className="text-xs font-semibold text-slate-700">No Access</p>
+                                        <p className="text-[10px] text-slate-500">Hidden</p>
                                     </div>
                                 </div>
                             </div>

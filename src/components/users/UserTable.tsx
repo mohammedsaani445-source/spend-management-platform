@@ -163,59 +163,55 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onStatusChange }) 
     return (
         <div>
             {/* ── Toolbar ─────────────────────────────────────────────────── */}
-            <div className="stack-mobile" style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center" }}>
-                <div className="full-width-mobile" style={{ position: "relative", flex: 1, minWidth: "260px" }}>
+            <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap", justifyContent: "space-between" }}>
+                <div style={{ position: "relative", flex: 1, minWidth: "260px" }}>
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                     <input 
                         type="text" 
-                        placeholder="Search by name or email..." 
+                        placeholder="Search users..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="form-input"
-                        style={{ paddingLeft: "2.25rem", background: "white", width: "100%" }}
+                        style={{ paddingLeft: "2.25rem", background: "white" }}
                     />
                 </div>
                 
-                <div className="stack-mobile full-width-mobile" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", zIndex: 10 }}>
-                    <div className="full-width-mobile">
-                        <FilterDropdown
-                            icon={Filter}
-                            labelPrefix="Role: "
-                            value={roleFilter}
-                            onChange={setRoleFilter}
-                            options={[
-                                { label: 'All Staff', value: 'all' },
-                                ...Object.entries(ROLE_CONFIGS)
-                                    .filter(([, cfg]) => !cfg.label.startsWith('Legacy:'))
-                                    .map(([id, cfg]) => ({ label: cfg.label, value: id }))
-                            ]}
-                        />
-                    </div>
+                <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", zIndex: 10 }}>
+                    <FilterDropdown
+                        icon={Filter}
+                        labelPrefix="Role: "
+                        value={roleFilter}
+                        onChange={setRoleFilter}
+                        options={[
+                            { label: 'All', value: 'all' },
+                            ...Object.entries(ROLE_CONFIGS)
+                                .filter(([, cfg]) => !cfg.label.startsWith('Legacy:'))
+                                .map(([id, cfg]) => ({ label: cfg.label, value: id }))
+                        ]}
+                    />
 
-                    <div className="full-width-mobile">
-                        <FilterDropdown
-                            icon={Activity}
-                            labelPrefix="Status: "
-                            value={statusFilter}
-                            onChange={setStatusFilter}
-                            options={[
-                                { label: 'All Status', value: 'all' },
-                                { label: 'Active', value: 'active' },
-                                { label: 'Pending', value: 'pending' },
-                                { label: 'Suspended', value: 'suspended' },
-                            ]}
-                        />
-                    </div>
+                    <FilterDropdown
+                        icon={Activity}
+                        labelPrefix="Status: "
+                        value={statusFilter}
+                        onChange={setStatusFilter}
+                        options={[
+                            { label: 'All', value: 'all' },
+                            { label: 'Active', value: 'active' },
+                            { label: 'Pending', value: 'pending' },
+                            { label: 'Suspended', value: 'suspended' },
+                        ]}
+                    />
                 </div>
             </div>
 
             {/* ── Table ───────────────────────────────────────────────────── */}
-            <div className="table-wrapper responsive-table">
+            <div className="table-wrapper">
                 <table className="data-table">
                     <thead>
-                        <tr className="hide-mobile">
+                        <tr>
                             <th>Staff Member</th>
-                            <th align="right" style={{ textAlign: "right" }}>Role & Unit</th>
+                            <th>Role & Unit</th>
                             <th>Status</th>
                             <th align="right" style={{ textAlign: "right" }}>Actions</th>
                         </tr>
@@ -225,81 +221,71 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onStatusChange }) 
                         {filteredUsers.length > 0 ? filteredUsers.map((user, i) => (
                             <motion.tr 
                                 key={user.uid}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ delay: i * 0.02 }}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                transition={{ delay: i * 0.03 }}
                                 className="hover:bg-gray-50/50"
                             >
-                                <td data-label="Staff Member">
+                                <td style={{ padding: "1rem" }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                                        <div style={{ width: 44, height: 44, borderRadius: 12, display: "flex", alignItems: "center", justifyContent: "center", background: user.status === 'active' ? 'rgba(232, 68, 26, 0.08)' : 'var(--surface-2)', color: user.status === 'active' ? 'var(--brand)' : 'var(--text-secondary)', fontWeight: 700, fontSize: "1.125rem", border: "1px solid var(--border)", flexShrink: 0 }}>
+                                        <div style={{ width: 40, height: 40, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: user.status === 'active' ? '#FFF5F3' : '#F4F6F8', color: user.status === 'active' ? '#E8572A' : '#637381', fontWeight: 700, fontSize: "1.125rem", border: "1px solid #DFE3E8" }}>
                                             {user.displayName?.[0] || user.email?.[0]?.toUpperCase()}
                                         </div>
-                                        <div style={{ textAlign: "left", overflow: "hidden" }}>
-                                            <p style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "2px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.displayName || 'No ID assigned'}</p>
-                                            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--text-secondary)", fontSize: "0.75rem" }}>
-                                                <Mail size={12} className="opacity-60" /> 
-                                                <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.email}</span>
+                                        <div>
+                                            <p style={{ fontWeight: 600, color: "#212B36", marginBottom: "0.125rem" }}>{user.displayName || 'No ID assigned'}</p>
+                                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#637381", fontSize: "0.75rem" }}>
+                                                <Mail size={12} /> {user.email}
                                             </div>
                                         </div>
                                     </div>
                                 </td>
-                                <td data-label="Role & Unit">
-                                    <div className="mobile-align-right" style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right" }}>
-                                        <div className="badge" style={{ background: "var(--surface-2)", color: "var(--text-primary)", border: "1px solid var(--border)", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }}>
-                                            <RoleIcon roleId={user.role} size={12} className="text-[#E8572A]" />
+                                <td style={{ padding: "1rem" }}>
+                                    <div>
+                                        <div className="badge" style={{ background: "#F4F6F8", color: "#212B36", border: "1px solid #DFE3E8", marginBottom: "0.25rem", display: "flex", alignItems: "center" }}>
+                                            <RoleIcon roleId={user.role} size={12} className="mr-1 text-[#E8572A]" />
                                             {ROLE_CONFIGS[user.role as UserRole]?.label || user.role}
                                         </div>
-                                        <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", fontWeight: 500 }}>
+                                        <div style={{ fontSize: "0.75rem", color: "#637381" }}>
                                             {user.department || 'Global Operations'}
                                         </div>
                                     </div>
                                 </td>
-                                <td data-label="Status">
-                                    <div className="mobile-align-right">
-                                        <div className={`badge ${user.status === 'suspended' ? 'badge-rejected' : user.status === 'pending' ? 'badge-pending' : 'badge-approved' }`}>
-                                            {user.status || 'active'}
-                                        </div>
+                                <td style={{ padding: "1rem" }}>
+                                    <div className={`badge ${user.status === 'suspended' ? 'badge-rejected' : user.status === 'pending' ? 'badge-pending' : 'badge-approved' }`}>
+                                        {user.status || 'active'}
                                     </div>
                                 </td>
-                                <td data-label="Management" style={{ textAlign: "right" }}>
-                                    <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-                                        <button 
-                                            onClick={() => onEdit(user)}
-                                            className="btn btn-ghost btn-icon btn-sm"
-                                            title="Edit User Profile"
-                                            style={{ background: "var(--surface-2)" }}
-                                        >
-                                            <Edit3 size={16} />
-                                        </button>
-                                        <button 
-                                            onClick={() => onStatusChange(user.uid, (user.status || 'active') === 'active' ? 'suspended' : 'active')}
-                                            className="btn btn-ghost btn-icon btn-sm"
-                                            style={{ 
-                                                background: (user.status || 'active') === 'active' ? 'rgba(183, 33, 54, 0.08)' : 'rgba(0, 171, 85, 0.08)',
-                                                color: (user.status || 'active') === 'active' ? '#B72136' : '#00AB55' 
-                                            }}
-                                            title={(user.status || 'active') === 'active' ? 'Revoke Access' : 'Restore Access'}
-                                        >
-                                            {(user.status || 'active') === 'active' ? <UserX size={16} /> : <UserCheck size={16} />}
-                                        </button>
-                                    </div>
+                                <td style={{ padding: "1rem", textAlign: "right" }}>
+                                    <button 
+                                        onClick={() => onEdit(user)}
+                                        className="btn btn-ghost btn-icon btn-sm"
+                                        title="Edit User"
+                                    >
+                                        <Edit3 size={16} />
+                                    </button>
+                                    <button 
+                                        onClick={() => onStatusChange(user.uid, (user.status || 'active') === 'active' ? 'suspended' : 'active')}
+                                        className="btn btn-ghost btn-icon btn-sm"
+                                        style={{ color: (user.status || 'active') === 'active' ? '#B72136' : '#00AB55' }}
+                                        title={(user.status || 'active') === 'active' ? 'Suspend Access' : 'Restore Access'}
+                                    >
+                                        {(user.status || 'active') === 'active' ? <UserX size={16} /> : <UserCheck size={16} />}
+                                    </button>
                                 </td>
                             </motion.tr>
                         )) : (
-
-                            <tr>
+                            <motion.tr
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                            >
                                 <td colSpan={4} style={{ padding: "4rem 1rem", textAlign: "center" }}>
-                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", color: "var(--text-secondary)" }}>
-                                        <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "0.5rem" }}>
-                                            <Search size={32} className="opacity-20" />
-                                        </div>
-                                        <p style={{ fontWeight: 600, fontSize: "1.1rem" }}>No users found</p>
-                                        <p style={{ fontSize: "0.875rem", opacity: 0.7 }}>Try adjusting your filters or search terms.</p>
+                                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", color: "#919EAB" }}>
+                                        <Search size={32} />
+                                        <p style={{ fontWeight: 500 }}>No users match your filters.</p>
                                     </div>
                                 </td>
-                            </tr>
+                            </motion.tr>
                         )}
                         </AnimatePresence>
                     </tbody>
@@ -307,6 +293,7 @@ const UserTable: React.FC<UserTableProps> = ({ users, onEdit, onStatusChange }) 
             </div>
         </div>
     );
+
 };
 
 export default UserTable;

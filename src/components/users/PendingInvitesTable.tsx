@@ -56,8 +56,8 @@ const PendingInvitesTable: React.FC<PendingInvitesTableProps> = ({ invites, onRe
     return (
         <div>
             {/* ── Toolbar ─────────────────────────────────────────────────── */}
-            <div className="mobile-toolbar-stack" style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap", justifyContent: "space-between" }}>
-                <div className="mobile-search-full" style={{ position: "relative", flex: 1, minWidth: "260px" }}>
+            <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem", flexWrap: "wrap", justifyContent: "space-between" }}>
+                <div style={{ position: "relative", flex: 1, minWidth: "260px" }}>
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                     <input 
                         type="text" 
@@ -76,7 +76,7 @@ const PendingInvitesTable: React.FC<PendingInvitesTableProps> = ({ invites, onRe
 
             {/* ── Table ───────────────────────────────────────────────────── */}
             <div className="table-wrapper">
-                <table className="data-table responsive-table">
+                <table className="data-table">
                     <thead>
                         <tr>
                             <th>Invitee</th>
@@ -99,7 +99,7 @@ const PendingInvitesTable: React.FC<PendingInvitesTableProps> = ({ invites, onRe
                                     transition={{ delay: i * 0.03 }}
                                     className="hover:bg-gray-50/50"
                                 >
-                                <td data-label="Invitee" style={{ padding: "1rem" }}>
+                                <td style={{ padding: "1rem" }}>
                                     <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
                                         <div style={{ width: 40, height: 40, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: '#F4F6F8', color: '#637381', fontWeight: 700, fontSize: "1.125rem", border: "1px solid #DFE3E8" }}>
                                             {invite.invited_name?.[0]?.toUpperCase()}
@@ -112,7 +112,7 @@ const PendingInvitesTable: React.FC<PendingInvitesTableProps> = ({ invites, onRe
                                         </div>
                                     </div>
                                 </td>
-                                <td data-label="Role & Unit" style={{ padding: "1rem" }}>
+                                <td style={{ padding: "1rem" }}>
                                     <div>
                                         <div className="badge" style={{ background: "#F4F6F8", color: "#212B36", border: "1px solid #DFE3E8", marginBottom: "0.25rem" }}>
                                             <Shield size={12} style={{ marginRight: "0.25rem", color: "#E8572A" }} />
@@ -123,36 +123,34 @@ const PendingInvitesTable: React.FC<PendingInvitesTableProps> = ({ invites, onRe
                                         </div>
                                     </div>
                                 </td>
-                                <td data-label="Join Code" style={{ padding: "1rem" }}>
+                                <td style={{ padding: "1rem" }}>
                                     <div className="badge" style={{ background: "white", color: "#212B36", border: "1px solid #DFE3E8", fontFamily: "monospace", fontWeight: 700, letterSpacing: "0.1em" }}>
                                         <Zap size={12} style={{ marginRight: "0.25rem", color: "#E8572A" }} /> {invite.code}
                                     </div>
                                 </td>
-                                <td data-label="Status" style={{ padding: "1rem" }}>
+                                <td style={{ padding: "1rem" }}>
                                     <div className={`badge ${expired ? 'badge-rejected' : 'badge-pending'}`}>
                                         <Clock size={12} style={{ marginRight: "0.25rem" }} />
                                         {expired ? 'Expired' : `Expires ${new Date(invite.expires_at).toLocaleDateString()}`}
                                     </div>
                                 </td>
-                                <td data-label="Actions" style={{ padding: "1rem", textAlign: "right" }}>
-                                    <div className="mobile-actions-row">
-                                        <button 
-                                            onClick={() => handleCopyLink(invite.token)}
-                                            className="btn btn-ghost btn-icon btn-sm"
-                                            title="Copy Magic Link"
-                                            >
-                                                <Copy size={16} />
-                                            </button>
-                                        <button 
-                                            onClick={() => handleRevoke(invite.id)}
-                                            disabled={revokingId === invite.id}
-                                            className="btn btn-ghost btn-icon btn-sm"
-                                            style={{ color: '#B72136' }}
-                                            title="Revoke Invite"
+                                <td style={{ padding: "1rem", textAlign: "right" }}>
+                                    <button 
+                                        onClick={() => handleCopyLink(invite.token)}
+                                        className="btn btn-ghost btn-icon btn-sm"
+                                        title="Copy Magic Link"
                                         >
-                                            {revokingId === invite.id ? <RefreshCw size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                                            <Copy size={16} />
                                         </button>
-                                    </div>
+                                    <button 
+                                        onClick={() => handleRevoke(invite.id)}
+                                        disabled={revokingId === invite.id}
+                                        className="btn btn-ghost btn-icon btn-sm"
+                                        style={{ color: '#B72136' }}
+                                        title="Revoke Invite"
+                                    >
+                                        {revokingId === invite.id ? <RefreshCw size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                                    </button>
                                 </td>
                             </motion.tr>
                         );
