@@ -8,37 +8,63 @@ function getAdminApp() {
     if (admin.apps.length > 0) return admin.app();
     
     const BUCKET_NAME = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
+    const projectId = process.env.FIREBASE_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const rawKey = process.env.FIREBASE_PRIVATE_KEY || "";
     
+    if (!projectId || !clientEmail || !rawKey) {
+        console.error("Critical Firebase Admin environment variables are missing:", {
+            projectId: !!projectId,
+            clientEmail: !!clientEmail,
+            privateKey: !!rawKey
+        });
+        // We throw a descriptive error that will be caught by our API routes
+        throw new Error("Firebase Admin environment variables are not correctly configured. Please check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.");
+    }
+    
     let key = rawKey.trim();
+    
+    // STRIP ENCLOSING QUOTES (Common Vercel issue)
+    if (key.startsWith('"') && key.endsWith('"')) key = key.slice(1, -1);
+    if (key.startsWith("'") && key.endsWith("'")) key = key.slice(1, -1);
     
     // BASE64 FALLBACK: If the key doesn't look like PEM, check if it's Base64
     if (!key.includes("-----BEGIN PRIVATE KEY-----") && key.length > 100) {
         try {
-            key = Buffer.from(key, 'base64').toString('utf-8');
+            const decoded = Buffer.from(key, 'base64').toString('utf-8');
+            if (decoded.includes("-----BEGIN PRIVATE KEY-----")) {
+                key = decoded;
+            }
         } catch (e) {
-            console.error("Failed to decode Base64 Firebase key");
+            console.error("[FirebaseAdmin] Failed Base64 decode attempt");
         }
     }
     
-    // Strip surrounding quotes if present
-    if (key.startsWith('"') && key.endsWith('"')) key = key.slice(1, -1);
-    if (key.startsWith("'") && key.endsWith("'")) key = key.slice(1, -1);
-    
     // Handle both literal newlines and escaped newlines (\n)
-    const formattedKey = key.replace(/\\n/g, '\n');
+    let formattedKey = key.replace(/\\n/g, '\n');
+
+    // Final check for private key format
+    if (!formattedKey.includes("-----BEGIN PRIVATE KEY-----")) {
+        console.warn("[FirebaseAdmin] Warning: FIREBASE_PRIVATE_KEY may be malformed (missing PEM headers)");
+    }
+
 
     const firebaseAdminConfig = {
-        projectId: process.env.FIREBASE_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        projectId,
+        clientEmail,
         privateKey: formattedKey,
     };
 
-    return admin.initializeApp({
-        credential: admin.credential.cert(firebaseAdminConfig),
-        databaseURL: "https://spend-management-platform-default-rtdb.firebaseio.com",
-        storageBucket: BUCKET_NAME
-    });
+    try {
+        return admin.initializeApp({
+            credential: admin.credential.cert(firebaseAdminConfig),
+            databaseURL: "https://spend-management-platform-default-rtdb.firebaseio.com",
+            storageBucket: BUCKET_NAME
+        });
+    } catch (error: any) {
+        console.error("Failed to initialize Firebase Admin SDK:", error.message);
+        throw error;
+    }
 }
 
 // Proxies for broad compatibility without changing import sites

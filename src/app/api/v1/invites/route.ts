@@ -20,25 +20,64 @@ export async function POST(req: NextRequest) {
         const requesterUid = decodedToken.uid;
 
         // Verify requester's tenant and role
-        const tenantMappingRef = adminDb.ref(`${DB_PREFIX}/userTenants/${requesterUid}`);
+        const tenantMappingPath = `${DB_PREFIX}/userTenants/${requesterUid}`;
+        const tenantMappingRef = adminDb.ref(tenantMappingPath);
         const tenantMappingSnap = await tenantMappingRef.get();
+        
         if (!tenantMappingSnap.exists()) {
-            return NextResponse.json({ error: "Requester has no tenant" }, { status: 403 });
+            console.error(`[Invite API] No tenant mapping found at ${tenantMappingPath} for user ${requesterUid}`);
+            return NextResponse.json({ 
+                error: "Requester has no tenant mapping in the system.",
+                debug: { path: tenantMappingPath, uid: requesterUid }
+            }, { status: 403 });
         }
 
-        const tenantId = tenantMappingSnap.val().tenantId;
-        const requesterRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/users/${requesterUid}`);
+        const tenantData = tenantMappingSnap.val();
+        const tenantId = tenantData.tenantId;
+        
+        if (!tenantId) {
+            console.error(`[Invite API] Tenant mapping exists but tenantId is missing for user ${requesterUid}`);
+            return NextResponse.json({ error: "Invalid tenant mapping configuration." }, { status: 403 });
+        }
+
+        const requesterPath = `${DB_PREFIX}/tenants/${tenantId}/users/${requesterUid}`;
+        const requesterRef = adminDb.ref(requesterPath);
         const requesterSnap = await requesterRef.get();
 
         if (!requesterSnap.exists()) {
-            return NextResponse.json({ error: "Requester not found in tenant" }, { status: 403 });
+            console.error(`[Invite API] User profile not found at ${requesterPath}`);
+            return NextResponse.json({ 
+                error: "User profile not found in your assigned tenant.",
+                debug: { path: requesterPath }
+            }, { status: 403 });
         }
 
-        const rawRequesterRole = requesterSnap.val().role;
+        const requesterData = requesterSnap.val();
+        const rawRequesterRole = requesterData.role || "UNKNOWN";
         const mappedRole = mapLegacyRole(rawRequesterRole);
+        
+        console.log(`[Invite API] Auth Check: UID=${requesterUid}, Tenant=${tenantId}, RawRole=${rawRequesterRole}, MappedRole=${mappedRole}`);
+
         // In the new system, only administrator can invite
-        if (mappedRole !== 'administrator') {
-            return NextResponse.json({ error: `Insufficient permissions. rawRole: ${rawRequesterRole}, mappedRole: ${mappedRole}` }, { status: 403 });
+        // We check both the mapped role and the raw role to be safe
+        const isAuthorized = 
+            mappedRole === 'administrator' || 
+            rawRequesterRole === 'ADMIN' || 
+            rawRequesterRole === 'administrator' ||
+            rawRequesterRole === 'SUPERUSER' ||
+            rawRequesterRole === 'PLATFORM_SUPERUSER';
+        
+        if (!isAuthorized) {
+            console.warn(`[Invite API] Unauthorized invitation attempt by ${requesterUid} (Role: ${rawRequesterRole}, Mapped: ${mappedRole})`);
+            return NextResponse.json({ 
+                error: `Insufficient permissions to generate invites. Requester role '${rawRequesterRole}' does not have administrative privileges.`,
+                debug: { 
+                    uid: requesterUid,
+                    rawRole: rawRequesterRole, 
+                    mappedRole: mappedRole,
+                    tenantId: tenantId
+                }
+            }, { status: 403 });
         }
 
         const body = await req.json();
