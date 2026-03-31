@@ -23,11 +23,15 @@ import {
     History
 } from "lucide-react";
 
+import { HistoricalPrice } from "@/lib/purchaseOrders";
+
 interface ApprovalDetailModalProps {
     requisition: Requisition;
     budget?: Budget;
     deptSpend: number;
+    historicalData: Record<string, HistoricalPrice>;
     onClose: () => void;
+    onToggleView: () => void;
     onApprove: (id: string, comment?: string) => void;
     onReject: (id: string, comment?: string) => void;
     onRevision?: (id: string, comment?: string) => void;
@@ -37,7 +41,9 @@ export default function ApprovalDetailModal({
     requisition,
     budget,
     deptSpend,
+    historicalData,
     onClose,
+    onToggleView,
     onApprove,
     onReject,
     onRevision
@@ -57,6 +63,23 @@ export default function ApprovalDetailModal({
             remaining: budget.amount - deptSpend - requisition.totalAmount
         };
     }, [budget, deptSpend, requisition.totalAmount]);
+
+    const priceAnalysis = useMemo(() => {
+        const items = requisition.items;
+        return items.map(item => {
+            const desc = item.description.toLowerCase().trim();
+            const history = historicalData[desc];
+            const avgHistorical = history?.avgPrice || (item.total / item.quantity);
+            const diff = history ? ((item.total / item.quantity - avgHistorical) / avgHistorical) * 100 : 0;
+            return {
+                ...item,
+                avgHistorical,
+                diff,
+                hasHistory: !!history,
+                sampleSize: history?.sampleSize || 0
+            };
+        });
+    }, [requisition.items, historicalData]);
 
     return (
         <Portal>
@@ -94,9 +117,29 @@ export default function ApprovalDetailModal({
                                 </div>
                             </div>
                         </div>
-                        <button onClick={onClose} className="btn btn-ghost btn-icon" style={{ width: '40px', height: '40px' }}>
-                            <X size={24} />
-                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <button 
+                                onClick={onToggleView} 
+                                className="btn btn-ghost" 
+                                style={{ 
+                                    fontSize: '0.85rem', 
+                                    fontWeight: 800, 
+                                    color: 'var(--brand)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.6rem 1.25rem',
+                                    borderRadius: '10px',
+                                    backgroundColor: 'var(--brand-soft)'
+                                }}
+                            >
+                                <Zap size={16} />
+                                Focus View
+                            </button>
+                            <button onClick={onClose} className="btn btn-ghost btn-icon" style={{ width: '40px', height: '40px' }}>
+                                <X size={24} />
+                            </button>
+                        </div>
                     </div>
 
                     {/* Split Responsive Container */}
@@ -213,6 +256,39 @@ export default function ApprovalDetailModal({
                                     </div>
                                 </div>
                             )}
+
+                            {/* Price Benchmarking */}
+                            <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                                    <TrendingUp size={16} color="var(--brand)" />
+                                    <h4 style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-disabled)', margin: 0 }}>Price Analysis</h4>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                    {priceAnalysis.map((item, i) => (
+                                        <div key={i} style={{ background: '#f8fafc', padding: '1rem', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #e2e8f0' }}>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{ fontSize: '0.8rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                                    {item.description}
+                                                    {!item.hasHistory && (
+                                                        <span style={{ fontSize: '0.6rem', padding: '2px 6px', background: '#eff6ff', color: '#3b82f6', borderRadius: '4px', textTransform: 'uppercase', fontWeight: 800 }}>New Item</span>
+                                                    )}
+                                                </div>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--text-disabled)', fontWeight: 500 }}>
+                                                    {item.hasHistory 
+                                                        ? `Historical Avg: ${formatCurrency(item.avgHistorical, requisition.currency)} (${item.sampleSize} orders)` 
+                                                        : 'No previous purchase history found'}
+                                                </div>
+                                            </div>
+                                            {item.hasHistory && (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: item.diff < 0 ? '#10b981' : '#f59e0b', fontWeight: 700, fontSize: '0.85rem' }}>
+                                                    {item.diff < 0 ? <TrendingDown size={14}/> : <TrendingUp size={14}/>}
+                                                    {Math.abs(item.diff).toFixed(1)}%
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
 
                             {/* Approval History */}
                             <div>

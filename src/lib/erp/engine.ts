@@ -1,15 +1,15 @@
-import { db } from "../firebase";
+import { db, DB_PREFIX } from "../firebase";
 import { ref, push, set, get, update, limitToLast, query } from "firebase/database";
 import { ErpSyncLog, ErpConnectorConfig } from "@/types";
 
-const LOGS_COLLECTION = "erp_sync_logs";
-const CONFIG_COLLECTION = "erp_configs";
+const getLogsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/erp_sync_logs`);
+const getConfigsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/erp_configs`);
 
 /**
  * Persists a sync event to the database for audit and visibility.
  */
-export const logErpOperation = async (log: Omit<ErpSyncLog, 'id' | 'timestamp'>) => {
-    const logRef = ref(db, LOGS_COLLECTION);
+export const logErpOperation = async (tenantId: string, log: Omit<ErpSyncLog, 'id' | 'timestamp'>) => {
+    const logRef = getLogsRef(tenantId);
     const newLogRef = push(logRef);
     const fullLog: ErpSyncLog = {
         ...log,
@@ -20,10 +20,11 @@ export const logErpOperation = async (log: Omit<ErpSyncLog, 'id' | 'timestamp'>)
 };
 
 /**
- * Gets the most recent sync logs.
+ * Gets the most recent sync logs for a specific tenant.
  */
-export const getErpSyncLogs = async (limit: number = 20): Promise<ErpSyncLog[]> => {
-    const logsRef = query(ref(db, LOGS_COLLECTION), limitToLast(limit));
+export const getErpSyncLogs = async (tenantId: string, limit: number = 20): Promise<ErpSyncLog[]> => {
+    if (!tenantId) return [];
+    const logsRef = query(getLogsRef(tenantId), limitToLast(limit));
     const snapshot = await get(logsRef);
     if (snapshot.exists()) {
         const data = snapshot.val();
@@ -66,10 +67,10 @@ class NetSuiteClient {
  * This performs real data mapping and persistent logging.
  */
 export class ErpEngine {
-    static async syncPO(poId: string, system: string) {
+    static async syncPO(tenantId: string, poId: string, system: string) {
         try {
-            // 1. Fetch real PO data
-            const poSnap = await get(ref(db, `purchase_orders/${poId}`));
+            // 1. Fetch real PO data from tenant-scoped path
+            const poSnap = await get(ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders/${poId}`));
             if (!poSnap.exists()) throw new Error("PO not found");
             const po = poSnap.val();
 
@@ -106,7 +107,7 @@ export class ErpEngine {
             }
 
             // 4. Log the "Push" attempt
-            await logErpOperation({
+            await logErpOperation(tenantId, {
                 entityType: 'PO',
                 entityId: poId,
                 action: 'PUSH',
@@ -117,7 +118,7 @@ export class ErpEngine {
 
             return { success: true, trackingId: result.trackingId };
         } catch (error: any) {
-            await logErpOperation({
+            await logErpOperation(tenantId, {
                 entityType: 'PO',
                 entityId: poId,
                 action: 'PUSH',

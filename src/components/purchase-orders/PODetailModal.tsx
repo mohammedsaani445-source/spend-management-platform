@@ -8,7 +8,23 @@ import { getCommunicationHistory } from "@/lib/communications";
 import { useScrollLock } from "@/hooks/useScrollLock";
 import { useModal } from "@/context/ModalContext";
 import { resolveDiscrepancy } from "@/lib/purchaseOrders";
-import { AlertTriangle, CheckCircle2, XCircle, Package } from "lucide-react";
+import { 
+    AlertTriangle, 
+    CheckCircle2, 
+    XCircle, 
+    Package, 
+    Mail, 
+    Printer, 
+    History, 
+    Activity, 
+    Truck, 
+    Eye, 
+    FileText, 
+    Navigation,
+    Ban,
+    ArrowLeft,
+    X
+} from "lucide-react";
 import ReceiveOrderModal from "./ReceiveOrderModal";
 
 interface PODetailModalProps {
@@ -36,15 +52,24 @@ export default function PODetailModal({
     const [showHistory, setShowHistory] = useState(false);
     const [showReceiveModal, setShowReceiveModal] = useState(false);
     const [liveDeliveryHistory, setLiveDeliveryHistory] = useState(po.deliveryHistory || []);
+    const [tenantSettings, setTenantSettings] = useState<any>(null);
 
-    // Load communication history
+    // Load communication history and tenant settings
     useEffect(() => {
         if (po.id && po.tenantId) {
             getCommunicationHistory(po.tenantId, po.id).then(setCommunicationHistory);
+            import("firebase/database").then(({ ref, get }) => {
+                import("@/lib/firebase").then(({ db, DB_PREFIX }) => {
+                    get(ref(db, `${DB_PREFIX}/tenants/${po.tenantId}/settings`))
+                        .then(snap => {
+                            if (snap.exists()) setTenantSettings(snap.val());
+                        });
+                });
+            });
         }
     }, [po.id, po.tenantId]);
 
-    const isAuthorizedToResolve = ['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'PROCUREMENT_OFFICER'].includes(user.role);
+    const isAuthorizedToResolve = ['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'FINANCE_MANAGER', 'PROCUREMENT_OFFICER'].includes(user.role);
 
     const handleResolve = async (action: 'MATCH' | 'REJECT') => {
         const confirmed = await showConfirm(
@@ -67,8 +92,27 @@ export default function PODetailModal({
         }
     };
 
+    const handlePrint = () => {
+        // Temporarily remove overflow: hidden to allow full page print in Chrome
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'visible';
+        
+        setTimeout(() => {
+            window.print();
+            // Restore overflow after print dialog closes
+            document.body.style.overflow = originalOverflow || 'hidden';
+        }, 100);
+    };
+
     return (
-        <div className="modal-backdrop">
+        <div style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(15, 23, 42, 0.92)',
+            zIndex: 10000,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '1rem', overflowY: 'auto',
+            pointerEvents: 'auto'
+        }}>
             <style>{`
                 .adaptive-paper {
                     background-color: #ffffff !important;
@@ -116,29 +160,29 @@ export default function PODetailModal({
                         onClick={onClose}
                         style={{
                             display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            background: 'none', border: 'none', color: 'rgba(255,255,255,0.8)',
-                            cursor: 'pointer', fontSize: '0.9rem', fontWeight: 500,
-                            padding: '0.5rem 0'
+                            background: 'none', border: 'none', color: '#cbd5e1',
+                            cursor: 'pointer', fontSize: '0.9rem', fontWeight: 600,
+                            padding: '0.5rem 0', transition: 'color 0.2s'
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = 'white'}
-                        onMouseLeave={(e) => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
+                        onMouseEnter={(e) => e.currentTarget.style.color = '#fff'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = '#cbd5e1'}
                     >
-                        ← Back to Purchase Orders
+                        <ArrowLeft size={18} /> Back to Purchase Orders
                     </button>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>Reference: {po.poNumber}</div>
+                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Reference: {po.poNumber}</div>
                         <button
                             onClick={onClose}
                             style={{
-                                width: '32px', height: '32px', borderRadius: '50%',
+                                width: '32px', height: '32px', borderRadius: '8px',
                                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                background: 'rgba(255,255,255,0.1)', border: 'none', color: 'white',
-                                cursor: 'pointer', fontSize: '1.2rem'
+                                background: '#334155', border: 'none', color: 'white',
+                                cursor: 'pointer', transition: 'background 0.2s'
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-                            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                            onMouseEnter={(e) => e.currentTarget.style.background = '#475569'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = '#334155'}
                         >
-                            ×
+                            <X size={18} />
                         </button>
                     </div>
                 </div>
@@ -178,9 +222,9 @@ export default function PODetailModal({
                                     <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Date: {po.issuedAt.toLocaleDateString()}</div>
                                 </div>
                                 <div style={{ textAlign: 'right' }}>
-                                    <div style={{ fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.25rem' }}>Acme Corp Inc.</div>
-                                    <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>123 Enterprise Blvd</div>
-                                    <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Tech City, TC 94043</div>
+                                    <div style={{ fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '0.25rem' }}>{tenantSettings?.companyName || "Acme Corp Inc."}</div>
+                                    <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{tenantSettings?.companyAddress || "123 Enterprise Blvd, Tech City, TC 94043"}</div>
+                                    <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{tenantSettings?.companyEmail || "billing@example.com"}</div>
                                 </div>
                             </div>
 
@@ -194,9 +238,9 @@ export default function PODetailModal({
                                 </div>
                                 <div style={{ flex: 1, border: '1px solid var(--border)', padding: '1rem' }}>
                                     <h3 style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-secondary)', marginBottom: '0.5rem', textTransform: 'uppercase' }}>Ship To</h3>
-                                    <div style={{ fontWeight: 'bold' }}>Acme Corp Warehouse</div>
+                                    <div style={{ fontWeight: 'bold' }}>{tenantSettings?.companyName ? `${tenantSettings.companyName} Warehouse` : 'Acme Corp Warehouse'}</div>
                                     <div>Receiving Dock B</div>
-                                    <div>123 Enterprise Blvd, Tech City</div>
+                                    <div>{tenantSettings?.companyAddress || "123 Enterprise Blvd, Tech City"}</div>
                                 </div>
                             </div>
 
@@ -261,7 +305,10 @@ export default function PODetailModal({
                         flexDirection: 'column',
                         gap: '1rem',
                         overflowY: 'auto',
-                        maxHeight: '100%'
+                        maxHeight: '100%',
+                        backgroundColor: 'var(--background)',
+                        borderRadius: 'var(--radius-lg)',
+                        padding: '1rem'
                     }} className="no-print">
 
                         {/* 3-Way Match Resolution Logic Gate */}
@@ -308,33 +355,33 @@ export default function PODetailModal({
                             </div>
                         )}
 
-                        <div className="card" style={{ backgroundColor: 'var(--surface-raised)' }}>
+                        <div className="card" style={{ backgroundColor: 'var(--surface)' }}>
                             <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '1rem' }}>Actions</h3>
 
                             <button
-                                className="btn btn-accent"
-                                style={{ width: '100%', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                className="btn btn-primary"
+                                style={{ width: '100%', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.875rem' }}
                                 onClick={() => setShowEmailComposer(true)}
                             >
-                                ✉️ Compose Email to Vendor
+                                <Mail size={18} /> Compose Email to Vendor
                             </button>
 
                             <button
                                 className="btn"
                                 style={{
                                     width: '100%', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
-                                    border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--text-main)'
+                                    border: '1px solid var(--border)', background: 'white', color: '#0f172a', padding: '0.875rem', fontWeight: 700
                                 }}
-                                onClick={() => window.print()}
+                                onClick={handlePrint}
                             >
-                                🖨️ Print / Download PDF
+                                <Printer size={18} /> Print / Download PDF
                             </button>
                         </div>
 
                         {/* Live Tracking Timeline */}
                         <div className="card" style={{ padding: '1rem' }}>
-                            <h3 style={{ fontSize: '0.9rem', fontWeight: 'bold', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                📡 Live Delivery Analytics
+                            <h3 style={{ fontSize: '0.9rem', fontWeight: 800, marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b' }}>
+                                <Navigation size={18} className="text-brand" /> Live Delivery Tracking
                             </h3>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -358,9 +405,9 @@ export default function PODetailModal({
                                                             log.action === 'SHIPPED' ? '#0369a1' : 'var(--success)',
                                             display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.7rem', zIndex: 1
                                         }}>
-                                            {log.action === 'SENT' ? '✉️' : 
-                                             log.action === 'OPENED' ? '👀' : 
-                                             log.action === 'SHIPPED' ? '🚚' : '✅'}
+                                            {log.action === 'SENT' ? <Mail size={12} /> : 
+                                             log.action === 'OPENED' ? <Eye size={12} /> : 
+                                             log.action === 'SHIPPED' ? <Truck size={12} /> : <CheckCircle2 size={12} />}
                                         </div>
                                         <div>
                                             <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>
@@ -410,7 +457,7 @@ export default function PODetailModal({
                         </div>
 
                         {(po.status === 'ISSUED' || po.status === 'SHIPPED') && (
-                            <div className="card" style={{ border: '2px solid var(--accent)', backgroundColor: 'var(--surface-raised)' }}>
+                            <div className="card" style={{ border: '2px solid var(--accent)', backgroundColor: 'var(--surface)' }}>
                                 <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.5rem' }}>Goods Receipt</h3>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
                                     Confirm that the items have been delivered and verify quality.
@@ -424,20 +471,21 @@ export default function PODetailModal({
                                 </button>
                             </div>
                         )}
-                        {/* Communication History - Always Visible */}
-                        <div className="card" style={{ padding: '1rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                                <h3 style={{ fontSize: '0.9rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    💬 Communication History
+                        {/* Communication History - Solid Enterprise View */}
+                        <div className="card" style={{ padding: '1.25rem', border: '1px solid var(--border)', background: 'white' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b' }}>
+                                    <FileText size={18} className="text-brand" /> Comm. History
                                 </h3>
                                 <button
                                     onClick={() => setShowHistory(!showHistory)}
                                     style={{
-                                        background: 'none', border: 'none', cursor: 'pointer',
-                                        color: 'var(--accent)', fontSize: '0.85rem', fontWeight: 600
+                                        background: 'var(--brand-soft)', border: 'none', cursor: 'pointer',
+                                        color: 'var(--brand)', fontSize: '0.75rem', fontWeight: 800,
+                                        padding: '0.4rem 0.75rem', borderRadius: '6px'
                                     }}
                                 >
-                                    {showHistory ? 'Hide' : `View (${communicationHistory.length})`}
+                                    {showHistory ? 'HIDE' : `VIEW (${communicationHistory.length})`}
                                 </button>
                             </div>
 
@@ -492,10 +540,10 @@ export default function PODetailModal({
                                 </p>
                                 <button
                                     className="btn"
-                                    style={{ width: '100%', backgroundColor: 'var(--error-bg)', color: 'var(--error)', border: '1px solid #fecaca' }}
+                                    style={{ width: '100%', backgroundColor: '#fef2f2', color: '#991b1b', border: '1px solid #fee2e2', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                                     onClick={() => onCancel(po.id!, po.poNumber)}
                                 >
-                                    🚫 Void / Cancel Purchase Order
+                                    <Ban size={16} /> Void Purchase Order
                                 </button>
                             </div>
                         )}
@@ -505,12 +553,14 @@ export default function PODetailModal({
                                 onClick={onClose}
                                 style={{
                                     width: '100%', padding: '1rem',
-                                    backgroundColor: 'rgba(255,255,255,0.2)', color: 'white',
-                                    border: '1px solid rgba(255,255,255,0.4)', borderRadius: '8px',
-                                    cursor: 'pointer', fontWeight: 600
+                                    backgroundColor: '#1e293b', color: 'white',
+                                    border: 'none', borderRadius: '12px',
+                                    cursor: 'pointer', fontWeight: 800,
+                                    fontSize: '0.95rem',
+                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                                 }}
                             >
-                                Close Preview
+                                Close Document Preview
                             </button>
                         </div>
                     </div>

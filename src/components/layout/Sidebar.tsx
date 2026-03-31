@@ -9,7 +9,7 @@ import {
     ReceiptText, CreditCard, Receipt,
     Store, Handshake, Wallet, Boxes, Server,
     LineChart, Target, ClipboardCheck, BarChart3, Shield,
-    Blocks, LayoutDashboard
+    Blocks, LayoutDashboard, Users
 } from "lucide-react";
 import styles from "./Layout.module.css";
 
@@ -21,6 +21,7 @@ const NAV_GROUPS = [
             { name: "Approvals", href: "/dashboard/approvals", icon: <ShieldCheck size={20} /> },
             { name: "Requisitions", href: "/dashboard/requisitions", icon: <ShoppingBag size={20} /> },
             { name: "Purchase Orders", href: "/dashboard/purchase-orders", icon: <FileText size={20} /> },
+            { name: "Sourcing (RFQ)", href: "/dashboard/sourcing", icon: <Target size={20} /> },
             { name: "Receiving", href: "/dashboard/receiving", icon: <Package size={20} /> },
         ]
     },
@@ -46,7 +47,6 @@ const NAV_GROUPS = [
         items: [
             { name: "Analytics", href: "/dashboard/analytics", icon: <LineChart size={20} /> },
             { name: "Reports", href: "/dashboard/reports", icon: <BarChart3 size={20} /> },
-            { name: "Sourcing", href: "/dashboard/sourcing", icon: <Target size={20} /> },
             { name: "Compliance", href: "/dashboard/compliance", icon: <ClipboardCheck size={20} /> },
             { name: "Audit Trail", href: "/dashboard/audit-trail", icon: <Shield size={20} /> },
         ]
@@ -55,6 +55,7 @@ const NAV_GROUPS = [
 
 
 const ADMIN_ITEMS = [
+    { name: "Team Management", href: "/dashboard/users", icon: <Users size={20} /> },
     { name: "Integrations", href: "/dashboard/integrations", icon: <Blocks size={20} /> },
 ];
 
@@ -81,7 +82,7 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
         const role = user.role || 'STANDARD_REQUESTER';
 
         // Admin roles see everything
-        if (['ADMIN', 'PLATFORM_SUPERUSER', 'WORKSPACE_ADMIN', 'SUPERUSER'].includes(role)) return NAV_GROUPS;
+        if (['ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'WORKSPACE_ADMIN', 'SUPERUSER'].includes(role)) return NAV_GROUPS;
 
         const filteredGroups = NAV_GROUPS.map(group => {
             const visibleItems = group.items.filter(item => {
@@ -90,25 +91,26 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                 // Mappings based on Technical Specifications
                 switch (role) {
                     case 'STANDARD_REQUESTER':
-                        return ['Dashboard', 'Requisitions', 'Purchase Orders'].includes(name);
+                        return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Sourcing (RFQ)'].includes(name);
                     case 'AUTHORIZED_APPROVER':
-                        return ['Dashboard', 'Approvals', 'Purchase Orders', 'Budgets'].includes(name);
+                        return ['Dashboard', 'Approvals', 'Purchase Orders', 'Budgets', 'Sourcing (RFQ)'].includes(name);
                     case 'PROCUREMENT_OFFICER':
-                        return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Receiving', 'Inventory', 'Vendors', 'Contracts', 'Sourcing'].includes(name);
+                        return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Receiving', 'Inventory', 'Vendors', 'Contracts', 'Sourcing (RFQ)'].includes(name);
                     case 'OPERATIONS_RECEIVER':
                         return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Receiving', 'Inventory', 'Assets'].includes(name);
                     case 'ACCOUNTS_PAYABLE':
                         return ['Dashboard', 'Invoices', 'Payments', 'Vendors'].includes(name);
                     case 'FINANCE_MANAGER':
-                        return ['Dashboard', 'Approvals', 'Invoices', 'Payments', 'Budgets', 'Analytics'].includes(name);
+                        return ['Dashboard', 'Approvals', 'Invoices', 'Payments', 'Budgets', 'Analytics', 'Sourcing (RFQ)'].includes(name);
                     case 'FINANCE_SPECIALIST':
                         return ['Dashboard', 'Invoices', 'Payments', 'Budgets', 'Vendors', 'Analytics', 'Compliance'].includes(name);
                     case 'STRATEGIC_SOURCER':
-                        return ['Dashboard', 'Budgets', 'Vendors', 'Contracts', 'Sourcing', 'Analytics'].includes(name);
+                        return ['Dashboard', 'Budgets', 'Vendors', 'Contracts', 'Sourcing (RFQ)', 'Analytics'].includes(name);
                     case 'DATA_ANALYST':
-                        return ['Dashboard', 'Analytics', 'Sourcing', 'Compliance'].includes(name);
+                        return ['Dashboard', 'Analytics', 'Sourcing (RFQ)', 'Compliance'].includes(name);
                     case 'WORKSPACE_ADMIN':
                     case 'PLATFORM_SUPERUSER':
+                    case 'administrator':
                     case 'ADMIN':
                         return true;
                     default:
@@ -170,7 +172,7 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                     <ul style={{ listStyle: 'none' }}>
                         {ADMIN_ITEMS.map((item) => {
                             // Only Admin roles see Admin items
-                            const show = ['WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'ADMIN', 'SYSTEM_ADMIN'].includes(user?.role || '');
+                            const show = ['WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'ADMIN', 'SYSTEM_ADMIN'].includes(user?.role || '');
                             if (!show) return null;
                             return (
                                 <li key={item.name}>

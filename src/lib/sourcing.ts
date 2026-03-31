@@ -88,6 +88,21 @@ export const submitQuotation = async (tenantId: string, quote: Quotation) => {
         };
 
         await set(getQuoteRef(tenantId, quoteId!), quoteWithMeta);
+
+        // 3. Real-time Auction Update
+        const rfpSnap = await get(getRFPRef(tenantId, quote.rfpId));
+        if (rfpSnap.exists()) {
+            const rfp = rfpSnap.val() as RFP;
+            if (rfp.isAuction) {
+                const currentBest = rfp.bestBidValue || Infinity;
+                if (quote.totalAmount < currentBest) {
+                    await update(getRFPRef(tenantId, quote.rfpId), {
+                        bestBidValue: quote.totalAmount
+                    });
+                }
+            }
+        }
+
         return quoteId;
     } catch (error) {
         console.error("Error submitting quotation:", error);
@@ -107,7 +122,24 @@ export const getRFPs = async (tenantId: string): Promise<RFP[]> => {
         }
         return [];
     } catch (error) {
+        console.error("Error fetching RFPs:", error);
         return [];
+    }
+};
+
+/**
+ * Fetches a single RFP by ID.
+ */
+export const getRFP = async (tenantId: string, rfpId: string): Promise<RFP | null> => {
+    try {
+        const snapshot = await get(getRFPRef(tenantId, rfpId));
+        if (snapshot.exists()) {
+            return snapshot.val() as RFP;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error fetching RFP:", error);
+        return null;
     }
 };
 
@@ -315,4 +347,61 @@ export const getSourcingKpis = async (tenantId: string) => {
         console.error("Sourcing KPIs Error:", error);
         throw error;
     }
+};
+
+/**
+ * Automates RFQ creation from an approved Requisition.
+ */
+export const convertPRtoRFQ = async (tenantId: string, pr: any, user: AppUser) => {
+    const rfpData: RFP = {
+        tenantId,
+        requisitionId: pr.id!,
+        title: `Strategic Sourcing for PR #${pr.id!.slice(-6).toUpperCase()}`,
+        description: `Automated RFQ generated from approved requisition. Justification: ${pr.justification}`,
+        department: pr.department,
+        status: 'DRAFT',
+        deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default 7 days
+        invitedVendors: pr.vendorId ? [pr.vendorId] : [],
+        items: pr.items.map((it: any) => ({
+            description: it.description,
+            quantity: it.quantity,
+            unit: 'EA'
+        })),
+        weightedCriteria: {
+            price: 0.5,
+            quality: 0.2,
+            delivery: 0.2,
+            risk: 0.1
+        },
+        createdBy: user.uid,
+        createdAt: new Date()
+    };
+    
+    return createRFP(tenantId, rfpData, user);
+};
+
+/**
+ * Industry-grade evaluation using weighted criteria.
+ */
+export const calculateWeightedScore = (rfp: RFP, quote: Quotation) => {
+    const criteria = rfp.weightedCriteria || { price: 0.5, quality: 0.2, delivery: 0.2, risk: 0.1 };
+    const { price, quality, delivery, risk } = criteria;
+    const sc = quote.scorecard || { priceScore: 0, qualityRating: 5, deliveryDays: 7, riskRating: 5, weightedTotal: 0 };
+    
+    // 1. Price Score (Inverse linear: lower is better)
+    // Assuming max budget or competitive base for normalization if available, 
+    // or just raw score for now. Here we use 100 points scale.
+    const priceContribution = sc.priceScore * price;
+    
+    // 2. Quality (1-10 normalized to 0-100)
+    const qualityContribution = (sc.qualityRating * 10) * quality;
+    
+    // 3. Delivery (Speed) - Higher is better score, so shorter days = higher score
+    const deliveryScore = Math.max(0, 100 - (sc.deliveryDays * 5)); 
+    const deliveryContribution = deliveryScore * delivery;
+    
+    // 4. Risk (1-10, where 10 is safest)
+    const riskContribution = (sc.riskRating * 10) * risk;
+    
+    return priceContribution + qualityContribution + deliveryContribution + riskContribution;
 };

@@ -114,7 +114,7 @@ export const subscribeToRequisitions = (user: AppUser, callback: (reqs: Requisit
     const reqsRef = getRequisitionsRef(tenantId);
 
     // For Admins/Finance/Superusers, listen to all requisitions
-    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST'].includes(user.role)) {
+    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST'].includes(user.role)) {
         const unsubscribe = onValue(reqsRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();

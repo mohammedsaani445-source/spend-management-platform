@@ -1,16 +1,26 @@
 export type UserRole =
-    | 'STANDARD_REQUESTER'
-    | 'AUTHORIZED_APPROVER'
-    | 'PROCUREMENT_OFFICER'
-    | 'OPERATIONS_RECEIVER'
-    | 'ACCOUNTS_PAYABLE'
-    | 'FINANCE_MANAGER'
-    | 'FINANCE_SPECIALIST'
-    | 'STRATEGIC_SOURCER'
-    | 'DATA_ANALYST'
-    | 'WORKSPACE_ADMIN'
-    | 'PLATFORM_SUPERUSER'
-    | 'ADMIN'; // Keep ADMIN for legacy compatibility if needed
+    | 'administrator'
+    | 'finance_mgr'
+    | 'proc_mgr'
+    | 'proc_officer'
+    | 'dept_head'
+    | 'requester'
+    | 'ap_officer'
+    | 'auditor'
+    | 'warehouse'
+    | 'asset_mgr'
+    | 'STANDARD_REQUESTER' // Legacy
+    | 'AUTHORIZED_APPROVER' // Legacy
+    | 'PROCUREMENT_OFFICER' // Legacy
+    | 'OPERATIONS_RECEIVER' // Legacy
+    | 'ACCOUNTS_PAYABLE' // Legacy
+    | 'FINANCE_MANAGER' // Legacy
+    | 'FINANCE_SPECIALIST' // Legacy
+    | 'STRATEGIC_SOURCER' // Legacy
+    | 'DATA_ANALYST' // Legacy
+    | 'WORKSPACE_ADMIN' // Legacy
+    | 'PLATFORM_SUPERUSER' // Legacy
+    | 'ADMIN'; // Legacy
 
 export type UserType = 'BASIC' | 'PRO';
 
@@ -82,6 +92,33 @@ export interface AppUser {
     managerId?: string; // Phase 26: Reporting Lines
     departmentId?: string;
     currency?: string;
+    spending_limit?: number; // Added for new spec
+    last_login_at?: string; // Consistent with spec
+    status: 'active' | 'pending' | 'suspended'; // Added for new spec
+}
+
+export type PermissionLevel = 'FULL' | 'LIMITED' | 'NONE';
+
+export interface ModulePermission {
+    module: string;
+    level: PermissionLevel;
+    description?: string;
+}
+
+export interface Invite {
+    id: string;
+    org_id: string; // tenantId
+    token: string;
+    code: string;
+    invited_name: string;
+    invited_email: string | null;
+    role: UserRole;
+    department: string;
+    expires_at: string;
+    used: boolean;
+    used_at?: string;
+    created_by: string;
+    created_at: string;
 }
 
 export interface Location {
@@ -465,6 +502,7 @@ export type RFPStatus = 'DRAFT' | 'OPEN' | 'UNDER_REVIEW' | 'AWARDED' | 'CANCELL
 
 export interface RFP {
     id?: string;
+    tenantId: string;
     requisitionId: string;
     title: string;
     description: string;
@@ -472,6 +510,14 @@ export interface RFP {
     status: RFPStatus;
     deadline: Date;
     invitedVendors: string[]; // Vendor IDs
+    weightedCriteria: {
+        price: number;    // weight (e.g., 0.5)
+        quality: number;
+        delivery: number;
+        risk: number;
+    };
+    isAuction?: boolean; // Real-time reverse auction mode
+    bestBidValue?: number; // Latest low bid if auction enabled
     items: {
         description: string;
         quantity: number;
@@ -502,6 +548,13 @@ export interface Quotation {
     notes?: string;
     submittedAt: Date;
     attachmentUrl?: string; // For the actual bid document
+    scorecard?: {
+        priceScore: number;
+        qualityRating: number;   // 1-10
+        deliveryDays: number;
+        riskRating: number;      // 1-10
+        weightedTotal: number;   // Calculated aggregate
+    };
 }
 
 // Phase 22: Contract Management Suite

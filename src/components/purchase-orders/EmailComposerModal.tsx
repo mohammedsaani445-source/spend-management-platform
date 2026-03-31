@@ -26,19 +26,31 @@ export default function EmailComposerModal({ po, onClose, onSent }: EmailCompose
     const [showPreview, setShowPreview] = useState(true);
 
     const [isCustomEdited, setIsCustomEdited] = useState(false);
+    const [tenantSettings, setTenantSettings] = useState<any>(null);
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            if (!po.tenantId) return;
+            const { db, DB_PREFIX } = await import("@/lib/firebase");
+            const { ref, get } = await import("firebase/database");
+            const snap = await get(ref(db, `${DB_PREFIX}/tenants/${po.tenantId}/settings`));
+            if (snap.exists()) setTenantSettings(snap.val());
+        };
+        fetchSettings();
+    }, [po.tenantId]);
 
     // Update subject and body ONLY when a new template is explicitly clicked.
     // If they typed something manually, don't overwrite it automatically unless they change templates.
     useEffect(() => {
         // Only override if they selected a specific preset (or if custom is completely blank/new)
         if (selectedTemplate.id !== 'custom' || (!subject && !body)) {
-            const processedSubject = replaceEmailVariables(selectedTemplate.subject, po, user?.displayName);
-            const processedBody = replaceEmailVariables(selectedTemplate.body, po, user?.displayName);
+            const processedSubject = replaceEmailVariables(selectedTemplate.subject, po, user?.displayName, tenantSettings?.companyName);
+            const processedBody = replaceEmailVariables(selectedTemplate.body, po, user?.displayName, tenantSettings?.companyName);
             setSubject(processedSubject);
             setBody(processedBody);
             setIsCustomEdited(false);
         }
-    }, [selectedTemplate.id, po, user?.displayName]);
+    }, [selectedTemplate.id, po, user?.displayName, tenantSettings]);
 
     const handleBodyChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setBody(e.target.value);

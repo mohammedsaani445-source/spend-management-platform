@@ -26,7 +26,7 @@ export default function ApprovalQueue() {
     const [userToApprove, setUserToApprove] = useState<PendingUser | null>(null);
     const [selectedRole, setSelectedRole] = useState<string>("REQUESTER");
 
-    const ROLES = ["ADMIN", "SUPERUSER", "APPROVER", "FINANCE", "REQUESTER", "AP_USER", "FINANCE_MANAGER", "STRATEGIC_SOURCER", "PURCHASER", "RECEIVER", "REPORTER"];
+    const ROLES = ["ADMIN", "SUPERUSER", "administrator", "APPROVER", "FINANCE", "REQUESTER", "AP_USER", "FINANCE_MANAGER", "STRATEGIC_SOURCER", "PURCHASER", "RECEIVER", "REPORTER"];
 
     const [error, setError] = useState<string | null>(null);
     const [backfilling, setBackfilling] = useState(false);

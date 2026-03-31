@@ -8,6 +8,7 @@ import { SpendBarChart, BudgetDonutChart } from "@/components/charts/SimpleChart
 import AiAnalyst from "./AiAnalyst";
 import SecurityBanner from "@/components/common/SecurityBanner";
 import { 
+    Activity,
     ChevronRight,
     ArrowUpRight,
     Zap,
@@ -21,7 +22,8 @@ import {
     FileText,
     Building2,
     BarChart3,
-    Plus
+    Plus,
+    Users
 } from "lucide-react";
 
 interface ExecutiveDashboardProps {
@@ -133,16 +135,18 @@ export default function ExecutiveDashboard({ user, stats, pos, currency, onCurre
                     </div>
                 </Link>
 
-                <Link href="/dashboard/budgets" style={{ textDecoration: 'none' }}>
+                <Link href="/dashboard/analytics" style={{ textDecoration: 'none' }}>
                     <div className="hover-lift" style={{ borderRadius: '24px', padding: '1.5rem', border: '1px solid var(--border)', background: 'var(--surface)', boxShadow: 'var(--shadow-sm)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'var(--success-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--success)' }}>
-                                <Banknote size={20} />
+                            <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'var(--info-soft, rgba(0, 184, 217, 0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--info)' }}>
+                                <Activity size={20} />
                             </div>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: stats.budgetUsage.percent > 90 ? 'var(--error)' : 'var(--success)' }}>{Math.round(stats.budgetUsage.percent)}% Used</div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: stats.budgetUsage.percent > 90 ? 'var(--error)' : 'var(--success)' }}>
+                                {stats.budgetUsage.percent > 90 ? 'Critical' : 'Stable'}
+                            </div>
                         </div>
-                        <div style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Budget Utilization</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '0.25rem', color: 'var(--text-primary)' }}>{formatCurrency(availableBudget, currency)}</div>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Budget Integrity</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '0.25rem', color: 'var(--text-primary)' }}>{Math.round(stats.budgetUsage.percent)}%</div>
                     </div>
                 </Link>
 
@@ -259,35 +263,7 @@ export default function ExecutiveDashboard({ user, stats, pos, currency, onCurre
                 {/* RIGHT COLUMN */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
 
-                    {/* Budget Health */}
-                    <div className="premium-card" style={{ padding: '1.5rem', background: 'linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '1.5rem' }}>
-                            <Zap size={18} color="var(--brand)" fill="var(--brand)" />
-                            <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0, letterSpacing: '-0.02em' }}>Budget Integrity</h2>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem', position: 'relative' }}>
-                            <BudgetDonutChart total={stats.budgetUsage.total || 1} used={stats.budgetUsage.used || 0} />
-                            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                                <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '-0.25rem' }}>
-                                    {Math.round(stats.budgetUsage.percent)}%
-                                </div>
-                                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Load</div>
-                            </div>
-                        </div>
-                        
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(232, 87, 42, 0.03)', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(232, 87, 42, 0.08)' }}>
-                            {[
-                                { label: 'Allocated Limit', value: formatCurrency(stats.budgetUsage.total || 0, currency), color: 'var(--text-primary)' },
-                                { label: 'Burn Rate (YTD)', value: formatCurrency(stats.budgetUsage.used || 0, currency), color: 'var(--error)' },
-                                { label: 'Available Capital', value: formatCurrency(availableBudget || 0, currency), color: availableBudget >= 0 ? 'var(--success)' : 'var(--error)' },
-                            ].map(row => (
-                                <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem' }}>
-                                    <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{row.label}</span>
-                                    <span style={{ fontWeight: 800, color: row.color }}>{row.value}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+
 
 
                     {/* Quick Actions */}
@@ -299,6 +275,9 @@ export default function ExecutiveDashboard({ user, stats, pos, currency, onCurre
                                 { label: 'Scan Invoices', href: '/dashboard/invoices', icon: <FileText size={18} />, color: 'var(--success)', bg: 'var(--success-soft)' },
                                 { label: 'Onboard Vendor', href: '/dashboard/vendors', icon: <Building2 size={18} />, color: 'var(--info)', bg: 'var(--info-bg)' },
                                 { label: 'Analytics Hub', href: '/dashboard/analytics', icon: <BarChart3 size={18} />, color: 'var(--warning)', bg: 'var(--warning-bg)' },
+                                ...(['ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'WORKSPACE_ADMIN'].includes(user?.role || '') ? [
+                                    { label: 'User Management', href: '/dashboard/users', icon: <Users size={18} />, color: 'var(--info)', bg: 'var(--info-soft)' }
+                                ] : [])
                             ].map(a => (
                                 <Link key={a.label} href={a.href} style={{ textDecoration: 'none' }}>
                                     <div style={{

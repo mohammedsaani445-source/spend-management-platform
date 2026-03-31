@@ -108,9 +108,9 @@ export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
         color: '#4F46E5',
         bgColor: '#EEF2FF'
     },
-    PLATFORM_SUPERUSER: {
-        id: 'PLATFORM_SUPERUSER',
-        label: 'Platform Superuser',
+    administrator: {
+        id: 'administrator',
+        label: 'Administrator',
         description: 'Ultimate system-level access across all workspaces for maintenance.',
         icon: <ShieldAlert size={16} />,
         color: '#7C3AED',

@@ -12,6 +12,7 @@ export default function PublicPOPage({ params }: { params: Promise<{ id: string 
     const [po, setPo] = useState<PurchaseOrder | null>(null);
     const [loading, setLoading] = useState(true);
     const [acknowledged, setAcknowledged] = useState(false);
+    const [tenantSettings, setTenantSettings] = useState<any>(null);
 
     useEffect(() => {
         const fetchPO = async () => {
@@ -21,6 +22,13 @@ export default function PublicPOPage({ params }: { params: Promise<{ id: string 
             const data = await getPurchaseOrderById(tenantId, id);
             if (data) {
                 setPo(data);
+
+                // Fetch tenant settings
+                const { db, DB_PREFIX } = await import("@/lib/firebase");
+                const { ref, get } = await import("firebase/database");
+                const snap = await get(ref(db, `${DB_PREFIX}/tenants/${tenantId}/settings`));
+                if (snap.exists()) setTenantSettings(snap.val());
+
                 // Log "OPENED" event as a Read Receipt
                 await logDeliveryEvent(tenantId, id, 'OPENED', 'VENDOR');
             }
@@ -60,7 +68,7 @@ export default function PublicPOPage({ params }: { params: Promise<{ id: string 
                 {/* Header Action Bar */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }} className="no-print">
                     <div>
-                        <h1 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Acme Corp - Vendor Portal</h1>
+                        <h1 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>{tenantSettings?.companyName || 'Acme Corp'} - Vendor Portal</h1>
                         <p style={{ fontSize: '0.875rem', color: '#64748b' }}>Order Tracking & Acknowledgment</p>
                     </div>
                     <div style={{ display: 'flex', gap: '1rem' }}>
@@ -116,9 +124,9 @@ export default function PublicPOPage({ params }: { params: Promise<{ id: string 
                             <div style={{ marginTop: '0.5rem', fontSize: '1.125rem' }}>#{po.poNumber}</div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '1.25rem' }}>Acme Corp Inc.</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '1.25rem' }}>{tenantSettings?.companyName || 'Acme Corp Inc.'}</div>
                             <div style={{ color: '#64748b' }}>Supply Chain Division</div>
-                            <div style={{ color: '#64748b' }}>123 Enterprise Blvd, TC 94043</div>
+                            <div style={{ color: '#64748b' }}>{tenantSettings?.companyAddress || '123 Enterprise Blvd, TC 94043'}</div>
                         </div>
                     </div>
 
@@ -130,7 +138,7 @@ export default function PublicPOPage({ params }: { params: Promise<{ id: string 
                         </div>
                         <div>
                             <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#64748b', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Ship To</div>
-                            <div style={{ fontWeight: 600 }}>Acme Main Warehouse</div>
+                            <div style={{ fontWeight: 600 }}>{tenantSettings?.companyName ? `${tenantSettings.companyName} Warehouse` : 'Acme Main Warehouse'}</div>
                             <div style={{ color: '#475569' }}>Receiving Dock B</div>
                         </div>
                     </div>

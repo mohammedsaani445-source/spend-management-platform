@@ -35,7 +35,7 @@ export const getBudgets = async (user: AppUser): Promise<Budget[]> => {
         const budgetsRef = getBudgetsRef(tenantId);
 
         // Production Oversight: Admins, Finance, and Superusers can see all for the tenant
-        if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST'].includes(user.role)) {
+        if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST'].includes(user.role)) {
             const snapshot = await get(budgetsRef);
             if (snapshot.exists()) {
                 const data = snapshot.val();

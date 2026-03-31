@@ -15,7 +15,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    background-color: var(--background, #ffffff);
+    background-color: var(--background, #000000);
     z-index: 50;
 }
 
@@ -30,7 +30,7 @@
     font-size: 0.875rem;
     font-weight: 600;
     letter-spacing: 0.1em;
-    color: var(--foreground, #111827);
+    color: #ffffff;
     text-transform: uppercase;
 }
 

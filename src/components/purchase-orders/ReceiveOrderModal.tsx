@@ -72,7 +72,7 @@ export default function ReceiveOrderModal({ po, user, onClose, onSuccess }: Rece
     return (
         <div className="modal-backdrop">
             <div className="card modal-content" style={{ width: '900px', maxWidth: '95vw', padding: 0, overflow: 'hidden' }}>
-                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface-raised)' }}>
+                <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--surface)' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: 'var(--accent-bg)', color: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <Package size={24} />
@@ -157,7 +157,7 @@ export default function ReceiveOrderModal({ po, user, onClose, onSuccess }: Rece
                     </table>
                 </div>
 
-                <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: '1rem', background: 'var(--surface-raised)' }}>
+                <div style={{ padding: '1.5rem', borderTop: '1px solid var(--border)', display: 'flex', justifyContent: 'flex-end', gap: '1rem', background: 'var(--surface)' }}>
                     <button className="btn btn-outline" onClick={onClose} disabled={isSubmitting}>Cancel</button>
                     <button
                         className="btn btn-primary"

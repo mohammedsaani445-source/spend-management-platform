@@ -8,9 +8,10 @@ import { getSpendAnalytics } from "@/lib/analytics";
 import { useAuth } from "@/context/AuthContext";
 import { formatCurrency } from "@/lib/currencies";
 import { useModal } from "@/context/ModalContext";
-import { createPOFromRequisition } from "@/lib/purchaseOrders";
+import { createPOFromRequisition, getHistoricalPrices, HistoricalPrice } from "@/lib/purchaseOrders";
 import { logAction } from "@/lib/audit";
 import ApprovalFocusModal from "@/components/approvals/ApprovalFocusModal";
+import ApprovalDetailModal from "@/components/approvals/ApprovalDetailModal";
 
 export default function ApprovalsPage() {
     const { user } = useAuth();
@@ -22,6 +23,8 @@ export default function ApprovalsPage() {
     const [selectedReq, setSelectedReq] = useState<Requisition | null>(null);
     const [deptBudget, setDeptBudget] = useState<Budget | undefined>(undefined);
     const [deptSpend, setDeptSpend] = useState(0);
+    const [historicalData, setHistoricalData] = useState<Record<string, HistoricalPrice>>({});
+    const [isFocusView, setIsFocusView] = useState(true);
 
     useEffect(() => {
         if (!user) return;
@@ -41,9 +44,10 @@ export default function ApprovalsPage() {
     const handleOpenRequest = async (req: Requisition) => {
         try {
             if (!user) return;
-            const [budgets, analytics] = await Promise.all([
+            const [budgets, analytics, history] = await Promise.all([
                 getBudgets(user),
-                getSpendAnalytics(user)
+                getSpendAnalytics(user),
+                getHistoricalPrices(user.tenantId)
             ]);
 
             const budget = budgets.find(b => b.department === req.department);
@@ -51,6 +55,7 @@ export default function ApprovalsPage() {
 
             setDeptBudget(budget);
             setDeptSpend(spend);
+            setHistoricalData(history);
             setSelectedReq(req);
         } catch (error) {
             console.error("Error fetching budget context", error);
@@ -120,6 +125,7 @@ export default function ApprovalsPage() {
                 )}
             </div>
 
+
             {pendingApprovals.length === 0 ? (
                 <div className="card">
                     <div className="empty-state">
@@ -172,14 +178,29 @@ export default function ApprovalsPage() {
             )}
 
             {selectedReq && (
-                <ApprovalFocusModal
-                    requisition={selectedReq}
-                    budget={deptBudget}
-                    deptSpend={deptSpend}
-                    onClose={() => setSelectedReq(null)}
-                    onApprove={(id, comment) => handleAction(id, 'APPROVED', comment)}
-                    onReject={(id, comment) => handleAction(id, 'REJECTED', comment)}
-                />
+                isFocusView ? (
+                    <ApprovalFocusModal
+                        requisition={selectedReq}
+                        budget={deptBudget}
+                        deptSpend={deptSpend}
+                        historicalData={historicalData}
+                        onClose={() => setSelectedReq(null)}
+                        onToggleView={() => setIsFocusView(false)}
+                        onApprove={(id, comment) => handleAction(id, 'APPROVED', comment)}
+                        onReject={(id, comment) => handleAction(id, 'REJECTED', comment)}
+                    />
+                ) : (
+                    <ApprovalDetailModal
+                        requisition={selectedReq}
+                        budget={deptBudget}
+                        deptSpend={deptSpend}
+                        historicalData={historicalData}
+                        onClose={() => setSelectedReq(null)}
+                        onToggleView={() => setIsFocusView(true)}
+                        onApprove={(id, comment) => handleAction(id, 'APPROVED', comment)}
+                        onReject={(id, comment) => handleAction(id, 'REJECTED', comment)}
+                    />
+                )
             )}
         </div>
     );

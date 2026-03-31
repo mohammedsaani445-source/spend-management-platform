@@ -187,7 +187,7 @@ export default function ReportBuilder() {
                             padding: '0.6rem',
                             borderRadius: 'var(--radius-sm)',
                             border: '1px solid var(--border)',
-                            backgroundColor: 'var(--surface-raised)',
+                            backgroundColor: 'var(--surface)',
                             color: 'var(--text-main)',
                             fontSize: '0.9rem'
                         }}
@@ -205,7 +205,7 @@ export default function ReportBuilder() {
                             padding: '0.6rem',
                             borderRadius: 'var(--radius-sm)',
                             border: '1px solid var(--border)',
-                            backgroundColor: 'var(--surface-raised)',
+                            backgroundColor: 'var(--surface)',
                             color: 'var(--text-main)',
                             fontSize: '0.9rem'
                         }}
@@ -226,7 +226,7 @@ export default function ReportBuilder() {
                                     padding: '0.6rem',
                                     borderRadius: 'var(--radius-sm)',
                                     border: '1px solid var(--border)',
-                                    backgroundColor: 'var(--surface-raised)',
+                                    backgroundColor: 'var(--surface)',
                                     color: 'var(--text-main)',
                                     fontSize: '0.9rem'
                                 }}
@@ -245,7 +245,7 @@ export default function ReportBuilder() {
                                     padding: '0.6rem',
                                     borderRadius: 'var(--radius-sm)',
                                     border: '1px solid var(--border)',
-                                    backgroundColor: 'var(--surface-raised)',
+                                    backgroundColor: 'var(--surface)',
                                     color: 'var(--text-main)',
                                     fontSize: '0.9rem'
                                 }}

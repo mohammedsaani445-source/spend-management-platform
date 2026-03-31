@@ -81,6 +81,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                     department: userData.department || 'General',
                                     locationId: userData.locationId || 'default',
                                     isActive: userData.isActive !== false,
+                                    status: userData.status || (userData.isActive === false ? 'suspended' : 'active'),
                                     twoFactorEnabled: userData.twoFactorEnabled || false,
                                     twoFactorSecret: userData.twoFactorSecret || "",
                                     marketingEmails: userData.marketingEmails ?? true,

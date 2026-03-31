@@ -51,6 +51,64 @@ export const createPOFromRequisition = async (tenantId: string, requisition: Req
     }
 };
 
+export interface HistoricalPrice {
+    avgPrice: number;
+    minPrice: number;
+    maxPrice: number;
+    lastPrice: number;
+    currency: string;
+    sampleSize: number;
+}
+
+/**
+ * Scans all historical Purchase Orders to build a price benchmark map.
+ */
+export const getHistoricalPrices = async (tenantId: string): Promise<Record<string, HistoricalPrice>> => {
+    try {
+        const poRef = getPOsRef(tenantId);
+        const snapshot = await get(poRef);
+
+        const history: Record<string, { prices: number[], currency: string }> = {};
+
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            Object.values(data).forEach((po: any) => {
+                // Only count issued/received/closed orders for benchmarking
+                if (['CANCELLED', 'DRAFT'].includes(po.status)) return;
+
+                po.items?.forEach((item: any) => {
+                    const desc = item.description.toLowerCase().trim();
+                    const price = Number(item.price);
+                    if (isNaN(price)) return;
+
+                    if (!history[desc]) {
+                        history[desc] = { prices: [], currency: po.currency || 'USD' };
+                    }
+                    history[desc].prices.push(price);
+                });
+            });
+        }
+
+        const result: Record<string, HistoricalPrice> = {};
+        Object.entries(history).forEach(([desc, data]) => {
+            const sum = data.prices.reduce((a, b) => a + b, 0);
+            result[desc] = {
+                avgPrice: sum / data.prices.length,
+                minPrice: Math.min(...data.prices),
+                maxPrice: Math.max(...data.prices),
+                lastPrice: data.prices[data.prices.length - 1],
+                currency: data.currency,
+                sampleSize: data.prices.length
+            };
+        });
+
+        return result;
+    } catch (error) {
+        console.error("Error fetching historical prices:", error);
+        return {};
+    }
+};
+
 export const subscribeToPurchaseOrders = (user: AppUser, callback: (pos: PurchaseOrder[]) => void) => {
     if (!user || !user.tenantId) {
         callback([]);
@@ -61,7 +119,7 @@ export const subscribeToPurchaseOrders = (user: AppUser, callback: (pos: Purchas
     const poRef = getPOsRef(tenantId);
 
     // Admins, Finance, Superusers see all 
-    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST'].includes(user.role)) {
+    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST'].includes(user.role)) {
         const unsubscribe = onValue(poRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();

@@ -21,6 +21,7 @@ export const createUserProfile = async (user: User) => {
             department: 'General',
             locationId: 'default',
             isActive: true,
+            status: 'active',
             createdAt: serverTimestamp(),
         };
 

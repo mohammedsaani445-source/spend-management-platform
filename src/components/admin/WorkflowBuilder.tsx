@@ -40,7 +40,7 @@ export default function WorkflowBuilder() {
         { id: 'ACCOUNTS_PAYABLE', label: 'Accounts Payable', icon: Save },
         { id: 'OPERATIONS_RECEIVER', label: 'Operations Receiver', icon: ArrowDown },
         { id: 'WORKSPACE_ADMIN', label: 'Workspace Admin', icon: ShieldCheck },
-        { id: 'PLATFORM_SUPERUSER', label: 'Platform Superuser', icon: ShieldCheck },
+        { id: 'administrator', label: 'Administrator', icon: ShieldCheck },
         { id: 'AUTHORIZED_APPROVER', label: 'Authorized Approver', icon: CheckCircle2 }
     ];
 
@@ -82,7 +82,7 @@ export default function WorkflowBuilder() {
             { id: `step_m2_${Date.now()}`, name: "Value Analysis", approverRole: "PROCUREMENT_OFFICER", thresholdMin: 1000 },
             { id: `step_m3_${Date.now()}`, name: "Sourcing Strategy Review", approverRole: "STRATEGIC_SOURCER", thresholdMin: 10000 },
             { id: `step_m4_${Date.now()}`, name: "Financial Audit", approverRole: "FINANCE_MANAGER", thresholdMin: 25000 },
-            { id: `step_m5_${Date.now()}`, name: "Executive Final Approval", approverRole: "PLATFORM_SUPERUSER", thresholdMin: 100000 },
+            { id: `step_m5_${Date.now()}`, name: "Executive Final Approval", approverRole: "administrator", thresholdMin: 100000 },
         ];
         setActiveWorkflow({
             ...activeWorkflow!,

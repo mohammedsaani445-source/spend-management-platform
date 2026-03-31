@@ -62,7 +62,7 @@ export default function DashboardLayout({
     if (!user) return null;
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: 'var(--background)' }}>
+        <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', backgroundColor: 'var(--background)' }}>
 
             {/* Mobile Overlay */}
             <div

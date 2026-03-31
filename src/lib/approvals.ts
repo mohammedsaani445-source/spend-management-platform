@@ -173,7 +173,7 @@ export const processApprovalAction = async (
         actorName: actor.name,
         actorEmail: actor.email,
         action,
-        comment,
+        comment: comment || "",
         timestamp: new Date().toISOString()
     };
 

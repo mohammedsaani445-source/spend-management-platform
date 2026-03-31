@@ -30,7 +30,7 @@ export default function UserManagement() {
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("");
 
-    const ROLES: UserRole[] = ["ADMIN", "WORKSPACE_ADMIN", "PLATFORM_SUPERUSER", "STANDARD_REQUESTER", "AUTHORIZED_APPROVER", "PROCUREMENT_OFFICER", "OPERATIONS_RECEIVER", "ACCOUNTS_PAYABLE", "FINANCE_MANAGER", "FINANCE_SPECIALIST", "STRATEGIC_SOURCER", "DATA_ANALYST"];
+    const ROLES: UserRole[] = ["ADMIN", "WORKSPACE_ADMIN", "PLATFORM_SUPERUSER", "administrator", "STANDARD_REQUESTER", "AUTHORIZED_APPROVER", "PROCUREMENT_OFFICER", "OPERATIONS_RECEIVER", "ACCOUNTS_PAYABLE", "FINANCE_MANAGER", "FINANCE_SPECIALIST", "STRATEGIC_SOURCER", "DATA_ANALYST"];
     const [activeSubTab, setActiveSubTab] = useState<'DIRECTORY' | 'REQUESTS'>('DIRECTORY');
 
     useEffect(() => {
@@ -95,9 +95,10 @@ export default function UserManagement() {
     const handleStatusToggle = async (uid: string, currentStatus: boolean | undefined) => {
         if (!currentUser) return;
         const newStatus = !(currentStatus ?? true);
+        const statusValue = newStatus ? 'active' : 'suspended';
         try {
-            await setUserStatus(currentUser.tenantId, uid, newStatus, currentUser.uid);
-            setUsers(prev => prev.map(u => u.uid === uid ? { ...u, isActive: newStatus } : u));
+            await setUserStatus(currentUser.tenantId, uid, statusValue, currentUser.uid);
+            setUsers(prev => prev.map(u => u.uid === uid ? { ...u, isActive: newStatus, status: statusValue } : u));
         } catch (error) {
             showError("Update Failed", "Failed to update user status.");
         }

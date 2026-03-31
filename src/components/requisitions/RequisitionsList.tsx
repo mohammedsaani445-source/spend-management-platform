@@ -174,8 +174,8 @@ export default function RequisitionsList() {
 
             {showRFPModal && selectedReq && (
                 <CreateRFPModal
-                    requisition={selectedReq}
-                    vendors={vendors}
+                    initialData={selectedReq}
+                    tenantId={user!.tenantId}
                     onClose={() => setShowRFPModal(false)}
                     onCreated={() => { setShowRFPModal(false); setSelectedReq(null); router.push('/dashboard/sourcing'); }}
                 />

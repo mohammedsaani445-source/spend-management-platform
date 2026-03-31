@@ -42,7 +42,7 @@ export const createContract = async (contract: Omit<Contract, 'id' | 'createdAt'
             const { notifyRole } = await import("./notifications");
             await notifyRole(
                 user.tenantId,
-                'PLATFORM_SUPERUSER', // Or PROCUREMENT_MANAGER if role exists
+                'administrator', // Or PROCUREMENT_MANAGER if role exists
                 'SYSTEM',
                 'New Contract Created',
                 `A new ${contract.type} contract has been created for ${contract.vendorName}.`,

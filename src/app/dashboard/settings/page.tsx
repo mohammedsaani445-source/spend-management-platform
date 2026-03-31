@@ -4,14 +4,13 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import UserManagement from "@/components/admin/UserManagement";
 import LogoutModal from "@/components/layout/LogoutModal";
 import * as OTPAuth from "otpauth";
 import QRCode from "qrcode";
 import {
     User, Shield, Bell, ScrollText, Network,
     GitMerge, Users, LogOut, CheckCircle2,
-    Smartphone, X, Coins
+    Smartphone, X, Coins, Building2
 } from "lucide-react";
 import Loader from "@/components/common/Loader";
 import styles from "./Settings.module.css";
@@ -22,7 +21,7 @@ import AuditLogViewer from "@/components/admin/AuditLogViewer";
 import HierarchyManager from "@/components/admin/HierarchyManager";
 import CurrencySettings from "@/components/admin/CurrencySettings";
 
-type Tab = 'PROFILE' | 'SECURITY' | 'NOTIFICATIONS' | 'TEAM' | 'WORKFLOWS' | 'AUDIT' | 'HIERARCHY' | 'POLICY' | 'CURRENCY';
+type Tab = 'PROFILE' | 'SECURITY' | 'NOTIFICATIONS' | 'WORKFLOWS' | 'AUDIT' | 'HIERARCHY' | 'POLICY' | 'CURRENCY' | 'COMPANY';
 
 export default function SettingsPage() {
     return (
@@ -49,7 +48,10 @@ function SettingsContent() {
         marketingEmails: true,
         securityAlerts: true,
         budgetEnforcementLevel: 'SOFT' as 'SOFT' | 'HARD',
-        baseCurrency: 'USD'
+        baseCurrency: 'USD',
+        companyName: "",
+        companyAddress: "",
+        companyEmail: ""
     });
 
     const [isSaving, setIsSaving] = useState(false);
@@ -76,7 +78,10 @@ function SettingsContent() {
                 marketingEmails: user.marketingEmails ?? true,
                 securityAlerts: user.securityAlerts ?? true,
                 budgetEnforcementLevel: 'SOFT', // Default, will be updated if we fetch it
-                baseCurrency: (user as any).currency || 'USD'
+                baseCurrency: (user as any).currency || 'USD',
+                companyName: "",
+                companyAddress: "",
+                companyEmail: ""
             });
 
             // Fetch tenant settings for policy
@@ -89,7 +94,10 @@ function SettingsContent() {
                     setFormData(prev => ({ 
                         ...prev, 
                         budgetEnforcementLevel: settings.budgetEnforcementLevel || 'SOFT',
-                        baseCurrency: settings.baseCurrency || user.currency || 'USD'
+                        baseCurrency: settings.baseCurrency || user.currency || 'USD',
+                        companyName: settings.companyName || "",
+                        companyAddress: settings.companyAddress || "",
+                        companyEmail: settings.companyEmail || ""
                     }));
                 } else {
                     setFormData(prev => ({ ...prev, baseCurrency: (user as any).currency || 'USD' }));
@@ -103,7 +111,7 @@ function SettingsContent() {
         const tab = searchParams.get('tab');
         if (tab) {
             const upperTab = tab.toUpperCase() as Tab;
-            if (['PROFILE', 'SECURITY', 'NOTIFICATIONS', 'TEAM', 'WORKFLOWS', 'AUDIT', 'HIERARCHY', 'POLICY', 'CURRENCY'].includes(upperTab)) {
+            if (['PROFILE', 'SECURITY', 'NOTIFICATIONS', 'WORKFLOWS', 'AUDIT', 'HIERARCHY', 'POLICY', 'CURRENCY', 'COMPANY'].includes(upperTab)) {
                 setActiveTab(upperTab);
             }
         }
@@ -202,18 +210,51 @@ function SettingsContent() {
         if (e) e.preventDefault();
         setIsSaving(true);
         try {
-            await updateProfile(formData);
+            // Only send actual user profile fields to updateProfile
+            const profileData: Record<string, any> = {
+                displayName: formData.displayName,
+                jobTitle: formData.jobTitle,
+                phone: formData.phone,
+                bio: formData.bio,
+                location: formData.location,
+                twoFactorEnabled: formData.twoFactorEnabled,
+                twoFactorSecret: formData.twoFactorSecret,
+                marketingEmails: formData.marketingEmails,
+                securityAlerts: formData.securityAlerts,
+            };
+
+            // Remove undefined elements to prevent Firebase errors
+            Object.keys(profileData).forEach(key => profileData[key] === undefined && delete profileData[key]);
+
+            await updateProfile(profileData);
             
-            // If on policy tab, also update tenant settings
-            if (activeTab === 'POLICY' || activeTab === 'PROFILE') {
+            // Update tenant settings if on relevant tabs
+            if (activeTab === 'POLICY' || activeTab === 'PROFILE' || activeTab === 'COMPANY') {
                 const { setGlobalEnforcementLevel } = await import("@/lib/budgets");
-                await setGlobalEnforcementLevel(user!.tenantId, formData.budgetEnforcementLevel);
+                if (formData.budgetEnforcementLevel) {
+                    await setGlobalEnforcementLevel(user!.tenantId, formData.budgetEnforcementLevel);
+                }
+
+                const { ref, update } = await import("firebase/database");
+                const { db, DB_PREFIX } = await import("@/lib/firebase");
+                
+                const tenantUpdates: Record<string, any> = {};
+                if (formData.companyName !== undefined) tenantUpdates.companyName = formData.companyName;
+                if (formData.companyAddress !== undefined) tenantUpdates.companyAddress = formData.companyAddress;
+                if (formData.companyEmail !== undefined) tenantUpdates.companyEmail = formData.companyEmail;
+                if (formData.baseCurrency !== undefined) tenantUpdates.baseCurrency = formData.baseCurrency;
+
+                // Only call update if there are fields to update
+                if (Object.keys(tenantUpdates).length > 0) {
+                    await update(ref(db, `${DB_PREFIX}/tenants/${user!.tenantId}/settings`), tenantUpdates);
+                }
             }
 
             setSaveSuccess(true);
             setTimeout(() => setSaveSuccess(false), 3000);
-        } catch (error) {
-            alert("Failed to update settings.");
+        } catch (error: any) {
+            console.error("Save error:", error);
+            alert(`Failed to update settings: ${error?.message || 'Unknown error'}`);
         } finally {
             setIsSaving(false);
         }
@@ -312,7 +353,7 @@ function SettingsContent() {
                         <Bell size={18} className={styles.navIcon} /> Notifications
                     </button>
 
-                    {(['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'SUPERUSER'].includes(user.role)) && (
+                    {(['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'SUPERUSER'].includes(user.role)) && (
                         <>
                             <div className={styles.navSection}>Administrative</div>
                             <button onClick={() => setActiveTab('AUDIT')} className={`${styles.navLink} ${activeTab === 'AUDIT' ? styles.navLinkActive : ''}`} data-label="Security Audit Log">
@@ -324,11 +365,11 @@ function SettingsContent() {
                             <button onClick={() => setActiveTab('POLICY')} className={`${styles.navLink} ${activeTab === 'POLICY' ? styles.navLinkActive : ''}`} data-label="Procurement Policy">
                                 <Shield size={18} className={styles.navIcon} /> Procurement Policy
                             </button>
+                            <button onClick={() => setActiveTab('COMPANY')} className={`${styles.navLink} ${activeTab === 'COMPANY' ? styles.navLinkActive : ''}`} data-label="Company Profile">
+                                <Building2 size={18} className={styles.navIcon} /> Company Profile
+                            </button>
                             <button onClick={() => setActiveTab('WORKFLOWS')} className={`${styles.navLink} ${activeTab === 'WORKFLOWS' ? styles.navLinkActive : ''}`} data-label="Workflow Designer">
                                 <GitMerge size={18} className={styles.navIcon} /> Workflow Designer
-                            </button>
-                            <button onClick={() => setActiveTab('TEAM')} className={`${styles.navLink} ${activeTab === 'TEAM' ? styles.navLinkActive : ''}`} data-label="Team Management">
-                                <Users size={18} className={styles.navIcon} /> Team Management
                             </button>
                             <button onClick={() => setActiveTab('CURRENCY')} className={`${styles.navLink} ${activeTab === 'CURRENCY' ? styles.navLinkActive : ''}`} data-label="Currency & Intelligence">
                                 <Coins size={18} className={styles.navIcon} /> Currency & Intelligence
@@ -559,7 +600,6 @@ function SettingsContent() {
                             </div>
                         )}
 
-                        {activeTab === 'TEAM' && <UserManagement />}
                         {activeTab === 'WORKFLOWS' && <WorkflowBuilder />}
                         {activeTab === 'AUDIT' && <AuditLogViewer />}
                         {activeTab === 'HIERARCHY' && <HierarchyManager />}
@@ -572,7 +612,30 @@ function SettingsContent() {
                             />
                         )}
 
-                        {!['TEAM', 'WORKFLOWS', 'AUDIT', 'HIERARCHY', 'CURRENCY'].includes(activeTab) && (
+                        {activeTab === 'COMPANY' && (
+                            <div>
+                                <h3 className={styles.sectionTitle}>Company Profile</h3>
+                                <p className={styles.sectionDesc} style={{ marginBottom: '1.5rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                                    These details will appear on all official documents, such as Purchase Orders and Vendor Communications.
+                                </p>
+                                <div className={styles.formGrid}>
+                                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                                        <label className={styles.label}>Company/Organization Name</label>
+                                        <input type="text" className={styles.input} value={formData.companyName} onChange={e => setFormData({ ...formData, companyName: e.target.value })} placeholder="Acme Corp Inc." />
+                                    </div>
+                                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                                        <label className={styles.label}>Official Business Address</label>
+                                        <input type="text" className={styles.input} value={formData.companyAddress} onChange={e => setFormData({ ...formData, companyAddress: e.target.value })} placeholder="123 Enterprise Blvd, Tech City" />
+                                    </div>
+                                    <div className={styles.formGroup} style={{ gridColumn: '1 / -1' }}>
+                                        <label className={styles.label}>Contact Email (for Vendors)</label>
+                                        <input type="email" className={styles.input} value={formData.companyEmail} onChange={e => setFormData({ ...formData, companyEmail: e.target.value })} placeholder="billing@acmecorp.com" />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {!['WORKFLOWS', 'AUDIT', 'HIERARCHY', 'CURRENCY'].includes(activeTab) && (
                             <div className={styles.actionsFooter}>
                                 {saveSuccess && (
                                     <span className={styles.successMessage}>

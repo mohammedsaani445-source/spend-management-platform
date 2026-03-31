@@ -127,7 +127,7 @@ export default function Dashboard() {
         const role = user.role;
 
         // 1. Admin/Executive View (Global Visibility)
-        if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER'].includes(role)) {
+        if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator'].includes(role)) {
             return (
                 <ExecutiveDashboard
                     user={user}

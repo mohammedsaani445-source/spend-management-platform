@@ -1,9 +1,12 @@
+
+
 /* =============================================
    APEXPROCURE DESIGN SYSTEM — Global Tokens
    Brand: Coral/Orange Enterprise
    ============================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
 :root {
   /* ---- Brand Colors ---- */
@@ -62,6 +65,16 @@
   --shadow-card: 0 0 0 1px rgba(0, 0, 0, 0.05), var(--shadow-md);
   --shadow-glass: var(--shadow-xl);
 
+  /* ---- Forensic Theme Tokens (Industry Grade Dark) ---- */
+  --forensic-bg: #000000;
+  --forensic-surface: #0A0A0A;
+  --forensic-surface-2: #141414;
+  --forensic-border: rgba(255, 255, 255, 0.08);
+  --forensic-text: #FFFFFF;
+  --forensic-text-dim: #94A3B8;
+  --forensic-glow: rgba(232, 87, 42, 0.15);
+  --forensic-brand: #E8572A;
+
   /* ---- Layout ---- */
   --sidebar-width: 220px;
   --topbar-height: 64px;
@@ -87,6 +100,32 @@
   --z-modal-backdrop: 10000;
   --z-modal: 11000;
   --z-toast: 12000;
+}
+
+.forensic-theme {
+  background-color: var(--forensic-bg);
+  color: var(--forensic-text);
+}
+
+.forensic-scanline {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 0, 0, 0.05) 51%,
+    transparent 51%
+  );
+  background-size: 100% 4px;
+  z-index: 10;
+  opacity: 0.05;
+  animation: scanline 8s linear infinite;
+}
+
+@keyframes scanline {
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
 }
 
 /* =============================================
@@ -919,4 +958,30 @@ select {
   width: 1.25rem;
   height: 1.25rem;
   stroke-width: 2;
+}
+/* Forensic Animations */
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+.forensic-scanline {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent, var(--forensic-brand), transparent);
+  opacity: 0.03;
+  height: 2px;
+  width: 100%;
+  animation: scanline 8s linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Forensic Theme Overrides */
+.forensic-theme {
+  --background: var(--forensic-bg);
+  --surface: var(--forensic-surface);
+  --surface-2: var(--forensic-surface-2);
+  --border: var(--forensic-border);
+  --text-primary: var(--forensic-text);
+  --text-secondary: var(--forensic-text-dim);
 }

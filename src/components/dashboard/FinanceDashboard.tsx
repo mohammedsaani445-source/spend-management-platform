@@ -150,16 +150,35 @@ export default function FinanceDashboard({ user, stats, currency, pos = [] }: Fi
                         )}
                     </div>
 
-                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '24px', padding: '1.5rem' }}>
-                        <h2 style={{ fontSize: '1rem', fontWeight: 900, marginBottom: '1.5rem' }}>Budget Velocity</h2>
-                        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                            <BudgetDonutChart total={stats.budgetUsage.total || 1} used={stats.budgetUsage.used || 0} />
+                    {/* Budget Velocity */}
+                    <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '24px', padding: '1.5rem', flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '1.5rem' }}>
+                            <div style={{ width: 28, height: 28, borderRadius: '6px', background: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Zap size={14} color="#00AB55" />
+                            </div>
+                            <h2 style={{ fontSize: '0.875rem', fontWeight: 900, margin: 0 }}>Budget Velocity</h2>
                         </div>
-                        <div style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(255, 255, 255, 0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Burn Rate</span>
-                            <span style={{ fontSize: '0.8125rem', fontWeight: 900, color: '#00AB55' }}>Healthy</span>
+                        
+                        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+                            <BudgetDonutChart total={stats.budgetUsage.total || 1} used={stats.budgetUsage.used || 0} />
+                            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                                <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>{Math.round(stats.budgetUsage.percent)}%</div>
+                                <div style={{ fontSize: '0.625rem', color: 'rgba(255, 255, 255, 0.3)', fontWeight: 800 }}>CAPACITY</div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <div style={{ padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                                <div style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Burn Rate</div>
+                                <div style={{ fontSize: '0.875rem', fontWeight: 900 }}>{formatCurrency(stats.budgetUsage.used, currency)}</div>
+                            </div>
+                            <div style={{ padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                                <div style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Available</div>
+                                <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#00AB55' }}>{formatCurrency(stats.budgetUsage.total - stats.budgetUsage.used, currency)}</div>
+                            </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

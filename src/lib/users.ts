@@ -100,12 +100,13 @@ export const updateUserManager = async (tenantId: string, uid: string, managerId
 };
 
 /**
- * Toggles user active status.
+ * Updates a user's status (active, suspended, pending) and logs the audit event.
  */
-export const setUserStatus = async (tenantId: string, uid: string, isActive: boolean, adminId: string) => {
+export const setUserStatus = async (tenantId: string, uid: string, status: 'active' | 'suspended' | 'pending', adminId: string) => {
     try {
         const userRef = getUserRef(tenantId, uid);
-        await update(userRef, { isActive });
+        const isActive = status === 'active';
+        await update(userRef, { status, isActive });
 
         await logAction({
             tenantId,
@@ -114,7 +115,7 @@ export const setUserStatus = async (tenantId: string, uid: string, isActive: boo
             action: 'UPDATE',
             entityId: uid,
             entityType: 'USER',
-            description: `User status set to ${isActive ? 'Active' : 'Inactive'}`
+            description: `User status updated to ${status.charAt(0).toUpperCase() + status.slice(1)}`
         });
     } catch (error) {
         console.error("Error setting user status:", error);

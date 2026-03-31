@@ -9,7 +9,7 @@ export const checkPermission = (user: AppUser, action: PermissionAction, scope: 
 
     // 2. Custom Permissions Check (In Phase 27: Custom Roles)
     // For now, we use a role-to-permission mapping for default internal roles
-    const rolePermissions: Record<UserRole, { action: PermissionAction, scope: PermissionScope }[]> = {
+    const rolePermissions: Partial<Record<UserRole, { action: PermissionAction, scope: PermissionScope }[]>> = {
         'STANDARD_REQUESTER': [
             { action: 'CREATE', scope: 'REQUISITION' },
             { action: 'READ', scope: 'REQUISITION' },
@@ -69,7 +69,7 @@ export const checkPermission = (user: AppUser, action: PermissionAction, scope: 
  * Determines if a user can view a specific entity based on departmental isolation.
  */
 export const canViewEntity = (user: AppUser, entity: { requesterId?: string, departmentId?: string, locationId?: string }): boolean => {
-    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST', 'PROCUREMENT_OFFICER', 'ACCOUNTS_PAYABLE'].includes(user.role)) return true;
+    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'FINANCE_MANAGER', 'FINANCE_SPECIALIST', 'PROCUREMENT_OFFICER', 'ACCOUNTS_PAYABLE'].includes(user.role)) return true;
 
     // If it's their own record, they can always see it
     if (entity.requesterId === user.uid) return true;

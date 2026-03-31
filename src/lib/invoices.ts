@@ -69,7 +69,7 @@ export const subscribeToInvoices = (user: AppUser, callback: (invoices: Invoice[
     const invRef = getInvoicesRef(tenantId);
 
     // Admins and Finance see all 
-    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'FINANCE_MANAGER', 'ACCOUNTS_PAYABLE'].includes(user.role)) {
+    if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'FINANCE_MANAGER', 'ACCOUNTS_PAYABLE'].includes(user.role)) {
         const unsubscribe = onValue(invRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();

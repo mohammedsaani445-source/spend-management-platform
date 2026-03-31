@@ -41,7 +41,7 @@ export const getAssets = async (tenantId: string, user?: AppUser): Promise<Asset
     try {
         const assetsRef = getAssetsRef(tenantId);
 
-        if (!user || ['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'OPERATIONS_RECEIVER'].includes(user.role)) {
+        if (!user || ['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'OPERATIONS_RECEIVER'].includes(user.role)) {
             const allQuery = query(assetsRef, orderByKey());
             const snapshot = await get(allQuery);
             if (snapshot.exists()) return Object.values(snapshot.val());

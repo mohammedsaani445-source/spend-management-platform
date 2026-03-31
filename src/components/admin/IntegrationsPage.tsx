@@ -33,7 +33,7 @@ export default function IntegrationsPage() {
         if (!user) return;
         const [keyData, logData] = await Promise.all([
             getApiKeys(user.tenantId),
-            getErpSyncLogs(10)
+            getErpSyncLogs(user.tenantId, 10)
         ]);
         setKeys(keyData);
         setSyncLogs(logData || []);
@@ -69,7 +69,7 @@ export default function IntegrationsPage() {
             }
 
             const { ErpEngine } = await import("@/lib/erp/engine");
-            await ErpEngine.syncPO(pos[0].id!, system);
+            await ErpEngine.syncPO(user.tenantId, pos[0].id!, system);
             alert(`Sync successful for ${system}! Check details in the log below.`);
             loadData();
         } catch (error: any) {

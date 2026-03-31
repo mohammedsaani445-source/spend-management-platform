@@ -78,13 +78,6 @@ export const BudgetDonutChart = memo(function BudgetDonutChart({ total, used }: 
                     cx="60"
                     cy="60"
                 />
-                <text
-                    x="60" y="65"
-                    textAnchor="middle"
-                    style={{ fontSize: '18px', fontWeight: 800, fill: 'var(--text-main)' }}
-                >
-                    {Math.round(percentage)}%
-                </text>
             </svg>
         </div>
     );

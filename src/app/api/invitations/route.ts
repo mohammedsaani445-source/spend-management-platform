@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         }
 
         const requesterRole = requesterSnap.val().role;
-        if (!['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER'].includes(requesterRole)) {
+        if (!['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator'].includes(requesterRole)) {
             return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 });
         }
 
