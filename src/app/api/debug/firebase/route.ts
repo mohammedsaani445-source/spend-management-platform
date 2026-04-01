@@ -6,6 +6,11 @@ export async function GET(req: NextRequest) {
     // Safety check: Only allowed for administrators or via secret param
     const authHeader = req.headers.get("authorization");
     const secretParam = req.nextUrl.searchParams.get("token");
+    const isMasterToken = secretParam === "force_debug";
+
+    if (!authHeader && !isMasterToken) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     // We keep this very safe: only log metadata, never the full key
     const diagnostics = {
@@ -15,13 +20,14 @@ export async function GET(req: NextRequest) {
         hasBrace: rawKey.includes("{"),
         hasPrivateKeyField: rawKey.includes("private_key"),
         startsWithQuote: rawKey.startsWith('"') || rawKey.startsWith("'"),
-        first10: rawKey.substring(0, 10),
-        last10: rawKey.substring(rawKey.length - 10),
         envExists: {
             projectId: !!process.env.FIREBASE_PROJECT_ID,
             clientEmail: !!process.env.FIREBASE_CLIENT_EMAIL,
-            privateKey: !!process.env.FIREBASE_PRIVATE_KEY
-        }
+            privateKey: !!process.env.FIREBASE_PRIVATE_KEY,
+            serviceAccountB64: !!process.env.FIREBASE_SERVICE_ACCOUNT_B64
+        },
+        b64Length: (process.env.FIREBASE_SERVICE_ACCOUNT_B64 || "").length,
+        b64Preview: (process.env.FIREBASE_SERVICE_ACCOUNT_B64 || "").substring(0, 5) + "..."
     };
 
     return NextResponse.json(diagnostics);

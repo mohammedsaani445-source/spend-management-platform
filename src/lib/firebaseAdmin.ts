@@ -8,64 +8,76 @@ function getAdminApp() {
     if (admin.apps.length > 0) return admin.app();
     
     const BUCKET_NAME = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
+    const serviceAccountB64 = process.env.FIREBASE_SERVICE_ACCOUNT_B64;
+    const hasB64 = !!(serviceAccountB64 && serviceAccountB64.length > 100);
+    
+    let trace = `Init(B64:${hasB64})`;
+
+    /**
+     * PRIORITY 1: BASE64 SERVICE ACCOUNT JSON (The Bulletproof Method)
+     */
+    if (hasB64) {
+        try {
+            // Clean the B64 string from any accidental whitespace/newlines
+            const cleanB64 = serviceAccountB64!.replace(/\s/g, '');
+            const decoded = Buffer.from(cleanB64, 'base64').toString('utf8');
+            const firebaseAdminConfig = JSON.parse(decoded);
+            
+            if (firebaseAdminConfig.private_key) {
+                firebaseAdminConfig.private_key = firebaseAdminConfig.private_key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
+            }
+            
+            return admin.initializeApp({
+                credential: admin.credential.cert(firebaseAdminConfig),
+                databaseURL: "https://spend-management-platform-default-rtdb.firebaseio.com",
+                storageBucket: BUCKET_NAME
+            });
+        } catch (error: any) {
+            trace += ` > B64_Fail(${error.message.substring(0, 20)})`;
+            // fall through to Priority 2
+        }
+    }
+
+    /**
+     * PRIORITY 2: INDIVIDUAL VARIABLES (The Fallback Method)
+     */
     const projectId = process.env.FIREBASE_PROJECT_ID;
     const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const rawKey = process.env.FIREBASE_PRIVATE_KEY || "";
     
     if (!projectId || !clientEmail || !rawKey) {
-        console.error("Critical Firebase Admin environment variables are missing:", {
-            projectId: !!projectId,
-            clientEmail: !!clientEmail,
-            privateKey: !!rawKey
-        });
-        // We throw a descriptive error that will be caught by our API routes
-        throw new Error("Firebase Admin environment variables are not correctly configured. Please check FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY.");
+        throw new Error(`Firebase Admin Env Missing: PJ:${!!projectId} EM:${!!clientEmail} KY:${!!rawKey}. Trace: ${trace}`);
     }
     
     let key = rawKey.trim();
-    let trace = "Init";
 
-    // 0. Preliminary Handle (Handles URL Encoding)
+    // 0. Handle URL/Shell Mangle: '+' becomes ' ' or '%20'
     if (key.includes('%')) {
-        try {
-            key = decodeURIComponent(key);
-            trace += " > URL_Decoded";
-        } catch (e) { /* ignore */ }
+        try { key = decodeURIComponent(key); trace += " > URL_Decoded"; } catch (e) { /* ignore */ }
     }
     
-    // 1. Recursive Field Extraction (Regex-based)
-    // Much more robust than JSON.parse for mangled strings
+    // 1. Recursive JSON/Field Extraction
     try {
         let depth = 0;
         let found = false;
-        while (depth < 5 && !found) {
-            key = key.trim().replace(/^["']|["']$/g, ''); // Strip outer quotes
-            
-            // Look for private_key or privateKey field with various quoting/escaping
-            // Patterns: "private_key": "...", \"private_key\": \"...\", etc.
-            // This captures everything between the value quotes and stops at the closing quote or comma
+        while (depth < 3 && !found) {
+            key = key.trim().replace(/^["']|["']$/g, ''); 
             const fieldRegex = /["\\]*private_?key["\\]*\s*[:=]\s*["\\]*(-----BEGIN[\s\S]*?-----END[\s\S]*?|MII[\s\S]*?)(?=["\\]*[,}\n]|$)/i;
             const match = key.match(fieldRegex);
-            
             if (match && match[1]) {
                 key = match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').trim();
                 found = true;
-                trace += " > Regex_Extracted";
-            } else {
-                break; // No JSON field found, move to next cleaners
-            }
+                trace += " > Regex_Extract";
+            } else { break; }
             depth++;
         }
-    } catch (e) {
-        trace += " > Extraction_Fail";
-    }
+    } catch (e) { trace += " > Extract_Err"; }
 
-    // 2. Standard Escaping Cleanup
-    key = key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
-    trace += ` > Standard_Clean(${key.length})`;
+    // 2. Standard Cleanup & Double-Escape Fix
+    key = key.replace(/\\n/g, '\n').replace(/\\\\n/g, '\n').replace(/\r\n/g, '\n');
+    trace += ` > Std_Clean(${key.length})`;
 
-    // 3. Ultimate PEM Reconstruction
-    // ONLY do this if it doesn't look like JSON boilerplate (brackets/quotes with project_id)
+    // 3. Ultimate PEM Reconstruction (ASN.1 Guard)
     const isJsonLike = key.includes('{') || key.includes('project_id');
     
     if (!isJsonLike) {
@@ -73,27 +85,29 @@ function getAdminApp() {
             let headerType = "PRIVATE KEY";
             let body = "";
 
-            // Find the FIRST valid PEM block or treat as raw Base64
             const pemMatch = key.match(/-----BEGIN (.*)-----([\s\S]*?)-----END \1-----/);
             if (pemMatch) {
                 headerType = pemMatch[1];
-                body = pemMatch[2].replace(/[^A-Za-z0-9+/=]/g, '');
-                trace += " > PEM_Regex_Match";
+                body = pemMatch[2];
             } else {
-                body = key.replace(/[^A-Za-z0-9+/=]/g, '');
-                trace += " > Raw_Base64_Clean";
+                body = key;
+                trace += " > Raw_Body";
             }
 
-            if (body.length > 100) {
+            // The BIG fix: handle spaces that should be pluses AND strip garbage
+            // ASN.1 errors often happen because '+' was converted to ' '
+            body = body.replace(/ /g, '+').replace(/[^A-Za-z0-9+/=]/g, '');
+
+            if (body.length > 500) {
                 const lines = body.match(/.{1,64}/g) || [];
                 key = `-----BEGIN ${headerType}-----\n${lines.join('\n')}\n-----END ${headerType}-----\n`;
-                trace += " > PEM_Reconstructed";
+                trace += " > PEM_Reconstruct";
             }
         } catch (e) {
-            trace += " > PEM_Fail";
+            trace += " > PEM_Err";
         }
     } else {
-        trace += " > Skip_PEM_JSON_detected";
+        trace += " > Skip_PEM_JSON";
     }
 
     const firebaseAdminConfig = {
@@ -109,7 +123,7 @@ function getAdminApp() {
             storageBucket: BUCKET_NAME
         });
     } catch (error: any) {
-        const msg = `Firebase Admin Init Failed: ${error.message}. Trace: ${trace}. FinalLength: ${key.length}. HasPEM: ${key.includes("-----BEGIN")}`;
+        const msg = `Firebase Admin Final Fail: ${error.message}. Trace: ${trace}. FinalLen: ${key.length}. HasPEM: ${key.includes("-----BEGIN")}`;
         console.error(msg);
         throw new Error(msg);
     }
