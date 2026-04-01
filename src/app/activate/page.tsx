@@ -8,6 +8,7 @@ import { signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, up
 import { toast } from "sonner";
 import { Invite } from "@/types";
 import { ROLE_CONFIGS } from "@/lib/roles_config";
+import { Logo } from "@/components/common/Logo";
 
 export default function ActivatePage() {
     const router = useRouter();
@@ -117,88 +118,96 @@ export default function ActivatePage() {
     const roleConfig = invite ? ROLE_CONFIGS[invite.role] : null;
 
     return (
-        <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] p-6 md:p-12 flex flex-col items-center justify-center font-sans overflow-hidden">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] p-8 md:p-16 flex flex-col items-center justify-center font-sans overflow-hidden">
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-[var(--brand)] opacity-[0.03] blur-[120px] rounded-full"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] bg-blue-600 opacity-[0.02] blur-[120px] rounded-full"></div>
+                <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] bg-[var(--brand)] opacity-[0.04] blur-[140px] rounded-full"></div>
+                <div className="absolute bottom-1/4 right-1/4 w-[800px] h-[800px] bg-blue-600 opacity-[0.03] blur-[140px] rounded-full"></div>
             </div>
 
-            <div className="max-w-4xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10 transition-all duration-700">
+            <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-[1.2fr_1.5fr] gap-16 items-center relative z-10 transition-all duration-700">
                 {/* Visual Side */}
-                <div className="hidden lg:block space-y-10 animate-in fade-in slide-in-from-left-10 duration-700">
-                    <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--brand-soft)] border border-[var(--brand)]/10 text-[var(--brand)] text-[10px] uppercase font-black tracking-widest mb-4">
-                            <Zap size={12} /> Secure Onboarding
+                <div className="hidden lg:block space-y-12 animate-in fade-in slide-in-from-left-10 duration-700">
+                    <div className="space-y-8">
+                        <div className="mb-12">
+                            <Logo size={56} variant="brand" className="hover:scale-110 transition-transform cursor-pointer" />
                         </div>
-                        <h1 className="text-6xl font-black text-[var(--text-primary)] uppercase tracking-tighter leading-[0.9]">
-                            Welcome to <br /> <span className="text-[var(--brand)]">Apex Cluster.</span>
-                        </h1>
-                        <p className="text-[var(--text-secondary)] font-medium text-lg max-w-sm mt-8 leading-relaxed">
-                            Setting up your administrative workspace for <span className="text-[var(--text-primary)] font-bold">{invite?.invited_name}</span>. 
-                            Your identity records have been pre-provisioned.
-                        </p>
+                        <div className="space-y-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--brand-soft)] border border-[var(--brand)]/10 text-[var(--brand)] text-[10px] uppercase font-black tracking-widest">
+                                <Zap size={14} /> Secure Access Protocol
+                            </div>
+                            <h1 className="text-7xl font-black text-[var(--text-primary)] uppercase tracking-tighter leading-[0.85]">
+                                Welcome to <br /> <span className="text-[var(--brand)]">Apex Procure.</span>
+                            </h1>
+                            <p className="text-[var(--text-secondary)] font-medium text-xl max-w-md mt-8 leading-relaxed opacity-80">
+                                Finalizing your secure administrative environment for <span className="text-[var(--text-primary)] font-bold">{invite?.invited_name}</span>. 
+                                Identity records have been pre-provisioned for synchronization.
+                            </p>
+                        </div>
                     </div>
 
-                    <div className="space-y-8 pt-8 border-t border-[var(--border)]">
-                         <div className="flex items-start gap-5 group">
-                             <div className="w-14 h-14 rounded-2xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-[var(--brand)] group-hover:border-[var(--brand)]/30 group-hover:shadow-lg transition-all duration-300">
-                                 <ShieldCheck size={28} />
+                    <div className="space-y-10 pt-10 border-t border-[var(--border)] max-w-sm">
+                         <div className="flex items-start gap-6 group">
+                             <div className="w-16 h-16 rounded-2xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-[var(--brand)] group-hover:border-[var(--brand)]/30 group-hover:shadow-[0_20px_40px_-15px_rgba(232,87,42,0.15)] transition-all duration-500">
+                                 <ShieldCheck size={32} />
                              </div>
                              <div>
-                                 <h4 className="text-sm font-black uppercase tracking-wider text-[var(--text-primary)]">Advanced RBAC</h4>
-                                 <p className="text-xs text-[var(--text-secondary)] font-medium mt-1">Your role comes with pre-defined mission permissions.</p>
+                                 <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--text-primary)] mb-1.5">Advanced RBAC</h4>
+                                 <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">Your assigned role comes with pre-defined mission-critical permissions.</p>
                              </div>
                          </div>
-                         <div className="flex items-start gap-5 group">
-                             <div className="w-14 h-14 rounded-2xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-lg transition-all duration-300">
-                                 <Lock size={28} />
+                         <div className="flex items-start gap-6 group">
+                             <div className="w-16 h-16 rounded-2xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.15)] transition-all duration-500">
+                                 <Lock size={32} />
                              </div>
                              <div>
-                                 <h4 className="text-sm font-black uppercase tracking-wider text-[var(--text-primary)]">Encrypted Identity</h4>
-                                 <p className="text-xs text-[var(--text-secondary)] font-medium mt-1">All actions are recorded in the immutable audit trail.</p>
+                                 <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--text-primary)] mb-1.5">Encrypted Identity</h4>
+                                 <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">All administrative actions are recorded with forensic precision.</p>
                              </div>
                          </div>
                     </div>
                 </div>
 
                 {/* Form Side */}
-                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[48px] p-10 md:p-14 shadow-[var(--shadow-xl)] relative overflow-hidden animate-in zoom-in-95 duration-500">
+                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[64px] p-12 md:p-16 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] relative overflow-hidden animate-in zoom-in-95 duration-500">
                     {step === 1 && (
                         <div className="animate-in fade-in slide-in-from-right-10 duration-500">
-                            <div className="flex items-center gap-3 mb-10">
-                                <span className="text-[10px] font-black px-3 py-1 bg-[var(--brand)] text-white rounded-lg uppercase tracking-widest">STEP 01</span>
-                                <div className="h-[1px] flex-1 bg-[var(--border)]"></div>
+                            <div className="flex items-center gap-4 mb-14">
+                                <span className="text-[10px] font-black px-4 py-2 bg-[var(--brand)] text-white rounded-xl uppercase tracking-widest shadow-lg shadow-[var(--brand)]/20">STEP 01</span>
+                                <div className="h-[1px] flex-1 bg-[var(--border)] opacity-60"></div>
                             </div>
                             
-                            <h2 className="text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight mb-8">Confirm Identity</h2>
+                            <h2 className="text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-14 leading-[1]">Identity <br />Verification</h2>
                             
-                            <div className="space-y-4 mb-10">
-                                <div className="p-8 bg-[var(--background)] border border-[var(--border)] rounded-[32px] group hover:border-[var(--brand)]/20 transition-all">
-                                    <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-5 block">User Entity</label>
-                                    <div className="flex items-center gap-6">
-                                        <div className="w-16 h-16 rounded-2xl bg-[var(--brand)] flex items-center justify-center text-white shadow-lg shadow-[var(--brand)]/20">
-                                            <User size={32} />
+                            <div className="space-y-10 mb-16">
+                                <div className="p-12 bg-[var(--background)] border border-[var(--border)] rounded-[48px] group hover:border-[var(--brand)]/20 transition-all duration-500 shadow-sm relative overflow-hidden">
+                                     <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                                        <Logo size={120} />
+                                     </div>
+                                    <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-8 block opacity-70">Authenticated Identity</label>
+                                    <div className="flex items-center gap-10">
+                                        <div className="w-24 h-24 rounded-[32px] bg-[var(--brand)] flex items-center justify-center text-white shadow-2xl shadow-[var(--brand)]/30 transform group-hover:scale-105 transition-transform duration-500">
+                                            <User size={48} />
                                         </div>
                                         <div>
-                                            <div className="text-3xl font-black text-[var(--text-primary)] uppercase tracking-tight leading-none">{invite?.invited_name}</div>
-                                            <div className="text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-widest mt-2 flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div> Status: Identity Validated
+                                            <div className="text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight leading-none mb-4">{invite?.invited_name}</div>
+                                            <div className="text-[11px] text-[var(--text-secondary)] font-bold uppercase tracking-[0.15em] flex items-center gap-3">
+                                                <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.5)]"></div> Records Validated
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="p-6 bg-[var(--background)] border border-[var(--border)] rounded-3xl">
-                                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-3 block">Sector / Unit</label>
-                                        <div className="flex items-center gap-3 font-bold text-[var(--text-primary)] uppercase text-sm">
-                                            <Briefcase size={16} className="text-[var(--text-disabled)]" /> {invite?.department}
+                                <div className="grid grid-cols-2 gap-8">
+                                    <div className="p-10 bg-[var(--background)] border border-[var(--border)] rounded-[40px] hover:bg-[var(--surface)] transition-all duration-500 group">
+                                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-5 block opacity-70">Unit Assignment</label>
+                                        <div className="flex items-center gap-4 font-black text-[var(--text-primary)] uppercase text-xs tracking-wider">
+                                            <Briefcase size={20} className="text-[var(--text-disabled)] group-hover:text-[var(--brand)] transition-colors" /> {invite?.department}
                                         </div>
                                     </div>
-                                    <div className="p-6 bg-[var(--background)] border border-[var(--border)] rounded-3xl">
-                                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.2em] mb-3 block">Security Tier</label>
-                                        <div className="flex items-center gap-3 font-bold text-[var(--brand)] uppercase text-sm">
-                                            <Shield size={16} className="text-[var(--brand)]/40" /> {roleConfig?.label}
+                                    <div className="p-10 bg-[var(--background)] border border-[var(--border)] rounded-[40px] hover:bg-[var(--surface)] transition-all duration-500 group">
+                                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-5 block opacity-70">Security Protocol</label>
+                                        <div className="flex items-center gap-4 font-black text-[var(--brand)] uppercase text-xs tracking-wider">
+                                            <Shield size={20} className="text-[var(--brand)]/40 group-hover:text-[var(--brand)] transition-colors" /> {roleConfig?.label}
                                         </div>
                                     </div>
                                 </div>
@@ -206,21 +215,21 @@ export default function ActivatePage() {
 
                             <button 
                                 onClick={() => setStep(2)}
-                                className="w-full bg-[var(--text-primary)] text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-[var(--brand)] transition-all shadow-xl hover:shadow-[var(--brand)]/20 flex items-center justify-center gap-4 group"
+                                className="w-full bg-[var(--text-primary)] text-white py-8 rounded-[32px] font-black uppercase tracking-[0.4em] text-[12px] hover:bg-[var(--brand)] transition-all duration-500 shadow-2xl hover:shadow-[var(--brand)]/30 flex items-center justify-center gap-6 group"
                             >
-                                Proceed to Authentication <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                                Initiate Secure Handshake <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
                             </button>
                         </div>
                     )}
 
                     {step === 2 && (
                         <div className="animate-in fade-in slide-in-from-right-10 duration-500">
-                             <button onClick={() => setStep(1)} className="text-[10px] font-black text-[var(--text-secondary)] uppercase hover:text-[var(--brand)] mb-6 transition-colors tracking-widest flex items-center gap-2">
-                                <ArrowRight size={14} className="rotate-180" /> Back to Identity Check
+                             <button onClick={() => setStep(1)} className="text-[10px] font-black text-[var(--text-secondary)] uppercase hover:text-[var(--brand)] mb-8 transition-colors tracking-widest flex items-center gap-2.5">
+                                <ArrowRight size={16} className="rotate-180" /> Identity Overview
                              </button>
-                             <div className="flex items-center gap-3 mb-10">
-                                <span className="text-[10px] font-black px-3 py-1 bg-[var(--brand)] text-white rounded-lg uppercase tracking-widest">STEP 02</span>
-                                <div className="h-[1px] flex-1 bg-[var(--border)]"></div>
+                             <div className="flex items-center gap-3 mb-12">
+                                <span className="text-[10px] font-black px-3 py-1.5 bg-[var(--brand)] text-white rounded-lg uppercase tracking-widest">STEP 02</span>
+                                <div className="h-[1px] flex-1 bg-[var(--border)] opacity-60"></div>
                              </div>
 
                              <h2 className="text-3xl font-black text-[var(--text-primary)] uppercase tracking-tight mb-4">Account Binding</h2>
