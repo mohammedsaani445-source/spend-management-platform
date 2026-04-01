@@ -119,18 +119,18 @@ export default function ActivatePage() {
 
     return (
         <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] py-12 px-4 md:px-8 flex flex-col items-center justify-start font-sans overflow-y-auto">
-            <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-[0.9fr_1.3fr] gap-12 lg:gap-24 items-start lg:items-center relative z-10 transition-all duration-700 my-auto">
+            <div className="max-w-[1440px] w-full grid grid-cols-1 lg:grid-cols-[0.8fr_1.4fr] gap-12 lg:gap-20 items-stretch relative z-10 transition-all duration-700 my-auto">
                 {/* Visual Side */}
-                <div className="hidden lg:block space-y-12 animate-in fade-in slide-in-from-left-10 duration-700">
-                    <div className="space-y-10">
-                        <div className="mb-14">
+                <div className="hidden lg:flex flex-col justify-between bg-[var(--surface-alt)] border border-[var(--border)] rounded-[24px] p-12 md:p-16 animate-in fade-in slide-in-from-left-10 duration-700">
+                    <div className="space-y-12">
+                        <div className="mb-16">
                             <Logo size={64} variant="brand" className="hover:scale-110 transition-transform cursor-pointer" />
                         </div>
                         <div className="space-y-8">
                             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--brand-soft)] border border-[var(--brand)]/10 text-[var(--brand)] text-[11px] uppercase font-black tracking-[0.2em] shadow-sm">
                                 <Zap size={16} /> Secure Access Protocol
                             </div>
-                            <h1 className="text-8xl font-black text-[var(--text-primary)] uppercase tracking-tighter leading-[0.85]">
+                            <h1 className="text-7xl font-black text-[var(--text-primary)] uppercase tracking-tighter leading-[0.85]">
                                 System <br /> <span className="text-[var(--brand)]">Activation.</span>
                             </h1>
                             <p className="text-[var(--text-secondary)] font-medium text-2xl max-w-lg mt-8 leading-relaxed opacity-90">
@@ -139,7 +139,7 @@ export default function ActivatePage() {
                         </div>
                     </div>
 
-                    <div className="space-y-12 pt-12 border-t border-[var(--border)] max-w-sm">
+                    <div className="space-y-12 pt-16 border-t border-[var(--border)]/50">
                          <div className="flex items-start gap-8 group">
                              <div className="w-16 h-16 rounded-2xl bg-white border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-[var(--brand)] group-hover:border-[var(--brand)]/30 group-hover:shadow-[0_20px_40px_-15px_rgba(232,87,42,0.15)] transition-all duration-500 shadow-sm">
                                  <ShieldCheck size={32} />
@@ -153,7 +153,7 @@ export default function ActivatePage() {
                 </div>
 
                 {/* Form Side */}
-                <div className="bg-white border border-[var(--border)] rounded-[32px] md:rounded-[40px] p-10 md:p-20 shadow-[0_64px_128px_-32px_rgba(0,0,0,0.15)] relative animate-in zoom-in-95 duration-500 w-full overflow-visible">
+                <div className="bg-white border border-[var(--border)] rounded-[24px] md:rounded-[32px] p-8 md:p-16 shadow-[0_64px_128px_-32px_rgba(0,0,0,0.15)] relative animate-in zoom-in-95 duration-500 w-full min-h-[700px] flex flex-col overflow-visible">
                     {step === 1 && (
                         <div className="animate-in fade-in slide-in-from-right-10 duration-500">
                             <div className="flex items-center gap-4 mb-10 md:mb-14">
