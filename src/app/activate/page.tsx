@@ -121,78 +121,75 @@ export default function ActivatePage() {
         <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] py-12 px-4 md:px-8 flex flex-col items-center justify-start font-sans overflow-y-auto">
             <div className="max-w-[1440px] w-full grid grid-cols-1 lg:grid-cols-[0.8fr_1.4fr] gap-12 lg:gap-20 items-stretch relative z-10 transition-all duration-700 my-auto">
                 {/* Visual Side */}
-                <div className="hidden lg:flex flex-col justify-between bg-[var(--surface-alt)] border border-[var(--border)] rounded-[24px] p-12 md:p-16 animate-in fade-in slide-in-from-left-10 duration-700">
+                <div className="hidden lg:flex flex-col justify-between bg-[#F9FAFB] border border-[var(--border)] rounded-xl p-12 md:p-16 animate-in fade-in slide-in-from-left-10 duration-700">
                     <div className="space-y-12">
-                        <div className="mb-16">
-                            <Logo size={64} variant="brand" className="hover:scale-110 transition-transform cursor-pointer" />
+                        <div className="mb-20">
+                            <Logo size={72} variant="brand" className="hover:scale-105 transition-transform cursor-pointer" />
                         </div>
-                        <div className="space-y-8">
-                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--brand-soft)] border border-[var(--brand)]/10 text-[var(--brand)] text-[11px] uppercase font-black tracking-[0.2em] shadow-sm">
-                                <Zap size={16} /> Secure Access Protocol
+                        <div className="space-y-10">
+                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-[var(--brand-soft)] border border-[var(--brand)]/20 text-[var(--brand)] text-[10px] uppercase font-black tracking-[0.2em]">
+                                <Zap size={14} /> Internal Protocol: 4022
                             </div>
-                            <h1 className="text-7xl font-black text-[var(--text-primary)] uppercase tracking-tighter leading-[0.85]">
-                                System <br /> <span className="text-[var(--brand)]">Activation.</span>
+                            <h1 className="text-8xl font-black text-[var(--text-primary)] uppercase tracking-tighter leading-[0.8]">
+                                Account <br /> <span className="text-[var(--brand)]">Provision.</span>
                             </h1>
-                            <p className="text-[var(--text-secondary)] font-medium text-2xl max-w-lg mt-8 leading-relaxed opacity-90">
-                                Finalizing your secure administrative environment for <span className="text-[var(--text-primary)] font-bold">{invite?.invited_name}</span>. 
+                            <p className="text-[var(--text-secondary)] font-medium text-2xl max-w-lg mt-10 leading-relaxed opacity-90 border-l-4 border-[var(--brand)]/30 pl-8">
+                                Establishing secure administrative footprint for <span className="text-[var(--text-primary)] font-bold">{invite?.invited_name}</span>. 
                             </p>
                         </div>
                     </div>
 
-                    <div className="space-y-12 pt-16 border-t border-[var(--border)]/50">
+                    <div className="space-y-10 pt-16 border-t border-[var(--border)]">
                          <div className="flex items-start gap-8 group">
-                             <div className="w-16 h-16 rounded-2xl bg-white border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-[var(--brand)] group-hover:border-[var(--brand)]/30 group-hover:shadow-[0_20px_40px_-15px_rgba(232,87,42,0.15)] transition-all duration-500 shadow-sm">
-                                 <ShieldCheck size={32} />
+                             <div className="w-14 h-14 rounded-lg bg-white border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-[var(--brand)] group-hover:border-[var(--brand)] transition-all duration-300 shadow-sm">
+                                 <ShieldCheck size={28} />
                              </div>
                              <div>
-                                 <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--text-primary)] mb-1.5">Advanced RBAC</h4>
-                                 <p className="text-[12px] text-[var(--text-secondary)] font-medium leading-relaxed">Your assigned role comes with pre-defined mission-critical permissions.</p>
+                                 <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-primary)] mb-1">Standard Security</h4>
+                                 <p className="text-[12px] text-[var(--text-secondary)] font-medium leading-relaxed">Enterprise-grade authentication required.</p>
                              </div>
                          </div>
                     </div>
                 </div>
 
                 {/* Form Side */}
-                <div className="bg-white border border-[var(--border)] rounded-[24px] md:rounded-[32px] p-8 md:p-16 shadow-[0_64px_128px_-32px_rgba(0,0,0,0.15)] relative animate-in zoom-in-95 duration-500 w-full min-h-[700px] flex flex-col overflow-visible">
+                <div className="bg-white border border-[var(--border)] rounded-xl p-8 md:p-16 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.08)] relative animate-in zoom-in-95 duration-500 w-full min-h-[750px] flex flex-col justify-center overflow-visible">
                     {step === 1 && (
                         <div className="animate-in fade-in slide-in-from-right-10 duration-500">
-                            <div className="flex items-center gap-4 mb-10 md:mb-14">
-                                <span className="text-[10px] font-black px-4 py-2 bg-[var(--brand)] text-white rounded-xl uppercase tracking-widest shadow-lg shadow-[var(--brand)]/20">STEP 01</span>
-                                <div className="h-[1px] flex-1 bg-[var(--border)] opacity-60"></div>
+                            <div className="flex items-center gap-4 mb-16">
+                                <span className="text-[9px] font-black px-3 py-1.5 bg-[#111827] text-white rounded-md uppercase tracking-widest shadow-md">GATE_01</span>
+                                <div className="h-[2px] flex-1 bg-[var(--border)] opacity-40"></div>
                             </div>
                             
-                            <h2 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-10 md:mb-14 leading-[1]">Identity <br />Verification</h2>
+                            <h2 className="text-5xl md:text-6xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-12 leading-[0.9]">Identity <br />Verification</h2>
                             
-                            <div className="space-y-8 md:space-y-10 mb-12 md:mb-16">
-                                <div className="p-8 md:p-12 bg-[#F9FAFB] border border-[var(--border)] rounded-[40px] md:rounded-[48px] group hover:border-[var(--brand)]/20 transition-all duration-500 shadow-sm relative overflow-hidden">
-                                     <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-                                        <Logo size={120} />
-                                     </div>
-                                    <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-8 block opacity-70">Authenticated Identity</label>
-                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 md:gap-10">
-                                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-[28px] md:rounded-[32px] bg-[var(--brand)] flex items-center justify-center text-white shadow-2xl shadow-[var(--brand)]/30 transform group-hover:scale-105 transition-transform duration-500 shrink-0">
-                                            <User size={44} />
+                            <div className="space-y-6 mb-16">
+                                <div className="p-8 md:p-10 bg-[#F9FAFB] border border-[var(--border)] rounded-xl group transition-all duration-300 relative overflow-hidden">
+                                    <label className="text-[9px] font-black text-[var(--text-disabled)] uppercase tracking-[0.3em] mb-8 block font-mono">/ authentication_target</label>
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8">
+                                        <div className="w-20 h-20 rounded-xl bg-[var(--brand)] flex items-center justify-center text-white shadow-xl shadow-[var(--brand)]/20 shrink-0">
+                                            <User size={36} />
                                         </div>
                                         <div>
-                                            <div className="text-3xl md:text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight leading-none mb-4 break-words">{invite?.invited_name}</div>
-                                            <div className="text-[11px] text-[var(--text-secondary)] font-bold uppercase tracking-[0.15em] flex items-center gap-3">
-                                                <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.5)]"></div> Records Validated
+                                            <div className="text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight leading-none mb-3 break-words">{invite?.invited_name}</div>
+                                            <div className="text-[10px] text-[var(--brand)] font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                                                <div className="w-2.5 h-2.5 bg-[var(--brand)] rounded-full animate-pulse"></div> Identity Confirmed
                                             </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
-                                    <div className="p-8 md:p-10 bg-[#F9FAFB] border border-[var(--border)] rounded-[32px] md:rounded-[40px] hover:bg-white transition-all duration-500 group">
-                                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-4 md:mb-5 block opacity-70">Unit Assignment</label>
-                                        <div className="flex items-center gap-4 font-black text-[var(--text-primary)] uppercase text-[10px] md:text-xs tracking-wider">
-                                            <Briefcase size={20} className="text-[var(--text-disabled)] group-hover:text-[var(--brand)] transition-colors" /> {invite?.department}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div className="p-6 bg-white border border-[var(--border)] rounded-lg hover:border-[var(--brand)]/30 transition-all group">
+                                        <label className="text-[8px] font-black text-[var(--text-disabled)] uppercase tracking-[0.3em] mb-3 block">Assignment</label>
+                                        <div className="flex items-center gap-3 font-black text-[var(--text-primary)] uppercase text-[11px] tracking-wider">
+                                            <Briefcase size={16} className="text-[var(--text-disabled)]" /> {invite?.department}
                                         </div>
                                     </div>
-                                    <div className="p-8 md:p-10 bg-[#F9FAFB] border border-[var(--border)] rounded-[32px] md:rounded-[40px] hover:bg-white transition-all duration-500 group">
-                                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-4 md:mb-5 block opacity-70">Security Protocol</label>
-                                        <div className="flex items-center gap-4 font-black text-[var(--brand)] uppercase text-[10px] md:text-xs tracking-wider">
-                                            <Shield size={20} className="text-[var(--brand)]/40 group-hover:text-[var(--brand)] transition-colors" /> {roleConfig?.label}
+                                    <div className="p-6 bg-white border border-[var(--border)] rounded-lg hover:border-[var(--brand)]/30 transition-all group">
+                                        <label className="text-[8px] font-black text-[var(--text-disabled)] uppercase tracking-[0.3em] mb-3 block">Privilege</label>
+                                        <div className="flex items-center gap-3 font-black text-[var(--brand)] uppercase text-[11px] tracking-wider">
+                                            <Shield size={16} className="text-[var(--brand)]/40" /> {roleConfig?.label}
                                         </div>
                                     </div>
                                 </div>
@@ -200,39 +197,39 @@ export default function ActivatePage() {
 
                             <button 
                                 onClick={() => setStep(2)}
-                                className="w-full bg-[var(--text-primary)] text-white py-6 md:py-8 rounded-[28px] md:rounded-[32px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-[11px] md:text-[12px] hover:bg-[var(--brand)] transition-all duration-500 shadow-2xl hover:shadow-[var(--brand)]/30 flex items-center justify-center gap-4 md:gap-6 group"
+                                className="w-full bg-[#111827] text-white py-6 md:py-8 rounded-lg font-black uppercase tracking-[0.3em] text-[11px] hover:bg-[var(--brand)] transition-all duration-300 shadow-xl flex items-center justify-center gap-6 group"
                             >
-                                Initiate Secure Handshake <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />
+                                Continue To Authentication <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
                             </button>
                         </div>
                     )}
 
                     {step === 2 && (
                         <div className="animate-in fade-in slide-in-from-right-10 duration-500">
-                             <button onClick={() => setStep(1)} className="text-[10px] font-black text-[var(--text-secondary)] uppercase hover:text-[var(--brand)] mb-8 transition-colors tracking-widest flex items-center gap-2.5">
-                                <ArrowRight size={16} className="rotate-180" /> Identity Overview
+                             <button onClick={() => setStep(1)} className="text-[9px] font-black text-[var(--text-disabled)] uppercase hover:text-[var(--brand)] mb-12 transition-colors tracking-widest flex items-center gap-2">
+                                <ArrowRight size={14} className="rotate-180" /> Return to Step 01
                              </button>
-                             <div className="flex items-center gap-3 mb-12">
-                                <span className="text-[10px] font-black px-3 py-1.5 bg-[var(--brand)] text-white rounded-lg uppercase tracking-widest">STEP 02</span>
-                                <div className="h-[1px] flex-1 bg-[var(--border)] opacity-60"></div>
+                             <div className="flex items-center gap-3 mb-10">
+                                <span className="text-[9px] font-black px-3 py-1.5 bg-[var(--brand)] text-white rounded-md uppercase tracking-widest">GATE_02</span>
+                                <div className="h-[2px] flex-1 bg-[var(--border)] opacity-30"></div>
                              </div>
-
-                             <h2 className="text-3xl font-black text-[var(--text-primary)] uppercase tracking-tight mb-4">Account Binding</h2>
-                             <p className="text-[var(--text-secondary)] text-sm mb-10 leading-relaxed font-medium">
-                                Create or link your preferred authentication method to the secure access cluster.
+                             
+                             <h2 className="text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight mb-4">Account Binding</h2>
+                             <p className="text-[var(--text-secondary)] text-sm mb-12 leading-relaxed font-medium max-w-lg">
+                                Link your corporate identity to the Apex Procure security cluster to finalize your permissions.
                              </p>
 
                              {error && (
-                                <div className="p-5 bg-[var(--error-bg)] border border-[var(--error)]/20 rounded-2xl text-[var(--error)] text-xs font-bold mb-8 flex items-center gap-3 animate-in shake duration-300">
+                                <div className="p-5 bg-red-50 border border-red-200 rounded-lg text-red-600 text-xs font-bold mb-10 flex items-center gap-3 animate-in shake">
                                     <Shield size={18} /> {error}
                                 </div>
                              )}
 
-                             <div className="space-y-4">
+                             <div className="space-y-6">
                                 <button 
                                     onClick={handleGoogleActivate}
                                     disabled={finishing}
-                                    className="w-full bg-white border border-[var(--border)] text-[var(--text-primary)] py-5 rounded-3xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-[#F9FAFB] transition-all disabled:opacity-50 shadow-sm"
+                                    className="w-full bg-white border-2 border-[var(--border)] text-[var(--text-primary)] py-5 rounded-lg font-black text-[11px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:border-black transition-all disabled:opacity-50"
                                 >
                                     <svg width="20" height="20" viewBox="0 0 24 24" className="mr-1">
                                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -240,38 +237,38 @@ export default function ActivatePage() {
                                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.26.81-.58z" fill="#FBBC05" />
                                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                                     </svg>
-                                    Verify with G-Suite Workspace
+                                    Verify Corporate Google Identity
                                 </button>
 
                                 <div className="flex items-center gap-4 py-8">
-                                    <div className="h-[1px] flex-1 bg-[var(--border)]"></div>
-                                    <span className="text-[9px] font-black text-[var(--text-disabled)] uppercase tracking-[0.3em]">Direct Identity Access</span>
-                                    <div className="h-[1px] flex-1 bg-[var(--border)]"></div>
+                                    <div className="h-[2px] flex-1 bg-[var(--border)] opacity-30"></div>
+                                    <span className="text-[10px] font-black text-[var(--text-disabled)] uppercase tracking-[0.4em]">Alternative</span>
+                                    <div className="h-[2px] flex-1 bg-[var(--border)] opacity-30"></div>
                                 </div>
 
                                 <form onSubmit={handlePasswordActivate} className="space-y-6">
-                                    <div className="space-y-3">
+                                    <div className="space-y-4">
                                         <div className="relative group">
                                             <input 
                                                 type="password" 
-                                                placeholder="Set Internal Password"
+                                                placeholder="SET SECURE PASSWORD"
                                                 value={password}
                                                 onChange={e => setPassword(e.target.value)}
-                                                className="w-full bg-[#F9FAFB] border border-[var(--border)] rounded-2xl py-6 px-6 text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] outline-none focus:border-[var(--brand)]/50 focus:bg-white transition-all font-mono text-sm tracking-widest shadow-inner"
+                                                className="w-full bg-[#F9FAFB] border-2 border-[var(--border)] rounded-lg py-6 px-6 text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] outline-none focus:border-black transition-all font-mono text-sm tracking-[0.2em]"
                                             />
-                                            <div className="absolute inset-y-0 right-6 flex items-center text-[var(--text-disabled)] group-focus-within:text-[var(--brand)] transition-colors pointer-events-none">
-                                                <Key size={20} />
+                                            <div className="absolute inset-y-0 right-6 flex items-center text-[var(--text-disabled)] group-focus-within:text-black transition-colors pointer-events-none">
+                                                <Lock size={20} />
                                             </div>
                                         </div>
-                                        <p className="text-[9px] text-[var(--text-disabled)] font-bold px-2 italic uppercase tracking-widest">Requires min 14 chars for security cluster synchronization.</p>
+                                        <p className="text-[9px] text-[var(--text-disabled)] font-black uppercase tracking-[0.2em] font-mono">Required: 14+ Chars / Alpha-Numeric / Standard Cluster Sync</p>
                                     </div>
 
                                     <button 
                                         type="submit"
                                         disabled={finishing || !password}
-                                        className="w-full bg-[var(--brand)] text-white py-6 rounded-3xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-[var(--brand-dark)] transition-all shadow-xl disabled:opacity-50 flex items-center justify-center gap-4"
+                                        className="w-full bg-[#111827] text-white py-6 rounded-lg font-black uppercase tracking-[0.3em] text-[11px] hover:bg-[var(--brand)] transition-all shadow-xl disabled:opacity-50 flex items-center justify-center gap-4"
                                     >
-                                        {finishing ? <Loader2 className="animate-spin" /> : <>Provision Credentials <ArrowRight size={14} /></>}
+                                        {finishing ? <Loader2 className="animate-spin" /> : <>Finalize Provisioning <ArrowRight size={16} /></>}
                                     </button>
                                 </form>
                              </div>
@@ -279,21 +276,20 @@ export default function ActivatePage() {
                     )}
 
                     {step === 3 && (
-                        <div className="text-center animate-in zoom-in-110 duration-1000">
-                             <div className="w-28 h-28 rounded-full bg-[var(--success-soft)] border border-[var(--success)]/20 flex items-center justify-center mx-auto mb-12 relative">
-                                <div className="absolute inset-0 bg-[var(--success)]/10 blur-3xl rounded-full animate-pulse"></div>
-                                <CheckCircle2 size={56} className="text-[var(--success)] relative z-10" />
+                        <div className="text-center animate-in zoom-in-110 duration-1000 max-w-lg mx-auto">
+                             <div className="w-24 h-24 bg-green-50 border-2 border-green-200 flex items-center justify-center mx-auto mb-10 rounded-xl">
+                                <CheckCircle2 size={48} className="text-green-500" />
                              </div>
                              
-                             <h2 className="text-4xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-6">Identity Synchronized</h2>
-                             <p className="text-[var(--text-secondary)] text-sm font-medium mb-16 leading-relaxed max-w-xs mx-auto">
-                                Handshake complete. Your workspace has been provisioned. Redirecting to your secure mission dashboard...
+                             <h2 className="text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-6 leading-none">Authentication <br />Synchronized</h2>
+                             <p className="text-[var(--text-secondary)] text-sm font-medium mb-16 leading-relaxed opacity-80">
+                                Identity handshake verified. Your administrative workspace has been initialized. Proceeding to system dashboard...
                              </p>
 
-                             <div className="w-full h-1.5 bg-[var(--background)] rounded-full overflow-hidden mb-5 shadow-inner">
-                                <div className="h-full bg-[var(--brand)] animate-[progress_3s_linear_forwards] shadow-[0_0_12px_rgba(232,87,42,0.3)]"></div>
+                             <div className="w-full h-2 bg-[var(--border)] opacity-30 rounded-full overflow-hidden mb-6">
+                                <div className="h-full bg-[var(--brand)] animate-[progress_3s_linear_forwards]"></div>
                              </div>
-                             <div className="text-[9px] font-black text-[var(--text-disabled)] uppercase tracking-[0.3em] italic">Initializing Secure Handshake Protocol...</div>
+                             <div className="text-[10px] font-black text-[var(--brand)] uppercase tracking-[0.4em] italic font-mono">HANDSHAKE_PROTOCOL_ACTIVE</div>
                         </div>
                     )}
                 </div>
