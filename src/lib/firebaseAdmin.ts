@@ -24,10 +24,13 @@ function getAdminApp() {
     
     let key = rawKey.trim();
     
-    // 1. JSON Extraction
-    if (key.startsWith('{')) {
+    // 1. JSON Extraction (Handles cases where the whole JSON file is pasted)
+    if (key.includes('{') && key.includes('private_key')) {
         try {
-            const parsed = JSON.parse(key);
+            const start = key.indexOf('{');
+            const end = key.lastIndexOf('}');
+            const jsonPart = key.substring(start, end + 1);
+            const parsed = JSON.parse(jsonPart);
             if (parsed.private_key) key = parsed.private_key;
         } catch (e) {}
     }
@@ -36,26 +39,26 @@ function getAdminApp() {
     key = key.replace(/^["']|["']$/g, ''); // Strip outer quotes
     key = key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n'); // Normalize newlines
 
-    // 3. Header Detection
-    const hasHeader = key.includes("-----BEGIN");
-    
-    // 4. Ultimate PEM Reconstruction
+    // 3. Ultimate PEM Reconstruction
     try {
-        // Find actual content markers (using [\s\S] instead of /s flag for ES2017 compatibility)
+        let headerType = "PRIVATE KEY";
+        let body = "";
+
+        // Find actual content markers (ES2017 compatible)
         const match = key.match(/-----BEGIN (.*)-----([\s\S]*)-----END \1-----/);
         
         if (match) {
-            const headerType = match[1]; // e.g., "PRIVATE KEY" or "RSA PRIVATE KEY"
-            const body = match[2].replace(/[\s\r\n\t]/g, ''); // Purge ALL whitespace/non-printable
-            
+            headerType = match[1]; // e.g., "PRIVATE KEY" or "RSA PRIVATE KEY"
+            body = match[2].replace(/[^A-Za-z0-9+/=]/g, ''); // Purge EVERYTHING except Base64 chars
+        } else if (key.length > 50) {
+            // It's a raw base64 string or poorly formatted PEM
+            body = key.replace(/[^A-Za-z0-9+/=]/g, '');
+        }
+
+        if (body) {
             // Rebuild with strict 64-char lines
             const lines = body.match(/.{1,64}/g) || [];
             key = `-----BEGIN ${headerType}-----\n${lines.join('\n')}\n-----END ${headerType}-----\n`;
-        } else if (!hasHeader && key.length > 50) {
-            // It's a raw base64 string
-            const body = key.replace(/[\s\r\n\t]/g, '');
-            const lines = body.match(/.{1,64}/g) || [];
-            key = `-----BEGIN PRIVATE KEY-----\n${lines.join('\n')}\n-----END PRIVATE KEY-----\n`;
         }
     } catch (e) {
         console.error("[FirebaseAdmin] Reconstruction failed, using fallback:", e);
