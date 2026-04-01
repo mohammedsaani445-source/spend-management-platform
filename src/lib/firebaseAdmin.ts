@@ -23,51 +23,71 @@ function getAdminApp() {
     }
     
     let key = rawKey.trim();
+    let trace = "Init";
     
     // 1. Recursive JSON/Quote Extraction
     // Handles double-escaped strings or JSON files nested inside strings
-    let depth = 0;
-    while (depth < 3 && (key.includes('{') || key.startsWith('"') || key.startsWith("'"))) {
-        key = key.trim().replace(/^["']|["']$/g, ''); // Strip outer quotes
-        if (key.includes('{') && key.includes('private_key')) {
-            try {
-                const start = key.indexOf('{');
-                const end = key.lastIndexOf('}');
-                const jsonPart = key.substring(start, end + 1);
-                const parsed = JSON.parse(jsonPart);
-                if (parsed.private_key) key = parsed.private_key;
-            } catch (e) { break; }
-        } else {
-            break;
+    try {
+        let depth = 0;
+        while (depth < 5) {
+            key = key.trim().replace(/^["']|["']$/g, ''); // Strip outer quotes
+            
+            // Check for JSON: either a proper { } or an escaped {\"
+            if ((key.includes('{') || key.includes('{\\\"')) && (key.includes('private_key') || key.includes('privateKey'))) {
+                try {
+                    // Try to unescape if it looks like an escaped JSON string
+                    let prospect = key.replace(/\\"/g, '"').replace(/\\\\n/g, '\n');
+                    const start = prospect.indexOf('{');
+                    const end = prospect.lastIndexOf('}');
+                    if (start >= 0 && end > start) {
+                        const jsonPart = prospect.substring(start, end + 1);
+                        const parsed = JSON.parse(jsonPart);
+                        const extracted = parsed.private_key || parsed.privateKey;
+                        if (extracted) {
+                            key = extracted;
+                            trace += " > JSON_Extracted";
+                        }
+                    }
+                } catch (e) { /* ignore and continue to other cleaners */ }
+            }
+            depth++;
         }
-        depth++;
+    } catch (e) {
+        trace += " > JSON_Fail";
     }
 
     // 2. Standard Escaping Cleanup
     key = key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
+    trace += ` > Standard_Clean(${key.length})`;
 
     // 3. Ultimate PEM Reconstruction
-    try {
-        let headerType = "PRIVATE KEY";
-        let body = "";
+    // ONLY do this if it doesn't still look like JSON (to prevent wrapping whole JSON in PEM headers)
+    if (!key.includes('{')) {
+        try {
+            let headerType = "PRIVATE KEY";
+            let body = "";
 
-        // Strategy A: Find the FIRST valid PEM block and isolate it
-        const match = key.match(/-----BEGIN (.*)-----([\s\S]*?)-----END \1-----/);
-        
-        if (match) {
-            headerType = match[1];
-            body = match[2].replace(/[^A-Za-z0-9+/=]/g, '');
-        } else {
-            // Strategy B: Treat the whole thing as a raw Base64 blob if no headers found
-            body = key.replace(/[^A-Za-z0-9+/=]/g, '');
-        }
+            // Find the FIRST valid PEM block or treat as raw Base64
+            const pemMatch = key.match(/-----BEGIN (.*)-----([\s\S]*?)-----END \1-----/);
+            if (pemMatch) {
+                headerType = pemMatch[1];
+                body = pemMatch[2].replace(/[^A-Za-z0-9+/=]/g, '');
+                trace += " > PEM_Regex_Match";
+            } else {
+                body = key.replace(/[^A-Za-z0-9+/=]/g, '');
+                trace += " > Raw_Base64_Clean";
+            }
 
-        if (body.length > 100) {
-            const lines = body.match(/.{1,64}/g) || [];
-            key = `-----BEGIN ${headerType}-----\n${lines.join('\n')}\n-----END ${headerType}-----\n`;
+            if (body.length > 100) {
+                const lines = body.match(/.{1,64}/g) || [];
+                key = `-----BEGIN ${headerType}-----\n${lines.join('\n')}\n-----END ${headerType}-----\n`;
+                trace += " > PEM_Reconstructed";
+            }
+        } catch (e) {
+            trace += " > PEM_Fail";
         }
-    } catch (e) {
-        console.error("[FirebaseAdmin] Reconstruction failed:", e);
+    } else {
+        trace += " > Skip_PEM_JSON_detected";
     }
 
     const firebaseAdminConfig = {
@@ -83,7 +103,7 @@ function getAdminApp() {
             storageBucket: BUCKET_NAME
         });
     } catch (error: any) {
-        const msg = `Firebase Admin Init Failed: ${error.message}. FinalLength: ${key.length}. HasPEM: ${key.includes("-----BEGIN")}`;
+        const msg = `Firebase Admin Init Failed: ${error.message}. Trace: ${trace}. FinalLength: ${key.length}. HasPEM: ${key.includes("-----BEGIN")}`;
         console.error(msg);
         throw new Error(msg);
     }
