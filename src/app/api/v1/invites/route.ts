@@ -66,17 +66,20 @@ export async function POST(req: NextRequest) {
 
         // In the new system, only administrator can invite
         console.log("[Invite API] Step 4: Checking authorization...");
+        const normalizedRole = rawRequesterRole.toUpperCase();
         const isAuthorized = 
             mappedRole === 'administrator' || 
-            rawRequesterRole === 'ADMIN' || 
-            rawRequesterRole === 'administrator' ||
-            rawRequesterRole === 'SUPERUSER' ||
-            rawRequesterRole === 'PLATFORM_SUPERUSER';
+            normalizedRole === 'ADMIN' || 
+            normalizedRole === 'ADMINISTRATOR' ||
+            normalizedRole === 'SUPERUSER' ||
+            normalizedRole === 'SUPERADMIN' ||
+            normalizedRole === 'OWNER' ||
+            normalizedRole === 'PLATFORM_SUPERUSER';
         
         if (!isAuthorized) {
             console.warn(`[Invite API] Step 4 Failed: Unauthorized role ${rawRequesterRole} (Mapped: ${mappedRole})`);
             return NextResponse.json({ 
-                error: `Insufficient permissions to generate invites. Requester role '${rawRequesterRole}' does not have administrative privileges.`,
+                error: `Insufficient permissions. Status: Access Denied for role '${rawRequesterRole}'.`,
                 debug: { 
                     uid: requesterUid,
                     rawRole: rawRequesterRole, 

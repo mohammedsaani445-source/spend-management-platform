@@ -151,10 +151,14 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
 
     const handleInvite = async (e: React.FormEvent) => {
         e.preventDefault();
+        const toastId = toast.loading("Synthesizing user identity records...");
         setLoading(true);
 
         try {
+            console.log("[Invite Flow] Initiating identity generation...");
             const idToken = await auth.currentUser?.getIdToken();
+            if (!idToken) throw new Error("Authentication token missing. Please re-login.");
+
             const res = await fetch('/api/v1/invites', {
                 method: 'POST',
                 headers: { 
@@ -171,8 +175,16 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
             });
 
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error || 'Failed to create invite');
+            
+            if (!res.ok) {
+                console.error("[Invite Flow] Server rejected request:", data);
+                const errorMessage = data.error || "Provisioning failed";
+                const detailedError = data.debug ? ` (${data.debug.rawRole})` : "";
+                toast.error(`${errorMessage}${detailedError}`, { id: toastId, duration: 5000 });
+                throw new Error(errorMessage);
+            }
 
+            console.log("[Invite Flow] Success: Token generated");
             const magicLink = `${window.location.origin}/join/${data.token}`;
             const qrCodeDataUrl = await QRCode.toDataURL(magicLink, {
                 width: 512,
@@ -191,10 +203,14 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
             });
             setStep(2);
             onInviteCreated?.();
-            toast.success("User identity record generated successfully");
+            toast.success("Security handshake complete. Identity flow active.", { id: toastId });
         } catch (error: any) {
-            console.error("Invite error:", error);
-            toast.error(error.message || "An unexpected error occurred");
+            console.error("[Invite Flow] Critical catch:", error);
+            // Error already handled by toast above if it was a fetch error, 
+            // but this catches network errors too.
+            if (!toast.hasOwnProperty('id')) {
+                toast.error(error.message || "Network error. Please check connection.", { id: toastId });
+            }
         } finally {
             setLoading(false);
         }
@@ -266,7 +282,15 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
 
                     {step === 1 ? (
                         <form onSubmit={handleInvite} style={{ display: 'flex', flexDirection: 'column' }}>
-                            <div style={{ padding: '2rem', display: 'grid', gap: '1.5rem' }}>
+                            <div style={{ 
+                                padding: '2rem', 
+                                display: 'grid', 
+                                gap: '1.5rem',
+                                maxHeight: 'calc(90vh - 160px)',
+                                overflowY: 'auto',
+                                scrollbarWidth: 'none', // hide for cleaner look
+                                msOverflowStyle: 'none'
+                             }}>
                                 <div>
                                     <label style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', display: 'block' }}>
                                         Staff Member Full Name
