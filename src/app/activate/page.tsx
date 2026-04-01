@@ -181,7 +181,7 @@ export default function ActivatePage() {
                                     <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-8 block opacity-70">Authenticated Identity</label>
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 md:gap-10">
                                         <div className="w-20 h-20 md:w-24 md:h-24 rounded-[28px] md:rounded-[32px] bg-[var(--brand)] flex items-center justify-center text-white shadow-2xl shadow-[var(--brand)]/30 transform group-hover:scale-105 transition-transform duration-500 shrink-0">
-                                            <User size={40} md:size={48} />
+                                            <User size={44} />
                                         </div>
                                         <div>
                                             <div className="text-3xl md:text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight leading-none mb-4 break-words">{invite?.invited_name}</div>
@@ -196,13 +196,13 @@ export default function ActivatePage() {
                                     <div className="p-8 md:p-10 bg-[#F9FAFB] border border-[var(--border)] rounded-[32px] md:rounded-[40px] hover:bg-white transition-all duration-500 group">
                                         <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-4 md:mb-5 block opacity-70">Unit Assignment</label>
                                         <div className="flex items-center gap-4 font-black text-[var(--text-primary)] uppercase text-[10px] md:text-xs tracking-wider">
-                                            <Briefcase size={18} md:size={20} className="text-[var(--text-disabled)] group-hover:text-[var(--brand)] transition-colors" /> {invite?.department}
+                                            <Briefcase size={20} className="text-[var(--text-disabled)] group-hover:text-[var(--brand)] transition-colors" /> {invite?.department}
                                         </div>
                                     </div>
                                     <div className="p-8 md:p-10 bg-[#F9FAFB] border border-[var(--border)] rounded-[32px] md:rounded-[40px] hover:bg-white transition-all duration-500 group">
                                         <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-4 md:mb-5 block opacity-70">Security Protocol</label>
                                         <div className="flex items-center gap-4 font-black text-[var(--brand)] uppercase text-[10px] md:text-xs tracking-wider">
-                                            <Shield size={18} md:size={20} className="text-[var(--brand)]/40 group-hover:text-[var(--brand)] transition-colors" /> {roleConfig?.label}
+                                            <Shield size={20} className="text-[var(--brand)]/40 group-hover:text-[var(--brand)] transition-colors" /> {roleConfig?.label}
                                         </div>
                                     </div>
                                 </div>
@@ -212,7 +212,7 @@ export default function ActivatePage() {
                                 onClick={() => setStep(2)}
                                 className="w-full bg-[var(--text-primary)] text-white py-6 md:py-8 rounded-[28px] md:rounded-[32px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-[11px] md:text-[12px] hover:bg-[var(--brand)] transition-all duration-500 shadow-2xl hover:shadow-[var(--brand)]/30 flex items-center justify-center gap-4 md:gap-6 group"
                             >
-                                Initiate Secure Handshake <ArrowRight size={20} md:size={24} className="group-hover:translate-x-2 transition-transform" />
+                                Initiate Secure Handshake <ArrowRight size={22} className="group-hover:translate-x-2 transition-transform" />
                             </button>
                         </div>
                     )}
