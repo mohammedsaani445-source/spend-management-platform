@@ -24,40 +24,60 @@ function getAdminApp() {
     
     let key = rawKey.trim();
     
-    // 1. STRIP ENCLOSING QUOTES (Common Vercel/Env issue)
+    // 1. HANDLE JSON-WRAPPED KEYS (Common mistake: copying entire service-account.json)
+    if (key.startsWith('{')) {
+        try {
+            const parsed = JSON.parse(key);
+            if (parsed.private_key) {
+                key = parsed.private_key;
+                console.log("[FirebaseAdmin] Detected and extracted private_key from JSON input");
+            }
+        } catch (e) { /* Not valid JSON, continue */ }
+    }
+
+    // 2. STRIP ENCLOSING QUOTES
     if (key.startsWith('"') && key.endsWith('"')) key = key.slice(1, -1);
     if (key.startsWith("'") && key.endsWith("'")) key = key.slice(1, -1);
     
-    // 2. BASE64 FALLBACK: If the key is entirely Base64 encoded
+    // 3. BASE64 DECODE ATTEMPT (If the entire key is base64 encoded)
     if (!key.includes("-----BEGIN PRIVATE KEY-----") && key.length > 100) {
         try {
             const decoded = Buffer.from(key, 'base64').toString('utf-8');
             if (decoded.includes("-----BEGIN PRIVATE KEY-----")) {
                 key = decoded;
             }
-        } catch (e) { /* Not base64, continue */ }
+        } catch (e) { /* Not base64 */ }
     }
 
-    // 3. NEWLINE NORMALIZATION
-    // Handle literal "\n" strings, actual newlines, and "\r\n"
+    // 4. NEWLINE NORMALIZATION
+    // Replace double-escaped newlines and literal \n strings
     let formattedKey = key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
 
-    // 4. PEM RECONSTRUCTION (If flattened or missing headers)
+    // 5. PEM RECONSTRUCTION
+    // If headers are missing, add them. 
     if (!formattedKey.includes("-----BEGIN PRIVATE KEY-----")) {
-        // If it's just the raw base64 string, wrap it
-        formattedKey = `-----BEGIN PRIVATE KEY-----\n${formattedKey}\n-----END PRIVATE KEY-----`;
+        // Remove any whitespace and wrap
+        const cleanBase64 = formattedKey.replace(/\s/g, '');
+        formattedKey = `-----BEGIN PRIVATE KEY-----\n${cleanBase64}\n-----END PRIVATE KEY-----`;
     }
 
-    // 5. INNER BASE64 NORMALIZATION
-    // Remove extra spaces that might have been introduced during copy-paste inside the PEM block
-    const parts = formattedKey.split("-----");
-    if (parts.length >= 5) {
-        const header = `-----${parts[1]}-----`;
-        const footer = `-----${parts[3]}-----`;
-        const body = parts[2].replace(/\s/g, ''); // Remove ALL whitespace from the base64 part
-        // Rebuild with 64-character lines (Standard PEM)
-        const lines = body.match(/.{1,64}/g) || [];
-        formattedKey = `${header}\n${lines.join('\n')}\n${footer}`;
+    // 6. FINAL PEM VALIDATION & FORMATTING
+    // Ensure the key has the correct PEM structure (header, 64-char lines, footer)
+    try {
+        const headerMask = "-----BEGIN PRIVATE KEY-----";
+        const footerMask = "-----END PRIVATE KEY-----";
+        
+        // Extract content between headers if they exist multiple times or have fluff
+        const startIdx = formattedKey.indexOf(headerMask);
+        const endIdx = formattedKey.indexOf(footerMask);
+        
+        if (startIdx !== -1 && endIdx !== -1) {
+            const rawBody = formattedKey.substring(startIdx + headerMask.length, endIdx).replace(/\s/g, '');
+            const lines = rawBody.match(/.{1,64}/g) || [];
+            formattedKey = `${headerMask}\n${lines.join('\n')}\n${footerMask}`;
+        }
+    } catch (e) {
+        console.error("[FirebaseAdmin] Failed to reformat PEM body:", e);
     }
 
     const firebaseAdminConfig = {
@@ -73,8 +93,10 @@ function getAdminApp() {
             storageBucket: BUCKET_NAME
         });
     } catch (error: any) {
-        console.error("Failed to initialize Firebase Admin SDK:", error.message);
-        throw error;
+        // Provide more context in the error message for the frontend to display
+        const msg = `Firebase Admin Init Failed: ${error.message}. KeyLength: ${formattedKey.length}. StartsWithHeader: ${formattedKey.startsWith("-----BEGIN PRIVATE KEY-----")}`;
+        console.error(msg);
+        throw new Error(msg);
     }
 }
 
