@@ -154,47 +154,48 @@ export default function ActivatePage() {
                 </div>
 
                 {/* Interaction Side - FORM WINDOW */}
-                <div className="bg-white p-8 md:p-12 lg:p-16 relative flex flex-col justify-center min-h-[600px]">
+                <div className="bg-white p-8 md:p-12 lg:p-12 relative flex flex-col justify-center min-h-[600px] items-center">
                     {step === 1 && (
-                        <div className="animate-in fade-in slide-in-from-right-10 duration-500 w-full max-w-2xl mx-auto lg:mx-0">
-                            <div className="flex items-center gap-3 mb-8">
-                                <span className="text-[9px] font-bold px-2.5 py-1 bg-[#111827] text-white rounded-sm uppercase tracking-widest">GATE_01 // IDENTITY</span>
+                        <div className="animate-in fade-in slide-in-from-right-10 duration-500 w-full max-w-3xl mx-auto">
+                            <div className="flex items-center gap-4 mb-12">
+                                <span className="text-[10px] font-black px-3 py-1.5 bg-[#111827] text-white rounded-sm uppercase tracking-[0.25em]">GATE_01 // IDENTITY</span>
                                 <div className="h-[1px] flex-1 bg-[var(--border)] opacity-30"></div>
                             </div>
                             
-                            <h2 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-3 leading-[0.9]">Identity <br />Verification</h2>
-                            <p className="text-[var(--text-secondary)] text-[13px] mb-10 leading-relaxed font-medium max-w-md opacity-80">
-                                Confirming your organizational identity and administrative permissions within the system.
+                            <h2 className="text-5xl md:text-7xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-6 leading-[0.85]">Identity <br />Verification</h2>
+                            <p className="text-[var(--text-secondary)] text-base mb-12 leading-relaxed font-medium max-w-2xl opacity-80 border-l-4 border-[var(--brand)]/20 pl-8">
+                                Confirming your organizational identity and administrative permissions within the <span className="text-[var(--text-primary)] font-bold">Apex Procure Enterprise Node</span>.
                             </p>
                             
-                            {/* Identity Card: Sharp & Compact */}
-                            <div className="space-y-4 mb-10">
-                                <div className="p-6 md:p-8 bg-[#F9FAFB] border border-[var(--border)] rounded-sm group transition-all duration-300 relative overflow-hidden">
-                                    <label className="text-[8px] font-black text-[var(--text-disabled)] uppercase tracking-[0.3em] mb-6 block font-mono">/ TARGET_REGISTRY_LOOKUP</label>
-                                    <div className="flex items-center gap-6">
-                                        <div className="w-16 h-16 rounded-sm bg-[var(--brand)] flex items-center justify-center text-white shadow-lg shadow-[var(--brand)]/15 shrink-0">
-                                            <User size={30} />
+                            {/* Identity Card: Sharp, Large & Authoritative */}
+                            <div className="space-y-6 mb-12">
+                                <div className="p-10 md:p-14 bg-[#F9FAFB] border border-[var(--border)] rounded-sm group transition-all duration-300 relative overflow-hidden shadow-sm hover:shadow-md">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--brand)]/5 -mr-16 -mt-16 rounded-full blur-3xl"></div>
+                                    <label className="text-[9px] font-black text-[var(--text-disabled)] uppercase tracking-[0.4em] mb-10 block font-mono">/ TARGET_REGISTRY_LOOKUP_v2.0</label>
+                                    <div className="flex items-center gap-10">
+                                        <div className="w-24 h-24 rounded-sm bg-[var(--brand)] flex items-center justify-center text-white shadow-2xl shadow-[var(--brand)]/30 shrink-0">
+                                            <User size={48} />
                                         </div>
                                         <div className="min-w-0">
-                                            <div className="text-3xl font-black text-[var(--text-primary)] uppercase tracking-tight leading-none mb-2 truncate">{invite?.invited_name}</div>
-                                            <div className="text-[9px] text-[var(--brand)] font-bold uppercase tracking-[0.2em] flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 bg-[var(--brand)] rounded-full animate-pulse"></div> Authenticated Identity
+                                            <div className="text-4xl md:text-5xl font-black text-[var(--text-primary)] uppercase tracking-tight leading-none mb-3 truncate">{invite?.invited_name}</div>
+                                            <div className="text-[11px] text-[var(--brand)] font-bold uppercase tracking-[0.3em] flex items-center gap-3">
+                                                <div className="w-2 h-2 bg-[var(--brand)] rounded-full animate-pulse shadow-[0_0_8px_var(--brand)]"></div> Authenticated Identity Verified
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="p-4 bg-white border border-[var(--border)] rounded-sm hover:border-[var(--brand)]/20 transition-all">
-                                        <label className="text-[7px] font-bold text-[var(--text-disabled)] uppercase tracking-[0.2em] mb-1.5 block">Department</label>
-                                        <div className="flex items-center gap-2 font-bold text-[var(--text-primary)] uppercase text-[10px] tracking-wide truncate">
-                                            <Briefcase size={12} className="text-[var(--text-disabled)] shrink-0" /> {invite?.department}
+                                
+                                <div className="grid grid-cols-2 gap-6">
+                                    <div className="p-8 bg-white border border-[var(--border)] rounded-sm hover:border-[var(--brand)]/20 transition-all shadow-sm">
+                                        <label className="text-[8px] font-black text-[var(--text-disabled)] uppercase tracking-[0.3em] mb-3 block">Departmental Node</label>
+                                        <div className="flex items-center gap-4 font-black text-[var(--text-primary)] uppercase text-[15px] tracking-wide truncate">
+                                            <Briefcase size={20} className="text-[var(--text-disabled)] shrink-0" /> {invite?.department}
                                         </div>
                                     </div>
-                                    <div className="p-4 bg-white border border-[var(--border)] rounded-sm hover:border-[var(--brand)]/20 transition-all">
-                                        <label className="text-[7px] font-bold text-[var(--text-disabled)] uppercase tracking-[0.2em] mb-1.5 block">Access Level</label>
-                                        <div className="flex items-center gap-2 font-bold text-[var(--brand)] uppercase text-[10px] tracking-wide truncate">
-                                            <Shield size={12} className="text-[var(--brand)]/40 shrink-0" /> {roleConfig?.label}
+                                    <div className="p-8 bg-white border border-[var(--border)] rounded-sm hover:border-[var(--brand)]/20 transition-all shadow-sm">
+                                        <label className="text-[8px] font-black text-[var(--text-disabled)] uppercase tracking-[0.3em] mb-3 block">Security Clearance</label>
+                                        <div className="flex items-center gap-4 font-black text-[var(--brand)] uppercase text-[15px] tracking-wide truncate">
+                                            <Shield size={20} className="text-[var(--brand)]/40 shrink-0" /> {roleConfig?.label}
                                         </div>
                                     </div>
                                 </div>
@@ -202,26 +203,26 @@ export default function ActivatePage() {
 
                             <button 
                                 onClick={() => setStep(2)}
-                                className="w-full bg-[#111827] text-white py-5 rounded-sm font-bold uppercase tracking-[0.25em] text-[10px] hover:bg-[var(--brand)] transition-all duration-300 shadow-lg flex items-center justify-center gap-4 group active:scale-[0.98]"
+                                className="w-full bg-[#111827] text-white py-6 rounded-sm font-black uppercase tracking-[0.3em] text-[11px] hover:bg-[var(--brand)] transition-all duration-300 shadow-2xl flex items-center justify-center gap-6 group active:scale-[0.99]"
                             >
-                                PROCEED TO AUTHENTICATION <ArrowRight size={16} className="group-hover:translate-x-1.5 transition-transform" />
+                                PROCEED TO AUTHENTICATION CLUSTER <ArrowRight size={20} className="group-hover:translate-x-3 transition-transform" />
                             </button>
                         </div>
                     )}
 
                     {step === 2 && (
-                        <div className="animate-in fade-in slide-in-from-right-10 duration-500 w-full max-w-2xl mx-auto lg:mx-0">
-                             <button onClick={() => setStep(1)} className="text-[8px] font-bold text-[var(--text-disabled)] uppercase hover:text-[var(--brand)] mb-8 transition-colors tracking-[0.2em] flex items-center gap-2">
-                                <ArrowRight size={12} className="rotate-180" /> BACK TO IDENTITY
+                        <div className="animate-in fade-in slide-in-from-right-10 duration-500 w-full max-w-3xl mx-auto">
+                             <button onClick={() => setStep(1)} className="text-[9px] font-bold text-[var(--text-disabled)] uppercase hover:text-[var(--brand)] mb-12 transition-colors tracking-[0.3em] flex items-center gap-3 group">
+                                <ArrowRight size={14} className="rotate-180 group-hover:-translate-x-2 transition-transform" /> REVERT TO IDENTITY_LOCK
                              </button>
-                             <div className="flex items-center gap-3 mb-8">
-                                <span className="text-[9px] font-bold px-2.5 py-1 bg-[var(--brand)] text-white rounded-sm uppercase tracking-widest">GATE_02 // BINDING</span>
+                             <div className="flex items-center gap-4 mb-12">
+                                <span className="text-[10px] font-black px-3 py-1.5 bg-[var(--brand)] text-white rounded-sm uppercase tracking-[0.25em]">GATE_02 // BINDING</span>
                                 <div className="h-[1px] flex-1 bg-[var(--border)] opacity-30"></div>
                              </div>
                              
-                             <h2 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-3 leading-[0.9]">Account <br />Binding</h2>
-                             <p className="text-[var(--text-secondary)] text-[13px] mb-10 leading-relaxed font-medium max-w-md opacity-80">
-                                Connect your corporate credentials to sync with the <span className="text-[var(--text-primary)]">Apex Procure Security Cluster.</span>
+                             <h2 className="text-5xl md:text-7xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-6 leading-[0.85]">Account <br />Binding</h2>
+                             <p className="text-[var(--text-secondary)] text-base mb-12 leading-relaxed font-medium max-w-2xl opacity-80 border-l-4 border-[var(--brand)]/20 pl-8">
+                                Securely map your corporate credentials to the <span className="text-[var(--text-primary)] font-bold">Apex Procure Security Cluster</span>.
                              </p>
 
                              {error && (
@@ -231,51 +232,51 @@ export default function ActivatePage() {
                              )}
 
                              <div className="space-y-4">
-                                <button 
-                                    onClick={handleGoogleActivate}
-                                    disabled={finishing}
-                                    className="w-full bg-white border border-[var(--border)] text-[var(--text-primary)] py-4 rounded-sm font-bold text-[10px] uppercase tracking-[0.15em] flex items-center justify-center gap-3 hover:border-black transition-all hover:shadow-sm disabled:opacity-50"
-                                >
-                                    <svg width="16" height="16" viewBox="0 0 24 24" className="mr-0.5">
-                                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.26.81-.58z" fill="#FBBC05" />
-                                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                                    </svg>
-                                    Verify Internal Google Identity
-                                </button>
-
-                                <div className="flex items-center gap-4 py-4">
-                                    <div className="h-[1px] flex-1 bg-[var(--border)] opacity-40"></div>
-                                    <span className="text-[8px] font-bold text-[var(--text-disabled)] uppercase tracking-[0.4em]">OR</span>
-                                    <div className="h-[1px] flex-1 bg-[var(--border)] opacity-40"></div>
-                                </div>
-
-                                <form onSubmit={handlePasswordActivate} className="space-y-4">
-                                    <div className="space-y-3">
-                                        <div className="relative group">
-                                            <input 
-                                                type="password" 
-                                                placeholder="NEW CLUSTER PASSWORD"
-                                                value={password}
-                                                onChange={e => setPassword(e.target.value)}
-                                                className="w-full bg-[#F9FAFB] border border-[var(--border)] rounded-sm py-4 px-5 text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] outline-none focus:border-black transition-all font-mono text-[13px] tracking-wider"
-                                            />
-                                            <div className="absolute inset-y-0 right-5 flex items-center text-[var(--text-disabled)] group-focus-within:text-black transition-colors pointer-events-none">
-                                                <Key size={18} />
-                                            </div>
-                                        </div>
-                                        <p className="text-[8px] text-[var(--text-disabled)] font-bold uppercase tracking-[0.1em] font-mono leading-relaxed">System Requirement: 14+ Chars / Alpha-Numeric / Secure Vault Storage</p>
-                                    </div>
-
-                                    <button 
-                                        type="submit"
-                                        disabled={finishing || !password}
-                                        className="w-full bg-[#111827] text-white py-5 rounded-sm font-bold uppercase tracking-[0.25em] text-[10px] hover:bg-[var(--brand)] transition-all shadow-lg disabled:opacity-50 flex items-center justify-center gap-3 active:scale-[0.98]"
-                                    >
-                                        {finishing ? <Loader2 className="animate-spin" size={16} /> : <>Finalize Provisioning <ArrowRight size={14} /></>}
-                                    </button>
-                                </form>
+                                 <button 
+                                     onClick={handleGoogleActivate}
+                                     disabled={finishing}
+                                     className="w-full bg-white border border-[var(--border)] text-[var(--text-primary)] py-6 rounded-sm font-black text-[11px] uppercase tracking-[0.25em] flex items-center justify-center gap-4 hover:border-black transition-all hover:shadow-xl disabled:opacity-50"
+                                 >
+                                     <svg width="20" height="20" viewBox="0 0 24 24" className="mr-1">
+                                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                                         <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                                         <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.26.81-.58z" fill="#FBBC05" />
+                                         <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                                     </svg>
+                                     Verify Cluster Google Identity
+                                 </button>
+ 
+                                 <div className="flex items-center gap-6 py-8">
+                                     <div className="h-[1px] flex-1 bg-[var(--border)] opacity-40"></div>
+                                     <span className="text-[9px] font-black text-[var(--text-disabled)] uppercase tracking-[0.5em]">OR SECURE_PROVISION</span>
+                                     <div className="h-[1px] flex-1 bg-[var(--border)] opacity-40"></div>
+                                 </div>
+ 
+                                 <form onSubmit={handlePasswordActivate} className="space-y-6">
+                                     <div className="space-y-4">
+                                         <div className="relative group">
+                                             <input 
+                                                 type="password" 
+                                                 placeholder="SET NEW CLUSTER PASSWORD"
+                                                 value={password}
+                                                 onChange={e => setPassword(e.target.value)}
+                                                 className="w-full bg-[#F9FAFB] border border-[var(--border)] rounded-sm py-6 px-8 text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] outline-none focus:border-black transition-all font-mono text-[16px] tracking-widest shadow-inner"
+                                             />
+                                             <div className="absolute inset-y-0 right-8 flex items-center text-[var(--text-disabled)] group-focus-within:text-black transition-colors pointer-events-none">
+                                                 <Key size={24} />
+                                             </div>
+                                         </div>
+                                         <p className="text-[9px] text-[var(--text-disabled)] font-black uppercase tracking-[0.15em] font-mono leading-relaxed bg-[#F9FAFB] p-4 border-l-2 border-[var(--text-disabled)]/30">System Requirement: 14+ Chars / Alpha-Numeric / Secure Vault Node Extraction</p>
+                                     </div>
+ 
+                                     <button 
+                                         type="submit"
+                                         disabled={finishing || !password}
+                                         className="w-full bg-[#111827] text-white py-6 rounded-sm font-black uppercase tracking-[0.3em] text-[11px] hover:bg-[var(--brand)] transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-4 active:scale-[0.99]"
+                                     >
+                                         {finishing ? <Loader2 className="animate-spin" size={24} /> : <>Finalize Provisioning Node <ArrowRight size={20} /></>}
+                                     </button>
+                                 </form>
                              </div>
                         </div>
                     )}
