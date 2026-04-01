@@ -24,66 +24,47 @@ function getAdminApp() {
     
     let key = rawKey.trim();
     
-    // 1. HANDLE JSON-WRAPPED KEYS (Common mistake: copying entire service-account.json)
+    // 1. JSON Extraction
     if (key.startsWith('{')) {
         try {
             const parsed = JSON.parse(key);
-            if (parsed.private_key) {
-                key = parsed.private_key;
-                console.log("[FirebaseAdmin] Detected and extracted private_key from JSON input");
-            }
-        } catch (e) { /* Not valid JSON, continue */ }
+            if (parsed.private_key) key = parsed.private_key;
+        } catch (e) {}
     }
 
-    // 2. STRIP ENCLOSING QUOTES
-    if (key.startsWith('"') && key.endsWith('"')) key = key.slice(1, -1);
-    if (key.startsWith("'") && key.endsWith("'")) key = key.slice(1, -1);
+    // 2. Quote and Escaping Cleanup
+    key = key.replace(/^["']|["']$/g, ''); // Strip outer quotes
+    key = key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n'); // Normalize newlines
+
+    // 3. Header Detection
+    const hasHeader = key.includes("-----BEGIN");
     
-    // 3. BASE64 DECODE ATTEMPT (If the entire key is base64 encoded)
-    if (!key.includes("-----BEGIN PRIVATE KEY-----") && key.length > 100) {
-        try {
-            const decoded = Buffer.from(key, 'base64').toString('utf-8');
-            if (decoded.includes("-----BEGIN PRIVATE KEY-----")) {
-                key = decoded;
-            }
-        } catch (e) { /* Not base64 */ }
-    }
-
-    // 4. NEWLINE NORMALIZATION
-    // Replace double-escaped newlines and literal \n strings
-    let formattedKey = key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
-
-    // 5. PEM RECONSTRUCTION
-    // If headers are missing, add them. 
-    if (!formattedKey.includes("-----BEGIN PRIVATE KEY-----")) {
-        // Remove any whitespace and wrap
-        const cleanBase64 = formattedKey.replace(/\s/g, '');
-        formattedKey = `-----BEGIN PRIVATE KEY-----\n${cleanBase64}\n-----END PRIVATE KEY-----`;
-    }
-
-    // 6. FINAL PEM VALIDATION & FORMATTING
-    // Ensure the key has the correct PEM structure (header, 64-char lines, footer)
+    // 4. Ultimate PEM Reconstruction
     try {
-        const headerMask = "-----BEGIN PRIVATE KEY-----";
-        const footerMask = "-----END PRIVATE KEY-----";
+        // Find actual content markers
+        const match = key.match(/-----BEGIN (.*)-----(.*)-----END \1-----/s);
         
-        // Extract content between headers if they exist multiple times or have fluff
-        const startIdx = formattedKey.indexOf(headerMask);
-        const endIdx = formattedKey.indexOf(footerMask);
-        
-        if (startIdx !== -1 && endIdx !== -1) {
-            const rawBody = formattedKey.substring(startIdx + headerMask.length, endIdx).replace(/\s/g, '');
-            const lines = rawBody.match(/.{1,64}/g) || [];
-            formattedKey = `${headerMask}\n${lines.join('\n')}\n${footerMask}`;
+        if (match) {
+            const headerType = match[1]; // e.g., "PRIVATE KEY" or "RSA PRIVATE KEY"
+            const body = match[2].replace(/[\s\r\n\t]/g, ''); // Purge ALL whitespace/non-printable
+            
+            // Rebuild with strict 64-char lines
+            const lines = body.match(/.{1,64}/g) || [];
+            key = `-----BEGIN ${headerType}-----\n${lines.join('\n')}\n-----END ${headerType}-----\n`;
+        } else if (!hasHeader && key.length > 50) {
+            // It's a raw base64 string
+            const body = key.replace(/[\s\r\n\t]/g, '');
+            const lines = body.match(/.{1,64}/g) || [];
+            key = `-----BEGIN PRIVATE KEY-----\n${lines.join('\n')}\n-----END PRIVATE KEY-----\n`;
         }
     } catch (e) {
-        console.error("[FirebaseAdmin] Failed to reformat PEM body:", e);
+        console.error("[FirebaseAdmin] Reconstruction failed, using fallback:", e);
     }
 
     const firebaseAdminConfig = {
         projectId,
         clientEmail,
-        privateKey: formattedKey,
+        privateKey: key,
     };
 
     try {
@@ -93,8 +74,7 @@ function getAdminApp() {
             storageBucket: BUCKET_NAME
         });
     } catch (error: any) {
-        // Provide more context in the error message for the frontend to display
-        const msg = `Firebase Admin Init Failed: ${error.message}. KeyLength: ${formattedKey.length}. StartsWithHeader: ${formattedKey.startsWith("-----BEGIN PRIVATE KEY-----")}`;
+        const msg = `Firebase Admin Init Failed: ${error.message}. FinalLength: ${key.length}. HasPEM: ${key.includes("-----BEGIN")}`;
         console.error(msg);
         throw new Error(msg);
     }
