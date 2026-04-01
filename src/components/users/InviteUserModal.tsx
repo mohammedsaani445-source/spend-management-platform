@@ -283,6 +283,25 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
                                     />
                                 </div>
 
+                                <div>
+                                    <label style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', display: 'block' }}>
+                                        Corporate Email Address
+                                    </label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Mail size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-disabled)' }} />
+                                        <input 
+                                            type="email" 
+                                            required 
+                                            placeholder="s.adewale@company.com"
+                                            value={formData.email}
+                                            onChange={e => setFormData({...formData, email: e.target.value})}
+                                            style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.75rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-2)', outline: 'none', fontSize: '0.875rem', fontWeight: 600 }}
+                                            onFocus={e => e.currentTarget.style.borderColor = 'var(--brand)'}
+                                            onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
+                                        />
+                                    </div>
+                                </div>
+
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                                     <div>
                                         <label style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', display: 'block' }}>
@@ -310,6 +329,26 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
                                             onFocus={e => e.currentTarget.style.borderColor = 'var(--brand)'}
                                             onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
                                         />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', display: 'block' }}>
+                                        Invite Expiration Period (Hours)
+                                    </label>
+                                    <div style={{ position: 'relative' }}>
+                                        <Zap size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-disabled)' }} />
+                                        <select 
+                                            value={formData.expiresInHours}
+                                            onChange={e => setFormData({...formData, expiresInHours: parseInt(e.target.value)})}
+                                            style={{ width: '100%', padding: '0.75rem 1rem 0.75rem 2.75rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-2)', outline: 'none', fontSize: '0.875rem', fontWeight: 600, appearance: 'none', cursor: 'pointer' }}
+                                        >
+                                            <option value={24}>24 Hours (1 Day)</option>
+                                            <option value={48}>48 Hours (2 Days)</option>
+                                            <option value={72}>72 Hours (3 Days)</option>
+                                            <option value={168}>168 Hours (7 Days)</option>
+                                        </select>
+                                        <ChevronDown size={14} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-disabled)', pointerEvents: 'none' }} />
                                     </div>
                                 </div>
 
