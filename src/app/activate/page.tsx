@@ -119,51 +119,41 @@ export default function ActivatePage() {
 
     return (
         <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] py-12 px-4 md:px-8 flex flex-col items-center justify-start font-sans overflow-y-auto">
-            <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-[1.1fr_1.5fr] gap-12 lg:gap-16 items-start lg:items-center relative z-10 transition-all duration-700 my-auto">
+            <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-[0.9fr_1.3fr] gap-12 lg:gap-24 items-start lg:items-center relative z-10 transition-all duration-700 my-auto">
                 {/* Visual Side */}
                 <div className="hidden lg:block space-y-12 animate-in fade-in slide-in-from-left-10 duration-700">
-                    <div className="space-y-8">
-                        <div className="mb-12">
-                            <Logo size={56} variant="brand" className="hover:scale-110 transition-transform cursor-pointer" />
+                    <div className="space-y-10">
+                        <div className="mb-14">
+                            <Logo size={64} variant="brand" className="hover:scale-110 transition-transform cursor-pointer" />
                         </div>
-                        <div className="space-y-6">
-                            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--brand-soft)] border border-[var(--brand)]/10 text-[var(--brand)] text-[10px] uppercase font-black tracking-widest">
-                                <Zap size={14} /> Secure Access Protocol
+                        <div className="space-y-8">
+                            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--brand-soft)] border border-[var(--brand)]/10 text-[var(--brand)] text-[11px] uppercase font-black tracking-[0.2em] shadow-sm">
+                                <Zap size={16} /> Secure Access Protocol
                             </div>
-                            <h1 className="text-7xl font-black text-[var(--text-primary)] uppercase tracking-tighter leading-[0.85]">
-                                Welcome to <br /> <span className="text-[var(--brand)]">Apex Procure.</span>
+                            <h1 className="text-8xl font-black text-[var(--text-primary)] uppercase tracking-tighter leading-[0.85]">
+                                System <br /> <span className="text-[var(--brand)]">Activation.</span>
                             </h1>
-                            <p className="text-[var(--text-secondary)] font-medium text-xl max-w-md mt-8 leading-relaxed opacity-80">
+                            <p className="text-[var(--text-secondary)] font-medium text-2xl max-w-lg mt-8 leading-relaxed opacity-90">
                                 Finalizing your secure administrative environment for <span className="text-[var(--text-primary)] font-bold">{invite?.invited_name}</span>. 
-                                Identity records have been pre-provisioned for synchronization.
                             </p>
                         </div>
                     </div>
 
-                    <div className="space-y-10 pt-10 border-t border-[var(--border)] max-w-sm">
-                         <div className="flex items-start gap-6 group">
-                             <div className="w-16 h-16 rounded-2xl bg-white border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-[var(--brand)] group-hover:border-[var(--brand)]/30 group-hover:shadow-[0_20px_40px_-15px_rgba(232,87,42,0.15)] transition-all duration-500">
+                    <div className="space-y-12 pt-12 border-t border-[var(--border)] max-w-sm">
+                         <div className="flex items-start gap-8 group">
+                             <div className="w-16 h-16 rounded-2xl bg-white border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-[var(--brand)] group-hover:border-[var(--brand)]/30 group-hover:shadow-[0_20px_40px_-15px_rgba(232,87,42,0.15)] transition-all duration-500 shadow-sm">
                                  <ShieldCheck size={32} />
                              </div>
                              <div>
                                  <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--text-primary)] mb-1.5">Advanced RBAC</h4>
-                                 <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">Your assigned role comes with pre-defined mission-critical permissions.</p>
-                             </div>
-                         </div>
-                         <div className="flex items-start gap-6 group">
-                             <div className="w-16 h-16 rounded-2xl bg-white border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.15)] transition-all duration-500">
-                                 <Lock size={32} />
-                             </div>
-                             <div>
-                                 <h4 className="text-xs font-black uppercase tracking-[0.2em] text-[var(--text-primary)] mb-1.5">Encrypted Identity</h4>
-                                 <p className="text-[11px] text-[var(--text-secondary)] font-medium leading-relaxed">All administrative actions are recorded with forensic precision.</p>
+                                 <p className="text-[12px] text-[var(--text-secondary)] font-medium leading-relaxed">Your assigned role comes with pre-defined mission-critical permissions.</p>
                              </div>
                          </div>
                     </div>
                 </div>
 
                 {/* Form Side */}
-                <div className="bg-white border border-[var(--border)] rounded-[48px] md:rounded-[64px] p-8 md:p-16 shadow-[0_48px_96px_-32px_rgba(0,0,0,0.12)] relative animate-in zoom-in-95 duration-500 w-full overflow-visible">
+                <div className="bg-white border border-[var(--border)] rounded-[32px] md:rounded-[40px] p-10 md:p-20 shadow-[0_64px_128px_-32px_rgba(0,0,0,0.15)] relative animate-in zoom-in-95 duration-500 w-full overflow-visible">
                     {step === 1 && (
                         <div className="animate-in fade-in slide-in-from-right-10 duration-500">
                             <div className="flex items-center gap-4 mb-10 md:mb-14">
