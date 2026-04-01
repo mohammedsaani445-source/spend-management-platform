@@ -24,30 +24,41 @@ function getAdminApp() {
     
     let key = rawKey.trim();
     
-    // STRIP ENCLOSING QUOTES (Common Vercel issue)
+    // 1. STRIP ENCLOSING QUOTES (Common Vercel/Env issue)
     if (key.startsWith('"') && key.endsWith('"')) key = key.slice(1, -1);
     if (key.startsWith("'") && key.endsWith("'")) key = key.slice(1, -1);
     
-    // BASE64 FALLBACK: If the key doesn't look like PEM, check if it's Base64
+    // 2. BASE64 FALLBACK: If the key is entirely Base64 encoded
     if (!key.includes("-----BEGIN PRIVATE KEY-----") && key.length > 100) {
         try {
             const decoded = Buffer.from(key, 'base64').toString('utf-8');
             if (decoded.includes("-----BEGIN PRIVATE KEY-----")) {
                 key = decoded;
             }
-        } catch (e) {
-            console.error("[FirebaseAdmin] Failed Base64 decode attempt");
-        }
+        } catch (e) { /* Not base64, continue */ }
     }
-    
-    // Handle both literal newlines and escaped newlines (\n)
-    let formattedKey = key.replace(/\\n/g, '\n');
 
-    // Final check for private key format
+    // 3. NEWLINE NORMALIZATION
+    // Handle literal "\n" strings, actual newlines, and "\r\n"
+    let formattedKey = key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
+
+    // 4. PEM RECONSTRUCTION (If flattened or missing headers)
     if (!formattedKey.includes("-----BEGIN PRIVATE KEY-----")) {
-        console.warn("[FirebaseAdmin] Warning: FIREBASE_PRIVATE_KEY may be malformed (missing PEM headers)");
+        // If it's just the raw base64 string, wrap it
+        formattedKey = `-----BEGIN PRIVATE KEY-----\n${formattedKey}\n-----END PRIVATE KEY-----`;
     }
 
+    // 5. INNER BASE64 NORMALIZATION
+    // Remove extra spaces that might have been introduced during copy-paste inside the PEM block
+    const parts = formattedKey.split("-----");
+    if (parts.length >= 5) {
+        const header = `-----${parts[1]}-----`;
+        const footer = `-----${parts[3]}-----`;
+        const body = parts[2].replace(/\s/g, ''); // Remove ALL whitespace from the base64 part
+        // Rebuild with 64-character lines (Standard PEM)
+        const lines = body.match(/.{1,64}/g) || [];
+        formattedKey = `${header}\n${lines.join('\n')}\n${footer}`;
+    }
 
     const firebaseAdminConfig = {
         projectId,
