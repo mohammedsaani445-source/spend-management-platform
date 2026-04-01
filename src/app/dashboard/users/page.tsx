@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Users, UserPlus, Info, Shield, LayoutGrid, List, MailOpen } from 'lucide-react';
+import { Plus, Users, UserPlus, Shield, LayoutGrid, List, MailOpen, Search } from 'lucide-react';
 import StatCards from '@/components/users/StatCards';
 import UserTable from '@/components/users/UserTable';
 import PendingInvitesTable from '@/components/users/PendingInvitesTable';
@@ -114,31 +113,49 @@ export default function UsersDashboardPage() {
     };
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <Loader text="Loading Staff Directory..." />
-            </div>
-        );
+        return <Loader text="Loading Team Management..." />;
     }
 
+    const tabs = [
+        { id: 'users', label: 'Staff Directory', icon: List },
+        { id: 'roles', label: 'Access Hierarchies', icon: LayoutGrid },
+        { id: 'invites', label: 'Pending Invites', icon: MailOpen }
+    ];
+
     return (
-        <div className="page-container">
+        <div className="animate-in" style={{ background: 'var(--surface)', borderRadius: 'var(--radius-xl)', padding: '2rem', border: '1px solid var(--border)', boxShadow: 'var(--shadow-sm)' }}>
             {/* ── Header ──────────────────────────────────────────────────── */}
-            <div className="page-header">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', gap: '1rem' }}>
                 <div>
-                    <h1 className="page-title">Team Management</h1>
-                    <p className="page-subtitle">Manage Apex Procure staff hierarchies, role permissions, and pending organizational invites.</p>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: 900, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>Team Management</h1>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9375rem' }}>Staff hierarchies, role permissions, and organizational invites.</p>
                 </div>
                 <button 
                     onClick={() => setIsInviteModalOpen(true)}
-                    className="btn btn-primary"
+                    style={{ 
+                        padding: '0.75rem 1.5rem', 
+                        borderRadius: '12px', 
+                        background: 'var(--brand)', 
+                        border: 'none', 
+                        color: '#FFF', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px', 
+                        cursor: 'pointer', 
+                        fontWeight: 900, 
+                        fontSize: '0.8125rem', 
+                        boxShadow: '0 8px 16px rgba(232, 87, 42, 0.2)',
+                        transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 12px 20px rgba(232, 87, 42, 0.3)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(232, 87, 42, 0.2)'; }}
                 >
-                    <UserPlus size={18} style={{ marginRight: 6 }} /> Invite New User
+                    <UserPlus size={18} /> Invite Member
                 </button>
             </div>
 
             {/* ── Stats Strip ─────────────────────────────────────────────── */}
-            <div style={{ marginBottom: "1.5rem" }}>
+            <div style={{ marginBottom: '2.5rem' }}>
                 <StatCards 
                     totalUsers={users.length} 
                     pendingInvites={invites.length} 
@@ -148,26 +165,43 @@ export default function UsersDashboardPage() {
             </div>
 
             {/* ── Tab Bar ─────────────────────────────────────────────────── */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.25rem", background: "#F4F6F8", padding: "0.375rem", borderRadius: 10, width: "fit-content", marginBottom: "1.5rem", border: "1px solid #DFE3E8" }}>
-                {[
-                    { id: 'users', label: 'Staff Directory', icon: List },
-                    { id: 'roles', label: 'Access Hierarchies', icon: LayoutGrid },
-                    { id: 'invites', label: 'Pending Invites', icon: MailOpen }
-                ].map((tab) => (
-                    <button 
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id as any)}
-                        style={{
-                            display: "flex", alignItems: "center", gap: "0.5rem",
-                            padding: "0.5rem 1.25rem", borderRadius: 8, border: "none", fontWeight: 600, fontSize: "0.875rem", cursor: "pointer", transition: "all 0.15s ease",
-                            background: activeTab === tab.id ? "white" : "transparent",
-                            color: activeTab === tab.id ? "#5C6AC4" : "#637381",
-                            boxShadow: activeTab === tab.id ? "0 2px 5px rgba(0,0,0,0.05)" : "none",
-                        }}
-                    >
-                        <tab.icon size={16} /> {tab.label}
-                    </button>
-                ))}
+            <div style={{ 
+                display: 'flex',
+                gap: '0.25rem',
+                background: 'var(--surface-2)', 
+                padding: '0.375rem', 
+                borderRadius: '14px', 
+                width: 'fit-content', 
+                marginBottom: '2rem', 
+                border: '1px solid var(--border)' 
+            }}>
+                {tabs.map((tab) => {
+                    const isActive = activeTab === tab.id;
+                    return (
+                        <button 
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as any)}
+                            style={{
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '0.5rem',
+                                padding: '0.625rem 1.25rem', 
+                                borderRadius: '10px', 
+                                border: 'none', 
+                                fontWeight: isActive ? 800 : 600, 
+                                fontSize: '0.8125rem', 
+                                cursor: 'pointer', 
+                                transition: 'all 0.2s ease',
+                                background: isActive ? 'var(--surface)' : 'transparent',
+                                color: isActive ? 'var(--brand)' : 'var(--text-secondary)',
+                                boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
+                                letterSpacing: isActive ? '-0.01em' : '0'
+                            }}
+                        >
+                            <tab.icon size={16} /> {tab.label}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* ── Content Area ────────────────────────────────────────────── */}
@@ -216,4 +250,3 @@ export default function UsersDashboardPage() {
         </div>
     );
 }
-

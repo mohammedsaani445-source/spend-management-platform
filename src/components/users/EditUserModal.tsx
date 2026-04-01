@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, ArrowRight, ChevronDown, Check } from 'lucide-react';
+import { X, User, ArrowRight, ChevronDown, Check, Shield, Mail, Building } from 'lucide-react';
 import { ROLE_CONFIGS } from '@/lib/roles_config';
 import { UserRole } from '@/types';
 import { toast } from 'sonner';
@@ -32,7 +32,7 @@ const RoleSelect: React.FC<{ value: string; onChange: (val: string) => void; opt
     }, [isOpen]);
 
     return (
-        <div className="relative" onClick={e => e.stopPropagation()}>
+        <div className="relative" onClick={e => e.stopPropagation()} style={{ width: '100%' }}>
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
@@ -41,26 +41,31 @@ const RoleSelect: React.FC<{ value: string; onChange: (val: string) => void; opt
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     width: '100%',
-                    padding: '0.625rem 1rem',
-                    background: 'var(--background)',
+                    padding: '0.75rem 1rem',
+                    background: 'var(--surface-2)',
                     border: isOpen ? '1px solid var(--brand)' : '1px solid var(--border)',
-                    boxShadow: isOpen ? '0 0 0 3px rgba(92, 106, 196, 0.1)' : 'none',
-                    borderRadius: '8px',
+                    boxShadow: isOpen ? '0 0 0 2px rgba(232, 87, 42, 0.1)' : 'none',
+                    borderRadius: '12px',
                     fontSize: '0.875rem',
                     color: 'var(--text-primary)',
+                    fontWeight: 600,
                     transition: 'all 0.15s ease',
-                    textAlign: 'left'
+                    textAlign: 'left',
+                    cursor: 'pointer'
                 }}
             >
-                {selected?.label}
-                <ChevronDown size={16} style={{ color: 'var(--text-secondary)', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Shield size={14} style={{ color: 'var(--brand)' }} />
+                    {selected?.label}
+                </div>
+                <ChevronDown size={14} style={{ color: 'var(--text-disabled)', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
             </button>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 4 }}
+                        initial={{ opacity: 0, y: 4, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 4, scale: 0.98 }}
                         transition={{ duration: 0.15 }}
                         style={{
                             position: 'absolute',
@@ -70,42 +75,43 @@ const RoleSelect: React.FC<{ value: string; onChange: (val: string) => void; opt
                             marginTop: '0.5rem',
                             background: 'white',
                             border: '1px solid var(--border)',
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+                            borderRadius: '14px',
+                            boxShadow: 'var(--shadow-xl)',
                             zIndex: 100,
-                            maxHeight: '220px',
-                            overflowY: 'auto'
+                            maxHeight: '260px',
+                            overflowY: 'auto',
+                            padding: '0.375rem'
                         }}
                     >
-                        <div style={{ padding: '0.375rem' }}>
-                            {options.map((opt) => (
-                                <button
-                                    key={opt.value}
-                                    type="button"
-                                    onClick={() => { onChange(opt.value); setIsOpen(false); }}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        width: '100%',
-                                        padding: '0.5rem 0.75rem',
-                                        background: value === opt.value ? 'var(--surface-hover)' : 'transparent',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        fontSize: '0.875rem',
-                                        color: value === opt.value ? 'var(--brand)' : 'var(--text-secondary)',
-                                        fontWeight: value === opt.value ? 600 : 400,
-                                        textAlign: 'left',
-                                        cursor: 'pointer',
-                                    }}
-                                    onMouseEnter={e => { if (value !== opt.value) e.currentTarget.style.background = 'var(--surface-hover)'; }}
-                                    onMouseLeave={e => { if (value !== opt.value) e.currentTarget.style.background = 'transparent'; }}
-                                >
-                                    {opt.label}
-                                    {value === opt.value && <Check size={14} color="var(--brand)" />}
-                                </button>
-                            ))}
-                        </div>
+                        {options.map((opt) => (
+                            <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => { onChange(opt.value); setIsOpen(false); }}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    width: '100%',
+                                    padding: '0.625rem 0.875rem',
+                                    background: value === opt.value ? 'var(--brand-soft)' : 'transparent',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    fontSize: '0.8125rem',
+                                    color: value === opt.value ? 'var(--brand)' : 'var(--text-secondary)',
+                                    fontWeight: value === opt.value ? 700 : 500,
+                                    textAlign: 'left',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.1s ease',
+                                    marginBottom: '2px'
+                                }}
+                                onMouseEnter={e => { if (value !== opt.value) e.currentTarget.style.background = 'var(--surface-2)'; }}
+                                onMouseLeave={e => { if (value !== opt.value) e.currentTarget.style.background = 'transparent'; }}
+                            >
+                                {opt.label}
+                                {value === opt.value && <Check size={14} color="var(--brand)" />}
+                            </button>
+                        ))}
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -170,93 +176,160 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ isOpen, onClose, user, on
 
     return (
         <Portal>
-            <div className="modal-backdrop" style={{ animation: "fadeIn 0.2s ease-out" }}>
-                <div className="modal" style={{ maxWidth: 500, width: "95%", maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: "slideUp 0.3s ease-out", padding: 0, overflow: 'visible', borderRadius: '12px' }}>
-                    <div className="modal-header" style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0, borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
-                        <h2 className="modal-title" style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, fontSize: "1.25rem" }}>
-                            <User size={24} color="var(--brand)" /> 
-                            Edit User
-                        </h2>
-                        <button 
-                            onClick={onClose} 
-                            style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.15s' }} 
-                            onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} 
-                            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
-                        >
-                            <X size={24} />
-                        </button>
-                    </div>
-
-                    <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'visible' }}>
-                        <div className="modal-body" style={{ display: 'grid', gap: '1.25rem', padding: '1.5rem', overflowY: 'visible', flex: 1 }}>
-                            <div>
-                                <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    Full Name
-                                </label>
-                                <input 
-                                    type="text" 
-                                    required 
-                                    className="form-input"
-                                    placeholder="e.g. Samuel Adewale"
-                                    value={formData.name}
-                                    onChange={e => setFormData({...formData, name: e.target.value})}
-                                />
-                            </div>
-
-                            <div>
-                                <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    Email Address (Read-Only)
-                                </label>
-                                <input 
-                                    type="email" 
-                                    className="form-input"
-                                    value={user.email}
-                                    readOnly
-                                    disabled
-                                    style={{ background: 'var(--surface-hover)', cursor: 'not-allowed' }}
-                                />
-                            </div>
-
-                            <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                <div>
-                                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        Assigned Role
-                                    </label>
-                                    <RoleSelect
-                                        value={formData.role}
-                                        onChange={(val) => setFormData({ ...formData, role: val as UserRole })}
-                                        options={Object.entries(ROLE_CONFIGS)
-                                            .filter(([, cfg]) => !cfg.label.startsWith('Legacy:'))
-                                            .map(([id, cfg]) => ({ label: cfg.label, value: id }))}
-                                    />
+            <AnimatePresence>
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" 
+                    />
+                    
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                        style={{ 
+                            maxWidth: 500, 
+                            width: "100%", 
+                            position: 'relative',
+                            background: 'var(--background)',
+                            borderRadius: '24px',
+                            boxShadow: 'var(--shadow-xl)',
+                            overflow: 'hidden',
+                            display: 'flex',
+                            flexDirection: 'column'
+                        }}
+                    >
+                        {/* Header Strip */}
+                        <div style={{ padding: "1.5rem 2rem", background: "var(--surface-2)", borderBottom: "1px solid var(--border)", display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--brand-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <User size={20} color="var(--brand)" />
                                 </div>
                                 <div>
-                                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        Department
-                                    </label>
-                                    <input 
-                                        type="text" 
-                                        required 
-                                        className="form-input"
-                                        placeholder="e.g. Logistics"
-                                        value={formData.department}
-                                        onChange={e => setFormData({...formData, department: e.target.value})}
-                                    />
+                                    <h2 style={{ margin: 0, fontSize: "1.125rem", fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                                        Edit User
+                                    </h2>
+                                    <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                                        Update profile and access level
+                                    </p>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <div className="modal-footer" style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0, borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
-                            <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-                            <button type="submit" className="btn btn-primary" disabled={loading} style={{ minWidth: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                                {loading ? 'Saving...' : <>Save Changes <ArrowRight size={16} /></>}
+                            <button 
+                                onClick={onClose} 
+                                style={{ width: '32px', height: '32px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: 'none', color: 'var(--text-disabled)', cursor: 'pointer', transition: 'all 0.15s' }} 
+                                onMouseEnter={e => { e.currentTarget.style.background = 'var(--border)'; e.currentTarget.style.color = 'var(--text-primary)'; }} 
+                                onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-disabled)'; }}
+                            >
+                                <X size={20} />
                             </button>
                         </div>
-                    </form>
+
+                        <form onSubmit={handleUpdate}>
+                            <div style={{ padding: '2rem', display: 'grid', gap: '1.5rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+                                        Full Name
+                                    </label>
+                                    <div className="relative">
+                                        <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-disabled)' }}>
+                                            <User size={16} />
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            required 
+                                            className="form-input"
+                                            placeholder="e.g. Samuel Adewale"
+                                            value={formData.name}
+                                            onChange={e => setFormData({...formData, name: e.target.value})}
+                                            style={{ paddingLeft: '2.75rem', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '12px', width: '100%', height: '44px', fontWeight: 500 }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+                                        Email Address
+                                    </label>
+                                    <div className="relative">
+                                        <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-disabled)' }}>
+                                            <Mail size={16} />
+                                        </div>
+                                        <input 
+                                            type="email" 
+                                            className="form-input"
+                                            value={user.email}
+                                            readOnly
+                                            disabled
+                                            style={{ paddingLeft: '2.75rem', background: 'var(--surface-3)', border: '1px solid var(--border)', borderRadius: '12px', width: '100%', height: '44px', color: 'var(--text-disabled)', cursor: 'not-allowed' }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+                                            Assignment
+                                        </label>
+                                        <RoleSelect
+                                            value={formData.role}
+                                            onChange={(val) => setFormData({ ...formData, role: val as UserRole })}
+                                            options={Object.entries(ROLE_CONFIGS)
+                                                .filter(([, cfg]) => !cfg.label.startsWith('Legacy:'))
+                                                .map(([id, cfg]) => ({ label: cfg.label, value: id }))}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+                                            Department
+                                        </label>
+                                        <div className="relative">
+                                            <div style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-disabled)' }}>
+                                                <Building size={16} />
+                                            </div>
+                                            <input 
+                                                type="text" 
+                                                required 
+                                                className="form-input"
+                                                placeholder="Logistics"
+                                                value={formData.department}
+                                                onChange={e => setFormData({...formData, department: e.target.value})}
+                                                style={{ paddingLeft: '2.75rem', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '12px', width: '100%', height: '44px', fontWeight: 500 }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style={{ padding: "1.25rem 2rem", background: "var(--surface-2)", borderTop: "1px solid var(--border)", display: 'flex', justifyContent: 'flex-end', gap: '0.75rem' }}>
+                                <button 
+                                    type="button" 
+                                    onClick={onClose}
+                                    style={{ padding: '0 1.25rem', height: '44px', borderRadius: '12px', background: 'var(--background)', border: '1px solid var(--border)', fontSize: '0.875rem', fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer', transition: 'all 0.15s' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'var(--surface-hover)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'var(--background)'}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    type="submit" 
+                                    disabled={loading} 
+                                    style={{ padding: '0 1.5rem', height: '44px', borderRadius: '12px', background: 'var(--brand)', border: 'none', fontSize: '0.875rem', fontWeight: 700, color: 'white', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', opacity: loading ? 0.7 : 1, transition: 'all 0.15s', boxShadow: '0 4px 12px rgba(232, 87, 42, 0.2)' }}
+                                    onMouseEnter={e => { if(!loading) e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                                    onMouseLeave={e => { if(!loading) e.currentTarget.style.transform = 'translateY(0)'; }}
+                                >
+                                    {loading ? 'Saving...' : <>Save Changes <ArrowRight size={16} /></>}
+                                </button>
+                            </div>
+                        </form>
+                    </motion.div>
                 </div>
-            </div>
+            </AnimatePresence>
         </Portal>
     );
 };
 
 export default EditUserModal;
+

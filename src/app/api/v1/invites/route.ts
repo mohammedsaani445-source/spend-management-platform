@@ -12,20 +12,24 @@ export async function POST(req: NextRequest) {
     try {
         const authHeader = req.headers.get("authorization");
         if (!authHeader?.startsWith("Bearer ")) {
+            console.error("[Invite API] Error: No Bearer token provided");
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        console.log("[Invite API] Step 1: Verifying ID Token...");
         const idToken = authHeader.split("Bearer ")[1];
         const decodedToken = await adminAuth.verifyIdToken(idToken);
         const requesterUid = decodedToken.uid;
+        console.log(`[Invite API] Step 1 Success: UID=${requesterUid}`);
 
         // Verify requester's tenant and role
+        console.log(`[Invite API] Step 2: Fetching tenant mapping for ${requesterUid}...`);
         const tenantMappingPath = `${DB_PREFIX}/userTenants/${requesterUid}`;
         const tenantMappingRef = adminDb.ref(tenantMappingPath);
         const tenantMappingSnap = await tenantMappingRef.get();
         
         if (!tenantMappingSnap.exists()) {
-            console.error(`[Invite API] No tenant mapping found at ${tenantMappingPath} for user ${requesterUid}`);
+            console.error(`[Invite API] Step 2 Failed: No tenant mapping found at ${tenantMappingPath}`);
             return NextResponse.json({ 
                 error: "Requester has no tenant mapping in the system.",
                 debug: { path: tenantMappingPath, uid: requesterUid }
@@ -34,18 +38,20 @@ export async function POST(req: NextRequest) {
 
         const tenantData = tenantMappingSnap.val();
         const tenantId = tenantData.tenantId;
+        console.log(`[Invite API] Step 2 Success: TenantId=${tenantId}`);
         
         if (!tenantId) {
-            console.error(`[Invite API] Tenant mapping exists but tenantId is missing for user ${requesterUid}`);
+            console.error(`[Invite API] Step 2 Failed: tenantId is missing in data`);
             return NextResponse.json({ error: "Invalid tenant mapping configuration." }, { status: 403 });
         }
 
+        console.log(`[Invite API] Step 3: Fetching user profile from tenant ${tenantId}...`);
         const requesterPath = `${DB_PREFIX}/tenants/${tenantId}/users/${requesterUid}`;
         const requesterRef = adminDb.ref(requesterPath);
         const requesterSnap = await requesterRef.get();
 
         if (!requesterSnap.exists()) {
-            console.error(`[Invite API] User profile not found at ${requesterPath}`);
+            console.error(`[Invite API] Step 3 Failed: User profile not found at ${requesterPath}`);
             return NextResponse.json({ 
                 error: "User profile not found in your assigned tenant.",
                 debug: { path: requesterPath }
@@ -56,10 +62,10 @@ export async function POST(req: NextRequest) {
         const rawRequesterRole = requesterData.role || "UNKNOWN";
         const mappedRole = mapLegacyRole(rawRequesterRole);
         
-        console.log(`[Invite API] Auth Check: UID=${requesterUid}, Tenant=${tenantId}, RawRole=${rawRequesterRole}, MappedRole=${mappedRole}`);
+        console.log(`[Invite API] Step 3 Success: RawRole=${rawRequesterRole}, MappedRole=${mappedRole}`);
 
         // In the new system, only administrator can invite
-        // We check both the mapped role and the raw role to be safe
+        console.log("[Invite API] Step 4: Checking authorization...");
         const isAuthorized = 
             mappedRole === 'administrator' || 
             rawRequesterRole === 'ADMIN' || 
@@ -68,7 +74,7 @@ export async function POST(req: NextRequest) {
             rawRequesterRole === 'PLATFORM_SUPERUSER';
         
         if (!isAuthorized) {
-            console.warn(`[Invite API] Unauthorized invitation attempt by ${requesterUid} (Role: ${rawRequesterRole}, Mapped: ${mappedRole})`);
+            console.warn(`[Invite API] Step 4 Failed: Unauthorized role ${rawRequesterRole} (Mapped: ${mappedRole})`);
             return NextResponse.json({ 
                 error: `Insufficient permissions to generate invites. Requester role '${rawRequesterRole}' does not have administrative privileges.`,
                 debug: { 
@@ -80,13 +86,16 @@ export async function POST(req: NextRequest) {
             }, { status: 403 });
         }
 
+        console.log("[Invite API] Step 5: Parsing request body...");
         const body = await req.json();
         const { name, email, role, department, expiresInHours } = body;
 
         if (!name || !role || !department) {
+            console.error("[Invite API] Step 5 Failed: Missing required fields", { name: !!name, role: !!role, dept: !!department });
             return NextResponse.json({ error: "Name, Role, and Department are required" }, { status: 400 });
         }
 
+        console.log(`[Invite API] Step 6: Creating invite for ${name} (${role})...`);
         const invite = await createInvite({
             tenantId,
             invitedName: name,
@@ -97,11 +106,16 @@ export async function POST(req: NextRequest) {
             createdBy: requesterUid
         });
 
+        console.log("[Invite API] SUCCESS: Invite created", { inviteId: invite.id });
         return NextResponse.json(invite);
     } catch (error: any) {
-        console.error("Error creating invite:", error);
-        return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+        console.error("[Invite API] CRITICAL ERROR:", error);
+        return NextResponse.json({ 
+            error: error.message || "Internal server error",
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }, { status: 500 });
     }
+
 }
 
 export async function GET(req: NextRequest) {

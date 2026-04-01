@@ -22,14 +22,14 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
         <Portal>
             <AnimatePresence>
                 {isOpen && (
-                    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 md:p-8">
+                    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
                     {/* Backdrop */}
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+                        className="absolute inset-0 bg-[#0f172a]/80 backdrop-blur-sm"
                     />
                     
                     <motion.div 
@@ -37,20 +37,19 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-7xl h-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative z-10"
+                        className="bg-[var(--surface)] border border-[var(--border)] rounded-[24px] w-full max-w-7xl h-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative z-10"
                     >
                         {/* Header */}
-                        <div className="p-6 md:p-8 border-b border-[var(--border)] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 bg-slate-50/50">
-                            <div className="flex items-center gap-6">
-                                <div className="w-16 h-16 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
-                                    <Table size={32} strokeWidth={2} />
+                        <div className="p-6 border-b border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-6 bg-[var(--surface-2)]">
+                            <div className="flex items-center gap-5">
+                                <div className="w-14 h-14 rounded-[20px] bg-[var(--brand)]/10 flex items-center justify-center text-[var(--brand)] shadow-sm">
+                                    <Table size={28} strokeWidth={2.5} />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
-                                        Permission Matrix
+                                    <h2 className="text-xl font-900 text-[var(--foreground)] tracking-tight">
+                                        PERMISSION MATRIX
                                     </h2>
-                                    <p className="text-slate-500 font-medium mt-1 text-sm flex items-center gap-2">
-                                        <Shield size={14} className="text-slate-400" />
+                                    <p className="text-[var(--muted-foreground)] font-medium mt-0.5 text-sm flex items-center gap-2">
                                         Comprehensive overview of role access across system modules.
                                     </p>
                                 </div>
@@ -58,39 +57,39 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
 
                             <button 
                                 onClick={onClose}
-                                className="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-slate-100 active:bg-slate-200 transition-colors text-slate-500"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface-2)] transition-all shadow-sm text-[var(--foreground)]"
                             >
                                 <X size={20} />
                             </button>
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 overflow-auto custom-scrollbar p-6 bg-slate-50/30">
-                            <div className="table-wrapper rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-sm overflow-hidden">
+                        <div className="flex-1 overflow-auto custom-scrollbar p-6 bg-[var(--surface)]">
+                            <div className="table-wrapper rounded-[24px] border border-[var(--border)] bg-[var(--surface)] shadow-xl overflow-hidden">
                                 <table className="data-table w-full text-sm text-left">
-                                    <thead className="text-xs text-slate-500 uppercase bg-slate-50 border-b border-[var(--border)] sticky top-0 z-40 shadow-sm">
+                                    <thead className="text-[10px] text-[var(--muted-foreground)] uppercase bg-[var(--surface-2)] border-b border-[var(--border)] sticky top-0 z-40">
                                         <tr>
-                                            <th className="px-6 py-4 font-semibold sticky left-0 z-50 bg-slate-50 border-r border-[var(--border)] shadow-sm min-w-[200px]">
-                                                Module \ Role
+                                            <th className="px-6 py-5 font-900 sticky left-0 z-50 bg-[var(--surface-2)] border-r border-[var(--border)] shadow-sm min-w-[200px]">
+                                                MODULE \ ROLE
                                             </th>
                                             {activeRoles.map(role => (
                                                 <th 
                                                     key={role.id} 
                                                     onMouseEnter={() => setHoveredCol(role.id)}
                                                     onMouseLeave={() => setHoveredCol(null)}
-                                                    className={`px-4 py-4 text-center font-semibold transition-colors
-                                                        ${hoveredCol === role.id ? 'bg-blue-50/50' : ''}
+                                                    className={`px-4 py-5 text-center font-900 transition-colors
+                                                        ${hoveredCol === role.id ? 'bg-[var(--brand)]/5' : ''}
                                                     `}
                                                     style={{ minWidth: '140px' }}
                                                 >
                                                     <div className="flex flex-col items-center gap-2">
                                                         <div 
-                                                            className="w-8 h-8 rounded-lg flex items-center justify-center text-lg"
-                                                            style={{ backgroundColor: `${role.color}15`, color: role.color }}
+                                                            className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-sm border border-[var(--border)] bg-[var(--surface)]"
+                                                            style={{ color: role.color }}
                                                         >
-                                                            <RoleIcon roleId={role.id} size={16} />
+                                                            <RoleIcon roleId={role.id} size={20} />
                                                         </div>
-                                                        <span className="text-[10px] tracking-wider text-slate-700">{role.label}</span>
+                                                        <span className="tracking-widest text-[var(--foreground)]">{role.label}</span>
                                                     </div>
                                                 </th>
                                             ))}
@@ -102,10 +101,10 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
                                                 key={module} 
                                                 onMouseEnter={() => setHoveredRow(module)}
                                                 onMouseLeave={() => setHoveredRow(null)}
-                                                className="hover:bg-slate-50/80 transition-colors"
+                                                className="hover:bg-[var(--surface-2)] transition-colors group"
                                             >
-                                                <td className={`px-6 py-4 font-medium sticky left-0 z-30 bg-[var(--surface)] border-r border-[var(--border)] shadow-sm transition-colors ${
-                                                    hoveredRow === module ? 'text-blue-600 bg-blue-50/30' : 'text-slate-700'
+                                                <td className={`px-6 py-5 font-900 text-[11px] uppercase tracking-wider sticky left-0 z-30 bg-[var(--surface)] border-r border-[var(--border)] shadow-sm transition-colors ${
+                                                    hoveredRow === module ? 'text-[var(--brand)] bg-[var(--surface-2)]' : 'text-[var(--foreground)]'
                                                 }`}>
                                                     <div className="flex items-center gap-2">
                                                         {module}
@@ -118,21 +117,21 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
                                                         <td 
                                                             key={`${role.id}-${module}`} 
                                                             className={`px-4 py-3 text-center transition-colors ${
-                                                                isHovered ? 'bg-slate-50' : ''
+                                                                isHovered ? 'bg-[var(--brand)]/[0.02]' : ''
                                                             }`}
                                                         >
                                                             <div className="flex justify-center">
                                                                 {level === 'FULL' ? (
-                                                                    <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-                                                                        <ShieldCheck size={16} className="text-emerald-600" />
+                                                                    <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-sm">
+                                                                        <ShieldCheck size={18} className="text-emerald-600" />
                                                                     </div>
                                                                 ) : level === 'LIMITED' ? (
-                                                                    <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center">
-                                                                        <ShieldAlert size={16} className="text-amber-600" />
+                                                                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shadow-sm">
+                                                                        <ShieldAlert size={18} className="text-amber-600" />
                                                                     </div>
                                                                 ) : (
-                                                                    <div className="w-8 h-8 flex items-center justify-center opacity-30">
-                                                                        <span className="w-2 h-0.5 bg-slate-300 rounded-full" />
+                                                                    <div className="w-9 h-9 flex items-center justify-center opacity-20">
+                                                                        <span className="w-4 h-1 bg-[var(--foreground)] rounded-full" />
                                                                     </div>
                                                                 )}
                                                             </div>
@@ -147,33 +146,33 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
                         </div>
 
                         {/* Legend */}
-                        <div className="p-6 border-t border-[var(--border)] bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-6">
-                            <div className="flex flex-wrap items-center justify-center gap-8">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-                                        <ShieldCheck size={16} className="text-emerald-600" />
+                        <div className="p-6 border-t border-[var(--border)] bg-[var(--surface-2)] flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div className="flex flex-wrap items-center justify-center gap-12">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-sm">
+                                        <ShieldCheck size={18} className="text-emerald-600" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-semibold text-slate-700">Full Access</p>
-                                        <p className="text-[10px] text-slate-500">Read & Write</p>
+                                        <p className="text-xs font-900 text-[var(--foreground)] uppercase tracking-wider">Full Access</p>
+                                        <p className="text-[10px] text-[var(--muted-foreground)] font-medium">Read & Write</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-amber-50 border border-amber-100 flex items-center justify-center">
-                                        <ShieldAlert size={16} className="text-amber-600" />
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shadow-sm">
+                                        <ShieldAlert size={18} className="text-amber-600" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-semibold text-slate-700">Limited Access</p>
-                                        <p className="text-[10px] text-slate-500">Read Only or Scoped</p>
+                                        <p className="text-xs font-900 text-[var(--foreground)] uppercase tracking-wider">Limited Access</p>
+                                        <p className="text-[10px] text-[var(--muted-foreground)] font-medium">Read Only or Scoped</p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 flex items-center justify-center grayscale opacity-50">
-                                        <span className="w-4 h-0.5 bg-slate-400 rounded-full" />
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 flex items-center justify-center grayscale opacity-30">
+                                        <span className="w-5 h-1.5 bg-[var(--foreground)] rounded-full" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-semibold text-slate-700">No Access</p>
-                                        <p className="text-[10px] text-slate-500">Hidden</p>
+                                        <p className="text-xs font-900 text-[var(--foreground)] uppercase tracking-wider">No Access</p>
+                                        <p className="text-[10px] text-[var(--muted-foreground)] font-medium">Hidden</p>
                                     </div>
                                 </div>
                             </div>

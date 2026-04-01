@@ -1,5 +1,8 @@
+"use client";
+
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, ChevronRight, Info, Eye, Table } from 'lucide-react';
+import { Shield, ChevronRight, Eye, Table, LayoutGrid, Info } from 'lucide-react';
 import { ROLE_CONFIGS } from '@/lib/roles_config';
 import { UserRole } from '@/types';
 import { RoleIcon } from './RoleIcon';
@@ -14,110 +17,159 @@ const RoleGrid: React.FC<RoleGridProps> = ({ onViewPermissions, onViewMatrix }) 
     const activeRoles = (Object.entries(ROLE_CONFIGS) as [UserRole, any][]).filter(([id, cfg]) => !cfg.label.startsWith('Legacy:'));
 
     return (
-        <div style={{ paddingBottom: "5rem", display: "flex", flexDirection: "column", gap: "2rem" }}>
-            {/* Table Matrix Call to Action */}
-            <div style={{ 
-                background: "white", 
-                border: "1px solid #DFE3E8", 
-                borderRadius: "1rem", 
-                padding: "1.5rem 2rem", 
-                display: "flex", 
-                flexDirection: "row", 
-                flexWrap: "wrap",
-                alignItems: "center", 
-                justifyContent: "space-between", 
-                gap: "1.5rem",
-                boxShadow: "0 1px 2px 0 rgba(145, 158, 171, 0.05)"
-            }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", flex: 1, minWidth: "300px" }}>
+        <div style={{ paddingBottom: "5rem", display: "flex", flexDirection: "column", gap: "2.5rem" }}>
+            {/* ── Permission Matrix Banner ───────────────────────────────── */}
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{ 
+                    background: "var(--surface)", 
+                    border: "1px solid var(--border)", 
+                    borderRadius: "24px", 
+                    padding: "2rem", 
+                    display: "flex", 
+                    alignItems: "center", 
+                    justifyContent: "space-between", 
+                    gap: "2rem",
+                    boxShadow: "var(--shadow-sm)",
+                    position: "relative",
+                    overflow: "hidden"
+                }}
+            >
+                {/* Watermark Icon */}
+                <div style={{ position: 'absolute', right: '10%', top: '-20%', opacity: 0.03 }}>
+                    <Table size={240} color="var(--brand)" />
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "1.5rem", flex: 1, position: 'relative', zIndex: 1 }}>
                     <div style={{ 
-                        width: 56, 
-                        height: 56, 
-                        borderRadius: "0.75rem", 
-                        background: "#FFF5F3", 
+                        width: 64, 
+                        height: 64, 
+                        borderRadius: "16px", 
+                        background: "var(--brand-soft)", 
                         display: "flex", 
                         alignItems: "center", 
                         justifyContent: "center", 
-                        color: "#E8572A",
+                        color: "var(--brand)",
                         border: "1px solid rgba(232, 87, 42, 0.1)",
                         flexShrink: 0
                     }}>
-                        <Table size={28} strokeWidth={2} />
+                        <Table size={32} strokeWidth={2.5} />
                     </div>
                     <div>
-                        <h3 style={{ fontSize: "1.125rem", fontWeight: 700, color: "#212B36", marginBottom: "0.25rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                            Permission Matrix <span style={{ color: "#919EAB", fontWeight: 500, fontSize: "0.875rem", padding: "0.125rem 0.375rem", background: "#F4F6F8", borderRadius: "0.25rem" }}>Console</span>
-                        </h3>
-                        <p style={{ color: "#637381", fontSize: "0.875rem", lineHeight: 1.5, maxWidth: "600px" }}>
-                            Master analytical view of the 10-tier hierarchy. Contrast capabilities across every module in the Apex Procure ecosystem.
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.375rem' }}>
+                            <h3 style={{ fontSize: "1.25rem", fontWeight: 900, color: "var(--text-primary)", letterSpacing: '-0.01em' }}>
+                                Master Permission Matrix
+                            </h3>
+                            <span style={{ 
+                                color: "var(--brand)", 
+                                fontWeight: 900, 
+                                fontSize: "0.65rem", 
+                                padding: "4px 8px", 
+                                background: "var(--brand-soft)", 
+                                borderRadius: "6px",
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.05em',
+                                border: '1px solid rgba(232, 87, 42, 0.1)'
+                            }}>Analytical Console</span>
+                        </div>
+                        <p style={{ color: "var(--text-secondary)", fontSize: "0.9375rem", lineHeight: 1.6, maxWidth: "600px" }}>
+                            Master technical view of the 10-tier organizational hierarchy. Contrast clearance levels across every module in the ecosystem.
                         </p>
                     </div>
                 </div>
+
                 <button 
                     onClick={onViewMatrix}
-                    className="btn btn-primary"
-                    style={{ whiteSpace: "nowrap" }}
+                    style={{ 
+                        padding: '0.75rem 1.75rem', 
+                        borderRadius: '12px', 
+                        background: 'var(--brand)', 
+                        border: 'none', 
+                        color: '#FFF', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px', 
+                        cursor: 'pointer', 
+                        fontWeight: 900, 
+                        fontSize: '0.8125rem', 
+                        boxShadow: '0 8px 16px rgba(232, 87, 42, 0.2)',
+                        transition: 'all 0.2s ease',
+                        whiteSpace: 'nowrap',
+                        position: 'relative',
+                        zIndex: 1
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 12px 20px rgba(232, 87, 42, 0.3)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(232, 87, 42, 0.2)'; }}
                 >
-                    <Eye size={16} />
-                    Open Master Matrix
+                    <Eye size={18} /> Open Repository
                 </button>
-            </div>
+            </motion.div>
 
-            {/* Role Cards Grid */}
+            {/* ── Role Grid ──────────────────────────────────────────────── */}
             <div style={{ 
                 display: "grid", 
-                gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
+                gridTemplateColumns: "repeat(3, 1fr)", 
                 gap: "1.5rem" 
             }}>
                 {activeRoles.map(([id, cfg], i) => {
                     const cleranceLevel = id === 'administrator' ? 10 : id.includes('mgr') ? 8 : id.includes('officer') ? 6 : id.includes('head') ? 7 : 2;
                     return (
-                        <div 
+                        <motion.div 
                             key={id} 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: i * 0.05 }}
                             style={{ 
-                                background: "white", 
-                                border: "1px solid #DFE3E8", 
-                                borderRadius: "1rem", 
-                                padding: "1.5rem", 
+                                background: "var(--surface)", 
+                                border: "1px solid var(--border)", 
+                                borderRadius: "24px", 
+                                padding: "1.75rem", 
                                 display: "flex", 
                                 flexDirection: "column", 
-                                boxShadow: "0 1px 2px 0 rgba(145, 158, 171, 0.05)",
+                                boxShadow: "var(--shadow-sm)",
                                 position: "relative",
-                                transition: "all 0.2s ease"
+                                overflow: 'hidden',
+                                transition: "all 0.2s ease",
+                                cursor: 'default'
                             }}
-                            className="hover:border-[#E8572A] hover:shadow-md group"
+                            onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--brand)'; e.currentTarget.style.boxShadow = 'var(--shadow-md)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'var(--shadow-sm)'; e.currentTarget.style.transform = 'none'; }}
                         >
-                            <div className="absolute top-0 inset-x-0 h-1 bg-[#E8572A] opacity-0 group-hover:opacity-100 transition-opacity rounded-t-[1rem]"></div>
+                            {/* Watermark background icon */}
+                            <div style={{ position: 'absolute', right: '-10px', top: '-10px', opacity: 0.03 }}>
+                                <RoleIcon roleId={id} size={100} />
+                            </div>
                             
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem", position: 'relative', zIndex: 1 }}>
                                 <div 
                                     style={{ 
-                                        width: 48, 
-                                        height: 48, 
-                                        borderRadius: "0.75rem", 
+                                        width: 52, 
+                                        height: 52, 
+                                        borderRadius: "14px", 
                                         display: "flex", 
                                         alignItems: "center", 
                                         justifyContent: "center", 
-                                        fontSize: "1.25rem", 
                                         backgroundColor: `${cfg.color}15`, 
                                         color: cfg.color, 
                                         border: `1px solid ${cfg.color}30` 
                                     }}
                                 >
-                                    <RoleIcon roleId={id} size={24} />
+                                    <RoleIcon roleId={id} size={26} />
                                 </div>
                                 
                                 <div style={{ textAlign: "right" }}>
-                                    <div style={{ fontSize: "0.625rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "#919EAB", marginBottom: "0.375rem" }}>Clearance</div>
-                                    <div style={{ display: "flex", gap: "0.25rem", justifyContent: "flex-end" }}>
+                                    <div style={{ fontSize: "0.6rem", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em", color: "var(--text-disabled)", marginBottom: "0.5rem" }}>Clearance</div>
+                                    <div style={{ display: "flex", gap: "0.3125rem", justifyContent: "flex-end" }}>
                                         {[...Array(5)].map((_, j) => (
                                             <div 
                                                 key={j}
                                                 style={{
-                                                    width: "0.625rem",
-                                                    height: "0.375rem",
-                                                    borderRadius: "9999px",
-                                                    background: j < Math.ceil(cleranceLevel/2) ? "#E8572A" : "#F4F6F8"
+                                                    width: "12px",
+                                                    height: "4px",
+                                                    borderRadius: "2px",
+                                                    background: j < Math.ceil(cleranceLevel/2) ? "var(--brand)" : "var(--surface-2)",
+                                                    border: j < Math.ceil(cleranceLevel/2) ? 'none' : '1px solid var(--border)'
                                                 }}
                                             />
                                         ))}
@@ -125,27 +177,29 @@ const RoleGrid: React.FC<RoleGridProps> = ({ onViewPermissions, onViewMatrix }) 
                                 </div>
                             </div>
                             
-                            <div style={{ flex: 1, marginBottom: "1.5rem" }}>
-                                <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "#212B36", marginBottom: "0.5rem" }}>
-                                    {cfg.label}
-                                </h4>
-                                <span style={{ 
-                                    display: "inline-block", 
-                                    padding: "0.125rem 0.5rem", 
-                                    background: "#F4F6F8", 
-                                    border: "1px solid #DFE3E8", 
-                                    borderRadius: "0.25rem", 
+                            <div style={{ flex: 1, marginBottom: "1.75rem", position: 'relative', zIndex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                                    <h4 style={{ fontSize: "1.125rem", fontWeight: 800, color: "var(--text-primary)", letterSpacing: '-0.01em' }}>
+                                        {cfg.label}
+                                    </h4>
+                                </div>
+                                <div style={{ 
+                                    display: "inline-flex", 
+                                    padding: "3px 8px", 
+                                    background: "var(--surface-2)", 
+                                    border: "1px solid var(--border)", 
+                                    borderRadius: "4px", 
                                     fontFamily: "monospace", 
-                                    fontSize: "0.625rem", 
-                                    fontWeight: 700, 
-                                    color: "#637381", 
+                                    fontSize: "0.6rem", 
+                                    fontWeight: 800, 
+                                    color: "var(--text-secondary)", 
                                     textTransform: "uppercase", 
                                     letterSpacing: "0.05em", 
                                     marginBottom: "1rem" 
                                 }}>
-                                    ID: {id}
-                                </span>
-                                <p style={{ color: "#637381", fontSize: "0.875rem", lineHeight: 1.5 }}>
+                                    UID: {id.toUpperCase()}
+                                </div>
+                                <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.6 }}>
                                     {cfg.description}
                                 </p>
                             </div>
@@ -157,25 +211,28 @@ const RoleGrid: React.FC<RoleGridProps> = ({ onViewPermissions, onViewMatrix }) 
                                     display: "flex",
                                     alignItems: "center",
                                     justifyContent: "space-between",
-                                    padding: "0.75rem 1rem",
-                                    borderRadius: "0.5rem",
-                                    background: "#F4F6F8",
-                                    border: "1px solid transparent",
-                                    color: "#637381",
-                                    fontWeight: 600,
+                                    padding: "0.875rem 1.25rem",
+                                    borderRadius: "12px",
+                                    background: "var(--surface-2)",
+                                    border: "1px solid var(--border)",
+                                    color: "var(--text-primary)",
+                                    fontWeight: 800,
                                     marginTop: "auto",
                                     transition: "all 0.2s ease",
                                     cursor: "pointer",
                                     fontSize: "0.75rem",
                                     textTransform: "uppercase",
-                                    letterSpacing: "0.05em"
+                                    letterSpacing: "0.05em",
+                                    position: 'relative',
+                                    zIndex: 1
                                 }}
-                                className="hover:bg-[#FFF5F3] hover:text-[#E8572A] hover:border-[#ffccba] group/btn"
+                                onMouseEnter={e => { e.currentTarget.style.background = 'var(--brand-soft)'; e.currentTarget.style.color = 'var(--brand)'; e.currentTarget.style.borderColor = 'rgba(232, 87, 42, 0.2)'; }}
+                                onMouseLeave={e => { e.currentTarget.style.background = 'var(--surface-2)'; e.currentTarget.style.color = 'var(--text-primary)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
                             >
-                                <span>Analyze Matrix</span>
-                                <ChevronRight size={16} className="transition-transform group-hover/btn:translate-x-1" />
+                                <span>Analyze Capabilities</span>
+                                <ChevronRight size={16} />
                             </button>
-                        </div>
+                        </motion.div>
                     );
                 })}
             </div>
@@ -184,4 +241,3 @@ const RoleGrid: React.FC<RoleGridProps> = ({ onViewPermissions, onViewMatrix }) 
 };
 
 export default RoleGrid;
-

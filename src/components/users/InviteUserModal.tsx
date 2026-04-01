@@ -1,5 +1,7 @@
+"use client";
+
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, UserPlus, Lock, Smartphone, Mail, ArrowRight, ChevronDown } from 'lucide-react';
+import { X, Copy, Check, UserPlus, Lock, Smartphone, Mail, ArrowRight, ChevronDown, Shield, Zap, QrCode } from 'lucide-react';
 import { ROLE_CONFIGS } from '@/lib/roles_config';
 import { UserRole } from '@/types';
 import { toast } from 'sonner';
@@ -19,7 +21,7 @@ const RoleSelect: React.FC<{ value: string; onChange: (val: string) => void; opt
     }, [isOpen]);
 
     return (
-        <div className="relative" onClick={e => e.stopPropagation()}>
+        <div className="relative" onClick={e => e.stopPropagation()} style={{ width: '100%' }}>
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
@@ -28,26 +30,31 @@ const RoleSelect: React.FC<{ value: string; onChange: (val: string) => void; opt
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     width: '100%',
-                    padding: '0.625rem 1rem',
-                    background: 'var(--background)',
+                    padding: '0.75rem 1rem',
+                    background: 'var(--surface-2)',
                     border: isOpen ? '1px solid var(--brand)' : '1px solid var(--border)',
-                    boxShadow: isOpen ? '0 0 0 3px rgba(92, 106, 196, 0.1)' : 'none',
-                    borderRadius: '8px',
+                    boxShadow: isOpen ? '0 0 0 2px rgba(232, 87, 42, 0.1)' : 'none',
+                    borderRadius: '12px',
                     fontSize: '0.875rem',
                     color: 'var(--text-primary)',
+                    fontWeight: 600,
                     transition: 'all 0.15s ease',
-                    textAlign: 'left'
+                    textAlign: 'left',
+                    cursor: 'pointer'
                 }}
             >
-                {selected?.label}
-                <ChevronDown size={16} style={{ color: 'var(--text-secondary)', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Shield size={14} style={{ color: 'var(--brand)' }} />
+                    {selected?.label}
+                </div>
+                <ChevronDown size={14} style={{ color: 'var(--text-disabled)', transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
             </button>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: 4 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 4 }}
+                        initial={{ opacity: 0, y: 4, scale: 0.98 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 4, scale: 0.98 }}
                         transition={{ duration: 0.15 }}
                         style={{
                             position: 'absolute',
@@ -57,42 +64,43 @@ const RoleSelect: React.FC<{ value: string; onChange: (val: string) => void; opt
                             marginTop: '0.5rem',
                             background: 'white',
                             border: '1px solid var(--border)',
-                            borderRadius: '8px',
-                            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)',
+                            borderRadius: '14px',
+                            boxShadow: 'var(--shadow-xl)',
                             zIndex: 100,
-                            maxHeight: '220px',
-                            overflowY: 'auto'
+                            maxHeight: '260px',
+                            overflowY: 'auto',
+                            padding: '0.375rem'
                         }}
                     >
-                        <div style={{ padding: '0.375rem' }}>
-                            {options.map((opt) => (
-                                <button
-                                    key={opt.value}
-                                    type="button"
-                                    onClick={() => { onChange(opt.value); setIsOpen(false); }}
-                                    style={{
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between',
-                                        width: '100%',
-                                        padding: '0.5rem 0.75rem',
-                                        background: value === opt.value ? 'var(--surface-hover)' : 'transparent',
-                                        border: 'none',
-                                        borderRadius: '6px',
-                                        fontSize: '0.875rem',
-                                        color: value === opt.value ? 'var(--brand)' : 'var(--text-secondary)',
-                                        fontWeight: value === opt.value ? 600 : 400,
-                                        textAlign: 'left',
-                                        cursor: 'pointer',
-                                    }}
-                                    onMouseEnter={e => { if (value !== opt.value) e.currentTarget.style.background = 'var(--surface-hover)'; }}
-                                    onMouseLeave={e => { if (value !== opt.value) e.currentTarget.style.background = 'transparent'; }}
-                                >
-                                    {opt.label}
-                                    {value === opt.value && <Check size={14} color="var(--brand)" />}
-                                </button>
-                            ))}
-                        </div>
+                        {options.map((opt) => (
+                            <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => { onChange(opt.value); setIsOpen(false); }}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    width: '100%',
+                                    padding: '0.625rem 0.875rem',
+                                    background: value === opt.value ? 'var(--brand-soft)' : 'transparent',
+                                    border: 'none',
+                                    borderRadius: '10px',
+                                    fontSize: '0.8125rem',
+                                    color: value === opt.value ? 'var(--brand)' : 'var(--text-secondary)',
+                                    fontWeight: value === opt.value ? 700 : 500,
+                                    textAlign: 'left',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.1s ease',
+                                    marginBottom: '2px'
+                                }}
+                                onMouseEnter={e => { if (value !== opt.value) e.currentTarget.style.background = 'var(--surface-2)'; }}
+                                onMouseLeave={e => { if (value !== opt.value) e.currentTarget.style.background = 'transparent'; }}
+                            >
+                                {opt.label}
+                                {value === opt.value && <Check size={14} color="var(--brand)" />}
+                            </button>
+                        ))}
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -170,8 +178,8 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
                 width: 512,
                 margin: 2,
                 color: {
-                    dark: '#5C6AC4', // Matches var(--brand) typical color
-                    light: '#FFFFFF', // White
+                    dark: '#E8572A', 
+                    light: '#FFFFFF',
                 },
             });
 
@@ -183,7 +191,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
             });
             setStep(2);
             onInviteCreated?.();
-            toast.success("User invited successfully");
+            toast.success("User identity record generated successfully");
         } catch (error: any) {
             console.error("Invite error:", error);
             toast.error(error.message || "An unexpected error occurred");
@@ -196,7 +204,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
         navigator.clipboard.writeText(text);
         setCopied(type);
         setTimeout(() => setCopied(null), 2000);
-        toast.success(`Copied ${type === 'link' ? 'Magic Link' : 'Access Code'} to clipboard`);
+        toast.success(`Copied ${type === 'link' ? 'Magic Link' : 'Access Code'}`);
     };
 
     const shareViaWhatsApp = () => {
@@ -208,44 +216,77 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
 
     return (
         <Portal>
-            <div className="modal-backdrop" style={{ animation: "fadeIn 0.2s ease-out" }}>
-                <div className="modal" style={{ maxWidth: 640, width: "95%", maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: "slideUp 0.3s ease-out", padding: 0, overflow: 'visible', borderRadius: '12px' }}>
-                    <div className="modal-header" style={{ padding: "1.25rem 1.5rem", borderBottom: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0, borderTopLeftRadius: '12px', borderTopRightRadius: '12px' }}>
-                        <h2 className="modal-title" style={{ display: "flex", alignItems: "center", gap: 8, margin: 0, fontSize: "1.25rem" }}>
-                            <UserPlus size={24} color="var(--brand)" /> 
-                            {step === 1 ? 'Invite New User' : 'Invite Generated'}
-                        </h2>
+            <div className="modal-backdrop" style={{ background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(12px)' }}>
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                    style={{ 
+                        maxWidth: 580, 
+                        width: "95%", 
+                        background: 'var(--surface)', 
+                        borderRadius: '24px', 
+                        boxShadow: 'var(--shadow-xl)', 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        overflow: 'hidden',
+                        position: 'relative'
+                    }}
+                >
+                    {/* Header Strip */}
+                    <div style={{ 
+                        padding: "1.5rem 2rem", 
+                        borderBottom: "1px solid var(--border)", 
+                        background: "var(--surface-2)", 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center' 
+                    }}>
+                        <div>
+                            <div style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--brand)', marginBottom: '4px' }}>
+                                Account Provisioning
+                            </div>
+                            <h2 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+                                {step === 1 ? 'Generate New Invite' : 'Identity Record Active'}
+                            </h2>
+                        </div>
                         <button 
                             onClick={onClose} 
-                            style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', transition: 'color 0.15s' }} 
-                            onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'} 
-                            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
+                            style={{ 
+                                width: '36px', height: '36px', borderRadius: '50%', background: 'var(--surface)', 
+                                border: '1px solid var(--border)', color: 'var(--text-secondary)', display: 'flex', 
+                                alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' 
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.color = 'var(--brand)'; e.currentTarget.style.borderColor = 'var(--brand)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-secondary)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
                         >
-                            <X size={24} />
+                            <X size={20} />
                         </button>
                     </div>
 
                     {step === 1 ? (
-                        <form onSubmit={handleInvite} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'visible' }}>
-                            <div className="modal-body" style={{ display: 'grid', gap: '1.25rem', padding: '1.5rem', overflowY: 'visible', flex: 1 }}>
+                        <form onSubmit={handleInvite} style={{ display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ padding: '2rem', display: 'grid', gap: '1.5rem' }}>
                                 <div>
-                                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        Full Name
+                                    <label style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', display: 'block' }}>
+                                        Staff Member Full Name
                                     </label>
                                     <input 
                                         type="text" 
                                         required 
-                                        className="form-input"
                                         placeholder="e.g. Samuel Adewale"
                                         value={formData.name}
                                         onChange={e => setFormData({...formData, name: e.target.value})}
+                                        style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-2)', outline: 'none', fontSize: '0.875rem', fontWeight: 600 }}
+                                        onFocus={e => e.currentTarget.style.borderColor = 'var(--brand)'}
+                                        onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
                                     />
                                 </div>
 
-                                <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
                                     <div>
-                                        <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            Assigned Role
+                                        <label style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', display: 'block' }}>
+                                            Strategic Role
                                         </label>
                                         <RoleSelect
                                             value={formData.role}
@@ -256,156 +297,148 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
                                         />
                                     </div>
                                     <div>
-                                        <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <label style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: '0.75rem', display: 'block' }}>
                                             Department
                                         </label>
                                         <input 
                                             type="text" 
                                             required 
-                                            className="form-input"
-                                            placeholder="e.g. Logistics"
+                                            placeholder="e.g. Operations"
                                             value={formData.department}
                                             onChange={e => setFormData({...formData, department: e.target.value})}
+                                            style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-2)', outline: 'none', fontSize: '0.875rem', fontWeight: 600 }}
+                                            onFocus={e => e.currentTarget.style.borderColor = 'var(--brand)'}
+                                            onBlur={e => e.currentTarget.style.borderColor = 'var(--border)'}
                                         />
                                     </div>
                                 </div>
 
-                                <div>
-                                    <label className="form-label" style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '0.25rem' }}>
-                                        Email Address <span style={{ color: 'var(--text-secondary)', fontWeight: 400, fontSize: '0.75rem' }}>(Optional)</span>
-                                    </label>
-                                    <input 
-                                        type="email" 
-                                        className="form-input"
-                                        placeholder="user@example.com"
-                                        value={formData.email}
-                                        onChange={e => setFormData({...formData, email: e.target.value})}
-                                    />
-                                </div>
-
                                 <div style={{
-                                    padding: '1rem',
-                                    background: 'var(--surface-hover)',
-                                    borderRadius: '8px',
-                                    border: '1px solid var(--border)',
+                                    padding: '1.25rem',
+                                    background: 'var(--brand-soft)',
+                                    borderRadius: '16px',
+                                    border: '1px solid rgba(232, 87, 42, 0.1)',
                                     display: 'flex',
                                     alignItems: 'flex-start',
-                                    gap: '0.75rem',
+                                    gap: '1rem',
                                 }}>
-                                    <Lock size={16} color="var(--text-secondary)" style={{ marginTop: '0.1rem' }} />
-                                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                                        A secure magic link and access code will be generated. You can share these credentials directly with the user via your preferred communication channel.
+                                    <Lock size={20} color="var(--brand)" style={{ marginTop: '0.125rem' }} />
+                                    <div style={{ fontSize: '0.8125rem', color: 'var(--brand-dark)', lineHeight: 1.6, fontWeight: 500 }}>
+                                        Encryption protocols active. A unique magic join link and one-time access code will be generated for direct sharing with the staff member.
                                     </div>
                                 </div>
                             </div>
                             
-                            <div className="modal-footer" style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0, borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
-                                <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-                                <button type="submit" className="btn btn-primary" disabled={loading} style={{ minWidth: '140px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                                    {loading ? 'Processing...' : <>Generate Invite <ArrowRight size={16} /></>}
+                            <div style={{ padding: "1.5rem 2rem", borderTop: "1px solid var(--border)", background: "var(--surface-2)", display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                                <button type="button" onClick={onClose} style={{ padding: '0.75rem 1.5rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'white', color: 'var(--text-secondary)', fontWeight: 800, fontSize: '0.8125rem', cursor: 'pointer' }}>Cancel</button>
+                                <button 
+                                    type="submit" 
+                                    disabled={loading} 
+                                    style={{ 
+                                        padding: '0.75rem 2rem', borderRadius: '12px', border: 'none', 
+                                        background: 'var(--brand)', color: 'white', fontWeight: 900, 
+                                        fontSize: '0.8125rem', cursor: 'pointer', display: 'flex', 
+                                        alignItems: 'center', gap: '8px', boxShadow: '0 8px 16px rgba(232, 87, 42, 0.2)',
+                                        transition: 'all 0.2s ease'
+                                    }}
+                                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 12px 20px rgba(232, 87, 42, 0.3)'; }}
+                                    onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = '0 8px 16px rgba(232, 87, 42, 0.2)'; }}
+                                >
+                                    {loading ? 'Processing...' : <>Generate Identity Flow <ArrowRight size={16} /></>}
                                 </button>
                             </div>
                         </form>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'visible' }}>
-                            <div className="modal-body" style={{ display: 'grid', gap: '1.25rem', padding: '1.5rem', overflowY: 'visible', flex: 1 }}>
-                                <div style={{ textAlign: 'center', margin: '0.5rem 0 1rem 0' }}>
-                                    <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--success-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem auto' }}>
-                                        <Check size={32} color="var(--success)" />
-                                    </div>
-                                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-                                        Credentials are ready for <strong>{formData.name}</strong>
-                                    </p>
+                        <div style={{ padding: '2rem', display: 'grid', gap: '2rem' }}>
+                            <div style={{ textAlign: 'center' }}>
+                                <div style={{ width: 64, height: 64, borderRadius: '20px', background: 'var(--success-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto', border: '1px solid rgba(0, 171, 85, 0.2)' }}>
+                                    <Check size={32} color="var(--success)" />
                                 </div>
+                                <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)' }}>Invite Distributed</h3>
+                                <p style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)', margin: 0 }}>
+                                    Staff record for <strong>{formData.name}</strong> is now live.
+                                </p>
+                            </div>
 
-                                <div>
-                                    <label className="form-label" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Magic Link</label>
-                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                        <input 
-                                            type="text" 
-                                            readOnly 
-                                            className="form-input" 
-                                            value={result?.magicLink} 
-                                            style={{ background: 'var(--background)', color: 'var(--text-secondary)' }} 
-                                        />
-                                        <button 
-                                            onClick={() => copyToClipboard(result?.magicLink || '', 'link')}
-                                            className="btn btn-secondary"
-                                            style={{ padding: '0 1rem' }}
-                                        >
-                                            {copied === 'link' ? <Check size={18} /> : <Copy size={18} />}
-                                        </button>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '1.5rem' }}>
+                                <div style={{ display: 'grid', gap: '1.25rem' }}>
+                                    <div>
+                                        <label style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-disabled)', marginBottom: '0.5rem', display: 'block' }}>Magic Activation Link</label>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <input 
+                                                type="text" 
+                                                readOnly 
+                                                value={result?.magicLink} 
+                                                style={{ flex: 1, padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-2)', outline: 'none', fontSize: '0.8125rem', color: 'var(--text-secondary)', fontWeight: 600 }} 
+                                            />
+                                            <button 
+                                                onClick={() => copyToClipboard(result?.magicLink || '', 'link')}
+                                                style={{ width: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '12px', border: '1px solid var(--border)', background: 'white', cursor: 'pointer', color: 'var(--text-primary)' }}
+                                            >
+                                                {copied === 'link' ? <Check size={18} color="var(--success)" /> : <Copy size={18} />}
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div className="grid-mobile-1" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <label className="form-label" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Access Code</label>
+                                    <div>
+                                        <label style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-disabled)', marginBottom: '0.5rem', display: 'block' }}>Secure Access Code</label>
                                         <div style={{
-                                            background: 'var(--surface-hover)',
+                                            background: 'var(--surface-2)',
                                             border: '1px solid var(--border)',
-                                            borderRadius: '8px',
-                                            display: 'flex',
-                                            flexDirection: 'column',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            flex: 1,
-                                            padding: '1.5rem'
+                                            borderRadius: '16px',
+                                            padding: '1.5rem',
+                                            textAlign: 'center'
                                         }}>
-                                            <div style={{ fontSize: '2rem', fontWeight: 800, letterSpacing: '0.1em', color: 'var(--brand)', marginBottom: '0.75rem' }}>
+                                            <div style={{ fontSize: '2.25rem', fontWeight: 900, letterSpacing: '0.15em', color: 'var(--brand)', marginBottom: '1rem', textShadow: '0 4px 12px rgba(232, 87, 42, 0.1)' }}>
                                                 {result?.code}
                                             </div>
                                             <button 
                                                 onClick={() => copyToClipboard(result?.code || '', 'code')}
-                                                className="btn btn-secondary btn-sm"
+                                                style={{ padding: '0.5rem 1.25rem', borderRadius: '10px', border: '1px solid rgba(232, 87, 42, 0.2)', background: 'var(--brand-soft)', color: 'var(--brand)', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', margin: '0 auto' }}
                                             >
-                                                {copied === 'code' ? <Check size={14} style={{ marginRight: 4 }} /> : <Copy size={14} style={{ marginRight: 4 }} />}
-                                                {copied === 'code' ? 'Copied' : 'Copy Code'}
+                                                {copied === 'code' ? <Check size={14} /> : <Zap size={14} />}
+                                                {copied === 'code' ? 'COPIED' : 'COPY CODE'}
                                             </button>
                                         </div>
                                     </div>
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <label className="form-label" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>QR Code</label>
-                                        <div style={{
-                                            background: 'var(--surface-hover)',
-                                            border: '1px solid var(--border)',
-                                            borderRadius: '8px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            flex: 1,
-                                            padding: '0.5rem'
-                                        }}>
-                                            <img src={result?.qrCodeDataUrl} alt="QR Code" style={{ width: '120px', height: '120px', borderRadius: '4px', mixBlendMode: 'multiply' }} />
-                                        </div>
+                                </div>
+
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <label style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-disabled)', marginBottom: '0.5rem', display: 'block' }}>Instant QR Entry</label>
+                                    <div style={{
+                                        background: 'white',
+                                        border: '1px solid var(--border)',
+                                        borderRadius: '16px',
+                                        padding: '1rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flex: 1,
+                                        boxShadow: 'var(--shadow-sm)'
+                                    }}>
+                                        <img src={result?.qrCodeDataUrl} alt="QR Code" style={{ width: '100%', height: 'auto', maxWidth: '140px', borderRadius: '8px' }} />
                                     </div>
                                 </div>
                             </div>
                             
-                            <div className="modal-footer" style={{ padding: "1.25rem 1.5rem", borderTop: "1px solid var(--border)", background: "var(--surface-hover)", flexShrink: 0, display: 'flex', gap: '0.75rem', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px' }}>
+                            <div style={{ display: 'flex', gap: '1rem' }}>
                                 <button 
                                     onClick={shareViaWhatsApp}
-                                    className="btn btn-secondary"
-                                    style={{ flex: 1, display: 'flex', justifyContent: 'center' }}
+                                    style={{ flex: 1, height: '48px', borderRadius: '14px', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontWeight: 800, fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = '#e7f9ee'}
                                 >
-                                    <Smartphone size={18} style={{ marginRight: 6 }} /> WhatsApp
+                                    <Smartphone size={18} style={{ color: '#25D366' }} /> WhatsApp
                                 </button>
-                                <button 
-                                    className="btn btn-secondary"
-                                    disabled
-                                    style={{ flex: 1, display: 'flex', justifyContent: 'center' }}
-                                >
-                                    <Mail size={18} style={{ marginRight: 6 }} /> Email Soon
+                                <button onClick={onClose} style={{ flex: 1, height: '48px', borderRadius: '14px', border: 'none', background: 'var(--text-primary)', color: 'white', fontWeight: 900, fontSize: '0.875rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                    Complete Flow <Check size={18} />
                                 </button>
-                                <button onClick={onClose} className="btn btn-primary" style={{ flex: 1 }}>Done</button>
                             </div>
                         </div>
                     )}
-                </div>
+                </motion.div>
             </div>
         </Portal>
     );
 };
 
 export default InviteUserModal;
-

@@ -22,14 +22,14 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ roleId, isOpen, onClo
         <Portal>
             <AnimatePresence>
                 {isOpen && (
-                    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 md:p-6">
+                    <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
                     {/* Backdrop */}
                     <motion.div 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+                        className="absolute inset-0 bg-[#0f172a]/80 backdrop-blur-sm"
                     />
 
                     {/* Modal Content */}
@@ -37,16 +37,13 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ roleId, isOpen, onClo
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl relative group z-10 flex flex-col max-h-[90vh]"
+                        className="bg-[var(--surface)] border border-[var(--border)] rounded-[24px] w-full max-w-2xl overflow-hidden shadow-2xl relative group z-10 flex flex-col max-h-[90vh]"
                     >
                         {/* Header */}
-                        <div className="p-6 md:p-8 border-b border-[var(--border)] flex items-start justify-between bg-gradient-to-br from-slate-50 relative overflow-hidden">
-                            {/* Decorative background element */}
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-slate-200/40 rounded-full blur-[60px] opacity-50 -translate-y-1/2 translate-x-1/3 transition-all" />
-                            
-                            <div className="flex items-center gap-5 relative z-10">
+                        <div className="p-6 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-2)]">
+                            <div className="flex items-center gap-5">
                                 <div 
-                                    className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-sm border bg-white"
+                                    className="w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-sm border bg-[var(--surface)]"
                                     style={{ 
                                         color: config.color, 
                                         borderColor: `${config.color}30`,
@@ -56,42 +53,41 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ roleId, isOpen, onClo
                                     <RoleIcon roleId={roleId} size={24} />
                                 </div>
                                 <div>
-                                    <h2 className="text-xl font-bold text-slate-800 tracking-tight">{config.label}</h2>
-                                    <p className="text-slate-500 text-sm mt-0.5 flex items-center gap-1.5 focus:outline-none">
-                                        <Shield size={14} className="opacity-60" />
+                                    <h2 className="text-xl font-900 text-[var(--foreground)] tracking-tight uppercase">{config.label}</h2>
+                                    <p className="text-[var(--muted-foreground)] font-medium mt-0.5 text-xs flex items-center gap-1.5 uppercase tracking-wider">
                                         Role Specification
                                     </p>
                                 </div>
                             </div>
                             <button 
                                 onClick={onClose}
-                                className="relative z-10 w-9 h-9 flex items-center justify-center hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600"
+                                className="w-10 h-10 flex items-center justify-center rounded-xl bg-[var(--surface)] border border-[var(--border)] hover:bg-[var(--surface-2)] transition-all shadow-sm text-[var(--foreground)]"
                             >
                                 <X size={20} />
                             </button>
                         </div>
 
                         {/* Content */}
-                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-8 bg-slate-50/40">
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-[var(--surface)]">
                             {/* Role Description Card */}
-                            <div className="mb-6">
-                                <p className="text-slate-600 text-sm leading-relaxed font-medium bg-white border border-slate-200 shadow-sm p-4 rounded-xl border-l-4" style={{ borderLeftColor: config.color }}>
+                            <div className="mb-8">
+                                <p className="text-[var(--foreground)] text-sm leading-relaxed font-semibold bg-[var(--surface-2)] border border-[var(--border)] shadow-sm p-6 rounded-2xl border-l-[6px]" style={{ borderLeftColor: config.color }}>
                                     {config.description}
                                 </p>
                             </div>
 
                             {/* Matrix */}
                             <div>
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                                    <h3 className="text-sm font-bold text-slate-800 tracking-wide uppercase flex items-center gap-2">
-                                        <div className="w-6 h-6 rounded bg-slate-200/50 flex items-center justify-center border border-slate-200">
-                                            <Shield size={12} className="text-slate-600" />
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 px-1">
+                                    <h3 className="text-xs font-900 text-[var(--muted-foreground)] tracking-widest uppercase flex items-center gap-2">
+                                        <div className="w-5 h-5 rounded-md bg-[var(--surface-2)] flex items-center justify-center border border-[var(--border)]">
+                                            <Shield size={10} className="text-[var(--brand)]" />
                                         </div>
                                         Module Access Level
                                     </h3>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {MODULES.map(module => {
                                         const level = config.permissions[module];
                                         const isFull = level === 'FULL';
@@ -100,39 +96,39 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ roleId, isOpen, onClo
                                         return (
                                             <div 
                                                 key={module}
-                                                className={`p-3 rounded-xl border flex items-center justify-between transition-all duration-200 bg-white ${
+                                                className={`p-4 rounded-2xl border flex items-center justify-between transition-all duration-300 group ${
                                                     isFull 
-                                                        ? 'border-emerald-200 shadow-[0_2px_10px_-4px_rgba(16,185,129,0.1)]' 
+                                                        ? 'border-emerald-500/20 bg-emerald-500/[0.03] shadow-sm hover:shadow-md' 
                                                         : isLimited
-                                                        ? 'border-amber-200 shadow-[0_2px_10px_-4px_rgba(245,158,11,0.1)]'
-                                                        : 'border-slate-200 opacity-70'
+                                                        ? 'border-amber-500/20 bg-amber-500/[0.03] shadow-sm hover:shadow-md'
+                                                        : 'border-[var(--border)] opacity-60 grayscale'
                                                 }`}
                                             >
-                                                <div className="flex flex-col gap-1 text-left">
-                                                    <span className={`text-sm font-semibold tracking-tight ${
-                                                        level ? 'text-slate-800' : 'text-slate-500'
+                                                <div className="flex flex-col gap-1.5 text-left">
+                                                    <span className={`text-[11px] font-900 uppercase tracking-widest ${
+                                                        level ? 'text-[var(--foreground)]' : 'text-[var(--muted-foreground)]'
                                                     }`}>
                                                         {module}
                                                     </span>
-                                                    <span className="text-[11px] font-medium uppercase tracking-wider">
+                                                    <span className="text-[10px] font-semibold uppercase tracking-wider">
                                                         {isFull ? (
                                                             <span className="text-emerald-600">Full Access</span>
                                                         ) : isLimited ? (
                                                             <span className="text-amber-600">Restricted</span>
                                                         ) : (
-                                                            <span className="text-slate-400">No Access</span>
+                                                            <span className="text-[var(--muted-foreground)]">No Access</span>
                                                         )}
                                                     </span>
                                                 </div>
                                                 
-                                                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                                                    isFull ? 'bg-emerald-50 text-emerald-600' : 
-                                                    isLimited ? 'bg-amber-50 text-amber-600' : 
-                                                    'bg-slate-50 text-slate-400'
+                                                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center shadow-sm border transition-transform duration-300 group-hover:scale-110 ${
+                                                    isFull ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600' : 
+                                                    isLimited ? 'bg-amber-500/10 border-amber-500/20 text-amber-600' : 
+                                                    'bg-[var(--surface-2)] border-[var(--border)] text-[var(--muted-foreground)]'
                                                 }`}>
-                                                    {isFull && <ShieldCheck className="w-4 h-4" />}
-                                                    {isLimited && <ShieldAlert className="w-4 h-4" />}
-                                                    {!level && <Lock className="w-4 h-4" />}
+                                                    {isFull && <ShieldCheck className="w-5 h-5" />}
+                                                    {isLimited && <ShieldAlert className="w-5 h-5" />}
+                                                    {!level && <Lock className="w-5 h-5" />}
                                                 </div>
                                             </div>
                                         );
@@ -142,16 +138,16 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ roleId, isOpen, onClo
                         </div>
 
                         {/* Footer */}
-                        <div className="px-6 py-4 border-t border-slate-200 bg-white flex items-center justify-between rounded-b-2xl">
-                            <div className="flex items-center gap-2 text-slate-500">
-                                <Activity size={14} className="text-emerald-500" />
-                                <span className="text-xs font-medium uppercase tracking-wider pt-0.5">Policy Active</span>
+                        <div className="px-6 py-5 border-t border-[var(--border)] bg-[var(--surface-2)] flex items-center justify-between">
+                            <div className="flex items-center gap-3 text-[var(--muted-foreground)]">
+                                <Activity size={16} className="text-emerald-500" />
+                                <span className="text-[10px] font-900 uppercase tracking-widest pt-0.5">Policy Active</span>
                             </div>
                             <button 
                                 onClick={onClose}
-                                className="px-5 py-2 hover:bg-slate-100 text-slate-700 text-sm font-semibold rounded-lg transition-colors bg-white border border-slate-200 shadow-sm"
+                                className="px-6 py-2 bg-[var(--brand)] hover:scale-[1.02] active:scale-[0.98] text-white text-xs font-900 uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-[var(--brand)]/20"
                             >
-                                Close
+                                CLOSE
                             </button>
                         </div>
                     </motion.div>
