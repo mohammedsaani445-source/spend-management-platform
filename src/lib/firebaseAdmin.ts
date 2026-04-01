@@ -24,36 +24,40 @@ function getAdminApp() {
     
     let key = rawKey.trim();
     let trace = "Init";
+
+    // 0. Preliminary Handle (Handles URL Encoding)
+    if (key.includes('%')) {
+        try {
+            key = decodeURIComponent(key);
+            trace += " > URL_Decoded";
+        } catch (e) { /* ignore */ }
+    }
     
-    // 1. Recursive JSON/Quote Extraction
-    // Handles double-escaped strings or JSON files nested inside strings
+    // 1. Recursive Field Extraction (Regex-based)
+    // Much more robust than JSON.parse for mangled strings
     try {
         let depth = 0;
-        while (depth < 5) {
+        let found = false;
+        while (depth < 5 && !found) {
             key = key.trim().replace(/^["']|["']$/g, ''); // Strip outer quotes
             
-            // Check for JSON: either a proper { } or an escaped {\"
-            if ((key.includes('{') || key.includes('{\\\"')) && (key.includes('private_key') || key.includes('privateKey'))) {
-                try {
-                    // Try to unescape if it looks like an escaped JSON string
-                    let prospect = key.replace(/\\"/g, '"').replace(/\\\\n/g, '\n');
-                    const start = prospect.indexOf('{');
-                    const end = prospect.lastIndexOf('}');
-                    if (start >= 0 && end > start) {
-                        const jsonPart = prospect.substring(start, end + 1);
-                        const parsed = JSON.parse(jsonPart);
-                        const extracted = parsed.private_key || parsed.privateKey;
-                        if (extracted) {
-                            key = extracted;
-                            trace += " > JSON_Extracted";
-                        }
-                    }
-                } catch (e) { /* ignore and continue to other cleaners */ }
+            // Look for private_key or privateKey field with various quoting/escaping
+            // Patterns: "private_key": "...", \"private_key\": \"...\", etc.
+            // This captures everything between the value quotes and stops at the closing quote or comma
+            const fieldRegex = /["\\]*private_?key["\\]*\s*[:=]\s*["\\]*(-----BEGIN[\s\S]*?-----END[\s\S]*?|MII[\s\S]*?)(?=["\\]*[,}\n]|$)/i;
+            const match = key.match(fieldRegex);
+            
+            if (match && match[1]) {
+                key = match[1].replace(/\\n/g, '\n').replace(/\\"/g, '"').trim();
+                found = true;
+                trace += " > Regex_Extracted";
+            } else {
+                break; // No JSON field found, move to next cleaners
             }
             depth++;
         }
     } catch (e) {
-        trace += " > JSON_Fail";
+        trace += " > Extraction_Fail";
     }
 
     // 2. Standard Escaping Cleanup
@@ -61,8 +65,10 @@ function getAdminApp() {
     trace += ` > Standard_Clean(${key.length})`;
 
     // 3. Ultimate PEM Reconstruction
-    // ONLY do this if it doesn't still look like JSON (to prevent wrapping whole JSON in PEM headers)
-    if (!key.includes('{')) {
+    // ONLY do this if it doesn't look like JSON boilerplate (brackets/quotes with project_id)
+    const isJsonLike = key.includes('{') || key.includes('project_id');
+    
+    if (!isJsonLike) {
         try {
             let headerType = "PRIVATE KEY";
             let body = "";
