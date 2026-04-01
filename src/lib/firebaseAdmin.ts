@@ -41,8 +41,8 @@ function getAdminApp() {
     
     // 4. Ultimate PEM Reconstruction
     try {
-        // Find actual content markers
-        const match = key.match(/-----BEGIN (.*)-----(.*)-----END \1-----/s);
+        // Find actual content markers (using [\s\S] instead of /s flag for ES2017 compatibility)
+        const match = key.match(/-----BEGIN (.*)-----([\s\S]*)-----END \1-----/);
         
         if (match) {
             const headerType = match[1]; // e.g., "PRIVATE KEY" or "RSA PRIVATE KEY"
