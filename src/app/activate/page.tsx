@@ -156,13 +156,16 @@ export default function ActivatePage() {
                 {/* Interaction Side - FORM WINDOW */}
                 <div className="bg-white p-8 md:p-12 lg:p-16 relative flex flex-col justify-center min-h-[600px]">
                     {step === 1 && (
-                        <div className="animate-in fade-in slide-in-from-right-10 duration-500 w-full max-w-xl mx-auto lg:mx-0">
-                            <div className="flex items-center gap-3 mb-10">
+                        <div className="animate-in fade-in slide-in-from-right-10 duration-500 w-full max-w-2xl mx-auto lg:mx-0">
+                            <div className="flex items-center gap-3 mb-8">
                                 <span className="text-[9px] font-bold px-2.5 py-1 bg-[#111827] text-white rounded-sm uppercase tracking-widest">GATE_01 // IDENTITY</span>
-                                <div className="h-[1px] flex-1 bg-[var(--border)]"></div>
+                                <div className="h-[1px] flex-1 bg-[var(--border)] opacity-30"></div>
                             </div>
                             
-                            <h2 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-8 leading-[0.9]">Identity <br />Verification</h2>
+                            <h2 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-3 leading-[0.9]">Identity <br />Verification</h2>
+                            <p className="text-[var(--text-secondary)] text-[13px] mb-10 leading-relaxed font-medium max-w-md opacity-80">
+                                Confirming your organizational identity and administrative permissions within the system.
+                            </p>
                             
                             {/* Identity Card: Sharp & Compact */}
                             <div className="space-y-4 mb-10">
@@ -207,7 +210,7 @@ export default function ActivatePage() {
                     )}
 
                     {step === 2 && (
-                        <div className="animate-in fade-in slide-in-from-right-10 duration-500 w-full max-w-xl mx-auto lg:mx-0">
+                        <div className="animate-in fade-in slide-in-from-right-10 duration-500 w-full max-w-2xl mx-auto lg:mx-0">
                              <button onClick={() => setStep(1)} className="text-[8px] font-bold text-[var(--text-disabled)] uppercase hover:text-[var(--brand)] mb-8 transition-colors tracking-[0.2em] flex items-center gap-2">
                                 <ArrowRight size={12} className="rotate-180" /> BACK TO IDENTITY
                              </button>
@@ -216,7 +219,7 @@ export default function ActivatePage() {
                                 <div className="h-[1px] flex-1 bg-[var(--border)] opacity-30"></div>
                              </div>
                              
-                             <h2 className="text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight mb-3 leading-tight">Account Binding</h2>
+                             <h2 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-3 leading-[0.9]">Account <br />Binding</h2>
                              <p className="text-[var(--text-secondary)] text-[13px] mb-10 leading-relaxed font-medium max-w-md opacity-80">
                                 Connect your corporate credentials to sync with the <span className="text-[var(--text-primary)]">Apex Procure Security Cluster.</span>
                              </p>
