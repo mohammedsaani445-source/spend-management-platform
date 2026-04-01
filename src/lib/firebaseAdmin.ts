@@ -24,44 +24,50 @@ function getAdminApp() {
     
     let key = rawKey.trim();
     
-    // 1. JSON Extraction (Handles cases where the whole JSON file is pasted)
-    if (key.includes('{') && key.includes('private_key')) {
-        try {
-            const start = key.indexOf('{');
-            const end = key.lastIndexOf('}');
-            const jsonPart = key.substring(start, end + 1);
-            const parsed = JSON.parse(jsonPart);
-            if (parsed.private_key) key = parsed.private_key;
-        } catch (e) {}
+    // 1. Recursive JSON/Quote Extraction
+    // Handles double-escaped strings or JSON files nested inside strings
+    let depth = 0;
+    while (depth < 3 && (key.includes('{') || key.startsWith('"') || key.startsWith("'"))) {
+        key = key.trim().replace(/^["']|["']$/g, ''); // Strip outer quotes
+        if (key.includes('{') && key.includes('private_key')) {
+            try {
+                const start = key.indexOf('{');
+                const end = key.lastIndexOf('}');
+                const jsonPart = key.substring(start, end + 1);
+                const parsed = JSON.parse(jsonPart);
+                if (parsed.private_key) key = parsed.private_key;
+            } catch (e) { break; }
+        } else {
+            break;
+        }
+        depth++;
     }
 
-    // 2. Quote and Escaping Cleanup
-    key = key.replace(/^["']|["']$/g, ''); // Strip outer quotes
-    key = key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n'); // Normalize newlines
+    // 2. Standard Escaping Cleanup
+    key = key.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
 
     // 3. Ultimate PEM Reconstruction
     try {
         let headerType = "PRIVATE KEY";
         let body = "";
 
-        // Find actual content markers (ES2017 compatible)
-        const match = key.match(/-----BEGIN (.*)-----([\s\S]*)-----END \1-----/);
+        // Strategy A: Find the FIRST valid PEM block and isolate it
+        const match = key.match(/-----BEGIN (.*)-----([\s\S]*?)-----END \1-----/);
         
         if (match) {
-            headerType = match[1]; // e.g., "PRIVATE KEY" or "RSA PRIVATE KEY"
-            body = match[2].replace(/[^A-Za-z0-9+/=]/g, ''); // Purge EVERYTHING except Base64 chars
-        } else if (key.length > 50) {
-            // It's a raw base64 string or poorly formatted PEM
+            headerType = match[1];
+            body = match[2].replace(/[^A-Za-z0-9+/=]/g, '');
+        } else {
+            // Strategy B: Treat the whole thing as a raw Base64 blob if no headers found
             body = key.replace(/[^A-Za-z0-9+/=]/g, '');
         }
 
-        if (body) {
-            // Rebuild with strict 64-char lines
+        if (body.length > 100) {
             const lines = body.match(/.{1,64}/g) || [];
             key = `-----BEGIN ${headerType}-----\n${lines.join('\n')}\n-----END ${headerType}-----\n`;
         }
     } catch (e) {
-        console.error("[FirebaseAdmin] Reconstruction failed, using fallback:", e);
+        console.error("[FirebaseAdmin] Reconstruction failed:", e);
     }
 
     const firebaseAdminConfig = {
