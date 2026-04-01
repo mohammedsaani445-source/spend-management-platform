@@ -118,13 +118,8 @@ export default function ActivatePage() {
     const roleConfig = invite ? ROLE_CONFIGS[invite.role] : null;
 
     return (
-        <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] p-8 md:p-16 flex flex-col items-center justify-center font-sans overflow-hidden">
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-[800px] h-[800px] bg-[var(--brand)] opacity-[0.04] blur-[140px] rounded-full"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-[800px] h-[800px] bg-blue-600 opacity-[0.03] blur-[140px] rounded-full"></div>
-            </div>
-
-            <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-[1.2fr_1.5fr] gap-16 items-center relative z-10 transition-all duration-700">
+        <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] py-12 px-4 md:px-8 flex flex-col items-center justify-start font-sans overflow-y-auto">
+            <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-[1.1fr_1.5fr] gap-12 lg:gap-16 items-start lg:items-center relative z-10 transition-all duration-700 my-auto">
                 {/* Visual Side */}
                 <div className="hidden lg:block space-y-12 animate-in fade-in slide-in-from-left-10 duration-700">
                     <div className="space-y-8">
@@ -147,7 +142,7 @@ export default function ActivatePage() {
 
                     <div className="space-y-10 pt-10 border-t border-[var(--border)] max-w-sm">
                          <div className="flex items-start gap-6 group">
-                             <div className="w-16 h-16 rounded-2xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-[var(--brand)] group-hover:border-[var(--brand)]/30 group-hover:shadow-[0_20px_40px_-15px_rgba(232,87,42,0.15)] transition-all duration-500">
+                             <div className="w-16 h-16 rounded-2xl bg-white border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-[var(--brand)] group-hover:border-[var(--brand)]/30 group-hover:shadow-[0_20px_40px_-15px_rgba(232,87,42,0.15)] transition-all duration-500">
                                  <ShieldCheck size={32} />
                              </div>
                              <div>
@@ -156,7 +151,7 @@ export default function ActivatePage() {
                              </div>
                          </div>
                          <div className="flex items-start gap-6 group">
-                             <div className="w-16 h-16 rounded-2xl bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.15)] transition-all duration-500">
+                             <div className="w-16 h-16 rounded-2xl bg-white border border-[var(--border)] flex items-center justify-center text-[var(--text-disabled)] group-hover:text-blue-500 group-hover:border-blue-500/30 group-hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.15)] transition-all duration-500">
                                  <Lock size={32} />
                              </div>
                              <div>
@@ -168,28 +163,28 @@ export default function ActivatePage() {
                 </div>
 
                 {/* Form Side */}
-                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[64px] p-12 md:p-16 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.08)] relative overflow-hidden animate-in zoom-in-95 duration-500">
+                <div className="bg-white border border-[var(--border)] rounded-[48px] md:rounded-[64px] p-8 md:p-16 shadow-[0_48px_96px_-32px_rgba(0,0,0,0.12)] relative animate-in zoom-in-95 duration-500 w-full overflow-visible">
                     {step === 1 && (
                         <div className="animate-in fade-in slide-in-from-right-10 duration-500">
-                            <div className="flex items-center gap-4 mb-14">
+                            <div className="flex items-center gap-4 mb-10 md:mb-14">
                                 <span className="text-[10px] font-black px-4 py-2 bg-[var(--brand)] text-white rounded-xl uppercase tracking-widest shadow-lg shadow-[var(--brand)]/20">STEP 01</span>
                                 <div className="h-[1px] flex-1 bg-[var(--border)] opacity-60"></div>
                             </div>
                             
-                            <h2 className="text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-14 leading-[1]">Identity <br />Verification</h2>
+                            <h2 className="text-4xl md:text-5xl font-black text-[var(--text-primary)] uppercase tracking-tighter mb-10 md:mb-14 leading-[1]">Identity <br />Verification</h2>
                             
-                            <div className="space-y-10 mb-16">
-                                <div className="p-12 bg-[var(--background)] border border-[var(--border)] rounded-[48px] group hover:border-[var(--brand)]/20 transition-all duration-500 shadow-sm relative overflow-hidden">
+                            <div className="space-y-8 md:space-y-10 mb-12 md:mb-16">
+                                <div className="p-8 md:p-12 bg-[#F9FAFB] border border-[var(--border)] rounded-[40px] md:rounded-[48px] group hover:border-[var(--brand)]/20 transition-all duration-500 shadow-sm relative overflow-hidden">
                                      <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
                                         <Logo size={120} />
                                      </div>
                                     <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-8 block opacity-70">Authenticated Identity</label>
-                                    <div className="flex items-center gap-10">
-                                        <div className="w-24 h-24 rounded-[32px] bg-[var(--brand)] flex items-center justify-center text-white shadow-2xl shadow-[var(--brand)]/30 transform group-hover:scale-105 transition-transform duration-500">
-                                            <User size={48} />
+                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 md:gap-10">
+                                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-[28px] md:rounded-[32px] bg-[var(--brand)] flex items-center justify-center text-white shadow-2xl shadow-[var(--brand)]/30 transform group-hover:scale-105 transition-transform duration-500 shrink-0">
+                                            <User size={40} md:size={48} />
                                         </div>
                                         <div>
-                                            <div className="text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight leading-none mb-4">{invite?.invited_name}</div>
+                                            <div className="text-3xl md:text-4xl font-black text-[var(--text-primary)] uppercase tracking-tight leading-none mb-4 break-words">{invite?.invited_name}</div>
                                             <div className="text-[11px] text-[var(--text-secondary)] font-bold uppercase tracking-[0.15em] flex items-center gap-3">
                                                 <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_12px_rgba(34,197,94,0.5)]"></div> Records Validated
                                             </div>
@@ -197,17 +192,17 @@ export default function ActivatePage() {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-8">
-                                    <div className="p-10 bg-[var(--background)] border border-[var(--border)] rounded-[40px] hover:bg-[var(--surface)] transition-all duration-500 group">
-                                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-5 block opacity-70">Unit Assignment</label>
-                                        <div className="flex items-center gap-4 font-black text-[var(--text-primary)] uppercase text-xs tracking-wider">
-                                            <Briefcase size={20} className="text-[var(--text-disabled)] group-hover:text-[var(--brand)] transition-colors" /> {invite?.department}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
+                                    <div className="p-8 md:p-10 bg-[#F9FAFB] border border-[var(--border)] rounded-[32px] md:rounded-[40px] hover:bg-white transition-all duration-500 group">
+                                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-4 md:mb-5 block opacity-70">Unit Assignment</label>
+                                        <div className="flex items-center gap-4 font-black text-[var(--text-primary)] uppercase text-[10px] md:text-xs tracking-wider">
+                                            <Briefcase size={18} md:size={20} className="text-[var(--text-disabled)] group-hover:text-[var(--brand)] transition-colors" /> {invite?.department}
                                         </div>
                                     </div>
-                                    <div className="p-10 bg-[var(--background)] border border-[var(--border)] rounded-[40px] hover:bg-[var(--surface)] transition-all duration-500 group">
-                                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-5 block opacity-70">Security Protocol</label>
-                                        <div className="flex items-center gap-4 font-black text-[var(--brand)] uppercase text-xs tracking-wider">
-                                            <Shield size={20} className="text-[var(--brand)]/40 group-hover:text-[var(--brand)] transition-colors" /> {roleConfig?.label}
+                                    <div className="p-8 md:p-10 bg-[#F9FAFB] border border-[var(--border)] rounded-[32px] md:rounded-[40px] hover:bg-white transition-all duration-500 group">
+                                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase tracking-[0.3em] mb-4 md:mb-5 block opacity-70">Security Protocol</label>
+                                        <div className="flex items-center gap-4 font-black text-[var(--brand)] uppercase text-[10px] md:text-xs tracking-wider">
+                                            <Shield size={18} md:size={20} className="text-[var(--brand)]/40 group-hover:text-[var(--brand)] transition-colors" /> {roleConfig?.label}
                                         </div>
                                     </div>
                                 </div>
@@ -215,9 +210,9 @@ export default function ActivatePage() {
 
                             <button 
                                 onClick={() => setStep(2)}
-                                className="w-full bg-[var(--text-primary)] text-white py-8 rounded-[32px] font-black uppercase tracking-[0.4em] text-[12px] hover:bg-[var(--brand)] transition-all duration-500 shadow-2xl hover:shadow-[var(--brand)]/30 flex items-center justify-center gap-6 group"
+                                className="w-full bg-[var(--text-primary)] text-white py-6 md:py-8 rounded-[28px] md:rounded-[32px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em] text-[11px] md:text-[12px] hover:bg-[var(--brand)] transition-all duration-500 shadow-2xl hover:shadow-[var(--brand)]/30 flex items-center justify-center gap-4 md:gap-6 group"
                             >
-                                Initiate Secure Handshake <ArrowRight size={24} className="group-hover:translate-x-2 transition-transform" />
+                                Initiate Secure Handshake <ArrowRight size={20} md:size={24} className="group-hover:translate-x-2 transition-transform" />
                             </button>
                         </div>
                     )}
@@ -247,7 +242,7 @@ export default function ActivatePage() {
                                 <button 
                                     onClick={handleGoogleActivate}
                                     disabled={finishing}
-                                    className="w-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text-primary)] py-5 rounded-3xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-[var(--background)] transition-all disabled:opacity-50 shadow-sm"
+                                    className="w-full bg-white border border-[var(--border)] text-[var(--text-primary)] py-5 rounded-3xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-[#F9FAFB] transition-all disabled:opacity-50 shadow-sm"
                                 >
                                     <svg width="20" height="20" viewBox="0 0 24 24" className="mr-1">
                                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -272,7 +267,7 @@ export default function ActivatePage() {
                                                 placeholder="Set Internal Password"
                                                 value={password}
                                                 onChange={e => setPassword(e.target.value)}
-                                                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-2xl py-6 px-6 text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] outline-none focus:border-[var(--brand)]/50 focus:bg-[var(--surface)] transition-all font-mono text-sm tracking-widest shadow-inner"
+                                                className="w-full bg-[#F9FAFB] border border-[var(--border)] rounded-2xl py-6 px-6 text-[var(--text-primary)] placeholder:text-[var(--text-disabled)] outline-none focus:border-[var(--brand)]/50 focus:bg-white transition-all font-mono text-sm tracking-widest shadow-inner"
                                             />
                                             <div className="absolute inset-y-0 right-6 flex items-center text-[var(--text-disabled)] group-focus-within:text-[var(--brand)] transition-colors pointer-events-none">
                                                 <Key size={20} />
