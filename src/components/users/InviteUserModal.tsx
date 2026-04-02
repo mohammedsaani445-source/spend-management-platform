@@ -203,7 +203,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
             });
             setStep(2);
             onInviteCreated?.();
-            toast.success("Security handshake complete. Identity flow active.", { id: toastId });
+            toast.success("Success! Invitation link generated and copied to clipboard.", { id: toastId });
         } catch (error: any) {
             console.error("[Invite Flow] Critical catch:", error);
             // Error already handled by toast above if it was a fetch error, 

@@ -37,12 +37,12 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="bg-[var(--surface)] border border-[var(--border)] rounded-[24px] w-full max-w-7xl h-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative z-10"
+                        className="bg-[var(--surface)] border border-[var(--border)] rounded-xl w-full max-w-7xl h-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl relative z-10"
                     >
                         {/* Header */}
                         <div className="p-6 border-b border-[var(--border)] flex flex-col md:flex-row items-center justify-between gap-6 bg-[var(--surface-2)]">
                             <div className="flex items-center gap-5">
-                                <div className="w-14 h-14 rounded-[20px] bg-[var(--brand)]/10 flex items-center justify-center text-[var(--brand)] shadow-sm">
+                                <div className="w-14 h-14 rounded-xl bg-[var(--brand)]/10 flex items-center justify-center text-[var(--brand)] shadow-sm">
                                     <Table size={28} strokeWidth={2.5} />
                                 </div>
                                 <div>
@@ -65,7 +65,7 @@ const PermissionMatrixModal: React.FC<PermissionMatrixModalProps> = ({ isOpen, o
 
                         {/* Content */}
                         <div className="flex-1 overflow-auto custom-scrollbar p-6 bg-[var(--surface)]">
-                            <div className="table-wrapper rounded-[24px] border border-[var(--border)] bg-[var(--surface)] shadow-xl overflow-hidden">
+                            <div className="table-wrapper rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-xl overflow-hidden">
                                 <table className="data-table w-full text-sm text-left">
                                     <thead className="text-[10px] text-[var(--muted-foreground)] uppercase bg-[var(--surface-2)] border-b border-[var(--border)] sticky top-0 z-40">
                                         <tr>

@@ -37,7 +37,7 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ roleId, isOpen, onClo
                         initial={{ opacity: 0, scale: 0.95, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="bg-[var(--surface)] border border-[var(--border)] rounded-[24px] w-full max-w-2xl overflow-hidden shadow-2xl relative group z-10 flex flex-col max-h-[90vh]"
+                        className="bg-[var(--surface)] border border-[var(--border)] rounded-xl w-full max-w-2xl overflow-hidden shadow-2xl relative group z-10 flex flex-col max-h-[90vh]"
                     >
                         {/* Header */}
                         <div className="p-6 border-b border-[var(--border)] flex items-center justify-between bg-[var(--surface-2)]">
@@ -71,7 +71,7 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ roleId, isOpen, onClo
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-6 bg-[var(--surface)]">
                             {/* Role Description Card */}
                             <div className="mb-8">
-                                <p className="text-[var(--foreground)] text-sm leading-relaxed font-semibold bg-[var(--surface-2)] border border-[var(--border)] shadow-sm p-6 rounded-2xl border-l-[6px]" style={{ borderLeftColor: config.color }}>
+                                <p className="text-[var(--foreground)] text-sm leading-relaxed font-semibold bg-[var(--surface-2)] border border-[var(--border)] shadow-sm p-6 rounded-xl border-l-[6px]" style={{ borderLeftColor: config.color }}>
                                     {config.description}
                                 </p>
                             </div>
@@ -96,7 +96,7 @@ const RoleDetailModal: React.FC<RoleDetailModalProps> = ({ roleId, isOpen, onClo
                                         return (
                                             <div 
                                                 key={module}
-                                                className={`p-4 rounded-2xl border flex items-center justify-between transition-all duration-300 group ${
+                                                className={`p-4 rounded-xl border flex items-center justify-between transition-all duration-300 group ${
                                                     isFull 
                                                         ? 'border-emerald-500/20 bg-emerald-500/[0.03] shadow-sm hover:shadow-md' 
                                                         : isLimited

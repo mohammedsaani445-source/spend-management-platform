@@ -404,7 +404,7 @@ export default function IntegrationsPage() {
                         <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
                             <button className={styles.button} style={{ flex: 1, justifyContent: 'center' }} onClick={() => setActiveErp(null)}>Cancel</button>
                             <button className={styles.primaryButton} style={{ flex: 1, justifyContent: 'center' }} onClick={() => {
-                                alert(`${activeErp} configuration saved! Initiating handshake...`);
+                                alert(`${activeErp} configuration saved! Connecting...`);
                                 setActiveErp(null);
                             }}>Verify & Save</button>
                         </div>

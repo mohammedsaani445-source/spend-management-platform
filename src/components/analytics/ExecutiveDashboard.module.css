@@ -28,7 +28,7 @@
     background: var(--brand-soft);
     border: 1px solid var(--brand-soft);
     padding: 0.5rem 1rem;
-    border-radius: 12px;
+    border-radius: 4px;
     font-size: 0.8rem;
     font-weight: 700;
     color: var(--brand);
@@ -44,7 +44,7 @@
 .statCard {
     background: #ffffff;
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 6px;
     padding: 1.5rem;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 1px 3px rgba(0,0,0,0.02);
@@ -71,7 +71,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: 4px;
 }
 
 .trend {
@@ -81,7 +81,7 @@
     font-size: 0.75rem;
     font-weight: 800;
     padding: 0.35rem 0.65rem;
-    border-radius: 8px;
+    border-radius: 4px;
 }
 
 .positive {
@@ -117,7 +117,7 @@
 .chartCard {
     background: #ffffff;
     border: 1px solid var(--border);
-    border-radius: 16px;
+    border-radius: 6px;
     padding: 1.75rem;
     box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
@@ -167,7 +167,7 @@
 .colorDot {
     width: 10px;
     height: 10px;
-    border-radius: 3px;
+    border-radius: 2px;
 }
 
 .deptAmount {
@@ -197,13 +197,13 @@
 .barContainer {
     height: 10px;
     background: var(--surface-hover);
-    border-radius: 5px;
+    border-radius: 2px;
     overflow: hidden;
 }
 
 .barFill {
     height: 100%;
-    border-radius: 5px;
+    border-radius: 2px;
     transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

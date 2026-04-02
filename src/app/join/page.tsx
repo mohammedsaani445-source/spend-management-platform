@@ -1,144 +1,443 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Loader2, ShieldCheck, ArrowRight, Zap, Target, Lock, Command } from "lucide-react";
-import { toast } from "sonner";
+import React, { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  ShieldCheck, 
+  ArrowRight, 
+  Clock, 
+  CheckCircle2, 
+  Lock, 
+  KeyRound, 
+  Mail,
+  Zap,
+  TrendingUp,
+  UserCheck
+} from "lucide-react";
+import styles from "./Join.module.css";
 
-export default function JoinManualPage() {
-    const router = useRouter();
-    const [code, setCode] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
+// --- Types ---
+type Stage = 0 | 1 | 2 | 3 | 4;
 
-    const handleJoin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!code || code.length < 5) {
-            setError("Please enter a valid access code");
-            return;
-        }
+interface InviteData {
+  id: string;
+  email: string;
+  role: string;
+  organization: string;
+  expiresIn: string;
+}
 
-        setLoading(true);
-        setError("");
+// --- Mock Data ---
+const MOCK_INVITE: InviteData = {
+  id: "inv_99281",
+  email: "alex.chen@enterprise.io",
+  role: "Procurement Manager",
+  organization: "Global Logistics Corp",
+  expiresIn: "48 hours",
+};
 
-        try {
-            // Ensure AP- prefix if they just typed numbers, but be flexible
-            let finalCode = code.trim().toUpperCase();
-            if (!finalCode.startsWith("AP-")) {
-                if (/^\d+$/.test(finalCode)) {
-                    finalCode = `AP-${finalCode}`;
-                }
-            }
+export default function JoinPage() {
+  const [stage, setStage] = useState<Stage>(0);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [redirectProgress, setRedirectProgress] = useState(0);
+  
+  // Stages: 0:Loading, 1:Welcome, 2:Code, 3:Password, 4:Success
 
-            const res = await fetch("/api/v1/invites/validate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ code: finalCode })
-            });
+  useEffect(() => {
+    // Stage 0 -> 1 Transition (1.5s Loader)
+    const timer = setTimeout(() => {
+      setStage(1);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error || "Verification failed");
+  useEffect(() => {
+    // Redirect Countdown for Success Stage
+    if (stage === 4) {
+      const interval = setInterval(() => {
+        setRedirectProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            // window.location.href = "/dashboard";
+            return 100;
+          }
+          return prev + 2; // ~5 seconds total
+        });
+      }, 100);
+      return () => clearInterval(interval);
+    }
+  }, [stage]);
 
-            // Store in session for ActivatePage
-            sessionStorage.setItem("apex_pending_invite", JSON.stringify({
-                ...data.invite,
-                token: data.invite.token // Keep compatibility
-            }));
+  // Stage Handlers
+  const handleNext = () => setStage((prev) => (prev + 1) as Stage);
+  
+  const handleOtpChange = (index: number, value: string) => {
+    if (value.length > 1) value = value[0];
+    if (!/^[0-9A-Z]?$/.test(value.toUpperCase())) return;
 
-            toast.success("Security Handshake Successful");
-            
-            // Brief delay for effect
-            setTimeout(() => {
-                router.push("/activate");
-            }, 800);
+    const newOtp = [...otp];
+    newOtp[index] = value.toUpperCase();
+    setOtp(newOtp);
 
-        } catch (err: any) {
-            console.error("Join error:", err);
-            setError(err.message);
-            setLoading(false);
-        }
-    };
+    // Auto-advance
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      nextInput?.focus();
+    }
+  };
 
-    return (
-        <div className="min-h-screen bg-black text-white p-6 md:p-12 flex flex-col items-center justify-center font-sans overflow-hidden">
-            {/* Background elements */}
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-orange-600/5 blur-[160px] rounded-full"></div>
-                <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-blue-600/5 blur-[120px] rounded-full"></div>
-            </div>
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      prevInput?.focus();
+    }
+  };
 
-            <div className="max-w-md w-full relative z-10">
-                {/* Header Section */}
-                <div className="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 text-[10px] uppercase font-black tracking-widest mb-6">
-                        <Command size={12} /> External Access Portal
-                    </div>
-                    <h1 className="text-5xl font-black text-white uppercase tracking-tighter leading-none mb-4">
-                        Secure <br /> <span className="text-orange-500">Handshake</span>
-                    </h1>
-                    <p className="text-white/40 font-medium text-sm leading-relaxed px-4">
-                        Enter your 6-digit mission access code to synchronize your identity with the Apex platform.
-                    </p>
-                </div>
+  return (
+    <main className={styles.join_container}>
+      {/* Background Decorations */}
+      <div className={styles.top_glow} />
+      {[...Array(22)].map((_, i) => (
+        <div 
+          key={i} 
+          className={styles.particle} 
+          style={{
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 5}s`,
+            animationDuration: `${5 + Math.random() * 10}s`
+          }} 
+        />
+      ))}
 
-                {/* Input Card */}
-                <div className="bg-[#0A0A0A] border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl relative overflow-hidden backdrop-blur-3xl animate-in zoom-in-95 duration-500">
-                    <form onSubmit={handleJoin} className="space-y-8">
-                        <div className="space-y-4">
-                            <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] block ml-1">Identity Access Code</label>
-                            <div className="relative group">
-                                <input 
-                                    autoFocus
-                                    type="text" 
-                                    placeholder="AP-XXXXXX"
-                                    value={code}
-                                    onChange={e => setCode(e.target.value.toUpperCase())}
-                                    className="w-full bg-white/[0.03] border border-white/10 rounded-2xl py-6 px-6 text-2xl text-white placeholder:text-white/5 outline-none focus:border-orange-500/50 focus:bg-white/[0.05] transition-all font-mono tracking-[0.2em] text-center"
-                                />
-                                <div className="absolute inset-y-0 right-6 flex items-center pointer-events-none text-white/5 group-focus-within:text-orange-500/30 transition-colors">
-                                    <Target size={24} />
-                                </div>
-                            </div>
-                        </div>
+      {/* Header */}
+      <header className={styles.header}>
+        <motion.div 
+          className={styles.logo_icon}
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+        >
+          <ShieldCheck size={28} color="white" strokeWidth={2.5} />
+        </motion.div>
+        <AnimatePresence mode="wait">
+          {stage > 0 && stage < 4 && (
+            <motion.div 
+              key="badge"
+              className={styles.invite_badge}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+            >
+              Secure Invitation
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
 
-                        {error && (
-                            <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-[11px] font-bold flex items-center gap-3 animate-in shake duration-300">
-                                <Lock size={16} /> {error}
-                            </div>
-                        )}
+      {/* Main Card */}
+      <AnimatePresence mode="wait">
+        {stage === 0 && <StageLoading key="s0" />}
+        {stage === 1 && <StageWelcome key="s1" data={MOCK_INVITE} onNext={handleNext} />}
+        {stage === 2 && (
+          <StageVerify 
+            key="s2" 
+            otp={otp} 
+            onChange={handleOtpChange} 
+            onKeyDown={handleOtpKeyDown} 
+            onNext={handleNext} 
+          />
+        )}
+        {stage === 3 && (
+          <StagePassword 
+            key="s3" 
+            password={password} 
+            confirm={confirmPassword}
+            setPassword={setPassword}
+            setConfirm={setConfirmPassword}
+            onNext={handleNext} 
+          />
+        )}
+        {stage === 4 && <StageSuccess key="s4" progress={redirectProgress} />}
+      </AnimatePresence>
 
-                        <button 
-                            disabled={loading || !code}
-                            className="w-full bg-white text-black py-6 rounded-2xl font-black uppercase tracking-[0.3em] text-[10px] hover:bg-orange-500 hover:text-white transition-all shadow-2xl hover:shadow-orange-500/20 flex items-center justify-center gap-4 group disabled:opacity-30 disabled:cursor-not-allowed"
-                        >
-                            {loading ? <Loader2 className="animate-spin" /> : <>Initiate Synchronization <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" /></>}
-                        </button>
-                    </form>
-
-                    <div className="mt-10 pt-8 border-t border-white/5 flex items-center justify-between">
-                        <div className="flex flex-col gap-1">
-                            <span className="text-[9px] font-black text-white/20 uppercase tracking-widest italic">Encryption Mode</span>
-                            <div className="flex items-center gap-1.5 text-green-500/50 text-[9px] font-black uppercase">
-                                <ShieldCheck size={10} /> AES-256 Validated
-                            </div>
-                        </div>
-                        <Zap size={20} className="text-white/5" />
-                    </div>
-                </div>
-
-                <p className="mt-12 text-center text-[10px] font-bold text-white/10 uppercase tracking-[0.4em] italic animate-pulse">
-                    Waiting for secure handshake protocol...
-                </p>
-            </div>
-
-            <style jsx global>{`
-                @keyframes shake {
-                    0%, 100% { transform: translateX(0); }
-                    10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
-                    20%, 40%, 60%, 80% { transform: translateX(4px); }
-                }
-                .shake { animation: shake 0.5s ease-in-out; }
-            `}</style>
+      {/* Footer */}
+      <footer className={styles.footer}>
+        <p className={styles.footer_text}>&copy; 2026 Apex Procure • Forensic Spend Management</p>
+        <div className={styles.footer_links}>
+          <a href="#" className={styles.footer_link}>Security Whitepaper</a>
+          <a href="#" className={styles.footer_link}>Privacy Policy</a>
+          <a href="#" className={styles.footer_link}>Terms of Service</a>
         </div>
-    );
+      </footer>
+    </main>
+  );
+}
+
+// --- Stages ---
+
+function StageLoading() {
+  return (
+    <motion.div 
+      className={styles.activation_card}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 1.05 }}
+      style={{ justifyContent: 'center', minHeight: '300px' }}
+    >
+      <div className="flex flex-col items-center gap-6">
+        <div className="relative">
+          <motion.div 
+            className="w-16 h-16 border-4 border-[#F3F4F6] border-t-[#1A1A1A] rounded-full"
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+          />
+        </div>
+        <div>
+          <h2 className={styles.card_title}>Validating Token</h2>
+          <p className={styles.card_subtitle}>Securing end-to-end encrypted handshake...</p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function StageWelcome({ data, onNext }: { data: InviteData, onNext: () => void }) {
+  return (
+    <motion.div 
+      className={styles.activation_card}
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+    >
+      <div>
+        <h2 className={styles.card_title}>Welcome, {data.email.split('@')[0]}</h2>
+        <p className={styles.card_subtitle}>
+          You have been invited to join <strong>{data.organization}</strong> as a core team member.
+        </p>
+      </div>
+
+      <div className={styles.role_card}>
+        <div className={styles.role_icon_box}>
+          <UserCheck size={24} />
+        </div>
+        <div className={styles.role_info}>
+          <span className={styles.role_label}>Assigned Role</span>
+          <span className={styles.role_value}>{data.role}</span>
+        </div>
+      </div>
+
+      <div className={styles.expiry_warning}>
+        <Clock size={16} />
+        This invitation expires in {data.expiresIn}
+      </div>
+
+      <button className={styles.primary_button} onClick={onNext}>
+        Begin Activation <ArrowRight size={18} />
+      </button>
+    </motion.div>
+  );
+}
+
+function StageVerify({ otp, onChange, onKeyDown, onNext }: any) {
+  const isComplete = otp.every((v: string) => v !== "");
+  
+  return (
+    <motion.div 
+      className={styles.activation_card}
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+    >
+      <div>
+        <h2 className={styles.card_title}>Access Code</h2>
+        <p className={styles.card_subtitle}>
+          Enter the 6-digit forensic code shared by your administrator.
+        </p>
+      </div>
+
+      <div className={styles.code_input_group}>
+        <span className={styles.prefix_label}>IDENTIFIER: AP-</span>
+        <div className={styles.otp_container}>
+          {otp.map((val: string, i: number) => {
+            const isActive = i === otp.filter(Boolean).length || (i === 5 && isComplete);
+            return (
+              <div key={i} className={`${styles.otp_box} ${isActive ? styles.otp_box_active : ''}`}>
+                <input
+                  id={`otp-${i}`}
+                  type="text"
+                  maxLength={1}
+                  value={val}
+                  onChange={(e) => onChange(i, e.target.value)}
+                  onKeyDown={(e) => onKeyDown(i, e)}
+                  autoFocus={i === 0}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-text"
+                  inputMode="numeric"
+                />
+                {val}
+                {isActive && !val && <div className={styles.cursor_blink} />}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <button 
+        className={styles.primary_button} 
+        disabled={!isComplete} 
+        onClick={onNext}
+      >
+        Verify Identity <Lock size={18} />
+      </button>
+
+      <p className="text-[13px] color-[#888888]">
+        System ID: <code className="bg-[#F3F4F6] px-2 py-0.5 rounded">#AP-X-901-Z</code>
+      </p>
+    </motion.div>
+  );
+}
+
+function StagePassword({ password, confirm, setPassword, setConfirm, onNext }: any) {
+  const [showReqs, setShowReqs] = useState(false);
+  
+  const rules = [
+    { label: "8+ characters", valid: password.length >= 8 },
+    { label: "1 number", valid: /[0-9]/.test(password) },
+    { label: "1 special char", valid: /[^A-Za-z0-9]/.test(password) },
+    { label: "Matches", valid: password === confirm && password.length > 0 },
+  ];
+
+  const strength = rules.filter(r => r.valid).length;
+  const isReady = rules.every(r => r.valid);
+
+  return (
+    <motion.div 
+      className={styles.activation_card}
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+    >
+      <div>
+        <h2 className={styles.card_title}>Secure Account</h2>
+        <p className={styles.card_subtitle}>Set a high-entropy password to protect your procurement vault.</p>
+      </div>
+
+      <div className={styles.password_form}>
+        <div className={styles.input_field_wrapper}>
+          <label className={styles.field_label}>New Password</label>
+          <input 
+            type="password" 
+            className={styles.text_input} 
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setShowReqs(true);
+            }}
+          />
+        </div>
+
+        <div className={styles.strength_meter_container}>
+          <div className={styles.meter_bars}>
+            <div className={`${styles.meter_bar} ${strength >= 1 ? styles.meter_bar_weak : ''}`} />
+            <div className={`${styles.meter_bar} ${strength >= 2 ? styles.meter_bar_fair : ''}`} />
+            <div className={`${styles.meter_bar} ${strength >= 3 ? styles.meter_bar_good : ''}`} />
+            <div className={`${styles.meter_bar} ${strength >= 4 ? styles.meter_bar_strong : ''}`} />
+          </div>
+          <div className={styles.requirement_pills}>
+            {rules.map((rule, i) => (
+              <div 
+                key={i} 
+                className={`${styles.req_pill} ${rule.valid ? styles.req_pill_valid : ''}`}
+              >
+                {rule.valid && <CheckCircle2 size={10} />} {rule.label}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.input_field_wrapper}>
+          <label className={styles.field_label}>Confirm Password</label>
+          <input 
+            type="password" 
+            className={styles.text_input} 
+            placeholder="••••••••"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
+        </div>
+      </div>
+
+      <button 
+        className={styles.primary_button} 
+        disabled={!isReady}
+        onClick={onNext}
+      >
+        Complete Setup <KeyRound size={18} />
+      </button>
+    </motion.div>
+  );
+}
+
+function StageSuccess({ progress }: { progress: number }) {
+  return (
+    <motion.div 
+      className={styles.activation_card}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+    >
+      <div className={styles.success_icon_container}>
+        <motion.div 
+          className={styles.checkmark_circle}
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15 }}
+        >
+          <svg className="w-10 h-10 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <motion.path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={3} 
+              d="M5 13l4 4L19 7" 
+              initial={{ pathLength: 0 }}
+              animate={{ pathLength: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            />
+          </svg>
+        </motion.div>
+      </div>
+
+      <div>
+        <h2 className={styles.card_title}>Setup Complete</h2>
+        <p className={styles.card_subtitle}>
+          Your workstation has been provisioned and synced with the procurement network.
+        </p>
+      </div>
+
+      <div className="bg-[#F9F9F9] p-4 rounded-xl flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-lg flex items-center justify-center">
+            <TrendingUp size={20} />
+          </div>
+          <div className="text-left">
+            <p className="text-[11px] text-gray-500 uppercase font-bold tracking-wider">Access Tier</p>
+            <p className="text-sm font-semibold">Priority Advanced</p>
+          </div>
+        </div>
+        <CheckCircle2 size={18} className="text-emerald-500" />
+      </div>
+
+      <div>
+        <div className="flex justify-between text-[12px] text-gray-500 mb-2">
+          <span>Redirecting to Dashboard</span>
+          <span>{Math.round(progress)}%</span>
+        </div>
+        <div className={styles.redirect_bar}>
+          <div className={styles.redirect_progress} style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+    </motion.div>
+  );
 }

@@ -41,6 +41,12 @@
               }
             }
           },
+          "invites": {
+            "$inviteId": {
+              ".read": "true",
+              ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || !data.exists())"
+            }
+          },
           "locations": {
             ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
             ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
@@ -206,6 +212,18 @@
         "$keyId": {
           ".read": "auth != null && data.child('tenantId').val() === root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val()",
           ".write": "auth != null && (root.child('v2_production').child('userTenants').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('userTenants').child(auth.uid).child('role').val() === 'SUPERUSER' || !data.exists())"
+        }
+      },
+      "inviteTokens": {
+        "$token": {
+          ".read": "true",
+          ".write": "auth != null || !data.exists()"
+        }
+      },
+      "inviteCodes": {
+        "$code": {
+          ".read": "true",
+          ".write": "auth != null || !data.exists()"
         }
       },
       "portalSessions": {
