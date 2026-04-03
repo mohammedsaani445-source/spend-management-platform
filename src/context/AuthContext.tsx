@@ -5,6 +5,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { auth, db, DB_PREFIX } from "@/lib/firebase";
 import { ref, get, update, onValue } from "firebase/database";
 import { AppUser, UserRole } from "@/types";
+import { mapLegacyRole } from "@/lib/roles_config";
 
 interface AuthContextType {
     user: AppUser | null;
@@ -56,19 +57,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                     return;
                                 }
 
-                                const normalizeRole = (role: string): UserRole => {
-                                    const legacyMap: Record<string, UserRole> = {
-                                        'ADMIN': 'ADMIN',
-                                        'SUPERUSER': 'PLATFORM_SUPERUSER',
-                                        'APPROVER': 'AUTHORIZED_APPROVER',
-                                        'FINANCE': 'FINANCE_MANAGER',
-                                        'REQUESTER': 'STANDARD_REQUESTER',
-                                        'PURCHASER': 'PROCUREMENT_OFFICER',
-                                        'RECEIVER': 'OPERATIONS_RECEIVER',
-                                        'REPORTER': 'DATA_ANALYST'
-                                    };
-                                    return legacyMap[role] || (role as UserRole);
-                                };
+                                const role = mapLegacyRole(userData.role || 'requester');
 
                                 setUser({
                                     uid: firebaseUser.uid,
@@ -76,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                                     email: firebaseUser.email || "",
                                     displayName: userData.displayName || firebaseUser.displayName || "User",
                                     photoURL: firebaseUser.photoURL || undefined,
-                                    role: normalizeRole(userData.role || 'STANDARD_REQUESTER'),
+                                    role: role,
                                     userType: userData.userType || 'PRO',
                                     department: userData.department || 'General',
                                     locationId: userData.locationId || 'default',

@@ -127,7 +127,7 @@ export default function Dashboard() {
         const role = user.role;
 
         // 1. Admin/Executive View (Global Visibility)
-        if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator'].includes(role)) {
+        if (['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'auditor'].includes(role)) {
             return (
                 <ExecutiveDashboard
                     user={user}
@@ -140,26 +140,26 @@ export default function Dashboard() {
         }
 
         // 2. Finance Cluster
-        if (['FINANCE_MANAGER', 'FINANCE_SPECIALIST', 'ACCOUNTS_PAYABLE'].includes(role)) {
+        if (['FINANCE_MANAGER', 'FINANCE_SPECIALIST', 'ACCOUNTS_PAYABLE', 'finance_mgr', 'ap_officer'].includes(role)) {
             return <FinanceDashboard user={user} stats={stats} pos={purchaseOrders} currency={targetCurrency} />;
         }
 
         // 3. Procurement Cluster
-        if (['PROCUREMENT_OFFICER', 'STRATEGIC_SOURCER'].includes(role)) {
+        if (['PROCUREMENT_OFFICER', 'STRATEGIC_SOURCER', 'proc_mgr', 'proc_officer'].includes(role)) {
             return <ProcurementDashboard user={user} stats={stats} pos={purchaseOrders} currency={targetCurrency} />;
         }
 
         // 4. Operations Cluster
-        if (['OPERATIONS_RECEIVER'].includes(role)) {
+        if (['OPERATIONS_RECEIVER', 'warehouse', 'asset_mgr'].includes(role)) {
             return <OperationsDashboard user={user} stats={stats} />;
         }
 
         // 5. Approver View
-        if (role === 'AUTHORIZED_APPROVER') {
+        if (['AUTHORIZED_APPROVER', 'dept_head'].includes(role)) {
             return <ApproverDashboard user={user} stats={stats} currency={targetCurrency} />;
         }
 
-        // Default: Employee/Requester View
+        // Default: Employee/Requester View (includes 'requester' and 'STANDARD_REQUESTER')
         return <EmployeeDashboard user={user} requisitions={requisitions} />;
     };
 

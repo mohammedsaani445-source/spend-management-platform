@@ -79,7 +79,7 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
     const getVisibleItems = () => {
         if (!user) return [];
 
-        const role = user.role || 'STANDARD_REQUESTER';
+        const role = user.role || 'requester';
 
         // Admin roles see everything
         if (['ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'WORKSPACE_ADMIN', 'SUPERUSER'].includes(role)) return NAV_GROUPS;
@@ -90,24 +90,33 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
 
                 // Mappings based on Technical Specifications
                 switch (role) {
-                    case 'STANDARD_REQUESTER':
+                    case 'requester':
                         return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Sourcing (RFQ)'].includes(name);
                     case 'AUTHORIZED_APPROVER':
+                    case 'dept_head':
                         return ['Dashboard', 'Approvals', 'Purchase Orders', 'Budgets', 'Sourcing (RFQ)'].includes(name);
                     case 'PROCUREMENT_OFFICER':
+                    case 'proc_officer':
                         return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Receiving', 'Inventory', 'Vendors', 'Contracts', 'Sourcing (RFQ)'].includes(name);
+                    case 'proc_mgr':
+                    case 'STRATEGIC_SOURCER':
+                        return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Receiving', 'Vendors', 'Contracts', 'Sourcing (RFQ)', 'Budgets', 'Analytics', 'Reports'].includes(name);
                     case 'OPERATIONS_RECEIVER':
+                    case 'warehouse':
                         return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Receiving', 'Inventory', 'Assets'].includes(name);
                     case 'ACCOUNTS_PAYABLE':
+                    case 'ap_officer':
                         return ['Dashboard', 'Invoices', 'Payments', 'Vendors'].includes(name);
                     case 'FINANCE_MANAGER':
-                        return ['Dashboard', 'Approvals', 'Invoices', 'Payments', 'Budgets', 'Analytics', 'Sourcing (RFQ)'].includes(name);
+                    case 'finance_mgr':
+                        return ['Dashboard', 'Approvals', 'Invoices', 'Payments', 'Budgets', 'Analytics', 'Reports', 'Sourcing (RFQ)'].includes(name);
                     case 'FINANCE_SPECIALIST':
                         return ['Dashboard', 'Invoices', 'Payments', 'Budgets', 'Vendors', 'Analytics', 'Compliance'].includes(name);
-                    case 'STRATEGIC_SOURCER':
-                        return ['Dashboard', 'Budgets', 'Vendors', 'Contracts', 'Sourcing (RFQ)', 'Analytics'].includes(name);
                     case 'DATA_ANALYST':
-                        return ['Dashboard', 'Analytics', 'Sourcing (RFQ)', 'Compliance'].includes(name);
+                    case 'auditor':
+                        return ['Dashboard', 'Analytics', 'Sourcing (RFQ)', 'Compliance', 'Audit Trail', 'Reports'].includes(name);
+                    case 'asset_mgr':
+                        return ['Dashboard', 'Assets', 'Inventory', 'Reports'].includes(name);
                     case 'WORKSPACE_ADMIN':
                     case 'PLATFORM_SUPERUSER':
                     case 'administrator':

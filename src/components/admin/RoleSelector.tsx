@@ -27,104 +27,105 @@ export interface RoleConfig {
     bgColor: string;
 }
 
-export const ROLE_CONFIGS: Record<UserRole, RoleConfig> = {
-    STANDARD_REQUESTER: {
-        id: 'STANDARD_REQUESTER',
-        label: 'Standard Requester',
-        description: 'Focused on self-service requests: "I need something, and I want to see the status."',
-        icon: <User size={16} />,
-        color: '#6B7280',
-        bgColor: '#F3F4F6'
-    },
-    AUTHORIZED_APPROVER: {
-        id: 'AUTHORIZED_APPROVER',
-        label: 'Authorized Approver',
-        description: 'Authorized to sign off on requests and monitor remaining department budgets.',
-        icon: <UserCheck size={16} />,
-        color: '#059669',
-        bgColor: '#ECFDF5'
-    },
-    PROCUREMENT_OFFICER: {
-        id: 'PROCUREMENT_OFFICER',
-        label: 'Procurement Officer',
-        description: 'The power user. Turns requests into orders and manages the vendor lifecycle.',
-        icon: <ShoppingBag size={16} />,
-        color: '#0891B2',
-        bgColor: '#ECFEFF'
-    },
-    OPERATIONS_RECEIVER: {
-        id: 'OPERATIONS_RECEIVER',
-        label: 'Operations Receiver',
-        description: 'Physical tracking: Confirms arrivals, manages inventory, and assets.',
-        icon: <Package size={16} />,
-        color: '#EA580C',
-        bgColor: '#FFF7ED'
-    },
-    ACCOUNTS_PAYABLE: {
-        id: 'ACCOUNTS_PAYABLE',
-        label: 'Accounts Payable',
-        description: 'Focused on the "Pay" side. Matches invoices to POs and ensures timely vendor payments.',
-        icon: <Receipt size={16} />,
-        color: '#E11D48',
-        bgColor: '#FFF1F2'
-    },
-    FINANCE_MANAGER: {
-        id: 'FINANCE_MANAGER',
-        label: 'Finance Manager',
-        description: 'High-level oversight of spend flow, large payment approvals, and audits.',
-        icon: <TrendingUp size={16} />,
-        color: '#2563EB',
-        bgColor: '#EFF6FF'
-    },
-    FINANCE_SPECIALIST: {
-        id: 'FINANCE_SPECIALIST',
-        label: 'Finance Specialist',
-        description: 'Monitors company spend health, analytics, and compliance without daily transactions.',
-        icon: <Wallet size={16} />,
-        color: '#D97706',
-        bgColor: '#FFFBEB'
-    },
-    STRATEGIC_SOURCER: {
-        id: 'STRATEGIC_SOURCER',
-        label: 'Strategic Sourcer',
-        description: 'Finds best vendors, negotiates long-term deals, and analyzes market trends.',
-        icon: <Target size={16} />,
-        color: '#9333EA',
-        bgColor: '#F5F3FF'
-    },
-    DATA_ANALYST: {
-        id: 'DATA_ANALYST',
-        label: 'Data Analyst',
-        description: 'View-only explorer. Accesses data for generating deep-dive reports.',
-        icon: <BarChart3 size={16} />,
-        color: '#475569',
-        bgColor: '#F8FAFC'
-    },
-    WORKSPACE_ADMIN: {
-        id: 'WORKSPACE_ADMIN',
-        label: 'Workspace Admin',
-        description: 'Full visibility within the organization to troubleshoot and manage settings.',
-        icon: <Shield size={16} />,
-        color: '#4F46E5',
-        bgColor: '#EEF2FF'
-    },
+export const ROLE_CONFIGS: Record<string, RoleConfig> = {
     administrator: {
-        id: 'administrator',
+        id: 'administrator' as UserRole,
         label: 'Administrator',
         description: 'Ultimate system-level access across all workspaces for maintenance.',
         icon: <ShieldAlert size={16} />,
         color: '#7C3AED',
         bgColor: '#F5F3FF'
     },
-    ADMIN: { // Legacy Support
-        id: 'ADMIN',
-        label: 'Legacy Admin',
-        description: 'Standard administrator role (deprecated).',
+    finance_mgr: {
+        id: 'finance_mgr' as UserRole,
+        label: 'Finance Manager',
+        description: 'High-level oversight of spend flow, budget management, and financial reporting.',
+        icon: <TrendingUp size={16} />,
+        color: '#2563EB',
+        bgColor: '#EFF6FF'
+    },
+    proc_mgr: {
+        id: 'proc_mgr' as UserRole,
+        label: 'Procurement Manager',
+        description: 'Strategic oversight of the procurement lifecycle, vendor relationships, and analytics.',
+        icon: <Target size={16} />,
+        color: '#9333EA',
+        bgColor: '#F5F3FF'
+    },
+    proc_officer: {
+        id: 'proc_officer' as UserRole,
+        label: 'Procurement Officer',
+        description: 'Core procurement user. Manages requisitions, POs, and vendor interactions.',
+        icon: <ShoppingBag size={16} />,
+        color: '#0891B2',
+        bgColor: '#ECFEFF'
+    },
+    dept_head: {
+        id: 'dept_head' as UserRole,
+        label: 'Department Head',
+        description: 'Budget owner. Authorized to approve departmental spend and monitor budgets.',
+        icon: <UserCheck size={16} />,
+        color: '#059669',
+        bgColor: '#ECFDF5'
+    },
+    requester: {
+        id: 'requester' as UserRole,
+        label: 'Standard Requester',
+        description: 'General employee role for creating and tracking personal requisitions.',
+        icon: <User size={16} />,
+        color: '#6B7280',
+        bgColor: '#F3F4F6'
+    },
+    ap_officer: {
+        id: 'ap_officer' as UserRole,
+        label: 'AP Officer',
+        description: 'Accounts Payable focus. Manages invoices, matching, and payment processing.',
+        icon: <Receipt size={16} />,
+        color: '#E11D48',
+        bgColor: '#FFF1F2'
+    },
+    auditor: {
+        id: 'auditor' as UserRole,
+        label: 'Auditor',
+        description: 'Read-only access to all transactions, audit trails, and compliance reports.',
+        icon: <BarChart3 size={16} />,
+        color: '#475569',
+        bgColor: '#F8FAFC'
+    },
+    warehouse: {
+        id: 'warehouse' as UserRole,
+        label: 'Warehouse / Receiving',
+        description: 'Manages physical receipt of goods, inventory tracking, and assets.',
+        icon: <Package size={16} />,
+        color: '#EA580C',
+        bgColor: '#FFF7ED'
+    },
+    asset_mgr: {
+        id: 'asset_mgr' as UserRole,
+        label: 'Asset Manager',
+        description: 'Specialized focus on fixed asset lifecycle and inventory audits.',
+        icon: <Package size={16} />,
+        color: '#D97706',
+        bgColor: '#FFFBEB'
+    },
+    // Legacy Support
+    WORKSPACE_ADMIN: {
+        id: 'WORKSPACE_ADMIN' as UserRole,
+        label: 'Workspace Admin',
+        description: 'Legacy admin role with full organization visibility.',
         icon: <Shield size={16} />,
+        color: '#4F46E5',
+        bgColor: '#EEF2FF'
+    },
+    STANDARD_REQUESTER: {
+        id: 'STANDARD_REQUESTER' as UserRole,
+        label: 'Legacy Requester',
+        description: 'Legacy standard requester (deprecated).',
+        icon: <User size={16} />,
         color: '#6B7280',
         bgColor: '#F3F4F6'
     }
-} as any;
+};
 
 interface RoleSelectorProps {
     value: UserRole;
@@ -137,7 +138,7 @@ interface RoleSelectorProps {
 export default function RoleSelector({ value, onChange, label, variant = 'full', disabled = false }: RoleSelectorProps) {
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
-    const currentConfig = ROLE_CONFIGS[value] || ROLE_CONFIGS['STANDARD_REQUESTER'];
+    const currentConfig = ROLE_CONFIGS[value] || ROLE_CONFIGS['requester'] || ROLE_CONFIGS['STANDARD_REQUESTER'];
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -195,7 +196,9 @@ export default function RoleSelector({ value, onChange, label, variant = 'full',
                         overflowY: 'auto',
                         padding: '0.5rem'
                     }}>
-                        {Object.values(ROLE_CONFIGS).map((config: any) => (
+                        {Object.values(ROLE_CONFIGS)
+                            .filter((config: any) => !['STANDARD_REQUESTER', 'WORKSPACE_ADMIN'].includes(config.id))
+                            .map((config: any) => (
                             <button
                                 key={config.id}
                                 onClick={() => { onChange(config.id); setIsOpen(false); }}
@@ -284,7 +287,9 @@ export default function RoleSelector({ value, onChange, label, variant = 'full',
                     <div style={{ padding: '0.5rem 0.75rem', fontSize: '0.75rem', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         System Role Selection
                     </div>
-                    {Object.values(ROLE_CONFIGS).map((config: any) => (
+                    {Object.values(ROLE_CONFIGS)
+                        .filter((config: any) => !['STANDARD_REQUESTER', 'WORKSPACE_ADMIN'].includes(config.id))
+                        .map((config: any) => (
                         <button
                             key={config.id}
                             type="button"

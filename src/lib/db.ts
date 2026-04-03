@@ -3,7 +3,7 @@ import { ref, get, set, child, serverTimestamp } from "firebase/database";
 import { AppUser } from "@/types";
 import { User } from "firebase/auth";
 
-export const createUserProfile = async (user: { uid: string, email: string | null, displayName: string | null, photoURL: string | null } | AppUser) => {
+export const createUserProfile = async (user: { uid: string, email: string | null, displayName: string | null, photoURL: string | null, role?: string } | AppUser) => {
     if (!user) return;
 
     const userRef = ref(db, `${DB_PREFIX}/users/${user.uid}`);
@@ -17,7 +17,7 @@ export const createUserProfile = async (user: { uid: string, email: string | nul
                 email: user.email || "",
                 displayName: user.displayName || "User",
                 photoURL: user.photoURL || "",
-                role: 'STANDARD_REQUESTER',
+                role: (user as any).role || 'requester',
                 userType: 'PRO',
                 department: 'General',
                 locationId: 'default',
