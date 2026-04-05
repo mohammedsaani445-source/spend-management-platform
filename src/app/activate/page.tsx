@@ -52,7 +52,12 @@ function ActivateContent() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [redirectProgress, setRedirectProgress] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
   
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // 1. Initial Fetch (Stage 0)
   useEffect(() => {
     let activeToken = token;
@@ -221,7 +226,7 @@ function ActivateContent() {
   return (
     <main className={styles.join_container}>
       <div className={styles.top_glow} />
-      {[...Array(22)].map((_, i) => (
+      {isMounted && [...Array(22)].map((_, i) => (
         <div 
           key={i} 
           className={styles.particle} 

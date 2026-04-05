@@ -43,10 +43,12 @@ export default function JoinPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [redirectProgress, setRedirectProgress] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
   
   // Stages: 0:Loading, 1:Welcome, 2:Code, 3:Password, 4:Success
 
   useEffect(() => {
+    setIsMounted(true);
     // Stage 0 -> 1 Transition (1.5s Loader)
     const timer = setTimeout(() => {
       setStage(1);
@@ -100,7 +102,7 @@ export default function JoinPage() {
     <main className={styles.join_container}>
       {/* Background Decorations */}
       <div className={styles.top_glow} />
-      {[...Array(22)].map((_, i) => (
+      {isMounted && [...Array(22)].map((_, i) => (
         <div 
           key={i} 
           className={styles.particle} 
