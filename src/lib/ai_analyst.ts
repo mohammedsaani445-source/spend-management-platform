@@ -88,6 +88,7 @@ export const querySpendAnalyst = async (tenantId: string, query: string) => {
             
             ### USER QUERY:
             "${query}"
+        `;
             
         // 3. Logic with Retry for resilience (handling 503 Service Unavailable)
         let attempts = 0;
@@ -104,7 +105,7 @@ export const querySpendAnalyst = async (tenantId: string, query: string) => {
                 const isRetryable = error.message?.includes("503") || error.message?.includes("500") || error.message?.includes("high demand");
                 
                 if (isRetryable && attempts < maxAttempts) {
-                    console.warn(`[SANI] Gemini busy (Attempt ${attempts}/${maxAttempts}). Retrying in ${attempts * 2}s...`);
+                    console.warn("[SANI] Gemini busy (Attempt " + attempts + "/" + maxAttempts + "). Retrying in " + (attempts * 2) + "s...");
                     await delay(attempts * 2000);
                     continue;
                 }

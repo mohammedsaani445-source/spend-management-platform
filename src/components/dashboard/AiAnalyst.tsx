@@ -46,6 +46,14 @@ const CONTEXT_CHIPS = [
     { label: "Contracts", status: "Monitored" }
 ];
 
+export default function AiAnalyst() {
+    const { user } = useAuth();
+    const [query, setQuery] = useState("");
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const chatViewportRef = useRef<HTMLDivElement>(null);
+
     const [sessions, setSessions] = useState<ChatSession[]>([]);
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
