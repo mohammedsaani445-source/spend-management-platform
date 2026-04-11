@@ -149,22 +149,46 @@ export const getAuditLogsFiltered = async (tenantId: string, filters: AuditLogFi
 };
 
 /**
- * Exports audit logs as a CSV file for compliance.
+ * Exports audit logs as a high-fidelity CSV file for compliance reporting.
  */
 export const exportAuditLogsCsv = (logs: any[]) => {
-    const headers = ['Timestamp', 'Actor', 'Action', 'Entity Type', 'Entity ID', 'Description', 'IP Address'];
+    const headers = [
+        'UTC Timestamp', 
+        'Local Timeline', 
+        'Forensic ID', 
+        'Event Category', 
+        'Actor Name', 
+        'Actor Email', 
+        'Action performed', 
+        'Entity Type', 
+        'Target ID', 
+        'Origin IP', 
+        'User Agent', 
+        'Description'
+    ];
+
     const rows = logs.map(l => {
-        const ts = typeof l.timestamp === 'number'
+        const tsUTC = typeof l.timestamp === 'number'
             ? new Date(l.timestamp).toISOString()
             : l.timestamp || '';
+        
+        const tsLocal = typeof l.timestamp === 'number'
+            ? new Date(l.timestamp).toLocaleString()
+            : '';
+
         return [
-            ts,
+            tsUTC,
+            tsLocal,
+            l.id || 'N/A',
+            l.category || 'System',
             l.actorName || '',
+            l.actorEmail || '',
             l.action || '',
             l.entityType || '',
             l.entityId || '',
+            l.ipAddress || 'Unknown',
+            (l.userAgent || '').replace(/"/g, '""'),
             (l.description || '').replace(/"/g, '""'),
-            l.ipAddress || '',
         ];
     });
 
@@ -177,8 +201,13 @@ export const exportAuditLogsCsv = (logs: any[]) => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `audit_trail_${new Date().toISOString().split('T')[0]}.csv`;
+    
+    const fileName = `Forensic_Audit_Report_${new Date().toISOString().slice(0, 10)}_${new Date().getTime()}.csv`;
+    link.download = fileName;
+    
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
     URL.revokeObjectURL(url);
 };
 

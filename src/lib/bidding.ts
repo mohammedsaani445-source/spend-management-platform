@@ -2,6 +2,7 @@ import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, update, query, orderByChild, equalTo } from "firebase/database";
 import { Tender, Bid, AppUser } from "@/types";
 import { logAction } from "./audit";
+import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
 
 const getTendersRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/tenders`);
 const getTenderRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/tenders/${id}`);
@@ -16,11 +17,36 @@ export const createTender = async (tenantId: string, tender: Omit<Tender, 'id'>,
         const newTenderRef = push(tendersRef);
         const id = newTenderRef.key as string;
 
+        let initialStatus = tender.status || 'OPEN';
+        let workflowMetadata: any = {};
+
+        const workflow = await evaluatePolicy(
+            tenantId,
+            'tenders',
+            tender.budget || 0,
+            tender.currency || 'USD',
+            actor.department || 'Procurement'
+        );
+
+        if (workflow) {
+            initialStatus = 'PENDING';
+            const firstStepApprovers = await getCurrentStepApprovers(tenantId, workflow, 0, actor.uid);
+            workflowMetadata = {
+                workflowId: workflow.id,
+                currentStepIndex: 0,
+                approverId: firstStepApprovers.map(a => a.uid),
+                approverName: firstStepApprovers.map(a => a.name).join(', '),
+                policyName: workflow.name,
+                approvalHistory: []
+            };
+        }
+
         const newTender: Tender = {
             ...tender,
             id,
-            status: 'OPEN',
-            createdBy: actor.uid
+            status: initialStatus as any,
+            createdBy: actor.uid,
+            ...workflowMetadata
         };
 
         await set(newTenderRef, newTender);

@@ -2,6 +2,7 @@ import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, equalTo, orderByChild } from "firebase/database";
 import { RFP, Quotation, AppUser, PurchaseOrder, Tender, Bid } from "@/types";
 import { logAction } from "./audit";
+import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
 
 const getRFPsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/rfps`);
 const getRFPRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/rfps/${id}`);
@@ -207,7 +208,7 @@ export const awardBid = async (tenantId: string, rfpId: string, quoteId: string,
 
         // 1. Update RFP and Quote statuses
         await Promise.all([
-            update(rfpRef, { status: 'AWARDED' }),
+            update(rfpRef, { status: 'AWARDED', awardedTo: quoteId }),
             update(quoteRef, { status: 'ACCEPTED' })
         ]);
 
@@ -232,7 +233,7 @@ export const awardBid = async (tenantId: string, rfpId: string, quoteId: string,
             })),
             totalAmount: quote.totalAmount,
             currency: quote.currency,
-            status: 'DRAFT',
+            status: 'PENDING', // POs generated from sourcing also follow PO policies if any, but usually they are pre-approved. Here we set to PENDING to be safe.
             createdBy: user.uid,
             createdAt: new Date().toISOString()
         };
@@ -254,6 +255,59 @@ export const awardBid = async (tenantId: string, rfpId: string, quoteId: string,
         return poId;
     } catch (error) {
         console.error("Error awarding bid:", error);
+        throw error;
+    }
+};
+
+/**
+ * Initiates the internal "Approval to Award" workflow.
+ * Sets status to PENDING_AWARD and assigns approvers based on policy.
+ */
+export const initiateAwardApproval = async (tenantId: string, rfpId: string, quoteId: string, user: AppUser) => {
+    try {
+        const rfpRef = getRFPRef(tenantId, rfpId);
+        const quoteSnap = await get(getQuoteRef(tenantId, quoteId));
+        
+        if (!quoteSnap.exists()) throw new Error("Quote not found");
+        const quote = quoteSnap.val() as Quotation;
+
+        // --- ENTERPRISE POLICY ENGINE ---
+        const policy = await evaluatePolicy(tenantId, 'tenders', quote.totalAmount, quote.currency, user.department || 'Procurement');
+        
+        if (policy && policy.steps.length > 0) {
+            const firstStepApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, user.uid);
+            
+            const updates: any = {
+                status: 'PENDING_AWARD',
+                pendingAwardQuoteId: quoteId,
+                workflowId: policy.id,
+                currentStepIndex: 0,
+                approverId: firstStepApprovers.length > 0 ? firstStepApprovers[0].uid : 'admin',
+                approverName: firstStepApprovers.length > 0 ? firstStepApprovers[0].name : 'System Admin',
+                approvalHistory: []
+            };
+
+            await update(rfpRef, updates);
+
+            // Audit Log
+            await logAction({
+                tenantId,
+                actorId: user.uid,
+                actorName: user.displayName,
+                action: 'UPDATE',
+                entityType: 'REQUISITION',
+                entityId: rfpId,
+                description: `Initiated "Approval to Award" for RFP ${rfpId}. Selected Vendor: ${quote.vendorName}`
+            });
+
+            return { status: 'PENDING_AWARD', approvers: firstStepApprovers };
+        } else {
+            // No policy found, proceed directly to award
+            const poId = await awardBid(tenantId, rfpId, quoteId, user);
+            return { status: 'AWARDED', poId };
+        }
+    } catch (error) {
+        console.error("[Sourcing] Error initiating award approval:", error);
         throw error;
     }
 };
@@ -360,6 +414,7 @@ export const convertPRtoRFQ = async (tenantId: string, pr: any, user: AppUser) =
         description: `Automated RFQ generated from approved requisition. Justification: ${pr.justification}`,
         department: pr.department,
         status: 'DRAFT',
+        currency: pr.currency || 'USD',
         deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Default 7 days
         invitedVendors: pr.vendorId ? [pr.vendorId] : [],
         items: pr.items.map((it: any) => ({
@@ -383,25 +438,58 @@ export const convertPRtoRFQ = async (tenantId: string, pr: any, user: AppUser) =
 /**
  * Industry-grade evaluation using weighted criteria.
  */
-export const calculateWeightedScore = (rfp: RFP, quote: Quotation) => {
+export const calculateWeightedScore = (rfp: RFP, quote: Quotation, returnBreakdown = false) => {
     const criteria = rfp.weightedCriteria || { price: 0.5, quality: 0.2, delivery: 0.2, risk: 0.1 };
     const { price, quality, delivery, risk } = criteria;
     const sc = quote.scorecard || { priceScore: 0, qualityRating: 5, deliveryDays: 7, riskRating: 5, weightedTotal: 0 };
     
     // 1. Price Score (Inverse linear: lower is better)
-    // Assuming max budget or competitive base for normalization if available, 
-    // or just raw score for now. Here we use 100 points scale.
-    const priceContribution = sc.priceScore * price;
+    const priceContribution = (sc.priceScore || 0) * price;
     
     // 2. Quality (1-10 normalized to 0-100)
-    const qualityContribution = (sc.qualityRating * 10) * quality;
+    const qualityContribution = ((sc.qualityRating || 5) * 10) * quality;
     
-    // 3. Delivery (Speed) - Higher is better score, so shorter days = higher score
-    const deliveryScore = Math.max(0, 100 - (sc.deliveryDays * 5)); 
+    // 3. Delivery (Speed) - Higher is better score
+    const deliveryScore = Math.max(0, 100 - ((sc.deliveryDays || 10) * 5)); 
     const deliveryContribution = deliveryScore * delivery;
     
     // 4. Risk (1-10, where 10 is safest)
-    const riskContribution = (sc.riskRating * 10) * risk;
+    const riskContribution = ((sc.riskRating || 5) * 10) * risk;
     
-    return priceContribution + qualityContribution + deliveryContribution + riskContribution;
+    const total = priceContribution + qualityContribution + deliveryContribution + riskContribution;
+
+    if (returnBreakdown) {
+        return {
+            total,
+            breakdown: {
+                price: priceContribution / price, // raw 0-100
+                quality: (sc.qualityRating || 5) * 10,
+                delivery: deliveryScore,
+                risk: (sc.riskRating || 5) * 10
+            }
+        };
+    }
+    
+    return total;
+};
+
+/**
+ * Calculates current market position vs budget.
+ */
+export const calculateNegotiationBridge = (rfp: RFP, quotes: Quotation[]) => {
+    const budget = rfp.budget || 0;
+    if (quotes.length === 0) return { budget, lowest: 0, gap: 0, percent: 0 };
+
+    const amounts = quotes.map(q => q.totalAmount).filter(a => a > 0);
+    const lowest = Math.min(...amounts);
+    const gap = budget > 0 ? budget - lowest : 0;
+    const percent = budget > 0 ? (gap / budget) * 100 : 0;
+
+    return {
+        budget,
+        lowest,
+        gap,
+        percent,
+        count: quotes.length
+    };
 };

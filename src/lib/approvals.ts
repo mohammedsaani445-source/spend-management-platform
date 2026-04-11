@@ -1,35 +1,57 @@
-import { db, DB_PREFIX } from "./firebase";
-import { ref, get, query, orderByChild, equalTo, update } from "firebase/database";
-import { Requisition, PurchaseOrder, Workflow, WorkflowStep, AppUser, ApprovalHistoryEntry } from "@/types";
+import { Requisition, PurchaseOrder, AppUser, ApprovalHistoryEntry, ApprovalPolicy, ApprovalPolicyModule, ApprovalPolicyStep } from "@/types";
 import { logAction } from "./audit";
+import { getApprovalPolicies } from "./approvalPolicies";
+import { db, DB_PREFIX } from "@/lib/firebase";
+import { ref, get, query, orderByChild, equalTo, update } from "firebase/database";
+import { getExchangeRates, convertCurrency } from "./exchangeRates";
 
 /**
- * Finds the most appropriate active workflow for an entity (Requisition or PO).
+ * Finds the most appropriate active approval policy for an entity.
  */
-export const evaluateWorkflow = async (tenantId: string, entityType: 'REQUISITION' | 'PO', amount: number): Promise<Workflow | null> => {
+export const evaluatePolicy = async (
+    tenantId: string, 
+    module: ApprovalPolicyModule, 
+    amount: number, 
+    currency: string,
+    departmentId?: string
+): Promise<ApprovalPolicy | null> => {
     try {
-        const workflowsRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/workflows`);
-        const q = query(workflowsRef, orderByChild('isActive'), equalTo(true));
-        const snapshot = await get(q);
-
-        if (!snapshot.exists()) return null;
-
-        const workflows = Object.values(snapshot.val()) as Workflow[];
-
+        const policies = await getApprovalPolicies(tenantId);
+        const rates = await getExchangeRates();
+        
         // Logic: 
-        // 1. Filter by entity type
-        // 2. Filter by threshold if applicable (any step in workflow has a threshold matching the amount)
-        // 3. Sort by priority
-        const matchingWorkflows = workflows
-            .filter(w => w.entityType === entityType)
-            .sort((a, b) => (b.priority || 0) - (a.priority || 0));
+        // 1. Filter by module and active status
+        // 2. Filter by department if scoped
+        // 3. Convert entity amount to policy currency and check threshold logic
+        // 4. Sort by specificity (department-specific first)
+        const matchingPolicies = policies
+            .filter(p => p.isActive)
+            .filter(p => p.module === module)
+            .filter(p => !p.departmentId || p.departmentId === departmentId)
+            .filter(p => {
+                // Convert document amount to the policy's currency
+                const convertedAmount = convertCurrency(amount, currency, p.currency || 'GHS', rates);
+                
+                // Check if amount sits within policy min/max thresholds
+                if (p.minAmount !== undefined && p.minAmount > 0 && convertedAmount < p.minAmount) return false;
+                if (p.maxAmount !== undefined && p.maxAmount < 999999999 && convertedAmount > p.maxAmount) return false;
+                
+                return true;
+            })
+            .sort((a, b) => {
+                if (a.departmentId && !b.departmentId) return -1;
+                if (!a.departmentId && b.departmentId) return 1;
+                if (b.priority !== a.priority) return b.priority - a.priority;
+                return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+            });
 
-        return matchingWorkflows[0] || null;
+        return matchingPolicies[0] || null;
     } catch (error) {
-        console.error("Error evaluating workflow:", error);
+        console.error("Error evaluating policy:", error);
         return null;
     }
 };
+export type Workflow = ApprovalPolicy;
 
 /**
  * Determines the approver(s) for the current step of an entity.
@@ -134,30 +156,40 @@ export const processApprovalAction = async (
     params: {
         tenantId: string,
         entityId: string,
-        entityType: 'REQUISITION' | 'PO',
+        entityType: 'REQUISITION' | 'PO' | 'INVOICE' | 'CONTRACT' | 'TENDER' | 'BUDGET',
         actor: { uid: string, name: string, email: string },
         action: 'APPROVE' | 'REJECT' | 'REVISION_REQUESTED',
         comment?: string
     }
 ) => {
     const { tenantId, entityId, entityType, actor, action, comment } = params;
-    const path = entityType === 'REQUISITION' ? 'requisitions' : 'purchaseOrders';
+    const pathMap: Record<string, string> = {
+        'REQUISITION': 'requisitions',
+        'PO': 'purchaseOrders',
+        'INVOICE': 'invoices',
+        'CONTRACT': 'contracts',
+        'TENDER': 'rfps',
+        'BUDGET': 'budgetAdjustments'
+    };
+    const path = pathMap[entityType] || 'requisitions';
     const entityRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/${path}/${entityId}`);
 
     const snapshot = await get(entityRef);
     if (!snapshot.exists()) throw new Error("Entity not found");
 
-    const entity = snapshot.val() as (Requisition | PurchaseOrder);
+    const entity = snapshot.val();
 
-    let currentStepId = 'legacy-step';
+    let currentStepId = 'direct-approval';
     let currentStepName = 'Direct Approval';
-    let workflow: Workflow | null = null;
+    let workflow: ApprovalPolicy | null = null;
 
     if (entity.workflowId) {
-        const workflowsRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/workflows/${entity.workflowId}`);
-        const workflowSnap = await get(workflowsRef);
-        if (workflowSnap.exists()) {
-            workflow = workflowSnap.val() as Workflow;
+        // Fetch the active policy
+        const policiesRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/approval_policies/${entity.workflowId}`);
+        const policySnap = await get(policiesRef);
+        
+        if (policySnap.exists()) {
+            workflow = policySnap.val() as ApprovalPolicy;
             const step = workflow.steps[entity.currentStepIndex || 0];
             if (step) {
                 currentStepId = step.id;
@@ -184,9 +216,7 @@ export const processApprovalAction = async (
 
     // --- CONFLICT OF INTEREST GATE (Logic Gate 3.3) ---
     if (action === 'APPROVE') {
-        const requesterId = entityType === 'REQUISITION' 
-            ? (entity as Requisition).requesterId 
-            : (entity as PurchaseOrder).issuedBy;
+        let requesterId = entity.requesterId || entity.issuedBy || entity.createdBy;
             
         if (actor.uid === requesterId) {
             // Log the blocked attempt
@@ -195,7 +225,7 @@ export const processApprovalAction = async (
                 actorId: actor.uid,
                 actorName: actor.name,
                 action: 'APPROVE',
-                entityType: entityType === 'REQUISITION' ? 'REQUISITION' : 'PURCHASE_ORDER',
+                entityType: entityType,
                 entityId,
                 description: `Blocked self-approval attempt by ${actor.name} for ${entityType} ${entityId}`
             });
@@ -209,6 +239,12 @@ export const processApprovalAction = async (
         'REVISION_REQUESTED': 'UPDATE'
     };
 
+    const getAmount = () => {
+        return entity.totalAmount || entity.amount || entity.value || entity.budget || 0;
+    };
+    
+    const requesterIdForNotif = entity.requesterId || entity.issuedBy || entity.createdBy || null;
+
     if (action === 'REJECT') {
         updates.status = 'REJECTED';
         await logAction({
@@ -216,7 +252,7 @@ export const processApprovalAction = async (
             actorId: actor.uid,
             actorName: actor.name,
             action: auditActionMap['REJECT'],
-            entityType: entityType === 'REQUISITION' ? 'REQUISITION' : 'PURCHASE_ORDER',
+            entityType: entityType,
             entityId,
             description: `Rejected ${entityType}: ${comment || 'No comment'}`
         });
@@ -225,8 +261,7 @@ export const processApprovalAction = async (
         if (entity.status === 'APPROVED' || entity.status === 'PENDING') {
             try {
                 const { releaseFunds } = await import("./budgets");
-                const amount = (entity as any).totalAmount;
-                await releaseFunds(tenantId, entity.department, amount);
+                await releaseFunds(tenantId, entity.department, getAmount());
             } catch (err) {
                 console.error("[Budget] Release failed during rejection:", err);
             }
@@ -234,16 +269,17 @@ export const processApprovalAction = async (
 
         // 🔔 Notification Trigger
         try {
-            const { notifyUser } = await import("./notifications");
-            const requesterId = entityType === 'REQUISITION' ? (entity as Requisition).requesterId : (entity as PurchaseOrder).issuedBy;
-            await notifyUser(
-                tenantId,
-                requesterId,
-                'APPROVAL_REJECTED',
-                `${entityType} Rejected`,
-                `Your ${entityType === 'REQUISITION' ? 'requisition' : 'purchase order'} ${entityId} has been rejected by ${actor.name}.`,
-                `/dashboard/${entityType === 'REQUISITION' ? 'requisitions' : 'purchase-orders'}`
-            );
+            if (requesterIdForNotif) {
+                const { notifyUser } = await import("./notifications");
+                await notifyUser(
+                    tenantId,
+                    requesterIdForNotif,
+                    'APPROVAL_REJECTED',
+                    `${entityType} Rejected`,
+                    `Your ${entityType} ${entityId} has been rejected by ${actor.name}.`,
+                    `/dashboard/${path}`
+                );
+            }
         } catch (err) {
             console.error("Notify error:", err);
         }
@@ -254,23 +290,24 @@ export const processApprovalAction = async (
             actorId: actor.uid,
             actorName: actor.name,
             action: 'UPDATE',
-            entityType: entityType === 'REQUISITION' ? 'REQUISITION' : 'PURCHASE_ORDER',
+            entityType: entityType,
             entityId,
             description: `Revision requested for ${entityType}: ${comment || 'No comment'}`
         });
 
         // 🔔 Notification Trigger
         try {
-            const { notifyUser } = await import("./notifications");
-            const requesterId = entityType === 'REQUISITION' ? (entity as Requisition).requesterId : (entity as PurchaseOrder).issuedBy;
-            await notifyUser(
-                tenantId,
-                requesterId,
-                'SYSTEM',
-                'Revision Requested',
-                `Revision has been requested for your ${entityType === 'REQUISITION' ? 'requisition' : 'purchase order'} ${entityId} by ${actor.name}.`,
-                `/dashboard/${entityType === 'REQUISITION' ? 'requisitions' : 'purchase-orders'}`
-            );
+            if (requesterIdForNotif) {
+                const { notifyUser } = await import("./notifications");
+                await notifyUser(
+                    tenantId,
+                    requesterIdForNotif,
+                    'SYSTEM',
+                    'Revision Requested',
+                    `Revision has been requested for your ${entityType} ${entityId} by ${actor.name}.`,
+                    `/dashboard/${path}`
+                );
+            }
         } catch (err) {
             console.error("Notify error:", err);
         }
@@ -283,85 +320,125 @@ export const processApprovalAction = async (
             actorId: actor.uid,
             actorName: actor.name,
             action: auditActionMap['APPROVE'],
-            entityType: entityType === 'REQUISITION' ? 'REQUISITION' : 'PURCHASE_ORDER',
+            entityType: entityType,
             entityId,
             description: `Approved stage "${currentStepName}" for ${entityType}.`
         });
 
         if (!workflow || nextStepIndex >= workflow.steps.length) {
-            updates.status = 'APPROVED';
+            if (entityType === 'TENDER') {
+                updates.status = 'AWARDED';
+                // Trigger PO Generation automatically on final award approval
+                const { awardBid } = await import("./sourcing");
+                const { getPurchaseOrderById } = await import("./purchaseOrders");
+                
+                // Note: We need the quoteId. Assuming it's stored in entity.pendingAwardQuoteId
+                if (entity.pendingAwardQuoteId) {
+                    await awardBid(tenantId, entityId, entity.pendingAwardQuoteId, actor as any);
+                }
+            } else {
+                updates.status = entityType === 'CONTRACT' ? 'ACTIVE' : 'APPROVED';
+            }
             if (workflow) updates.currentStepIndex = nextStepIndex; // Marks completion
 
             // 🔔 Notification Trigger (Final Approval)
             try {
-                const { notifyUser } = await import("./notifications");
-                const requesterId = entityType === 'REQUISITION' ? (entity as Requisition).requesterId : (entity as PurchaseOrder).issuedBy;
-                await notifyUser(
-                    tenantId,
-                    requesterId,
-                    'APPROVAL_GRANTED',
-                    `${entityType} Approved`,
-                    `Your ${entityType === 'REQUISITION' ? 'requisition' : 'purchase order'} ${entityId} has been fully approved.`,
-                    `/dashboard/${entityType === 'REQUISITION' ? 'requisitions' : 'purchase-orders'}`
-                );
+                if (requesterIdForNotif) {
+                    const { notifyUser } = await import("./notifications");
+                    await notifyUser(
+                        tenantId,
+                        requesterIdForNotif,
+                        'APPROVAL_GRANTED',
+                        `${entityType} Approved`,
+                        `Your ${entityType} ${entityId} has been fully approved.`,
+                        `/dashboard/${path}`
+                    );
+                }
             } catch (err) {
                 console.error("Notify error:", err);
             }
 
             // 🛡️ Phase 58: Reserve Funds (Final Approval)
             try {
-                const { reserveFunds } = await import("./budgets");
-                const amount = (entity as any).totalAmount;
-                await reserveFunds(tenantId, entity.department, amount);
+                if (entityType === 'REQUISITION' || entityType === 'PO') {
+                    const { reserveFunds } = await import("./budgets");
+                    await reserveFunds(tenantId, entity.department, getAmount());
+                }
             } catch (err) {
                 console.error("[Budget] Fund reservation failed:", err);
             }
+
+            // 🪙 Budget Adjustment Finalization
+            try {
+                if (entityType === 'BUDGET') {
+                    const { processBudgetAdjustment } = await import("./budgetAdjustments");
+                    await processBudgetAdjustment(tenantId, entityId, 'APPROVED', actor as any);
+                }
+            } catch (err) {
+                console.error("[Budget] Adjustment finalization failed:", err);
+            }
         } else {
+            const rates = await getExchangeRates();
+            const workflowCurrency = (workflow as any).currency || 'GHS';
+            const documentCurrency = (entity as any).currency || 'GHS';
+
             // Find next applicable step (handles thresholds)
             let finalNextIndex = nextStepIndex;
             while (finalNextIndex < workflow.steps.length) {
                 const step = workflow.steps[finalNextIndex];
-                const amount = (entity as any).totalAmount;
+                const amount = getAmount();
+
+                const convertedAmount = convertCurrency(amount, documentCurrency, workflowCurrency, rates);
 
                 const min = step.thresholdMin ?? 0;
                 const max = step.thresholdMax ?? Infinity;
 
-                if (amount >= min && amount <= max) {
+                if (convertedAmount >= min && convertedAmount <= max) {
                     break;
                 }
                 finalNextIndex++;
             }
 
             if (finalNextIndex >= workflow.steps.length) {
-                updates.status = 'APPROVED';
+                if (entityType === 'TENDER') {
+                    updates.status = 'AWARDED';
+                    const { awardBid } = await import("./sourcing");
+                    if (entity.pendingAwardQuoteId) {
+                        await awardBid(tenantId, entityId, entity.pendingAwardQuoteId, actor as any);
+                    }
+                } else {
+                    updates.status = entityType === 'CONTRACT' ? 'ACTIVE' : 'APPROVED';
+                }
                 
                 // 🔔 Notification Trigger (Final Approval - skipped steps)
                 try {
-                    const { notifyUser } = await import("./notifications");
-                    const requesterId = entityType === 'REQUISITION' ? (entity as Requisition).requesterId : (entity as PurchaseOrder).issuedBy;
-                    await notifyUser(
-                        tenantId,
-                        requesterId,
-                        'APPROVAL_GRANTED',
-                        `${entityType} Approved`,
-                        `Your ${entityType === 'REQUISITION' ? 'requisition' : 'purchase order'} ${entityId} has been fully approved.`,
-                        `/dashboard/${entityType === 'REQUISITION' ? 'requisitions' : 'purchase-orders'}`
-                    );
+                    if (requesterIdForNotif) {
+                        const { notifyUser } = await import("./notifications");
+                        await notifyUser(
+                            tenantId,
+                            requesterIdForNotif,
+                            'APPROVAL_GRANTED',
+                            `${entityType} Approved`,
+                            `Your ${entityType} ${entityId} has been fully approved.`,
+                            `/dashboard/${path}`
+                        );
+                    }
                 } catch (err) {
                     console.error("Notify error:", err);
                 }
 
                 // 🛡️ Phase 58: Reserve Funds (Final Approval via skipped steps)
                 try {
-                    const { reserveFunds } = await import("./budgets");
-                    const amount = (entity as any).totalAmount;
-                    await reserveFunds(tenantId, entity.department, amount);
+                    if (entityType === 'REQUISITION' || entityType === 'PO') {
+                        const { reserveFunds } = await import("./budgets");
+                        await reserveFunds(tenantId, entity.department, getAmount());
+                    }
                 } catch (err) {
                     console.error("[Budget] Fund reservation failed (skipped steps):", err);
                 }
             } else {
                 updates.currentStepIndex = finalNextIndex;
-                const nextApprovers = await getCurrentStepApprovers(tenantId, workflow, finalNextIndex, entityType === 'REQUISITION' ? (entity as Requisition).requesterId : (entity as PurchaseOrder).issuedBy);
+                const nextApprovers = await getCurrentStepApprovers(tenantId, workflow, finalNextIndex, requesterIdForNotif || undefined);
                 if (nextApprovers.length > 0) {
                     updates.approverId = nextApprovers[0].uid;
                     updates.approverName = nextApprovers[0].name;

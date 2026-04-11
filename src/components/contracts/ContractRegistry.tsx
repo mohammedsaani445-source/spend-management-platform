@@ -9,9 +9,11 @@ interface ContractRegistryProps {
     contracts: Contract[];
     onEdit: (contract: Contract) => void;
     onDelete: (id: string) => void;
+    onApprove?: (id: string) => void;
+    onReject?: (id: string) => void;
 }
 
-export default function ContractRegistry({ contracts, onEdit, onDelete }: ContractRegistryProps) {
+export default function ContractRegistry({ contracts, onEdit, onDelete, onApprove, onReject }: ContractRegistryProps) {
     const getStatusColor = (status: ContractStatus) => {
         switch (status) {
             case 'ACTIVE': return 'var(--success-bg)';
@@ -89,6 +91,24 @@ export default function ContractRegistry({ contracts, onEdit, onDelete }: Contra
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            {contract.status === 'PENDING' && (
+                                                <>
+                                                    <button
+                                                        className="btn"
+                                                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--success-bg)', color: 'var(--success)', border: '1px solid var(--success)' }}
+                                                        onClick={() => onApprove && onApprove(contract.id!)}
+                                                    >
+                                                        Approve
+                                                    </button>
+                                                    <button
+                                                        className="btn"
+                                                        style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', backgroundColor: 'var(--error-bg)', color: 'var(--error)', border: '1px solid var(--error)' }}
+                                                        onClick={() => onReject && onReject(contract.id!)}
+                                                    >
+                                                        Reject
+                                                    </button>
+                                                </>
+                                            )}
                                             <button
                                                 className="btn"
                                                 style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}

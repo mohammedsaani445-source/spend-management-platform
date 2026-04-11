@@ -67,6 +67,7 @@ export default function CreateRFPModal({ initialData, tenantId, onClose, onCreat
                 description,
                 department: initialData.department,
                 status: 'OPEN',
+                currency: initialData.currency || 'USD',
                 deadline: new Date(deadline),
                 invitedVendors: selectedVendors,
                 weightedCriteria: {

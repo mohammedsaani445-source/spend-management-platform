@@ -3,6 +3,7 @@ import { ref, push, set, get, update } from "firebase/database";
 import { BudgetAdjustment, AppUser } from "@/types";
 import { logAction } from "./audit";
 import { notifyUser } from "./notifications";
+import { evaluatePolicy } from "./approvals";
 
 const getAdjustmentsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgetAdjustments`);
 
@@ -11,10 +12,19 @@ export const createBudgetAdjustmentRequest = async (params: Omit<BudgetAdjustmen
         const adjustmentsRef = getAdjustmentsRef(params.tenantId);
         const newAdjustmentRef = push(adjustmentsRef);
         
+        const workflow = await evaluatePolicy(
+            params.tenantId,
+            'budgets',
+            params.amount,
+            params.currency || 'GHS',
+            params.department
+        );
+
         const adjustment: BudgetAdjustment = {
             ...params,
             id: newAdjustmentRef.key || undefined,
-            status: 'PENDING',
+            status: workflow ? 'PENDING' : 'APPROVED',
+            workflowId: workflow?.id || null,
             createdAt: new Date().toISOString()
         };
 

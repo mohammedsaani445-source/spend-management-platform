@@ -2,6 +2,7 @@ import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, remove } from "firebase/database";
 import { Contract, ContractStatus } from "@/types";
 import { logAction } from "./audit";
+import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
 
 const getContractsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/contracts`);
 const getContractRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/contracts/${id}`);
@@ -12,11 +13,37 @@ export const createContract = async (contract: Omit<Contract, 'id' | 'createdAt'
         const newContractRef = push(contractsRef);
         const now = new Date().toISOString();
 
+        let initialStatus = contract.status || 'ACTIVE';
+        let workflowMetadata: any = {};
+
+        const workflow = await evaluatePolicy(
+            user.tenantId,
+            'contracts',
+            contract.value,
+            contract.currency,
+            user.department || 'Legal'
+        );
+
+        if (workflow) {
+            initialStatus = 'PENDING';
+            const firstStepApprovers = await getCurrentStepApprovers(user.tenantId, workflow, 0, user.uid);
+            workflowMetadata = {
+                workflowId: workflow.id,
+                currentStepIndex: 0,
+                approverId: firstStepApprovers.map(a => a.uid),
+                approverName: firstStepApprovers.map(a => a.name).join(', '),
+                policyName: workflow.name,
+                approvalHistory: []
+            };
+        }
+
         const fullContract: Contract = {
             ...contract,
             id: newContractRef.key!,
+            status: initialStatus,
             createdAt: new Date(now),
-            updatedAt: new Date(now)
+            updatedAt: new Date(now),
+            ...workflowMetadata
         };
 
         await set(newContractRef, {
@@ -24,7 +51,8 @@ export const createContract = async (contract: Omit<Contract, 'id' | 'createdAt'
             startDate: fullContract.startDate.toISOString(),
             endDate: fullContract.endDate.toISOString(),
             createdAt: now,
-            updatedAt: now
+            updatedAt: now,
+            ...workflowMetadata
         });
 
         await logAction({

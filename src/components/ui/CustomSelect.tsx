@@ -93,32 +93,40 @@ export default function CustomSelect({
                     color: selectedOption ? 'var(--text-main)' : 'var(--text-secondary)'
                 }}
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    {selectedOption?.icon && <span>{selectedOption.icon}</span>}
-                    {selectedOption ? selectedOption.label : placeholder}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {selectedOption?.icon && <span style={{ fontSize: '16px' }}>{selectedOption.icon}</span>}
+                    <span style={{ fontSize: '13px', fontWeight: 600 }}>
+                        {selectedOption ? selectedOption.label : placeholder}
+                    </span>
                 </div>
-                <span style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" strokeWidth="2.5" 
+                     style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s' }}>
+                    <path d="M6 9l6 6 6-6" />
+                </svg>
             </div>
 
-            {/* Dropdown Menu */}
             {isOpen && (
                 <div style={{
                     position: 'absolute',
-                    top: '100%',
+                    top: 'calc(100% + 4px)',
                     left: 0,
                     right: 0,
-                    marginTop: '0.5rem',
-                    background: 'var(--surface)', // Fallback
+                    backgroundColor: 'rgba(255, 255, 255, 0.98)',
                     backdropFilter: 'blur(12px)',
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Glass effect light
-                    border: '1px solid var(--border)',
-                    borderRadius: 'var(--radius-md)',
-                    boxShadow: 'var(--shadow-lg)',
-                    zIndex: 'var(--z-dropdown)' as any,
+                    border: '1px solid #E2E8F0',
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)',
+                    zIndex: 20000,
                     maxHeight: '300px',
                     overflowY: 'auto',
-                    animation: 'fade-in-up 0.2s ease-out forwards'
+                    animation: 'dropdownScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}>
+                    <style>{`
+                        @keyframes dropdownScaleIn {
+                            from { opacity: 0; transform: scale(0.95) translateY(-8px); }
+                            to { opacity: 1; transform: scale(1) translateY(0); }
+                        }
+                    `}</style>
                     {/* Dark mode override via inline style logic is tricky, usually handled by class but we use standard vars */}
                     {/* We can rely on css modules or simpler global class usage for the dropdown specifically if needed, 
                         but relying on vars (surface) is safest. 

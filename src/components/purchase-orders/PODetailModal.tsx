@@ -34,6 +34,8 @@ interface PODetailModalProps {
     onReceive: (id: string, poNumber: string) => void;
     onCancel?: (id: string, poNumber: string) => void;
     onEmailVendor?: (po: PurchaseOrder) => void;
+    onApprove?: (id: string) => void;
+    onReject?: (id: string) => void;
 }
 
 export default function PODetailModal({
@@ -42,7 +44,9 @@ export default function PODetailModal({
     onClose,
     onReceive,
     onCancel,
-    onEmailVendor
+    onEmailVendor,
+    onApprove,
+    onReject
 }: PODetailModalProps) {
     useScrollLock(true);
     const { showConfirm, showAlert, showError } = useModal();
@@ -352,6 +356,32 @@ export default function PODetailModal({
                                         Awaiting review by Finance or Procurement officer.
                                     </div>
                                 )}
+                            </div>
+                        )}
+
+                        {/* Approval Action Gate */}
+                        {po.status === 'PENDING' && (
+                            <div className="card" style={{ border: '2px solid var(--brand)', backgroundColor: 'var(--brand-soft)' }}>
+                                <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--brand)' }}>Pending Approval</h3>
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
+                                    This purchase order requires authorization before it can be issued to the vendor.
+                                </p>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                    <button
+                                        className="btn btn-primary"
+                                        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                                        onClick={() => onApprove && onApprove(po.id!)}
+                                    >
+                                        <CheckCircle2 size={18} /> Approve & Issue PO
+                                    </button>
+                                    <button
+                                        className="btn btn-outline"
+                                        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--error)', borderColor: 'var(--error)' }}
+                                        onClick={() => onReject && onReject(po.id!)}
+                                    >
+                                        <XCircle size={18} /> Reject Purchase Order
+                                    </button>
+                                </div>
                             </div>
                         )}
 

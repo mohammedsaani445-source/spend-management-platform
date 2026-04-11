@@ -47,8 +47,7 @@ const NAV_GROUPS = [
         items: [
             { name: "Analytics", href: "/dashboard/analytics", icon: <LineChart size={20} /> },
             { name: "Reports", href: "/dashboard/reports", icon: <BarChart3 size={20} /> },
-            { name: "Compliance", href: "/dashboard/compliance", icon: <ClipboardCheck size={20} /> },
-            { name: "Audit Trail", href: "/dashboard/audit-trail", icon: <Shield size={20} /> },
+            { name: "Governance & Audit", href: "/dashboard/compliance", icon: <ClipboardCheck size={20} /> },
         ]
     }
 ];
@@ -56,6 +55,7 @@ const NAV_GROUPS = [
 
 const ADMIN_ITEMS = [
     { name: "Team Management", href: "/dashboard/users", icon: <Users size={20} /> },
+    { name: "Approval Policies", href: "/dashboard/settings/approvals", icon: <ShieldCheck size={20} /> },
     { name: "Integrations", href: "/dashboard/integrations", icon: <Blocks size={20} /> },
 ];
 
@@ -111,10 +111,10 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                     case 'finance_mgr':
                         return ['Dashboard', 'Approvals', 'Invoices', 'Payments', 'Budgets', 'Analytics', 'Reports', 'Sourcing (RFQ)'].includes(name);
                     case 'FINANCE_SPECIALIST':
-                        return ['Dashboard', 'Invoices', 'Payments', 'Budgets', 'Vendors', 'Analytics', 'Compliance'].includes(name);
+                        return ['Dashboard', 'Invoices', 'Payments', 'Budgets', 'Vendors', 'Analytics', 'Governance & Audit'].includes(name);
                     case 'DATA_ANALYST':
                     case 'auditor':
-                        return ['Dashboard', 'Analytics', 'Sourcing (RFQ)', 'Compliance', 'Audit Trail', 'Reports'].includes(name);
+                        return ['Dashboard', 'Analytics', 'Sourcing (RFQ)', 'Governance & Audit', 'Reports'].includes(name);
                     case 'asset_mgr':
                         return ['Dashboard', 'Assets', 'Inventory', 'Reports'].includes(name);
                     case 'WORKSPACE_ADMIN':

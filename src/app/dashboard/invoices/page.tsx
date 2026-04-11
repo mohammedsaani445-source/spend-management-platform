@@ -140,7 +140,7 @@ export default function InvoicesPage() {
                 hasFraudAlert: formData.hasFraudAlert,
                 fraudCheckReason: formData.fraudCheckReason,
                 autoExtracted: formData.autoExtracted
-            });
+            }, user);
             setShowModal(false);
             setFormData({
                 poId: "", invoiceNumber: "", amount: 0, currency: "USD",
@@ -167,9 +167,20 @@ export default function InvoicesPage() {
     const handleStatusUpdate = async (id: string, status: InvoiceStatus) => {
         try {
             if (!user) return;
-            await updateStatus(user.tenantId, id, status);
+            if (status === 'APPROVED' || status === 'REJECTED') {
+                 const { processApprovalAction } = await import("@/lib/approvals");
+                 await processApprovalAction({
+                     tenantId: user.tenantId,
+                     entityId: id,
+                     entityType: 'INVOICE',
+                     actor: { uid: user.uid, name: user.displayName, email: user.email },
+                     action: status === 'APPROVED' ? 'APPROVE' : 'REJECT'
+                 });
+            } else {
+                 await updateStatus(user.tenantId, id, status);
+            }
             setSelectedInvoice(null);
-        } catch { await showError("Error", "Error updating status"); }
+        } catch (e: any) { await showError("Error", e.message || "Error updating status"); }
     };
 
     const handleScanSuccess = async (data: any) => {

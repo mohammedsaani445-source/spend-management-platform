@@ -1,7 +1,7 @@
 import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, orderByChild, equalTo, onValue } from "firebase/database";
 import { Requisition, RequisitionStatus, AppUser } from "@/types";
-import { evaluateWorkflow, getCurrentStepApprovers, processApprovalAction } from "./approvals";
+import { evaluatePolicy, getCurrentStepApprovers, processApprovalAction } from "./approvals";
 import { runComplianceCheck } from "./compliance_checker";
 import { PaymentService } from "./payments";
 import { extractInvoiceDataServer as extractQuoteData } from "./ocr";
@@ -17,7 +17,7 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
         const tenantId = requisition.tenantId;
 
         // --- ENTERPRISE WORKFLOW ENGINE ---
-        const workflow = await evaluateWorkflow(tenantId, 'REQUISITION', requisition.totalAmount);
+        const workflow = await evaluatePolicy(tenantId, 'requisitions', requisition.totalAmount, requisition.currency || 'GHS', requisition.departmentId);
         let approver = { uid: 'system-admin', name: 'System Administrator', email: 'admin@apexprocure.com' };
 
         if (workflow && workflow.steps.length > 0) {
@@ -35,7 +35,7 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
         const newReqRef = push(reqsRef);
 
         // --- BUDGET CHECK GATE (Phase 58: Strategic Enforcement) ---
-        let status: RequisitionStatus = 'PENDING';
+        let status: RequisitionStatus = workflow ? 'PENDING' : 'APPROVED';
         
         try {
             const { validateRequisitionBudget } = await import("./budgets");

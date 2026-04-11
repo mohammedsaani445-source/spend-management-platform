@@ -2,6 +2,7 @@ import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, orderByChild, equalTo, onValue } from "firebase/database";
 import { PurchaseOrder, Requisition, POStatus, AppUser, Tender, Bid, ShippingDetails } from "@/types";
 import { getVendor } from "./vendors";
+import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
 
 const getPOsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders`);
 const getPORef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders/${id}`);
@@ -21,6 +22,27 @@ export const createPOFromRequisition = async (tenantId: string, requisition: Req
         const poRef = getPOsRef(tenantId);
         const newPORef = push(poRef);
 
+        // --- ENTERPRISE WORKFLOW ENGINE ---
+        const workflow = await evaluatePolicy(tenantId, 'purchase_orders', requisition.totalAmount, requisition.currency || 'GHS', requisition.department);
+        let approver = { uid: 'system-admin', name: 'System Administrator', email: 'admin@apexprocure.com' };
+        let initialStatus: POStatus = 'ISSUED';
+        let workflowMetadata = {};
+
+        if (workflow) {
+            initialStatus = 'PENDING';
+            const nextApprovers = await getCurrentStepApprovers(tenantId, workflow, 0, userId);
+            if (nextApprovers.length > 0) {
+                approver = nextApprovers[0];
+            }
+            workflowMetadata = {
+                currentStepIndex: 0,
+                workflowId: workflow.id,
+                approverId: approver.uid,
+                approverName: approver.name,
+                approvalHistory: []
+            };
+        }
+
         const newPO: PurchaseOrder = {
             tenantId,
             poNumber,
@@ -31,11 +53,12 @@ export const createPOFromRequisition = async (tenantId: string, requisition: Req
             items: requisition.items,
             totalAmount: requisition.totalAmount,
             currency: requisition.currency,
-            status: 'ISSUED',
+            status: initialStatus,
             issuedAt: new Date().toISOString() as any,
-            expectedDeliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() as any,
             issuedBy: userId,
-            department: requisition.department
+            department: requisition.department,
+            expectedDeliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() as any,
+            ...workflowMetadata
         };
 
         await set(newPORef, newPO);
@@ -327,6 +350,27 @@ export const createPOFromAwardedBid = async (
         const poRef = getPOsRef(tenantId);
         const newPORef = push(poRef);
 
+        // --- ENTERPRISE WORKFLOW ENGINE ---
+        const workflow = await evaluatePolicy(tenantId, 'purchase_orders', bid.amount, bid.currency || 'GHS', actor.department);
+        let approver = { uid: 'system-admin', name: 'System Administrator', email: 'admin@apexprocure.com' };
+        let initialStatus: POStatus = 'ISSUED';
+        let workflowMetadata = {};
+
+        if (workflow && workflow.steps.length > 0) {
+            initialStatus = 'PENDING';
+            const nextApprovers = await getCurrentStepApprovers(tenantId, workflow, 0, actor.uid);
+            if (nextApprovers.length > 0) {
+                approver = nextApprovers[0];
+            }
+            workflowMetadata = {
+                currentStepIndex: 0,
+                workflowId: workflow.id,
+                approverId: approver.uid,
+                approverName: approver.name,
+                approvalHistory: []
+            };
+        }
+
         // Map Tender items or create a generic one if empty
         const items = tender.items && tender.items.length > 0 
             ? tender.items 
@@ -347,14 +391,15 @@ export const createPOFromAwardedBid = async (
             items: items as any,
             totalAmount: bid.amount,
             currency: bid.currency,
-            status: 'ISSUED',
+            status: initialStatus,
             issuedAt: new Date().toISOString() as any,
             issuedBy: actor.uid,
             department: actor.department || 'Procurement',
             locationId: actor.locationId,
             expectedDeliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() as any,
             issuedByName: actor.displayName,
-            vendorEmail: bid.vendorId // Placeholder for vendor email if not found, usually we'd fetch it
+            vendorEmail: bid.vendorId, // Placeholder for vendor email if not found, usually we'd fetch it
+            ...workflowMetadata
         };
 
         await set(newPORef, newPO);

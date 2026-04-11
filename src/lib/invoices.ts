@@ -2,14 +2,41 @@ import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, orderByChild, equalTo, onValue } from "firebase/database";
 import { Invoice, InvoiceStatus, AppUser, PurchaseOrder } from "@/types";
 import { performThreeWayMatch } from "./matching";
+import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
 
 const getInvoicesRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices`);
 const getInvoiceRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices/${id}`);
 
-export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id' | 'createdAt'>) => {
+export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id' | 'createdAt'>, actor?: AppUser) => {
     try {
         const invRef = getInvoicesRef(tenantId);
         const newInvRef = push(invRef);
+
+        let initialStatus: InvoiceStatus = invoice.status || 'PENDING';
+        let workflowMetadata: any = {};
+
+        if (actor) {
+            const workflow = await evaluatePolicy(
+                tenantId,
+                'invoices',
+                invoice.amount,
+                invoice.currency || 'GHS',
+                invoice.department || actor.department || 'Finance'
+            );
+
+            if (workflow) {
+                initialStatus = 'PENDING';
+                const firstStepApprovers = await getCurrentStepApprovers(tenantId, workflow, 0, actor.uid);
+                workflowMetadata = {
+                    workflowId: workflow.id,
+                    currentStepIndex: 0,
+                    approverId: firstStepApprovers.map(a => a.uid),
+                    approverName: firstStepApprovers.map(a => a.name).join(', '),
+                    policyName: workflow.name,
+                    approvalHistory: []
+                };
+            }
+        }
 
         await set(newInvRef, {
             ...invoice,
@@ -17,14 +44,15 @@ export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id
             issueDate: invoice.issueDate instanceof Date ? invoice.issueDate.toISOString() : invoice.issueDate,
             dueDate: invoice.dueDate instanceof Date ? invoice.dueDate.toISOString() : invoice.dueDate,
             createdAt: new Date().toISOString(),
-            status: invoice.status || 'PENDING',
+            status: initialStatus,
             department: invoice.department,
             fileName: invoice.fileName || null,
             fileUrl: invoice.fileUrl || null,
             confidence: invoice.confidence || null,
             hasFraudAlert: invoice.hasFraudAlert || false,
             fraudCheckReason: invoice.fraudCheckReason || null,
-            autoExtracted: invoice.autoExtracted || false
+            autoExtracted: invoice.autoExtracted || false,
+            ...workflowMetadata
         });
 
         const newId = newInvRef.key;

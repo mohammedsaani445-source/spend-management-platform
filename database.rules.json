@@ -107,7 +107,11 @@
           "workflows": {
             ".indexOn": "isActive",
             ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",
-            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER')"
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'administrator' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'PLATFORM_SUPERUSER')"
+          },
+          "approval_policies": {
+            ".read": "auth != null",
+            ".write": "auth != null && (root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'ADMIN' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'administrator' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'SUPERUSER' || root.child('v2_production').child('tenants').child($tenantId).child('users').child(auth.uid).child('role').val() === 'PLATFORM_SUPERUSER')"
           },
           "settings": {
             ".read": "auth != null && root.child('v2_production').child('userTenants').child(auth.uid).child('tenantId').val() === $tenantId",

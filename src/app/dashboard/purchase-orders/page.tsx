@@ -95,6 +95,38 @@ export default function PurchaseOrdersPage() {
         await showAlert("Email Sent", `PO ${po.poNumber} has been emailed to ${po.vendorName}.`);
     };
 
+    const handleApprove = async (id: string) => {
+        if (!user) return;
+        try {
+            const { processApprovalAction } = await import("@/lib/approvals");
+            await processApprovalAction({
+                tenantId: user.tenantId,
+                entityId: id,
+                entityType: 'PO',
+                actor: { uid: user.uid, name: user.displayName, email: user.email },
+                action: 'APPROVE'
+            });
+            await showAlert("PO Approved", `Purchase Order has been approved and issued.`);
+            setSelectedPO(null);
+        } catch (e: any) { await showError("Error", e.message || "Failed to approve PO"); }
+    };
+
+    const handleReject = async (id: string) => {
+        if (!user) return;
+        try {
+            const { processApprovalAction } = await import("@/lib/approvals");
+            await processApprovalAction({
+                tenantId: user.tenantId,
+                entityId: id,
+                entityType: 'PO',
+                actor: { uid: user.uid, name: user.displayName, email: user.email },
+                action: 'REJECT'
+            });
+            await showAlert("PO Rejected", `Purchase Order has been rejected.`);
+            setSelectedPO(null);
+        } catch (e: any) { await showError("Error", e.message || "Failed to reject PO"); }
+    };
+
     if (loading) return (
         <div className="page-container">
             <Loader text="Loading purchase orders..." />
@@ -225,6 +257,8 @@ export default function PurchaseOrdersPage() {
                     onReceive={handleReceive}
                     onCancel={handleCancel}
                     onEmailVendor={handleEmailVendor}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
                 />
             )}
         </div>

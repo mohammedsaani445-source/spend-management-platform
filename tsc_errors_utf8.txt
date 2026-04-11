@@ -1,0 +1,39 @@
+﻿src/app/dashboard/approvals/page.tsx(49,150): error TS2339: Property 'totalAmount' does not exist on type 'Invoice'.
+src/app/dashboard/approvals/page.tsx(126,52): error TS2339: Property 'name' does not exist on type 'AppUser'.
+src/app/dashboard/approvals/page.tsx(258,22): error TS2739: Type '{ requisition: any; onClose: () => void; onApprove: (id: string, comment: string | undefined) => Promise<void>; onReject: (id: string, comment: string | undefined) => Promise<void>; }' is missing the following properties from type 'ApprovalFocusModalProps': deptSpend, historicalData, onToggleView
+src/app/dashboard/contracts/page.tsx(65,52): error TS2339: Property 'name' does not exist on type 'AppUser'.
+src/app/dashboard/contracts/page.tsx(83,52): error TS2339: Property 'name' does not exist on type 'AppUser'.
+src/app/dashboard/invoices/page.tsx(176,57): error TS2339: Property 'name' does not exist on type 'AppUser'.
+src/app/dashboard/purchase-orders/page.tsx(106,52): error TS2339: Property 'name' does not exist on type 'AppUser'.
+src/app/dashboard/purchase-orders/page.tsx(122,52): error TS2339: Property 'name' does not exist on type 'AppUser'.
+src/components/admin/approvals/CurrencySelector.tsx(68,52): error TS2353: Object literal may only specify known properties, and 'flexDir' does not exist in type 'Properties<string | number, string & {}>'.
+src/components/sourcing/RFQDetails.tsx(232,86): error TS2339: Property 'currency' does not exist on type 'RFP'.
+src/components/sourcing/SourcingEvaluation.tsx(18,24): error TS2362: The left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/sourcing/SourcingEvaluation.tsx(18,42): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+src/components/sourcing/SourcingEvaluation.tsx(20,37): error TS2304: Cannot find name 'useState'.
+src/components/sourcing/SourcingEvaluation.tsx(22,5): error TS2304: Cannot find name 'useEffect'.
+src/components/sourcing/SourcingEvaluation.tsx(157,155): error TS2339: Property 'toFixed' does not exist on type 'number | { total: number; breakdown: { price: number; quality: number; delivery: number; risk: number; }; }'.
+  Property 'toFixed' does not exist on type '{ total: number; breakdown: { price: number; quality: number; delivery: number; risk: number; }; }'.
+src/lib/approvals.ts(66,75): error TS2304: Cannot find name 'Workflow'.
+src/lib/approvals.ts(334,14): error TS2304: Cannot find name 'workflow'.
+src/lib/approvals.ts(334,43): error TS2304: Cannot find name 'workflow'.
+src/lib/approvals.ts(348,17): error TS2304: Cannot find name 'workflow'.
+src/lib/approvals.ts(388,39): error TS2304: Cannot find name 'workflow'.
+src/lib/approvals.ts(393,37): error TS2304: Cannot find name 'workflow'.
+src/lib/approvals.ts(394,30): error TS2304: Cannot find name 'workflow'.
+src/lib/approvals.ts(408,35): error TS2304: Cannot find name 'workflow'.
+src/lib/approvals.ts(447,79): error TS2304: Cannot find name 'workflow'.
+src/lib/bidding.ts(33,46): error TS2554: Expected 4 arguments, but got 3.
+src/lib/bidding.ts(38,61): error TS2339: Property 'displayName' does not exist on type '{ uid: string; name: string; email: string; }'.
+src/lib/budgetAdjustments.ts(26,21): error TS18047: 'workflow' is possibly 'null'.
+src/lib/budgetAdjustments.ts(26,30): error TS2339: Property 'status' does not exist on type 'ApprovalPolicy'.
+src/lib/budgetAdjustments.ts(27,13): error TS2353: Object literal may only specify known properties, and 'workflow' does not exist in type 'BudgetAdjustment'.
+src/lib/budgetAdjustments.ts(27,23): error TS18047: 'workflow' is possibly 'null'.
+src/lib/budgetAdjustments.ts(27,32): error TS2339: Property 'metadata' does not exist on type 'ApprovalPolicy'.
+src/lib/contracts.ts(29,46): error TS2554: Expected 4 arguments, but got 3.
+src/lib/contracts.ts(34,61): error TS2339: Property 'displayName' does not exist on type '{ uid: string; name: string; email: string; }'.
+src/lib/invoices.ts(23,17): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/lib/invoices.ts(29,50): error TS2554: Expected 4 arguments, but got 3.
+src/lib/invoices.ts(34,65): error TS2339: Property 'displayName' does not exist on type '{ uid: string; name: string; email: string; }'.
+src/lib/sourcing.ts(479,24): error TS2339: Property 'budget' does not exist on type 'RFP'.

@@ -1,142 +1,179 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getAuditLogs } from "@/lib/audit";
+import React, { useState, useEffect } from "react";
+import { ShieldCheck, Search } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { ShieldCheck, History, User, Laptop2, Globe, FileText, Search } from "lucide-react";
-import styles from "@/app/dashboard/settings/Settings.module.css";
+import { getAuditLogs, exportAuditLogsCsv } from "@/lib/audit";
+import AuditMetrics from "./audit/AuditMetrics";
+import ForensicDrawer from "./audit/ForensicDrawer";
+import AuditLogTable from "@/components/compliance/AuditLogTable";
 
 export default function AuditLogViewer() {
     const { user } = useAuth();
     const [logs, setLogs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("");
+    const [activeTab, setActiveTab] = useState<'ALL' | 'FINANCIAL' | 'SECURITY'>('ALL');
+    const [selectedLog, setSelectedLog] = useState<any | null>(null);
 
     useEffect(() => {
         const fetchLogs = async () => {
             if (!user) return;
-            const data = await getAuditLogs(user.tenantId, 100);
-            setLogs(data);
-            setLoading(false);
+            try {
+                const data = await getAuditLogs(user.tenantId, 150);
+                setLogs(data);
+            } catch (error) {
+                console.error("Audit Fetch Error:", error);
+            } finally {
+                setLoading(false);
+            }
         };
         fetchLogs();
     }, [user]);
 
-    const filteredLogs = logs.filter(log =>
-        log.action.toLowerCase().includes(filter.toLowerCase()) ||
-        log.actorEmail.toLowerCase().includes(filter.toLowerCase()) ||
-        (log.entityId && log.entityId.toLowerCase().includes(filter.toLowerCase()))
+    const filteredLogs = logs.filter(log => {
+        const query = filter.toLowerCase();
+        const matchesSearch = 
+            (log.description || '').toLowerCase().includes(query) ||
+            (log.actorName || '').toLowerCase().includes(query) ||
+            (log.actorEmail || '').toLowerCase().includes(query) ||
+            (log.entityId || '').toLowerCase().includes(query);
+        
+        if (activeTab === 'FINANCIAL') {
+            const financialTypes = ['REQUISITION', 'PO', 'INVOICE', 'CONTRACT', 'BUDGET', 'EXPENSE'];
+            return matchesSearch && financialTypes.includes(log.entityType);
+        }
+        if (activeTab === 'SECURITY') {
+            const securityActions = ['LOGIN', 'USER_CREATE', 'USER_UPDATE', 'POLICY_UPDATE', 'CONFIG_CHANGE'];
+            return matchesSearch && (
+                securityActions.some(action => log.action.includes(action)) || 
+                log.action.includes('PASSWORD') || 
+                log.action.includes('AUTH')
+            );
+        }
+        return matchesSearch;
+    });
+
+    if (loading) return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '400px', gap: '1rem' }}>
+            <div style={{ width: '40px', height: '40px', border: '3px solid #E2E8F0', borderTopColor: 'var(--brand)', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+            <p style={{ color: '#6B7280', fontSize: '0.875rem', fontWeight: 600 }}>Analyzing Audit Chain...</p>
+        </div>
     );
 
-    if (loading) return <div style={{ padding: '2.5rem', textAlign: 'center', color: '#6B7280' }}>Analyzing Audit Chain...</div>;
-
     return (
-        <div style={{ animation: 'fadeIn 0.3s ease-out' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+        <div style={{ animation: 'fadeIn 0.4s ease-out', padding: '1rem' }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem' }}>
                 <div>
-                    <h3 className={styles.sectionTitle} style={{ marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <History size={22} color="var(--brand)" /> SOC2 Immutable Audit Log
+                    <h3 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#1A202C', margin: 0, letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <ShieldCheck size={28} color="var(--brand)" /> Forensic Compliance Dashboard
                     </h3>
-                    <p className={styles.subtitle}>Cryptographically verified record of all financial events and system changes.</p>
+                    <p style={{ color: '#64748B', fontSize: '0.9375rem', marginTop: '0.25rem' }}>Immutable ledger of financial transactions and system intelligence.</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                    <div style={{ position: 'relative' }}>
-                        <Search size={16} color="#9CA3AF" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
-                        <input
-                            type="text"
-                            placeholder="Search logs..."
-                            className={styles.input}
-                            style={{ paddingLeft: '2.5rem', width: '250px', borderRadius: '100px', backgroundColor: 'white' }}
-                            value={filter}
-                            onChange={(e) => setFilter(e.target.value)}
-                        />
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: '#ECFDF5', color: '#059669', borderRadius: '100px', fontSize: '0.75rem', fontWeight: 800 }}>
+                    <button 
+                        onClick={() => exportAuditLogsCsv(filteredLogs)}
+                        style={{
+                            padding: '0.625rem 1.25rem',
+                            background: 'white',
+                            color: '#1E293B',
+                            borderRadius: '12px',
+                            fontSize: '0.8125rem',
+                            fontWeight: 800,
+                            border: '1px solid #E2E8F0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--brand)'}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = '#E2E8F0'}
+                    >
+                        Export Forensic Report
+                    </button>
+                    <div style={{ padding: '0.625rem 1.25rem', background: '#ECFDF5', color: '#059669', borderRadius: '12px', fontSize: '0.8125rem', fontWeight: 800, border: '1px solid #10B98120', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <ShieldCheck size={16} />
-                        <span>HASH CHAIN VERIFIED</span>
+                        HASH-CHAIN VERIFIED
                     </div>
                 </div>
             </div>
 
-            <div className={styles.card} style={{ padding: 0, overflow: 'hidden' }}>
-                {filteredLogs.length === 0 ? (
-                    <div style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-                        <div style={{ background: '#F3F4F6', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem auto' }}>
-                            <History size={32} color="#9CA3AF" />
-                        </div>
-                        <h4 style={{ fontWeight: 800, fontSize: '1.25rem', marginBottom: '0.5rem' }}>No audit logs found</h4>
-                        <p className={styles.subtitle} style={{ maxWidth: '400px', margin: '0 auto' }}>
-                            {filter ? `No records match the search "${filter}".` : "The system audit trail is currently empty."}
-                        </p>
-                    </div>
-                ) : (
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                            <thead>
-                                <tr style={{ background: '#F8FAFC', borderBottom: '1px solid var(--border)' }}>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Timestamp</th>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Action</th>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Actor</th>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>IP Address</th>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Device</th>
-                                    <th style={{ padding: '1rem 1.5rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', color: 'var(--text-secondary)', letterSpacing: '0.05em' }}>Entity Ref</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredLogs.map(log => (
-                                    <tr key={log.id} style={{ borderBottom: '1px solid var(--border)', backgroundColor: 'white', transition: 'background-color 0.2s' }}>
-                                        <td style={{ padding: '1.25rem 1.5rem', fontSize: '0.8125rem', color: 'var(--text-main)', whiteSpace: 'nowrap' }}>
-                                            {new Date(log.timestamp).toLocaleString(undefined, {
-                                                year: 'numeric', month: 'short', day: 'numeric',
-                                                hour: '2-digit', minute: '2-digit', second: '2-digit'
-                                            })}
-                                        </td>
-                                        <td style={{ padding: '1.25rem 1.5rem' }}>
-                                            <span style={{
-                                                fontWeight: 700,
-                                                fontSize: '0.8125rem',
-                                                color: '#111827',
-                                                background: '#F3F4F6',
-                                                padding: '0.25rem 0.5rem',
-                                                borderRadius: '6px',
-                                                border: '1px solid #E5E7EB'
-                                            }}>
-                                                {log.action}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '1.25rem 1.5rem' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'var(--text-main)' }}>
-                                                <User size={14} color="#9CA3AF" />
-                                                <span>{log.actorEmail}</span>
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: '1.25rem 1.5rem' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.75rem', color: '#4F46E5', fontWeight: 700, background: '#EEF2FF', padding: '0.25rem 0.5rem', borderRadius: '4px', width: 'fit-content' }}>
-                                                <Globe size={12} />
-                                                <code>{log.ipAddress || '0.0.0.0'}</code>
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: '1.25rem 1.5rem' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }} title={log.userAgent}>
-                                                <Laptop2 size={14} />
-                                                <span style={{ maxWidth: '120px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                    {log.userAgent || 'Unknown'}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td style={{ padding: '1.25rem 1.5rem', color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                                                {log.entityType ? <FileText size={14} color="#9CA3AF" /> : null}
-                                                <span>{log.entityType} {log.entityId ? `#${log.entityId.slice(-6).toUpperCase()}` : "SYSTEM"}</span>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
+            {/* Metrics Row */}
+            <AuditMetrics logs={logs} />
+
+            {/* Controls & Tabs */}
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                marginBottom: '1.5rem',
+                background: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '16px',
+                border: '1px solid #E2E8F0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+            }}>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    {(['ALL', 'FINANCIAL', 'SECURITY'] as const).map(tab => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            style={{
+                                padding: '0.5rem 1.25rem',
+                                borderRadius: '10px',
+                                border: 'none',
+                                fontSize: '0.8125rem',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                backgroundColor: activeTab === tab ? 'var(--brand)' : 'transparent',
+                                color: activeTab === tab ? 'white' : '#64748B'
+                            }}
+                        >
+                            {tab}
+                        </button>
+                    ))}
+                </div>
+
+                <div style={{ position: 'relative' }}>
+                    <Search size={18} color="#94A3B8" style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)' }} />
+                    <input
+                        type="text"
+                        placeholder="Scan ledger by ID or Actor..."
+                        style={{ 
+                            paddingLeft: '2.75rem', paddingRight: '1rem', width: '320px', height: '44px', 
+                            borderRadius: '12px', border: '1px solid #E2E8F0', backgroundColor: '#F8FAFC',
+                            fontSize: '0.875rem', outline: 'none', transition: 'border-color 0.2s'
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = 'var(--brand)'}
+                        onBlur={(e) => e.target.style.borderColor = '#E2E8F0'}
+                        value={filter}
+                        onChange={(e) => setFilter(e.target.value)}
+                    />
+                </div>
             </div>
+
+            {/* Main Ledger Table */}
+            <div style={{ 
+                background: 'white', 
+                borderRadius: '20px', 
+                border: '1px solid #E2E8F0', 
+                boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                overflow: 'hidden'
+            }}>
+                <AuditLogTable 
+                    externalLogs={filteredLogs} 
+                    onSelectLog={setSelectedLog} 
+                />
+            </div>
+
+            {/* Detail Drawer */}
+            <ForensicDrawer 
+                log={selectedLog} 
+                onClose={() => setSelectedLog(null)} 
+            />
         </div>
     );
 }

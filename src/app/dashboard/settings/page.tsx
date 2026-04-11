@@ -9,19 +9,18 @@ import * as OTPAuth from "otpauth";
 import QRCode from "qrcode";
 import {
     User, Shield, Bell, ScrollText, Network,
-    GitMerge, Users, LogOut, CheckCircle2,
+    Users, LogOut, CheckCircle2,
     Smartphone, X, Coins, Building2
 } from "lucide-react";
 import Loader from "@/components/common/Loader";
 import styles from "./Settings.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
 
-import WorkflowBuilder from "@/components/admin/WorkflowBuilder";
-import AuditLogViewer from "@/components/admin/AuditLogViewer";
+type Tab = 'PROFILE' | 'SECURITY' | 'NOTIFICATIONS' | 'HIERARCHY' | 'POLICY' | 'CURRENCY' | 'COMPANY';
+
+
 import HierarchyManager from "@/components/admin/HierarchyManager";
 import CurrencySettings from "@/components/admin/CurrencySettings";
-
-type Tab = 'PROFILE' | 'SECURITY' | 'NOTIFICATIONS' | 'WORKFLOWS' | 'AUDIT' | 'HIERARCHY' | 'POLICY' | 'CURRENCY' | 'COMPANY';
 
 export default function SettingsPage() {
     return (
@@ -111,7 +110,7 @@ function SettingsContent() {
         const tab = searchParams.get('tab');
         if (tab) {
             const upperTab = tab.toUpperCase() as Tab;
-            if (['PROFILE', 'SECURITY', 'NOTIFICATIONS', 'WORKFLOWS', 'AUDIT', 'HIERARCHY', 'POLICY', 'CURRENCY', 'COMPANY'].includes(upperTab)) {
+            if (['PROFILE', 'SECURITY', 'NOTIFICATIONS', 'HIERARCHY', 'POLICY', 'CURRENCY', 'COMPANY'].includes(upperTab)) {
                 setActiveTab(upperTab);
             }
         }
@@ -356,9 +355,7 @@ function SettingsContent() {
                     {(['ADMIN', 'WORKSPACE_ADMIN', 'PLATFORM_SUPERUSER', 'administrator', 'SUPERUSER'].includes(user.role)) && (
                         <>
                             <div className={styles.navSection}>Administrative</div>
-                            <button onClick={() => setActiveTab('AUDIT')} className={`${styles.navLink} ${activeTab === 'AUDIT' ? styles.navLinkActive : ''}`} data-label="Security Audit Log">
-                                <ScrollText size={18} className={styles.navIcon} /> Security Audit Log
-                            </button>
+
                             <button onClick={() => setActiveTab('HIERARCHY')} className={`${styles.navLink} ${activeTab === 'HIERARCHY' ? styles.navLinkActive : ''}`} data-label="Organizational Hierarchy">
                                 <Network size={18} className={styles.navIcon} /> Organizational Hierarchy
                             </button>
@@ -367,9 +364,6 @@ function SettingsContent() {
                             </button>
                             <button onClick={() => setActiveTab('COMPANY')} className={`${styles.navLink} ${activeTab === 'COMPANY' ? styles.navLinkActive : ''}`} data-label="Company Profile">
                                 <Building2 size={18} className={styles.navIcon} /> Company Profile
-                            </button>
-                            <button onClick={() => setActiveTab('WORKFLOWS')} className={`${styles.navLink} ${activeTab === 'WORKFLOWS' ? styles.navLinkActive : ''}`} data-label="Workflow Designer">
-                                <GitMerge size={18} className={styles.navIcon} /> Workflow Designer
                             </button>
                             <button onClick={() => setActiveTab('CURRENCY')} className={`${styles.navLink} ${activeTab === 'CURRENCY' ? styles.navLinkActive : ''}`} data-label="Currency & Intelligence">
                                 <Coins size={18} className={styles.navIcon} /> Currency & Intelligence
@@ -600,8 +594,7 @@ function SettingsContent() {
                             </div>
                         )}
 
-                        {activeTab === 'WORKFLOWS' && <WorkflowBuilder />}
-                        {activeTab === 'AUDIT' && <AuditLogViewer />}
+
                         {activeTab === 'HIERARCHY' && <HierarchyManager />}
 
                         {activeTab === 'CURRENCY' && (
@@ -635,7 +628,7 @@ function SettingsContent() {
                             </div>
                         )}
 
-                        {!['WORKFLOWS', 'AUDIT', 'HIERARCHY', 'CURRENCY'].includes(activeTab) && (
+                        {!['HIERARCHY', 'CURRENCY'].includes(activeTab) && (
                             <div className={styles.actionsFooter}>
                                 {saveSuccess && (
                                     <span className={styles.successMessage}>

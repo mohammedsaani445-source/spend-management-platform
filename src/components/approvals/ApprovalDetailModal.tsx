@@ -113,7 +113,7 @@ export default function ApprovalDetailModal({
                             <div>
                                 <h2 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>Review Approval Request</h2>
                                 <div style={{ fontSize: '0.75rem', color: 'var(--text-disabled)', fontWeight: 600 }}>
-                                    #{requisition.id?.slice(-8).toUpperCase()} • Workflow Tier {(requisition.currentStepIndex || 0) + 1}
+                                    #{requisition.id?.slice(-8).toUpperCase()} • Approval Step {(requisition.currentStepIndex || 0) + 1}
                                 </div>
                             </div>
                         </div>
@@ -317,7 +317,7 @@ export default function ApprovalDetailModal({
                                         </div>
                                         <div>
                                             <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>Decision Required</div>
-                                            <div style={{ fontSize: '0.7rem', color: 'var(--text-disabled)', textTransform: 'uppercase' }}>Workflow Tier {(requisition.currentStepIndex || 0) + 1}</div>
+                                            <div style={{ fontSize: '0.7rem', color: 'var(--text-disabled)', textTransform: 'uppercase' }}>Approval Step {(requisition.currentStepIndex || 0) + 1}</div>
                                         </div>
                                     </div>
                                 </div>

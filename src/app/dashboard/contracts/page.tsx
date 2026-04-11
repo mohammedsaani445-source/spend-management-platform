@@ -8,11 +8,13 @@ import { useAuth } from "@/context/AuthContext";
 import Loader from "@/components/common/Loader";
 import ContractRegistry from "@/components/contracts/ContractRegistry";
 import ContractFormModal from "@/components/contracts/ContractFormModal";
+import { useModal } from "@/context/ModalContext";
 import styles from "@/components/layout/Layout.module.css";
 import tableStyles from "@/components/assets/Assets.module.css";
 
 export default function ContractsPage() {
     const { user } = useAuth();
+    const { showAlert, showError, showConfirm } = useModal();
     const [contracts, setContracts] = useState<Contract[]>([]);
     const [vendors, setVendors] = useState<Vendor[]>([]);
     const [loading, setLoading] = useState(true);
@@ -42,11 +44,49 @@ export default function ContractsPage() {
 
     const handleDelete = async (id: string) => {
         if (!user) return;
+        const confirmed = await showConfirm("Delete Contract", "Are you sure you want to remove this contract from the database?");
+        if (!confirmed) return;
         try {
             await deleteContract(user.tenantId, id, user);
             loadData();
         } catch (error) {
-            alert("Failed to delete contract.");
+            await showError("Operation Failed", "Failed to delete contract.");
+        }
+    };
+
+    const handleApprove = async (id: string) => {
+        if (!user) return;
+        try {
+            const { processApprovalAction } = await import("@/lib/approvals");
+            await processApprovalAction({
+                tenantId: user.tenantId,
+                entityId: id,
+                entityType: 'CONTRACT',
+                actor: { uid: user.uid, name: user.displayName, email: user.email },
+                action: 'APPROVE'
+            });
+            await showAlert("Contract Approved", "The contract has been approved and is now active.");
+            loadData();
+        } catch (e: any) {
+            await showError("Approval Failed", e.message || "Could not approve contract.");
+        }
+    };
+
+    const handleReject = async (id: string) => {
+        if (!user) return;
+        try {
+            const { processApprovalAction } = await import("@/lib/approvals");
+            await processApprovalAction({
+                tenantId: user.tenantId,
+                entityId: id,
+                entityType: 'CONTRACT',
+                actor: { uid: user.uid, name: user.displayName, email: user.email },
+                action: 'REJECT'
+            });
+            await showAlert("Contract Rejected", "The contract has been rejected.");
+            loadData();
+        } catch (e: any) {
+            await showError("Rejection Failed", e.message || "Could not reject contract.");
         }
     };
 
@@ -107,6 +147,8 @@ export default function ContractsPage() {
                         setShowModal(true);
                     }}
                     onDelete={handleDelete}
+                    onApprove={handleApprove}
+                    onReject={handleReject}
                 />
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
