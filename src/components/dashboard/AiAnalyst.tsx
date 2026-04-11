@@ -57,6 +57,7 @@ export default function AiAnalyst() {
     const [sessions, setSessions] = useState<ChatSession[]>([]);
     const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
 
     const scrollToBottom = () => {
         if (chatViewportRef.current) {
@@ -102,7 +103,7 @@ export default function AiAnalyst() {
     };
 
     const handleClearChat = async () => {
-        if (!confirm("Are you sure you want to clear the conversation?")) return;
+        setShowClearConfirm(false);
         
         if (currentSessionId && user) {
             try {
@@ -242,7 +243,7 @@ export default function AiAnalyst() {
                     </button>
                     <button 
                         className="btn-icon" 
-                        onClick={handleClearChat} 
+                        onClick={() => setShowClearConfirm(true)} 
                         title="Clear Chat" 
                         style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)', color: '#FF4842' }}
                     >
@@ -498,6 +499,86 @@ export default function AiAnalyst() {
                     >
                         Back to Chat
                     </button>
+                </div>
+            )}
+
+            {/* Custom Clear Confirmation Dialog */}
+            {showClearConfirm && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0, 0, 0, 0.4)',
+                    backdropFilter: 'blur(4px)',
+                    zIndex: 200,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '1.5rem',
+                    animation: 'fadeIn 0.2s ease-out'
+                }}>
+                    <div style={{
+                        background: 'white',
+                        padding: '2rem',
+                        borderRadius: '24px',
+                        width: '100%',
+                        maxWidth: '380px',
+                        textAlign: 'center',
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+                        border: '1px solid var(--border)',
+                        animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
+                    }}>
+                        <div style={{
+                            width: '64px',
+                            height: '64px',
+                            background: '#FFF1F0',
+                            borderRadius: '16px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#FF4842',
+                            margin: '0 auto 1.5rem'
+                        }}>
+                            <Trash2 size={32} />
+                        </div>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.75rem' }}>Clear Conversation?</h3>
+                        <p style={{ fontSize: '0.9375rem', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '2rem' }}>
+                            Are you sure you want to clear this conversation? This action cannot be undone.
+                        </p>
+                        <div style={{ display: 'flex', gap: '0.75rem' }}>
+                            <button 
+                                onClick={() => setShowClearConfirm(false)}
+                                style={{
+                                    flex: 1,
+                                    padding: '0.875rem',
+                                    borderRadius: '12px',
+                                    border: '1px solid var(--border)',
+                                    background: 'var(--surface)',
+                                    fontWeight: 700,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleClearChat}
+                                style={{
+                                    flex: 1,
+                                    padding: '0.875rem',
+                                    borderRadius: '12px',
+                                    border: 'none',
+                                    background: '#FF4842',
+                                    color: 'white',
+                                    fontWeight: 700,
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Clear Chat
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 
