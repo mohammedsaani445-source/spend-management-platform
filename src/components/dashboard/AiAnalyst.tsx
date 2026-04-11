@@ -22,6 +22,14 @@ import {
 interface Message {
     role: "user" | "analyst";
     text: string;
+    timestamp: number;
+}
+
+interface ChatSession {
+    id: string;
+    messages: Message[];
+    title: string;
+    lastUpdated: number;
 }
 
 const SUGGESTED_QUERIES = [
@@ -38,13 +46,9 @@ const CONTEXT_CHIPS = [
     { label: "Contracts", status: "Monitored" }
 ];
 
-export default function AiAnalyst() {
-    const { user } = useAuth();
-    const [query, setQuery] = useState("");
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const chatViewportRef = useRef<HTMLDivElement>(null);
+    const [sessions, setSessions] = useState<ChatSession[]>([]);
+    const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+    const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
     const scrollToBottom = () => {
         if (chatViewportRef.current) {
@@ -52,14 +56,59 @@ export default function AiAnalyst() {
         }
     };
 
+    // Load session list on mount
+    useEffect(() => {
+        if (!user) return;
+        const fetchSessions = async () => {
+            try {
+                const { ref, get, child } = await import("firebase/database");
+                const { db, DB_PREFIX } = await import("@/lib/firebase");
+                const sessRef = ref(db, `${DB_PREFIX}/tenants/${user.tenantId}/users/${user.uid}/ai_history`);
+                const snap = await get(sessRef);
+                if (snap.exists()) {
+                    const data = snap.val();
+                    const list = Object.values(data) as ChatSession[];
+                    setSessions(list.sort((a, b) => b.lastUpdated - a.lastUpdated));
+                }
+            } catch (err) {
+                console.error("Failed to load AI sessions:", err);
+            }
+        };
+        fetchSessions();
+    }, [user]);
+
     useEffect(() => {
         scrollToBottom();
     }, [messages, isLoading]);
 
-    const handleClearChat = () => {
-        if (confirm("Are you sure you want to clear the conversation?")) {
-            setMessages([]);
+    const handleNewChat = () => {
+        setMessages([]);
+        setCurrentSessionId(null);
+        setIsHistoryOpen(false);
+    };
+
+    const loadSession = (session: ChatSession) => {
+        setMessages(session.messages);
+        setCurrentSessionId(session.id);
+        setIsHistoryOpen(false);
+    };
+
+    const handleClearChat = async () => {
+        if (!confirm("Are you sure you want to clear the conversation?")) return;
+        
+        if (currentSessionId && user) {
+            try {
+                const { ref, remove } = await import("firebase/database");
+                const { db, DB_PREFIX } = await import("@/lib/firebase");
+                await remove(ref(db, `${DB_PREFIX}/tenants/${user.tenantId}/users/${user.uid}/ai_history/${currentSessionId}`));
+                setSessions(prev => prev.filter(s => s.id !== currentSessionId));
+            } catch (err) {
+                console.error("Failed to delete session:", err);
+            }
         }
+        
+        setMessages([]);
+        setCurrentSessionId(null);
     };
 
     const handleExport = () => {
@@ -79,7 +128,9 @@ export default function AiAnalyst() {
         if (!q.trim() || !user || isLoading) return;
 
         setQuery("");
-        setMessages(prev => [...prev, { role: "user", text: q }]);
+        const newMessage: Message = { role: "user", text: q, timestamp: Date.now() };
+        const updatedMessages = [...messages, newMessage];
+        setMessages(updatedMessages);
         setIsLoading(true);
 
         try {
@@ -95,9 +146,33 @@ export default function AiAnalyst() {
             }
             
             const data = await response.json();
-            setMessages(prev => [...prev, { role: "analyst", text: data.answer }]);
+            const analystMessage: Message = { role: "analyst", text: data.answer, timestamp: Date.now() };
+            const finalMessages = [...updatedMessages, analystMessage];
+            setMessages(finalMessages);
+
+            // Persist to Firebase
+            const { ref, set } = await import("firebase/database");
+            const { db, DB_PREFIX } = await import("@/lib/firebase");
+            const sessionId = currentSessionId || `session_${Date.now()}`;
+            if (!currentSessionId) setCurrentSessionId(sessionId);
+            
+            const session: ChatSession = {
+                id: sessionId,
+                messages: finalMessages,
+                title: q.slice(0, 40) + (q.length > 40 ? '...' : ''),
+                lastUpdated: Date.now()
+            };
+
+            await set(ref(db, `${DB_PREFIX}/tenants/${user.tenantId}/users/${user.uid}/ai_history/${sessionId}`), session);
+            
+            // Update local sessions list
+            setSessions(prev => {
+                const otherSessions = prev.filter(s => s.id !== sessionId);
+                return [session, ...otherSessions];
+            });
+
         } catch (error: any) {
-            setMessages(prev => [...prev, { role: "analyst", text: `⚠️ Error: ${error.message}` }]);
+            setMessages(prev => [...prev, { role: "analyst", text: `⚠️ Error: ${error.message}`, timestamp: Date.now() }]);
         } finally {
             setIsLoading(false);
         }
@@ -146,8 +221,14 @@ export default function AiAnalyst() {
                     <button 
                         className="btn-icon" 
                         title="History" 
-                        onClick={() => alert("History feature coming soon: This will display your archived analysis reports.")}
-                        style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)' }}
+                        onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                        style={{ 
+                            width: '36px', height: '36px', borderRadius: '10px', 
+                            border: `1px solid ${isHistoryOpen ? 'var(--brand)' : 'var(--border)'}`, 
+                            background: isHistoryOpen ? 'var(--brand-soft)' : 'var(--surface)', 
+                            color: isHistoryOpen ? 'var(--brand)' : 'var(--text-secondary)',
+                            transition: 'all 0.2s ease'
+                        }}
                     >
                         <History size={16} />
                     </button>
@@ -330,6 +411,87 @@ export default function AiAnalyst() {
                 )}
                 <div ref={messagesEndRef} />
             </div>
+
+            {/* History Sidebar Overlay */}
+            {isHistoryOpen && (
+                <div style={{
+                    position: 'absolute',
+                    top: '72px',
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    backdropFilter: 'blur(10px)',
+                    zIndex: 100,
+                    padding: '1.5rem',
+                    animation: 'fadeIn 0.2s ease-out',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '1rem'
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)' }}>Analysis History</h3>
+                        <button 
+                            onClick={handleNewChat}
+                            style={{ 
+                                padding: '6px 12px', 
+                                background: 'var(--brand)', 
+                                color: 'white', 
+                                border: 'none', 
+                                borderRadius: '8px', 
+                                fontSize: '0.75rem', 
+                                fontWeight: 700,
+                                cursor: 'pointer'
+                            }}
+                        >
+                            + New Chat
+                        </button>
+                    </div>
+                    
+                    <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                        {sessions.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-disabled)' }}>
+                                No archived sessions found.
+                            </div>
+                        ) : (
+                            sessions.map(s => (
+                                <button
+                                    key={s.id}
+                                    onClick={() => loadSession(s)}
+                                    style={{
+                                        width: '100%',
+                                        padding: '1rem',
+                                        background: currentSessionId === s.id ? 'var(--surface-2)' : 'white',
+                                        border: `1px solid ${currentSessionId === s.id ? 'var(--brand)' : 'var(--border)'}`,
+                                        borderRadius: '12px',
+                                        textAlign: 'left',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease',
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: '0.75rem'
+                                    }}
+                                >
+                                    <MessageSquare size={16} style={{ marginTop: '2px', color: currentSessionId === s.id ? 'var(--brand)' : 'var(--text-secondary)' }} />
+                                    <div>
+                                        <div style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>{s.title}</div>
+                                        <div style={{ fontSize: '0.7rem', color: 'var(--text-disabled)', fontWeight: 600 }}>
+                                            {new Date(s.lastUpdated).toLocaleDateString()} at {new Date(s.lastUpdated).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </div>
+                                    </div>
+                                </button>
+                            ))
+                        )}
+                    </div>
+                    
+                    <button 
+                        onClick={() => setIsHistoryOpen(false)}
+                        style={{ width: '100%', padding: '0.875rem', background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
+                    >
+                        Back to Chat
+                    </button>
+                </div>
+            )}
 
             {/* Input Overlay */}
             <div style={{ 

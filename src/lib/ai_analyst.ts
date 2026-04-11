@@ -89,12 +89,29 @@ export const querySpendAnalyst = async (tenantId: string, query: string) => {
             ### USER QUERY:
             "${query}"
             
-            Provide a precise, context-aware response based on the real data provided. If data is missing for a specific query, state it politely.
-        `;
+        // 3. Logic with Retry for resilience (handling 503 Service Unavailable)
+        let attempts = 0;
+        const maxAttempts = 3;
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        return response.text();
+        while (attempts < maxAttempts) {
+            try {
+                const result = await model.generateContent(prompt);
+                const response = await result.response;
+                return response.text();
+            } catch (error: any) {
+                attempts++;
+                const isRetryable = error.message?.includes("503") || error.message?.includes("500") || error.message?.includes("high demand");
+                
+                if (isRetryable && attempts < maxAttempts) {
+                    console.warn(`[SANI] Gemini busy (Attempt ${attempts}/${maxAttempts}). Retrying in ${attempts * 2}s...`);
+                    await delay(attempts * 2000);
+                    continue;
+                }
+                throw error;
+            }
+        }
+        throw new Error("SANI is currently overwhelmed. Please try again in 30 seconds.");
     } catch (error: any) {
         console.error("Spend Analyst Library Error:", error);
         
