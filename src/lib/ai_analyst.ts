@@ -16,16 +16,37 @@ export const querySpendAnalyst = async (tenantId: string, query: string) => {
         const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
 
         // 1. Fetch Comprehensive Context Data
+        // Core Modules
         const budgetsRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/budgets`);
-        const invRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/invoices`);
+        const invRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/invoices`); // Invoices (AP)
         const vendorsRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/vendors`);
         const tendersRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/tenders`);
+        const reqRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/requisitions`);
+        const poRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/purchase_orders`);
+        const billsRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/bills`);
+        
+        // Inventory & Asset Logic
+        const skusRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/skus`);
+        const stockRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/stock_levels`);
+        
+        // Temporal Context
+        const auditRef = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/auditLogs`);
 
-        const [budgetsSnap, invSnap, vendorsSnap, tendersSnap] = await Promise.all([
+        const [
+            budgetsSnap, invSnap, vendorsSnap, tendersSnap, 
+            reqSnap, poSnap, billsSnap, skusSnap, 
+            stockSnap, auditSnap
+        ] = await Promise.all([
             budgetsRef.once('value'),
             invRef.once('value'),
             vendorsRef.once('value'),
-            tendersRef.once('value')
+            tendersRef.once('value'),
+            reqRef.once('value'),
+            poRef.once('value'),
+            billsRef.once('value'),
+            skusRef.once('value'),
+            stockRef.once('value'),
+            auditRef.limitToLast(20).once('value') // Last 20 actions for immediate context
         ]);
 
         const context = {
@@ -33,26 +54,34 @@ export const querySpendAnalyst = async (tenantId: string, query: string) => {
             invoices: invSnap.exists() ? Object.values(invSnap.val() as any) : [],
             vendors: vendorsSnap.exists() ? Object.values(vendorsSnap.val() as any) : [],
             tenders: tendersSnap.exists() ? Object.values(tendersSnap.val() as any) : [],
+            requisitions: reqSnap.exists() ? Object.values(reqSnap.val() as any) : [],
+            purchaseOrders: poSnap.exists() ? Object.values(poSnap.val() as any) : [],
+            bills: billsSnap.exists() ? Object.values(billsSnap.val() as any) : [],
+            inventory: {
+                skus: skusSnap.exists() ? Object.values(skusSnap.val() as any) : [],
+                stockLevels: stockSnap.exists() ? Object.values(stockSnap.val() as any) : []
+            },
+            recentActivity: auditSnap.exists() ? Object.values(auditSnap.val() as any) : [],
             currentDate: new Date().toISOString()
         };
 
         // 2. Intelligence Prompt (Conversational & Professional)
         const prompt = `
-            You are "SANI", the helpful and intelligent AI assistant for the APEXPROCURE platform.
-            Your goal is to provide a seamless, natural AI experience similar to the standard Gemini AI, but with deep knowledge of this company's procurement data.
+            You are "SANI", the high-level intelligence engine for the APEX PROCURE platform.
+            Your goal is to act as a Master procurement and operations analyst. You are not just a chatbot; you are an advisor with access to the entire company's operational heart.
 
             ### CORE BEHAVIOR:
-            1. **Conversational First**: Respond naturally to greetings ("Hi", "Hello"), small talk, and general questions. Be friendly, professional, and helpful.
-            2. **Data-Aware**: You have access to the company's real-time data provided below. Use it whenever the user asks about money, spend, vendors, budgets, or platform status.
-            3. **Flexible Formatting**: 
-               - For simple questions or chat, use clear, natural language.
-               - ONLY use structured headers like # SITUATION or # ANALYSIS if the user specifically asks for an "executive report" or a "deep dive analysis" on spend data.
-            4. **Platform Expert**: If asked about Apex Procure, explain that it is an enterprise procurement platform covering:
-               - **Dashboard**: High-level spending insights.
-               - **Procurement**: Requisitions, POs, and Vendor Management.
-               - **Inventory**: Stock levels and warehouse tracking.
-               - **Bidding**: Sourcing and tender events.
-               - **Compliance**: Audit trails and policy enforcement.
+            1. **Conversational First**: Respond naturally to greetings, small talk, and general questions. Be friendly, expert, and professional.
+            2. **Platform Intelligence**: You have access to every module: Procurement, Payments (Bills/Invoices), Inventory, Bidding, and Budgets.
+            3. **Low Stock Alerts**:
+               - If asked about "low stock", "alerts", or "inventory status", analyze the data.
+               - Compare stock levels in \`inventory.stockLevels\` against the \`minStockLevel\` defined in \`inventory.skus\`.
+               - Proactively report items that are below their minimum threshold.
+            4. **Data-Driven Analysis**: Use the JSON context to answer specific questions about spend, vendors, or approvals.
+            5. **Cross-Module Linkage**: Understand the lifecycle (Requisition -> PO -> Invoice -> Bill -> Payment).
+            6. **Flexible Formatting**: 
+               - Use Markdown. Use tables for data lists. Use bold for key figures.
+               - Keep responses concise but thorough.
 
             ### ENVIRONMENT CONTEXT (JSON):
             ${JSON.stringify(context, null, 2)}
@@ -60,7 +89,7 @@ export const querySpendAnalyst = async (tenantId: string, query: string) => {
             ### USER QUERY:
             "${query}"
             
-            Always respond in Markdown. If the user asks for data in a table, provide it. Otherwise, be a great conversational AI.
+            Provide a precise, context-aware response based on the real data provided. If data is missing for a specific query, state it politely.
         `;
 
         const result = await model.generateContent(prompt);

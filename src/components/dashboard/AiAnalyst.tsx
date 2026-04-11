@@ -25,10 +25,10 @@ interface Message {
 }
 
 const SUGGESTED_QUERIES = [
-    "What was our IT spend last quarter?",
-    "Show me anomalous vendor activity.",
+    "Are we having a low stock alert?",
+    "Show me all pending POs.",
     "Which budgets are nearing capacity?",
-    "Analyze contract compliance risks."
+    "What was our total ICT spend?"
 ];
 
 const CONTEXT_CHIPS = [
@@ -48,17 +48,30 @@ export default function AiAnalyst() {
 
     const scrollToBottom = () => {
         if (chatViewportRef.current) {
-            chatViewportRef.current.scrollTo({
-                top: chatViewportRef.current.scrollHeight,
-                behavior: "smooth"
-            });
+            chatViewportRef.current.scrollTop = chatViewportRef.current.scrollHeight;
         }
     };
 
     useEffect(() => {
-        const timer = setTimeout(scrollToBottom, 50);
-        return () => clearTimeout(timer);
+        scrollToBottom();
     }, [messages, isLoading]);
+
+    const handleClearChat = () => {
+        if (confirm("Are you sure you want to clear the conversation?")) {
+            setMessages([]);
+        }
+    };
+
+    const handleExport = () => {
+        const content = messages.map(m => `[${m.role.toUpperCase()}] ${m.text}`).join('\n\n');
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `SANI_Intelligence_Log_${new Date().toISOString().slice(0, 10)}.txt`;
+        link.click();
+        URL.revokeObjectURL(url);
+    };
 
     const handleQuery = async (e?: React.FormEvent, textQuery?: string) => {
         if (e) e.preventDefault();
@@ -93,14 +106,15 @@ export default function AiAnalyst() {
     return (
         <div className="premium-card" style={{ 
             padding: '0', 
-            height: '100%', 
+            height: '650px', 
             display: 'flex', 
             flexDirection: 'column', 
             overflow: 'hidden',
             border: '1px solid var(--border)',
             borderRadius: '20px',
             boxShadow: 'var(--shadow-sm)',
-            background: 'var(--surface)'
+            background: 'var(--surface)',
+            position: 'relative'
         }}>
             {/* Header */}
             <div style={{ 
@@ -129,13 +143,28 @@ export default function AiAnalyst() {
                     </div>
                 </div>
                 <div style={{ display: 'flex', gap: '0.625rem' }}>
-                    <button className="btn-icon" title="History" style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)' }}>
+                    <button 
+                        className="btn-icon" 
+                        title="History" 
+                        onClick={() => alert("History feature coming soon: This will display your archived analysis reports.")}
+                        style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)' }}
+                    >
                         <History size={16} />
                     </button>
-                    <button className="btn-icon" onClick={() => setMessages([])} title="Clear Chat" style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)', color: '#FF4842' }}>
+                    <button 
+                        className="btn-icon" 
+                        onClick={handleClearChat} 
+                        title="Clear Chat" 
+                        style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)', color: '#FF4842' }}
+                    >
                         <Trash2 size={16} />
                     </button>
-                    <button className="btn-icon" style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)' }}>
+                    <button 
+                        className="btn-icon" 
+                        onClick={handleExport}
+                        title="Export Log" 
+                        style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text-secondary)' }}
+                    >
                         <MoreHorizontal size={16} />
                     </button>
                 </div>
