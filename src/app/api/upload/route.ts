@@ -8,17 +8,22 @@ import { uploadToStorageServer } from "@/lib/ocr";
  */
 export async function POST(req: NextRequest) {
     try {
-        const { base64Data, fileName, mimeType } = await req.json();
+        const { base64Data, fileName, mimeType, folder = "uploads" } = await req.json();
 
         if (!base64Data) {
             return NextResponse.json({ error: "No document data provided" }, { status: 400 });
         }
 
-        console.log(`[Upload-API] Initiating server-side upload for: ${fileName || "unnamed"}`);
+        console.log(`[Upload-API] Initiating server-side upload for: ${fileName || "unnamed"} at ${folder}/`);
+        
+        // Ensure folder ends with a slash for the utility
+        const sanitizedFolder = folder.endsWith('/') ? folder : `${folder}/`;
+        
         const fileUrl = await uploadToStorageServer(
             base64Data, 
             fileName || "upload", 
-            mimeType || "application/octet-stream"
+            mimeType || "application/octet-stream",
+            sanitizedFolder
         );
 
         return NextResponse.json({ url: fileUrl });

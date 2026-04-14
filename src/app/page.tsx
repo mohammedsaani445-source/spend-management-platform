@@ -23,7 +23,7 @@ const PRODUCT_TABS = [
     description:
       "Control purchasing with ease — from AI-powered request intake and approval routing to purchase orders and receiving logs — giving you the visibility to cut rogue spend and make better buying decisions.",
     image: "/feature-purchasing-pro.png",
-    link: "/login",
+    link: "/features/procurement",
     linkText: "Explore Purchasing",
   },
   {
@@ -33,18 +33,18 @@ const PRODUCT_TABS = [
     description:
       "Move faster and reduce errors by automating your AP workflow, from AI-powered invoice capture to automated three-way matching and seamless payments — freeing up time for strategic tasks.",
     image: "/feature-analytics-pro.png",
-    link: "/login",
+    link: "/features/ap-automation",
     linkText: "Explore AP Automation",
   },
   {
-    id: "assets",
-    label: "Asset Management",
-    title: "Centralize all enterprise assets",
+    id: "expense",
+    label: "Expense Management",
+    title: "Smarter expense & card management",
     description:
-      "Track the health, location, and value of every enterprise asset in real-time. From acquisition price to maintenance cycles and disposal — every asset lifecycle, mastered.",
+      "Gain complete visibility and control over employee spending with AI-powered expense reports and configurable corporate spending cards — all in one unified platform.",
     image: "/feature-assets-pro.png",
-    link: "/login",
-    linkText: "Explore Asset Management",
+    link: "/features/expense-management",
+    linkText: "Explore Expense Management",
   },
 ];
 
@@ -628,15 +628,16 @@ export default function LandingPage() {
             <h4 className={styles.footerColumnTitle}>Platform</h4>
             <Link href="/login" className={styles.footerLink}>Product Overview</Link>
             <Link href="/login" className={styles.footerLink}>Apex AI</Link>
-            <Link href="/login" className={styles.footerLink}>Features</Link>
+            <Link href="/features/purchase-requests" className={styles.footerLink}>Purchase Requests</Link>
+            <Link href="/features/approvals" className={styles.footerLink}>Approvals</Link>
             <Link href="/login" className={styles.footerLink}>Pricing</Link>
           </div>
 
           <div>
             <h4 className={styles.footerColumnTitle}>Solutions</h4>
-            <Link href="/login" className={styles.footerLink}>Procurement</Link>
-            <Link href="/login" className={styles.footerLink}>Accounts Payable</Link>
-            <Link href="/login" className={styles.footerLink}>Asset Management</Link>
+            <Link href="/features/procurement" className={styles.footerLink}>Procurement</Link>
+            <Link href="/features/ap-automation" className={styles.footerLink}>Accounts Payable</Link>
+            <Link href="/features/expense-management" className={styles.footerLink}>Expense Management</Link>
             <Link href="/login" className={styles.footerLink}>Integrations</Link>
           </div>
 

@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import Loader from "@/components/common/Loader";
-import { CloudUpload, FileCheck, FileText, X, ShieldCheck } from "lucide-react";
+import { CloudUpload, FileCheck, FileText, X, ShieldCheck, AlertCircle } from "lucide-react";
 
 interface FileUploaderProps {
     onUploadComplete: (url: string, fileName: string) => void;
@@ -22,6 +22,8 @@ export default function FileUploader({
     const [dragActive, setDragActive] = useState(false);
     const [uploadStage, setUploadStage] = useState<'IDLE' | 'UPLOADING' | 'SUCCESS' | 'ERROR'>('IDLE');
     const [fileName, setFileName] = useState(currentFileName || "");
+    const [errorMsg, setErrorMsg] = useState("");
+
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleDrag = (e: React.DragEvent) => {
@@ -57,34 +59,32 @@ export default function FileUploader({
                 body: JSON.stringify({
                     base64Data: base64,
                     fileName: file.name,
-                    mimeType: file.type
+                    mimeType: file.type,
+                    folder: pathPrefix
                 })
             });
 
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({ error: "Upload failed" }));
-                throw new Error(errData.error);
-            }
+            const data = await response.json();
 
-            const { url } = await response.json();
-            setFileName(file.name);
-            setUploadStage('SUCCESS');
-            onUploadComplete(url, file.name);
-        } catch (error) {
+            if (response.ok && data.url) {
+                setFileName(file.name);
+                setUploadStage('SUCCESS');
+                onUploadComplete(data.url, file.name);
+            } else {
+                throw new Error(data.error || 'Upload failed');
+            }
+        } catch (error: any) {
+            console.error('Upload Error:', error);
+            setErrorMsg(error.message || "Something went wrong during upload");
             setUploadStage('ERROR');
-            console.error("[FileUploader] Error:", error);
         }
     };
 
     const handleReset = () => {
         setFileName("");
+        setErrorMsg("");
         setUploadStage('IDLE');
         if (inputRef.current) inputRef.current.value = "";
-    };
-
-    const removeFile = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        handleReset();
     };
 
     const handleDrop = (e: React.DragEvent) => {
@@ -140,7 +140,7 @@ export default function FileUploader({
                 <div style={{ textAlign: 'center' }}>
                     <Loader text="Securing document..." />
                 </div>
-            ) : (uploadStage === 'SUCCESS' || fileName) ? (
+            ) : (uploadStage === 'SUCCESS' && fileName) ? (
                 <div style={{ textAlign: 'center', animation: 'scaleUp 0.3s ease' }}>
                     <div style={{
                         width: '48px', height: '48px', backgroundColor: 'var(--success-bg)', color: 'var(--success)',
@@ -166,10 +166,24 @@ export default function FileUploader({
                     </button>
                 </div>
             ) : uploadStage === 'ERROR' ? (
-                <div style={{ textAlign: 'center', color: 'var(--error)' }}>
-                    <CloudUpload size={28} style={{ opacity: 0.5, marginBottom: '0.5rem' }} />
-                    <div style={{ fontWeight: 700 }}>Upload Failed</div>
-                    <button className="btn btn-xs" style={{ marginTop: '0.5rem' }} onClick={handleReset}>Try Again</button>
+                <div style={{ textAlign: 'center', padding: '1rem' }}>
+                    <AlertCircle color="#ef4444" size={32} style={{ margin: '0 auto 0.5rem' }} />
+                    <div style={{ color: '#ef4444', fontWeight: 600, fontSize: '0.9rem' }}>
+                        {errorMsg.includes("Storage") ? "Storage Infrastructure Error" : "Upload Failed"}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', marginTop: '0.25rem', maxWidth: '250px', margin: '0.25rem auto 0', lineHeight: 1.4 }}>
+                        {errorMsg}
+                    </div>
+                    <button
+                        className="btn btn-xs"
+                        style={{ marginTop: '0.75rem', fontSize: '0.7rem' }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleReset();
+                        }}
+                    >
+                        Try Again
+                    </button>
                 </div>
             ) : (
                 <div style={{ textAlign: 'center', padding: '1rem' }}>

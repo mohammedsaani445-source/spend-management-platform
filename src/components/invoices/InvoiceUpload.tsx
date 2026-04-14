@@ -212,14 +212,20 @@ export default function InvoiceUpload({ onUploadComplete, currentFileName }: Inv
                 </div>
             ) : uploadStage === 'ERROR' ? (
                 <div style={{ textAlign: 'center', padding: '1.5rem', animation: 'shake 0.4s ease-in-out' }}>
-                    <div style={{
+                    <div style={{ 
                         width: '60px', height: '60px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444',
                         borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem'
                     }}>
                         <AlertCircle size={32} />
                     </div>
-                    <div style={{ fontWeight: 800, color: 'var(--text-primary)' }}>Parsing Error</div>
-                    <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', marginTop: '0.5rem', maxWidth: '250px' }}>{errorMsg}</div>
+                    <div style={{ fontWeight: 800, color: 'var(--text-primary)', fontSize: '1.2rem' }}>
+                        {errorMsg.includes("Storage") ? "Storage Connection Error" : 
+                         errorMsg.includes("AI") ? "AI Mapping Error" : 
+                         "Processing Failed"}
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.75rem', maxWidth: '300px', lineHeight: 1.5 }}>
+                        {errorMsg}
+                    </div>
                     <button 
                         style={{ 
                             marginTop: '1.5rem', 
