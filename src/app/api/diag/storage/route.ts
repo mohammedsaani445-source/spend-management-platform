@@ -24,6 +24,8 @@ export async function GET(req: NextRequest) {
         results.tests.bucketObjectCreated = !!bucket;
         results.tests.bucketName = bucket.name;
 
+
+
         console.log("[Diag] Running write test...");
         const testFile = bucket.file("diag_connection_test.txt");
         await testFile.save("Connection test at " + results.timestamp, {

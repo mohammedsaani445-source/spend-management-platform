@@ -1,11 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { adminBucket } from "./firebaseAdmin";
+import { adminBucket, adminStorage } from "./firebaseAdmin";
 import crypto from "crypto";
 
 /**
  * PRODUCTION REALIZATION: Server-Side Storage Upload with Multi-Bucket Fallback.
- * Bypasses client-side CORS and handles inconsistent bucket naming conventions
- * between Firebase Admin and Client SDKs.
  */
 export const uploadToStorageServer = async (
     base64Data: string, 
@@ -14,7 +12,6 @@ export const uploadToStorageServer = async (
     folder: string = "invoices/"
 ): Promise<string> => {
     const timestamp = Date.now();
-    // folder is expected to have trailing slash from the API route sanitized input
     const filePath = `${folder}${timestamp}_${fileName}`;
     const buffer = Buffer.from(base64Data, 'base64');
 
@@ -24,7 +21,7 @@ export const uploadToStorageServer = async (
             metadata: { 
                 contentType: mimeType,
                 metadata: {
-                    firebaseStorageDownloadTokens: crypto.randomUUID() // Standard practice for Constructing download URLs
+                    firebaseStorageDownloadTokens: crypto.randomUUID()
                 }
             },
             resumable: false
@@ -40,25 +37,25 @@ export const uploadToStorageServer = async (
         const errorMsg = error.message.toLowerCase();
         
         if (errorMsg.includes("does not exist") || errorMsg.includes("not found")) {
-            console.warn(`[Storage-Server] Primary bucket not found or inactive. Retrying fallback...`);
+            console.warn(`[Storage-Server] Primary bucket not found. Retrying fallback...`);
             try {
-                const legacyBucket = adminBucket.storage.bucket("spend-management-platform.appspot.com");
+                const legacyBucket = adminStorage.bucket("spend-management-platform.appspot.com");
                 return await tryUpload(legacyBucket);
             } catch (fallbackError: any) {
                 console.error("[Storage-Server] Fallback failed:", fallbackError.message);
-                throw new Error(`Bucket configuration error. Primary: ${adminBucket.name}, Fallback: spend-management-platform.appspot.com. Details: ${fallbackError.message}`);
+                throw new Error(`Bucket configuration error. Primary: ${adminBucket.name}, Fallback: appspot. Details: ${fallbackError.message}`);
             }
         }
 
+
         if (errorMsg.includes("permissiondenied") || errorMsg.includes("forbidden")) {
-            console.error("[Storage-Server] Permission Error. Service account lacks Storage permissions.");
             throw new Error(`Permission Denied: Ensure service account has Storage Object Admin role. Original: ${error.message}`);
         }
 
-        console.error("[Storage-Server] Unexpected Upload Error:", error.message);
         throw new Error(`Upload Failed: ${error.message} (Path: ${filePath})`);
     }
 };
+
 
 /**
  * PRODUCTION REALIZATION: AI-Powered OCR Engine.

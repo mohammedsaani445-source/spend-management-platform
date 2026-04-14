@@ -84,11 +84,12 @@ export default function ContractRegistry({ contracts, onEdit, onDelete, onApprov
                                         </span>
                                     </td>
                                     <td style={{ color: contract.status === 'EXPIRING' ? 'var(--warning)' : 'inherit' }}>
-                                        {new Date(contract.endDate).toLocaleDateString()}
+                                        {contract.endDate ? new Date(contract.endDate).toLocaleDateString() : 'N/A'}
                                     </td>
                                     <td style={{ fontWeight: 600 }}>
-                                        {contract.value.toLocaleString()} {contract.currency}
+                                        {contract.value?.toLocaleString() || '0'} {contract.currency || 'USD'}
                                     </td>
+
                                     <td>
                                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                                             {contract.status === 'PENDING' && (

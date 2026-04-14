@@ -5,9 +5,10 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans" });
-const dmMono = DM_Mono({ weight: ["400", "500"], subsets: ["latin"], variable: "--font-dm-mono" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: 'swap' });
+const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-dm-sans", display: 'swap' });
+const dmMono = DM_Mono({ weight: ["400", "500"], subsets: ["latin"], variable: "--font-dm-mono", display: 'swap' });
+
 
 export const metadata: Metadata = {
   title: "Apexprocure",
