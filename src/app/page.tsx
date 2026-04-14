@@ -1,318 +1,668 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Zap, Shield, BarChart3, ArrowRight, CheckCircle2,
-  ChevronRight, PlayCircle, Globe, Lock, Cpu,
-  XCircle, CheckCircle, Smartphone, MousePointer2
+  ArrowRight, CheckCircle2, PlayCircle,
+  ShieldCheck, Zap, BarChart3, Brain, Layers, Globe,
+  Smartphone, Users, Lock, CreditCard,
+  Menu, X, ChevronRight, Sparkles
 } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { useIntersection } from "@/hooks/useIntersection";
 import ProductTour from "@/components/common/ProductTour";
 import styles from "./Procurify.module.css";
-import motion from "./Animations.module.css";
+
+// ─── Tab Data ───
+const PRODUCT_TABS = [
+  {
+    id: "purchasing",
+    label: "Purchasing",
+    title: "Simplify intake-to-receive",
+    description:
+      "Control purchasing with ease — from AI-powered request intake and approval routing to purchase orders and receiving logs — giving you the visibility to cut rogue spend and make better buying decisions.",
+    image: "/feature-purchasing-pro.png",
+    link: "/login",
+    linkText: "Explore Purchasing",
+  },
+  {
+    id: "ap",
+    label: "Accounts Payable",
+    title: "Streamline invoice-to-pay",
+    description:
+      "Move faster and reduce errors by automating your AP workflow, from AI-powered invoice capture to automated three-way matching and seamless payments — freeing up time for strategic tasks.",
+    image: "/feature-analytics-pro.png",
+    link: "/login",
+    linkText: "Explore AP Automation",
+  },
+  {
+    id: "assets",
+    label: "Asset Management",
+    title: "Centralize all enterprise assets",
+    description:
+      "Track the health, location, and value of every enterprise asset in real-time. From acquisition price to maintenance cycles and disposal — every asset lifecycle, mastered.",
+    image: "/feature-assets-pro.png",
+    link: "/login",
+    linkText: "Explore Asset Management",
+  },
+];
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
   const [showTour, setShowTour] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Intersection Refs
+  // Intersection observers
   const [heroRef, heroInView] = useIntersection();
-  const [compRef, compInView] = useIntersection();
-  const [gridRef, gridInView] = useIntersection();
-  const [p2pRef, p2pInView] = useIntersection();
-  const [assetsRef, assetsInView] = useIntersection();
+  const [statsRef, statsInView] = useIntersection();
   const [aiRef, aiInView] = useIntersection();
+  const [tabRef, tabInView] = useIntersection();
+  const [featureRef1, featureInView1] = useIntersection();
+  const [featureRef2, featureInView2] = useIntersection();
+  const [roiRef, roiInView] = useIntersection();
   const [mobileRef, mobileInView] = useIntersection();
   const [ctaRef, ctaInView] = useIntersection();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close mobile menu on resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 1024) setMobileMenuOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const scrollToSection = useCallback((id: string) => {
+    setMobileMenuOpen(false);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
   }, []);
 
   return (
     <div className={styles.wrapper}>
-      {/* --- NAVIGATION --- */}
-      <nav className={`${styles.nav} ${scrolled ? styles.navScrolled : ""}`}>
+      {/* ═══ NAVIGATION ═══ */}
+      <nav
+        className={`${styles.nav} ${scrolled ? styles.navScrolled : ""}`}
+        style={{ top: 0 }}
+      >
         <Link href="/" className={styles.logoArea}>
-          <Logo size={32} />
-          <span>APEX PROCURE</span>
+          <Logo size={30} />
+          <span>Apex Procure</span>
         </Link>
+
         <div className={styles.navLinks}>
-          <Link href="#features" className={styles.navLink}>Platform</Link>
-          <Link href="#solutions" className={styles.navLink}>Solutions</Link>
-          <Link href="/variant-b" className={styles.navLink} style={{ color: '#E8572A' }}>Variant B (Dark)</Link>
+          <button onClick={() => scrollToSection("platform")} className={styles.navLink} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            Platform
+          </button>
+          <button onClick={() => scrollToSection("solutions")} className={styles.navLink} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            Solutions
+          </button>
+          <button onClick={() => scrollToSection("roi")} className={styles.navLink} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+            Customers
+          </button>
           <Link href="/login" className={styles.navLink}>Login</Link>
-          <Link href="/login" className="btn btn-primary" style={{ height: '44px', borderRadius: '100px', padding: '0 2rem' }}>
-            Get a Demo
+          <Link href="/login" className={styles.navCta}>
+            Book a Demo
           </Link>
         </div>
+
+        <button
+          className={styles.mobileMenuBtn}
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+        </button>
       </nav>
 
-      {/* --- HERO SECTION --- */}
-      <header className={styles.hero} ref={heroRef as any}>
-        <div className={heroInView ? motion.reveal : ""}>
-          <span className={`${styles.heroTag} ${motion.fade}`}>The Apex of Enterprise Procurement</span>
+      {/* Mobile Drawer */}
+      <div className={`${styles.mobileDrawer} ${mobileMenuOpen ? styles.open : ""}`}>
+        <button onClick={() => scrollToSection("platform")} className={styles.mobileDrawerLink} style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>Platform</button>
+        <button onClick={() => scrollToSection("solutions")} className={styles.mobileDrawerLink} style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>Solutions</button>
+        <button onClick={() => scrollToSection("roi")} className={styles.mobileDrawerLink} style={{ background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>Customers</button>
+        <Link href="/login" className={styles.mobileDrawerLink}>Login</Link>
+        <div style={{ marginTop: '1rem', padding: '0 1.25rem' }}>
+          <Link href="/login" className={styles.btnPrimary} style={{ width: '100%', justifyContent: 'center' }}>
+            Book a Demo <ArrowRight size={16} />
+          </Link>
+        </div>
+      </div>
+
+      {/* ═══ HERO ═══ */}
+      <header className={`${styles.hero} ${styles.meshBg}`} ref={heroRef as React.Ref<HTMLElement>}>
+        <div
+          style={{
+            opacity: heroInView ? 1 : 0,
+            transform: heroInView ? "translateY(0)" : "translateY(30px)",
+            transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+        >
+          <span className={styles.heroEyebrow}>
+            <span className={styles.heroEyebrowDot} />
+            AI-Powered Procurement Platform
+          </span>
+
           <h1 className={styles.heroTitle}>
-            Procurement that's <br />
-            <span style={{ color: "#E8572A" }}>Proactive</span>, Not Reactive.
+            Take the complexity out{" "}
+            <br />
+            of <span style={{ color: "#E8572A" }}>procurement</span>
           </h1>
+
           <p className={styles.heroSubtitle}>
-            Apex Procure centralizes your purchasing, automates your AP, and gives
-            you 100% visibility. Eliminate procurement leaks and budget overruns forever.
+            Apex Procure redefines the intake-to-pay process with powerful AI
+            workflows and complete spend visibility — all in one platform.
           </p>
-          <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
-            <Link href="/login" className="btn btn-primary btn-lg" style={{ borderRadius: "100px", padding: "0 2.5rem" }}>
+
+          <div className={styles.heroCtas}>
+            <Link href="/login" className={styles.btnPrimary}>
               Book a Demo <ArrowRight size={18} />
             </Link>
-            <button 
+            <button
               onClick={() => setShowTour(true)}
-              className={`btn btn-secondary btn-lg ${styles.tourButtonGlow}`}
-              style={{ borderRadius: "100px", padding: "0 2.5rem" }}
+              className={styles.btnSecondary}
             >
-              <PlayCircle size={18} /> Watch Product Tour
+              <PlayCircle size={18} /> Take a Tour
             </button>
           </div>
         </div>
 
-        <div className={`${styles.heroVisual} ${heroInView ? motion.scale : ""}`}>
+        <div
+          className={styles.heroVisual}
+          style={{
+            opacity: heroInView ? 1 : 0,
+            transform: heroInView ? "translateY(0) scale(1)" : "translateY(40px) scale(0.97)",
+            transition: "all 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s",
+          }}
+        >
           <Image
-            src="/hero_apex_dashboard_ultra_1773601444075.png"
-            alt="Apex Procure Dashboard"
+            src="/hero-dashboard-pro.png"
+            alt="Apex Procure — Enterprise Procurement Dashboard"
             width={1200}
             height={700}
-            className={motion.zoomIn}
+            style={{ width: "100%", height: "auto", display: "block" }}
             priority
           />
         </div>
       </header>
 
-      {/* --- THE "WHY" (COMPARISON) --- */}
-      <section className={styles.comparison} ref={compRef as any}>
-        <div className={styles.comparisonInner}>
-          <div className={`${styles.comparisonCard} ${compInView ? motion.reveal : ""}`}>
-            <XCircle color="#B72136" size={32} style={{ marginBottom: '1.5rem' }} />
-            <h3 className={styles.comparisonTitle}>The Manual Way</h3>
-            <div className={styles.comparisonItem}>• Fragmented emails & spreadsheet tracking</div>
-            <div className={styles.comparisonItem}>• 2-3 week approval cycles</div>
-            <div className={styles.comparisonItem}>• Blind spend until the end of the month</div>
-            <div className={styles.comparisonItem}>• High risk of duplicate or fraudulent invoices</div>
-          </div>
-
-          <div className={`${styles.comparisonCard} ${compInView ? motion.reveal : ""}`} style={{ border: '2px solid #E8572A' }}>
-            <CheckCircle color="#00AB55" size={32} style={{ marginBottom: '1.5rem' }} />
-            <h3 className={styles.comparisonTitle}>The Apex Way</h3>
-            <div className={styles.comparisonItem} style={{ color: '#1A1A1A', fontWeight: 600 }}><CheckCircle2 size={18} color="#00AB55" /> Centralized real-time requisitioning</div>
-            <div className={styles.comparisonItem} style={{ color: '#1A1A1A', fontWeight: 600 }}><CheckCircle2 size={18} color="#00AB55" /> 24-hour autonomous approval flows</div>
-            <div className={styles.comparisonItem} style={{ color: '#1A1A1A', fontWeight: 600 }}><CheckCircle2 size={18} color="#00AB55" /> Instant procurement vs budget visibility</div>
-            <div className={styles.comparisonItem} style={{ color: '#1A1A1A', fontWeight: 600 }}><CheckCircle2 size={18} color="#00AB55" /> AI Guardrails protecting every dollar</div>
-          </div>
-        </div>
-      </section>
-
-      {/* --- PLATFORM DEEP DIVES --- */}
-      <section id="features" className={styles.meshBackground}>
-        {/* P2P Section */}
-        <div className={styles.featureDetail} ref={p2pRef as any}>
-          <div className={`${styles.featureContent} ${p2pInView ? motion.reveal : ""}`}>
-            <span className={styles.benefitLabel}>Procure-to-Pay</span>
-            <h2 className={styles.featureTitle}>From request to payment, <span style={{color: '#E8572A'}}>completely unified.</span></h2>
-            <p className={styles.featureDescription}>
-              Eliminate "rogue spend" with a centralized platform that scales with your growth. 
-              Manage requisitions, purchase orders, and vendor payments in one seamless flow.
-            </p>
-            <div className={styles.featureList}>
-              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> 3-Way OCR Matching (PO, Invoice, Receipt)</div>
-              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Custom Multi-level Approval Workflows</div>
-              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Real-time Budget vs. Actual Tracking</div>
-            </div>
-            <Link href="/login" className="btn btn-primary" style={{ marginTop: '2.5rem', borderRadius: '100px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              Explore P2P Flow <ArrowRight size={18} />
-            </Link>
-          </div>
-          <div className={`${styles.featureVisual} ${p2pInView ? motion.scale : ""}`}>
-            <Image 
-              src="/p2p_ultra_hd_v2_1773601464478.png" 
-              alt="P2P Dashboard" 
-              width={700} height={500} 
-              style={{ width: '100%', height: 'auto', borderRadius: '20px' }}
-            />
-          </div>
-        </div>
-
-        {/* Assets Section */}
-        <div className={`${styles.featureDetail} ${styles.featureDetailReverse}`} ref={assetsRef as any}>
-          <div className={`${styles.featureContent} ${assetsInView ? motion.reveal : ""}`}>
-            <span className={styles.benefitLabel}>Enterprise Asset Management</span>
-            <h2 className={styles.featureTitle}>Every asset. <span style={{color: '#E8572A'}}>Tracked.</span> Every lifecycle. <span style={{color: '#E8572A'}}>Mastered.</span></h2>
-            <p className={styles.featureDescription}>
-              Stop losing track of enterprise infrastructure. Our asset registry tracks everything 
-              from acquisition price to maintenance cycles and disposal.
-            </p>
-            <div className={styles.featureList}>
-              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Automated Asset Tagging & Serial Tracking</div>
-              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Departmental & Location Attribution</div>
-              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Real-time "Active Pulse" Health Monitoring</div>
-            </div>
-            <Link href="/login" className="btn btn-primary" style={{ marginTop: '2.5rem', borderRadius: '100px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              Manage Your Fleet <ArrowRight size={18} />
-            </Link>
-          </div>
-          <div className={`${styles.featureVisual} ${assetsInView ? motion.scale : ""}`}>
-            <Image 
-              src="/platform_showcase_assets_1773600981351.png" 
-              alt="Asset Registry UI" 
-              width={700} height={500} 
-              style={{ width: '100%', height: 'auto', borderRadius: '20px' }}
-            />
-          </div>
-        </div>
-
-        {/* AI Section */}
-        <div className={styles.featureDetail} ref={aiRef as any}>
-          <div className={`${styles.featureContent} ${aiInView ? motion.reveal : ""}`}>
-            <span className={styles.benefitLabel}>The Mind of Apex</span>
-            <h2 className={styles.featureTitle}>Financial Intelligence, <span style={{color: '#E8572A'}}>Autonomous & Proactive.</span></h2>
-            <p className={styles.featureDescription}>
-              Meet Apex, your autonomous AI analyst. It doesn't just report numbers—it finds 
-              savings opportunities, predicts budget breaches, and flags fraud before it happens.
-            </p>
-            <div className={styles.featureList}>
-              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Proactive Savings Opportunity Alerts</div>
-              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Natural Language Financial Analysis</div>
-              <div className={styles.featureListItem}><CheckCircle2 size={20} color="#00AB55" /> Guardrail AI™ Fraud Detection</div>
-            </div>
-            <Link href="/login" className="btn btn-primary" style={{ marginTop: '2.5rem', borderRadius: '100px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
-              Meet Apex AI <ArrowRight size={18} />
-            </Link>
-          </div>
-          <div className={`${styles.featureVisual} ${aiInView ? motion.scale : ""}`}>
-            <Image 
-              src="/ai_ultra_hd_v2_1773601484996.png" 
-              alt="AI Financial Analyst" 
-              width={700} height={500} 
-              style={{ width: '100%', height: 'auto', borderRadius: '20px' }}
-            />
+      {/* ═══ SOCIAL PROOF / STATS ═══ */}
+      <section className={styles.socialProof} ref={statsRef as React.Ref<HTMLElement>}>
+        <div className={styles.socialProofInner}>
+          <p className={styles.socialProofLabel}>
+            Trusted by forward-thinking procurement teams
+          </p>
+          <div className={styles.statsRow}>
+            {[
+              { value: "96%", label: "Reduction in\nrequisition time" },
+              { value: "90%", label: "Weekly time\nsavings" },
+              { value: "$30K", label: "Saved in first\nfew weeks" },
+              { value: "10X", label: "Faster\npurchasing" },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                className={styles.statItem}
+                style={{
+                  opacity: statsInView ? 1 : 0,
+                  transform: statsInView ? "translateY(0)" : "translateY(20px)",
+                  transition: `all 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.1}s`,
+                }}
+              >
+                <div className={styles.statValue}>{stat.value}</div>
+                <div className={styles.statLabel}>{stat.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* --- REFINED GRID (ADDITIONAL FEATURES) --- */}
-      <section style={{ padding: '100px 0' }} ref={gridRef as any}>
-        <h2 className={styles.sectionTitle}>Everything you need to scale.</h2>
-        <div className={styles.grid}>
+      {/* ═══ AI SECTION ═══ */}
+      <section id="platform" className={styles.aiSection} ref={aiRef as React.Ref<HTMLElement>}>
+        <div className={styles.aiHeader}>
+          <span
+            className={styles.sectionEyebrow}
+            style={{
+              opacity: aiInView ? 1 : 0,
+              transition: "opacity 0.6s ease",
+            }}
+          >
+            <Sparkles size={14} /> AI-Powered
+          </span>
+          <h2
+            className={styles.sectionTitle}
+            style={{
+              opacity: aiInView ? 1 : 0,
+              transform: aiInView ? "translateY(0)" : "translateY(20px)",
+              transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s",
+            }}
+          >
+            Powerful AI for proactive spend control
+          </h2>
+          <p
+            className={styles.sectionSubtitle}
+            style={{
+              opacity: aiInView ? 1 : 0,
+              transform: aiInView ? "translateY(0)" : "translateY(20px)",
+              transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s",
+            }}
+          >
+            Automate data capture, streamline approvals, and proactively identify
+            cost-saving opportunities across your procurement workflows.
+          </p>
+        </div>
+
+        <div className={styles.aiGrid}>
           {[
             {
-              icon: <Zap />,
-              title: "Autonomous AP",
-              text: "Our AI OCR extracts 99% of data from invoices, eliminating manual entry forever.",
-              slug: "autonomous-ap"
+              icon: <ShieldCheck size={22} />,
+              title: "Shape purchasing policies your way",
+              text: "Standardize and configure workflows, enforce policies, and simplify approvals to improve financial discipline.",
             },
             {
-              icon: <Shield />,
-              title: "Guardrail AI™",
-              text: "Advanced fraud detection and risk scoring integrated into every transaction.",
-              slug: "fraud-protection"
+              icon: <Zap size={22} />,
+              title: "Automate workflows with AI",
+              text: "Built-in AI automates purchasing and AP, freeing your team to focus on strategic priorities.",
             },
             {
-              icon: <BarChart3 />,
-              title: "Deep Insights",
-              text: "Crystal-clear analytics and forecasting to help you make smarter financial decisions.",
-              slug: "spend-insights"
+              icon: <Brain size={22} />,
+              title: "Make AI-informed spend decisions",
+              text: "Gain full spend visibility and get instant answers to complex questions with an AI-powered Spend Analyst.",
             },
-            {
-              icon: <Lock />,
-              title: "Purchasing Control",
-              text: "Set granular budgets and limits by department, project, or individual.",
-              slug: "autonomous-ap"
-            },
-            {
-              icon: <Globe />,
-              title: "Global Supply Chain",
-              text: "Manage multiple currencies and locations with unified procurement logic.",
-              slug: "spend-insights"
-            },
-            {
-              icon: <Cpu />,
-              title: "Smart Integrations",
-              text: "Seamless sync with NetSuite, Sage, QuickBooks, and Xero in real-time.",
-              slug: "spend-insights"
-            }
-          ].map((item, idx) => (
-            <div key={idx} className={`${styles.card} ${gridInView ? motion.reveal : ""} ${motion['delay' + (idx % 3 + 1) as keyof typeof motion]}`}>
-              <div className={styles.icon}>{item.icon}</div>
-              <h3 className={styles.cardTitle}>{item.title}</h3>
-              <p className={styles.cardText}>{item.text}</p>
+          ].map((card, i) => (
+            <div
+              key={i}
+              className={styles.aiCard}
+              style={{
+                opacity: aiInView ? 1 : 0,
+                transform: aiInView ? "translateY(0)" : "translateY(24px)",
+                transition: `all 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${0.15 + i * 0.1}s`,
+              }}
+            >
+              <div className={styles.aiCardIcon}>{card.icon}</div>
+              <h3 className={styles.aiCardTitle}>{card.title}</h3>
+              <p className={styles.aiCardText}>{card.text}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* --- MOBILE MASTERY --- */}
-      <section className={styles.mobileSection} ref={mobileRef as any}>
-        <div className={styles.mobileInner}>
-          <div className={mobileInView ? motion.reveal : ""}>
-            <span style={{ color: '#E8572A', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Mobile Native</span>
-            <h2 className={styles.heroTitle} style={{ color: 'white', marginTop: '1rem' }}>Total Control in Your Pocket.</h2>
-            <p className={styles.heroSubtitle} style={{ color: '#919EAB', textAlign: 'left', marginLeft: 0 }}>
-              Approving a $50k purchase should be as easy as sending a text. 100% responsive, zero friction.
-            </p>
-            <div style={{ display: 'grid', gap: '1rem', marginTop: '2rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}><CheckCircle2 color="#00AB55" /> One-tap mobile approvals</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}><CheckCircle2 color="#00AB55" /> Real-time push spend alerts</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}><CheckCircle2 color="#00AB55" /> Mobile receipt & invoice capture</div>
+      <div className={styles.sectionDivider} />
+
+      {/* ═══ PRODUCT TABS ═══ */}
+      <section id="solutions" className={styles.tabSection} ref={tabRef as React.Ref<HTMLElement>}>
+        <div className={styles.tabSectionInner}>
+          <div className={styles.tabHeader}>
+            <span className={styles.sectionEyebrow}>
+              <Layers size={14} /> Solutions
+            </span>
+            <h2 className={styles.sectionTitle}>
+              One platform for your entire spend lifecycle
+            </h2>
+          </div>
+
+          <div className={styles.tabRowWrapper}>
+            <div className={styles.tabRow}>
+              {PRODUCT_TABS.map((tab, i) => (
+                <button
+                  key={tab.id}
+                  className={`${styles.tabBtn} ${activeTab === i ? styles.tabBtnActive : ""}`}
+                  onClick={() => setActiveTab(i)}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
-            <Link href="/features/mobile-procurement" className="btn btn-primary btn-lg" style={{ marginTop: '3rem', borderRadius: '100px' }}>
-              Explore Mobile Features
+          </div>
+
+          <div
+            className={styles.tabContent}
+            style={{
+              opacity: tabInView ? 1 : 0,
+              transform: tabInView ? "translateY(0)" : "translateY(20px)",
+              transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <div>
+              <h3 className={styles.tabContentTitle}>
+                {PRODUCT_TABS[activeTab].title}
+              </h3>
+              <p className={styles.tabContentText}>
+                {PRODUCT_TABS[activeTab].description}
+              </p>
+              <Link
+                href={PRODUCT_TABS[activeTab].link}
+                className={styles.featureLink}
+              >
+                {PRODUCT_TABS[activeTab].linkText}{" "}
+                <ChevronRight size={16} />
+              </Link>
+            </div>
+            <div className={styles.tabContentVisual}>
+              <Image
+                key={PRODUCT_TABS[activeTab].id}
+                src={PRODUCT_TABS[activeTab].image}
+                alt={PRODUCT_TABS[activeTab].title}
+                width={700}
+                height={480}
+                style={{ width: "100%", height: "auto", display: "block" }}
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FEATURE DETAIL: P2P ═══ */}
+      <section className={styles.featureSection} ref={featureRef1 as React.Ref<HTMLElement>}>
+        <div className={styles.featureLayout}>
+          <div
+            className={styles.featureContent}
+            style={{
+              opacity: featureInView1 ? 1 : 0,
+              transform: featureInView1 ? "translateX(0)" : "translateX(-30px)",
+              transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <span className={styles.featureLabel}>
+              <Zap size={14} /> Procure-to-Pay
+            </span>
+            <h2 className={styles.featureTitle}>
+              From request to payment,{" "}
+              <span style={{ color: "#E8572A" }}>completely unified.</span>
+            </h2>
+            <p className={styles.featureDescription}>
+              Eliminate &quot;rogue spend&quot; with a centralized platform that
+              scales with your growth. Manage requisitions, purchase orders, and
+              vendor payments in one seamless flow.
+            </p>
+            <div className={styles.featureChecklist}>
+              {[
+                "3-Way OCR Matching (PO, Invoice, Receipt)",
+                "Custom Multi-level Approval Workflows",
+                "Real-time Budget vs. Actual Tracking",
+              ].map((item, i) => (
+                <div key={i} className={styles.featureCheckItem}>
+                  <span className={styles.checkIcon}>
+                    <CheckCircle2 size={14} />
+                  </span>
+                  {item}
+                </div>
+              ))}
+            </div>
+            <Link href="/login" className={styles.featureLink}>
+              Explore P2P Flow <ChevronRight size={16} />
             </Link>
           </div>
-          <div className={mobileInView ? motion.scale : ""} style={{ display: 'flex', justifyContent: 'center' }}>
-            <Image src="/mobile-mockup.png" alt="Mobile App" width={300} height={600} className={motion.float} />
+          <div
+            className={styles.featureVisual}
+            style={{
+              opacity: featureInView1 ? 1 : 0,
+              transform: featureInView1 ? "translateX(0) scale(1)" : "translateX(30px) scale(0.96)",
+              transition: "all 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s",
+            }}
+          >
+            <Image
+              src="/p2p_ultra_hd_v2_1773601464478.png"
+              alt="Procure-to-Pay Dashboard"
+              width={700}
+              height={500}
+              style={{ width: "100%", height: "auto", display: "block" }}
+            />
           </div>
         </div>
       </section>
 
-      {/* --- FINAL CTA --- */}
-      <section className={styles.cta} ref={ctaRef as any}>
-        <div className={`${styles.ctaBox} ${ctaInView ? motion.scale : ""} ${motion.glow}`}>
-          <h2 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '1.5rem' }}>Take the first step to proactive procurement.</h2>
-          <p style={{ fontSize: '1.25rem', opacity: 0.9, marginBottom: '3rem' }}>Join the forward-thinking procurement teams using Apex Procure.</p>
-          <Link href="/login" className="btn btn-secondary btn-lg" style={{ background: 'white', color: '#E8572A', fontSize: '1.25rem', borderRadius: '100px', padding: '0 3.5rem' }}>
-            Book Your Free Demo
-          </Link>
-          <div style={{ marginTop: '2rem', fontSize: '0.875rem', opacity: 0.7 }}>No credit card required • Clear 30-day implementation</div>
+      <div className={styles.sectionDivider} />
+
+      {/* ═══ FEATURE DETAIL: AI ═══ */}
+      <section className={styles.featureSection} ref={featureRef2 as React.Ref<HTMLElement>}>
+        <div className={`${styles.featureLayout} ${styles.featureLayoutReverse}`}>
+          <div
+            className={styles.featureContent}
+            style={{
+              opacity: featureInView2 ? 1 : 0,
+              transform: featureInView2 ? "translateX(0)" : "translateX(30px)",
+              transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <span className={styles.featureLabel}>
+              <Brain size={14} /> Apex AI™
+            </span>
+            <h2 className={styles.featureTitle}>
+              Financial intelligence,{" "}
+              <span style={{ color: "#E8572A" }}>autonomous & proactive.</span>
+            </h2>
+            <p className={styles.featureDescription}>
+              Meet your AI-powered spend analyst. It doesn&apos;t just report numbers
+              — it finds savings opportunities, predicts budget breaches, and flags
+              risks before they become problems.
+            </p>
+            <div className={styles.featureChecklist}>
+              {[
+                "Proactive Savings Opportunity Alerts",
+                "Natural Language Financial Analysis",
+                "AI Guardrail™ Fraud Detection",
+              ].map((item, i) => (
+                <div key={i} className={styles.featureCheckItem}>
+                  <span className={styles.checkIcon}>
+                    <CheckCircle2 size={14} />
+                  </span>
+                  {item}
+                </div>
+              ))}
+            </div>
+            <Link href="/login" className={styles.featureLink}>
+              Explore Apex AI <ChevronRight size={16} />
+            </Link>
+          </div>
+          <div
+            className={styles.featureVisual}
+            style={{
+              opacity: featureInView2 ? 1 : 0,
+              transform: featureInView2 ? "translateX(0) scale(1)" : "translateX(-30px) scale(0.96)",
+              transition: "all 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s",
+            }}
+          >
+            <Image
+              src="/ai_ultra_hd_v2_1773601484996.png"
+              alt="AI Financial Analyst Dashboard"
+              width={700}
+              height={500}
+              style={{ width: "100%", height: "auto", display: "block" }}
+            />
+          </div>
         </div>
       </section>
 
-      <footer style={{ padding: '80px 4% 40px', background: '#F9FAFB', borderTop: '1px solid #DFE3E8' }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4rem' }}>
+      {/* ═══ ROI STATS ═══ */}
+      <section id="roi" className={styles.roiSection} ref={roiRef as React.Ref<HTMLElement>}>
+        <div className={styles.roiHeader}>
+          <span className={styles.sectionEyebrow}>
+            <BarChart3 size={14} /> Results
+          </span>
+          <h2 className={styles.sectionTitle}>Real customer ROI</h2>
+          <p className={styles.sectionSubtitle}>
+            The #1 mid-market procurement solution with results to prove it.
+          </p>
+        </div>
+        <div className={styles.roiGrid}>
+          {[
+            { value: "96%", label: "Reduction in requisition time" },
+            { value: "90%", label: "Weekly time savings" },
+            { value: "$30K", label: "Saved in a few weeks" },
+            { value: "10X", label: "Faster purchasing" },
+          ].map((stat, i) => (
+            <div
+              key={i}
+              className={styles.roiCard}
+              style={{
+                opacity: roiInView ? 1 : 0,
+                transform: roiInView ? "translateY(0)" : "translateY(20px)",
+                transition: `all 0.6s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.1}s`,
+              }}
+            >
+              <div className={styles.roiValue}>{stat.value}</div>
+              <div className={styles.roiLabel}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ═══ MOBILE ═══ */}
+      <section className={styles.mobileSection} ref={mobileRef as React.Ref<HTMLElement>}>
+        <div className={styles.mobileInner}>
+          <div
+            style={{
+              opacity: mobileInView ? 1 : 0,
+              transform: mobileInView ? "translateX(0)" : "translateX(-30px)",
+              transition: "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
+            }}
+          >
+            <span className={styles.featureLabel} style={{ color: "#E8572A" }}>
+              <Smartphone size={14} /> Mobile Native
+            </span>
+            <h2 className={styles.mobileTitle}>
+              Manage business spend remotely
+            </h2>
+            <p className={styles.mobileSubtitle}>
+              Manage end-to-end procurement workflows on the go with our
+              top-rated mobile app — powered by AI for fast, error-free receipt
+              capture.
+            </p>
+            <div className={styles.mobileChecklist}>
+              {[
+                "One-tap mobile approvals",
+                "Real-time push spend alerts",
+                "AI-powered receipt & invoice capture",
+              ].map((item, i) => (
+                <div key={i} className={styles.mobileCheckItem}>
+                  <span className={styles.mobileCheckIcon}>
+                    <CheckCircle2 size={13} />
+                  </span>
+                  {item}
+                </div>
+              ))}
+            </div>
+            <Link
+              href="/login"
+              className={styles.btnPrimary}
+              style={{ marginTop: "2.5rem" }}
+            >
+              Explore Mobile <ArrowRight size={16} />
+            </Link>
+          </div>
+          <div
+            className={styles.mobileVisual}
+            style={{
+              opacity: mobileInView ? 1 : 0,
+              transform: mobileInView ? "translateY(0) scale(1)" : "translateY(30px) scale(0.95)",
+              transition: "all 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s",
+            }}
+          >
+            <Image
+              src="/mobile-mockup.png"
+              alt="Mobile Procurement App"
+              width={300}
+              height={600}
+              style={{ filter: "drop-shadow(0 30px 60px rgba(0,0,0,0.3))" }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ CTA ═══ */}
+      <section className={styles.ctaSection} ref={ctaRef as React.Ref<HTMLElement>}>
+        <div
+          className={styles.ctaBox}
+          style={{
+            opacity: ctaInView ? 1 : 0,
+            transform: ctaInView ? "translateY(0) scale(1)" : "translateY(20px) scale(0.98)",
+            transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
+          }}
+        >
+          <h2 className={styles.ctaTitle}>
+            Get started with proactive procurement
+          </h2>
+          <p className={styles.ctaSubtitle}>
+            Book a personalized demo to see how Apex Procure&apos;s AI-powered
+            platform streamlines the intake-to-pay process.
+          </p>
+          <div className={styles.ctaBtns}>
+            <Link href="/login" className={styles.ctaBtnLight}>
+              Book a Demo <ArrowRight size={16} />
+            </Link>
+            <button
+              onClick={() => setShowTour(true)}
+              className={styles.ctaBtnGhost}
+            >
+              <PlayCircle size={16} /> Take a Tour
+            </button>
+          </div>
+          <p className={styles.ctaDisclaimer}>
+            No credit card required · Free 30-day implementation
+          </p>
+        </div>
+      </section>
+
+      {/* ═══ FOOTER ═══ */}
+      <footer className={styles.footer}>
+        <div className={styles.footerInner}>
+          <div className={styles.footerBrand}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
+              <Logo size={28} />
+              <span className={styles.footerBrandName}>Apex Procure</span>
+            </div>
+            <p className={styles.footerBrandDesc}>
+              The AI-powered procurement, AP, and spend management platform built
+              for growing organizations.
+            </p>
+          </div>
+
           <div>
-            <Logo size={40} />
-            <div style={{ fontWeight: 850, marginTop: '1rem' }}>APEX PROCURE</div>
-            <div style={{ fontSize: '0.875rem', color: '#637381', marginTop: '1rem' }}>The standard in intelligent procurement.</div>
+            <h4 className={styles.footerColumnTitle}>Platform</h4>
+            <Link href="/login" className={styles.footerLink}>Product Overview</Link>
+            <Link href="/login" className={styles.footerLink}>Apex AI</Link>
+            <Link href="/login" className={styles.footerLink}>Features</Link>
+            <Link href="/login" className={styles.footerLink}>Pricing</Link>
           </div>
-          <div style={{ display: 'flex', gap: '6rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ fontWeight: 800 }}>Product</div>
-              <Link href="#features" className={styles.navLink}>Features</Link>
-              <Link href="/login" className={styles.navLink}>Demo</Link>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ fontWeight: 800 }}>Company</div>
-              <Link href="/login" className={styles.navLink}>About</Link>
-              <Link href="/login" className={styles.navLink}>Security</Link>
-            </div>
+
+          <div>
+            <h4 className={styles.footerColumnTitle}>Solutions</h4>
+            <Link href="/login" className={styles.footerLink}>Procurement</Link>
+            <Link href="/login" className={styles.footerLink}>Accounts Payable</Link>
+            <Link href="/login" className={styles.footerLink}>Asset Management</Link>
+            <Link href="/login" className={styles.footerLink}>Integrations</Link>
+          </div>
+
+          <div>
+            <h4 className={styles.footerColumnTitle}>Company</h4>
+            <Link href="/login" className={styles.footerLink}>About</Link>
+            <Link href="/login" className={styles.footerLink}>Customers</Link>
+            <Link href="/login" className={styles.footerLink}>Security</Link>
+            <Link href="/login" className={styles.footerLink}>Contact</Link>
           </div>
         </div>
-        <div style={{ textAlign: 'center', marginTop: '60px', color: '#919EAB', fontSize: '0.75rem' }}>
-          © {new Date().getFullYear()} Apex Procure Inc. All rights reserved.
+
+        <div className={styles.footerBottom}>
+          <span>© {new Date().getFullYear()} Apex Procure Inc. All rights reserved.</span>
+          <div className={styles.footerSocials}>
+            <a href="#" className={styles.footerSocialLink} aria-label="LinkedIn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            </a>
+            <a href="#" className={styles.footerSocialLink} aria-label="Twitter">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+          </div>
         </div>
       </footer>
 
+      {/* Product Tour Modal */}
       {showTour && <ProductTour onClose={() => setShowTour(false)} />}
     </div>
   );
