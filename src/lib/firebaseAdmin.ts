@@ -28,6 +28,13 @@ function getAdminApp() {
         // Essential: Handle escaped newlines and PEM formatting
         // This is the #1 cause of hangs in Node.js
         console.log("[FirebaseAdmin] Sanitizing Private Key...");
+        
+        // Remove surrounding quotes if they exist (Vercel sometimes adds them)
+        if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+            privateKey = privateKey.substring(1, privateKey.length - 1);
+        }
+        
+        // Handle double-escaped newlines and standard ones
         privateKey = privateKey.replace(/\\n/g, '\n').replace(/\r\n/g, '\n').trim();
         
         // Ensure it has PEM headers if they are missing
@@ -36,7 +43,7 @@ function getAdminApp() {
             privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----\n`;
         }
 
-        console.log("[FirebaseAdmin] Attempting app initialization...");
+        console.log("[FirebaseAdmin] Attempting app initialization with project:", projectId);
         const app = admin.initializeApp({
             credential: admin.credential.cert({
                 projectId,
