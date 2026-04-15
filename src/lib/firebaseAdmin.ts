@@ -24,8 +24,16 @@ function getAdminApp() {
 
     try {
         // Robust Private Key Sanitization
-        privateKey = privateKey.replace(/\\n/g, '\n').replace(/\r\n/g, '\n').trim();
-        if (!privateKey.includes("-----BEGIN")) {
+        // Remove literal quotes (often added by environment managers), handle escaped newlines, and fix spacing
+        privateKey = privateKey
+            .replace(/^["']|["']$/g, '') // Remove leading/trailing quotes
+            .replace(/\\n/g, '\n')        // Unescape \n characters
+            .replace(/\r\n/g, '\n')       // Normalize Windows newlines
+            .trim();
+
+        // Only wrap with headers if they are truly missing
+        if (!privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
+            console.log("[FirebaseAdmin] Wrapping private key with headers...");
             privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----\n`;
         }
 
