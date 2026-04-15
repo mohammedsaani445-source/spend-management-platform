@@ -45,14 +45,51 @@ function getAdminApp() {
     }
 }
 
-// STABLE EXPORTED INSTANCES
-// These are standard, direct references initialized once.
-export const adminAuth = getAdminApp().auth();
-export const adminDb = getAdminApp().database();
-export const adminStorage = getAdminApp().storage();
+/**
+ * SAFE LAZY PROXY HELPER
+ * Prevents initialization during the Build Phase when env vars are missing.
+ * Only wakes up the SDK when a property is actually accessed at runtime.
+ */
+function createLazyProxy<T>(init: () => T): T {
+    let instance: T | null = null;
+    return new Proxy({} as any, {
+        get(target, prop) {
+            // Lazy initialization on first access
+            if (!instance) instance = init();
+            
+            const val = (instance as any)[prop];
+            // Handle method binding to preserve 'this' context
+            if (typeof val === 'function') {
+                return val.bind(instance);
+            }
+            return val;
+        },
+        // Support common object operations for full SDK compatibility
+        getOwnPropertyDescriptor(target, prop) {
+            if (!instance) instance = init();
+            return Object.getOwnPropertyDescriptor(instance, prop);
+        },
+        ownKeys() {
+            if (!instance) instance = init();
+            return Reflect.ownKeys(instance as any);
+        }
+    }) as T;
+}
 
-// Specific Bucket reference for ease of use
-export const adminBucket = adminStorage.bucket(process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app");
+// EXPORTED SERVICES
+// These behave exactly like the real Admin SDK objects but are initialized lazily.
+export const adminAuth = createLazyProxy(() => getAdminApp().auth());
+export const adminDb = createLazyProxy(() => getAdminApp().database());
+export const adminStorage = createLazyProxy(() => getAdminApp().storage());
+
+/**
+ * adminBucket: A truly stable Reference
+ * Lazily initialized to the project's primary storage bucket.
+ */
+export const adminBucket = createLazyProxy(() => {
+    const bucketName = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
+    return getAdminApp().storage().bucket(bucketName);
+});
 
 // Helper for raw access if needed
 export const getAdminBucket = () => adminBucket;
