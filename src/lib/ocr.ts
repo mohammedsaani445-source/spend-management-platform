@@ -24,7 +24,8 @@ export const uploadToStorageServer = async (
                     firebaseStorageDownloadTokens: crypto.randomUUID()
                 }
             },
-            resumable: false
+            resumable: false,
+            validation: false // Fixes ERR_STREAM_DESTROYED on some serverless environments
         });
         const encodedPath = encodeURIComponent(filePath);
         return `https://firebasestorage.googleapis.com/v0/b/${targetBucket.name}/o/${encodedPath}?alt=media`;

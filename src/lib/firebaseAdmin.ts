@@ -54,32 +54,49 @@ function getAdminApp() {
     }
 }
 
-// Clean Exports that preserve "this" context
+let firestore: admin.firestore.Firestore | null = null;
+let auth: admin.auth.Auth | null = null;
+let storage: admin.storage.Storage | null = null;
+let rtdb: admin.database.Database | null = null;
+
+function getDb() {
+    if (!rtdb) rtdb = getAdminApp().database();
+    return rtdb;
+}
+
+function getAuth() {
+    if (!auth) auth = getAdminApp().auth();
+    return auth;
+}
+
+function getStorage() {
+    if (!storage) storage = getAdminApp().storage();
+    return storage;
+}
+
+// RESTORED STABLE EXPORTS
+// These are not proxies anymore, they are direct facade objects that resolve once
 export const adminDb = {
-    get ref() { return getAdminApp().database().ref.bind(getAdminApp().database()); }
+    get ref() { return getDb().ref.bind(getDb()); }
 } as any;
 
 export const adminAuth = {
-    getUser: (uid: string) => getAdminApp().auth().getUser(uid),
-    verifyIdToken: (token: string) => getAdminApp().auth().verifyIdToken(token)
+    get getUser() { return getAuth().getUser.bind(getAuth()); },
+    get verifyIdToken() { return getAuth().verifyIdToken.bind(getAuth()); }
 } as any;
 
 export const adminStorage = {
-    bucket: (name?: string) => getAdminApp().storage().bucket(name || process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app")
+    bucket: (name?: string) => getStorage().bucket(name || process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app")
 } as any;
 
 /**
- * Shared Bucket Instance (Proxy)
- * Correctly binds properties to the bucket instance to prevent "this context" errors.
+ * adminBucket: A truly stable Reference
+ * Pre-initialized to the default bucket.
  */
 export const adminBucket = new Proxy({} as any, {
     get: (target, prop) => {
-        const bucket = getAdminApp().storage().bucket(process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app");
-        const value = (bucket as any)[prop];
-        if (typeof value === 'function') {
-            return value.bind(bucket);
-        }
-        return value;
+        const bucket = getStorage().bucket(process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app");
+        return (bucket as any)[prop];
     }
 });
 

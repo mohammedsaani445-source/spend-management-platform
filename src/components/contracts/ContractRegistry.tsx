@@ -84,10 +84,18 @@ export default function ContractRegistry({ contracts, onEdit, onDelete, onApprov
                                         </span>
                                     </td>
                                     <td style={{ color: contract.status === 'EXPIRING' ? 'var(--warning)' : 'inherit' }}>
-                                        {contract.endDate ? new Date(contract.endDate).toLocaleDateString() : 'N/A'}
+                                        {(() => {
+                                            try {
+                                                if (!contract.endDate) return 'N/A';
+                                                const d = new Date(contract.endDate);
+                                                return isNaN(d.getTime()) ? 'Invalid Date' : d.toLocaleDateString();
+                                            } catch (e) {
+                                                return 'Error';
+                                            }
+                                        })()}
                                     </td>
                                     <td style={{ fontWeight: 600 }}>
-                                        {contract.value?.toLocaleString() || '0'} {contract.currency || 'USD'}
+                                        {typeof contract.value === 'number' ? contract.value.toLocaleString() : (contract.value || '0')} {contract.currency || 'USD'}
                                     </td>
 
                                     <td>
