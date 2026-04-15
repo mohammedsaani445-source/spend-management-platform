@@ -54,50 +54,53 @@ function getAdminApp() {
     }
 }
 
+// SINGLETON INSTANCES
 let firestore: admin.firestore.Firestore | null = null;
 let auth: admin.auth.Auth | null = null;
 let storage: admin.storage.Storage | null = null;
 let rtdb: admin.database.Database | null = null;
 
-function getDb() {
-    if (!rtdb) rtdb = getAdminApp().database();
-    return rtdb;
-}
-
-function getAuth() {
-    if (!auth) auth = getAdminApp().auth();
-    return auth;
-}
-
-function getStorage() {
-    if (!storage) storage = getAdminApp().storage();
-    return storage;
-}
-
-// RESTORED STABLE EXPORTS
-// These are not proxies anymore, they are direct facade objects that resolve once
+// EXPORTED GETTERS (Preserves backward compatibility with existing code)
 export const adminDb = {
-    get ref() { return getDb().ref.bind(getDb()); }
+    get ref() {
+        const app = getAdminApp();
+        if (!rtdb) rtdb = app.database();
+        return rtdb.ref.bind(rtdb);
+    }
 } as any;
 
 export const adminAuth = {
-    get getUser() { return getAuth().getUser.bind(getAuth()); },
-    get verifyIdToken() { return getAuth().verifyIdToken.bind(getAuth()); }
+    getUser: (uid: string) => {
+        if (!auth) auth = getAdminApp().auth();
+        return auth.getUser(uid);
+    },
+    verifyIdToken: (token: string) => {
+        if (!auth) auth = getAdminApp().auth();
+        return auth.verifyIdToken(token);
+    }
 } as any;
 
 export const adminStorage = {
-    bucket: (name?: string) => getStorage().bucket(name || process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app")
+    bucket: (name?: string) => {
+        if (!storage) storage = getAdminApp().storage();
+        return storage.bucket(name || process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app");
+    }
 } as any;
 
 /**
  * adminBucket: A truly stable Reference
- * Pre-initialized to the default bucket.
+ * This is now the actual Bucket object, initialized lazily.
  */
-export const adminBucket = new Proxy({} as any, {
-    get: (target, prop) => {
-        const bucket = getStorage().bucket(process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app");
-        return (bucket as any)[prop];
-    }
-});
+export const adminBucket = {
+    get name() { return adminStorage.bucket().name; },
+    file: (path: string) => adminStorage.bucket().file(path),
+    getMetadata: () => adminStorage.bucket().getMetadata(),
+};
+
+// Also export a helper to get the raw bucket if needed
+export const getAdminBucket = () => {
+    if (!storage) storage = getAdminApp().storage();
+    return storage.bucket(process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app");
+};
 
 
