@@ -26,16 +26,26 @@ export async function GET(req: NextRequest) {
 
 
 
-        console.log("[Diag] Running write test...");
-        const testFile = bucket.file("diag_connection_test.txt");
-        await testFile.save("Connection test at " + results.timestamp, {
-            resumable: false,
-            validation: false,
-            metadata: { contentType: "text/plain" }
-        });
+        console.log("[Diag] Running write test (Bridge Mode)...");
+        const crypto = require("crypto");
+        const fs = require("fs");
+        const path = require("path");
+        const os = require("os");
         
-        results.tests.writeSuccess = true;
-        console.log("[Diag] Write success.");
+        const tempPath = path.join(os.tmpdir(), `diag_${crypto.randomUUID()}.txt`);
+        try {
+            fs.writeFileSync(tempPath, "Connection test at " + results.timestamp);
+            await bucket.upload(tempPath, {
+                destination: "diag_connection_test.txt",
+                resumable: false,
+                validation: false,
+                metadata: { contentType: "text/plain" }
+            });
+            results.tests.writeSuccess = true;
+            console.log("[Diag] Write success.");
+        } finally {
+            if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
+        }
 
     } catch (error: any) {
         console.error("[Diag] Error during diagnostic:", error);

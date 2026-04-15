@@ -1,6 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { adminBucket, adminStorage } from "./firebaseAdmin";
 import crypto from "crypto";
+import fs from "fs";
+import path from "path";
+import os from "os";
 
 /**
  * PRODUCTION REALIZATION: Server-Side Storage Upload with Multi-Bucket Fallback.
@@ -16,19 +19,36 @@ export const uploadToStorageServer = async (
     const buffer = Buffer.from(base64Data, 'base64');
 
     const tryUpload = async (targetBucket: any) => {
-        const file = targetBucket.file(filePath);
-        await file.save(buffer, {
-            metadata: { 
-                contentType: mimeType,
+        // Use /tmp as a reliable bridge for serverless environments
+        const tempDir = os.tmpdir();
+        const tempFileName = `upload_${crypto.randomUUID()}_${fileName}`;
+        const tempFilePath = path.join(tempDir, tempFileName);
+        
+        try {
+            // 1. Write to local disk
+            fs.writeFileSync(tempFilePath, buffer);
+            
+            // 2. Upload using filesystem logic (most stable on Vercel)
+            await targetBucket.upload(tempFilePath, {
+                destination: filePath,
+                resumable: false,
+                validation: false,
                 metadata: {
-                    firebaseStorageDownloadTokens: crypto.randomUUID()
+                    contentType: mimeType,
+                    metadata: {
+                        firebaseStorageDownloadTokens: crypto.randomUUID()
+                    }
                 }
-            },
-            resumable: false,
-            validation: false // Fixes ERR_STREAM_DESTROYED on some serverless environments
-        });
-        const encodedPath = encodeURIComponent(filePath);
-        return `https://firebasestorage.googleapis.com/v0/b/${targetBucket.name}/o/${encodedPath}?alt=media`;
+            });
+            
+            const encodedPath = encodeURIComponent(filePath);
+            return `https://firebasestorage.googleapis.com/v0/b/${targetBucket.name}/o/${encodedPath}?alt=media`;
+        } finally {
+            // 3. CLEANUP: Always remove the temp file
+            if (fs.existsSync(tempFilePath)) {
+                try { fs.unlinkSync(tempFilePath); } catch (e) {}
+            }
+        }
     };
 
     try {
