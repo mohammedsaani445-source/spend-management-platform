@@ -149,12 +149,21 @@ export default function AiAnalyst() {
                 body: JSON.stringify({ tenantId: user.tenantId, query: q })
             });
 
+            // 1. Safe extraction of text response
+            const responseText = await response.text();
+            let data: any;
+            
+            try {
+                data = JSON.parse(responseText);
+            } catch (err) {
+                console.error("[SANI] JSON Parse Error. Response was:", responseText);
+                throw new Error("Server returned an invalid format. This usually indicates a backend crash or configuration issue (FIREBASE_PRIVATE_KEY).");
+            }
+
             if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || "API request failed");
+                throw new Error(data.message || data.error || `Request failed with status ${response.status}`);
             }
             
-            const data = await response.json();
             const analystMessage: Message = { role: "analyst", text: data.answer, timestamp: Date.now() };
             const finalMessages = [...updatedMessages, analystMessage];
             setMessages(finalMessages);

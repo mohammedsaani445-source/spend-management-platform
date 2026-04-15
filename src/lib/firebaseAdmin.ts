@@ -65,46 +65,64 @@ function getAdminApp() {
  */
 function createLazyProxy<T>(init: () => T): T {
     let instance: T | null = null;
+    let error: any = null;
+
     return new Proxy({} as any, {
         get(target, prop) {
-            // Lazy initialization on first access
-            if (!instance) instance = init();
+            // Internal health check to avoid triggering init
+            if (prop === '__isProxy') return true;
+            if (prop === '__error') return error;
+
+            try {
+                if (!instance) {
+                    if (error) throw error;
+                    instance = init();
+                }
+            } catch (e: any) {
+                error = e;
+                console.error(`[LazyProxy] Initialization failed for property "${String(prop)}":`, e.message);
+                throw e;
+            }
             
             const val = (instance as any)[prop];
-            // Handle method binding to preserve 'this' context
             if (typeof val === 'function') {
                 return val.bind(instance);
             }
             return val;
         },
-        // Support common object operations for full SDK compatibility
         getOwnPropertyDescriptor(target, prop) {
-            if (!instance) instance = init();
+            if (!instance) try { instance = init(); } catch (e) { return undefined; }
             return Object.getOwnPropertyDescriptor(instance, prop);
         },
         ownKeys() {
-            if (!instance) instance = init();
+            if (!instance) try { instance = init(); } catch (e) { return []; }
             return Reflect.ownKeys(instance as any);
         }
     }) as T;
 }
 
 // EXPORTED SERVICES
-// These behave exactly like the real Admin SDK objects but are initialized lazily.
 export const adminAuth = createLazyProxy(() => getAdminApp().auth());
 export const adminDb = createLazyProxy(() => getAdminApp().database());
 export const adminStorage = createLazyProxy(() => getAdminApp().storage());
 
 /**
- * adminBucket: A truly stable Reference
- * Lazily initialized to the project's primary storage bucket.
+ * Health check utility for API routes to safely check if Firebase is ready.
  */
+export const checkFirebaseAdminHealth = () => {
+    try {
+        getAdminApp();
+        return { healthy: true };
+    } catch (error: any) {
+        return { healthy: false, error: error.message };
+    }
+};
+
 export const adminBucket = createLazyProxy(() => {
     const bucketName = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
     return getAdminApp().storage().bucket(bucketName);
 });
 
-// Helper for raw access if needed
 export const getAdminBucket = () => adminBucket;
 
 

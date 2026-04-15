@@ -1,24 +1,53 @@
 import { NextRequest, NextResponse } from "next/server";
 import { querySpendAnalyst } from "@/lib/ai_analyst";
+import { checkFirebaseAdminHealth } from "@/lib/firebaseAdmin";
 
 /**
  * SERVER-SIDE AI PROXY
  * This route protects the GEMINI_API_KEY by keeping logic on the server.
  */
 export async function POST(req: NextRequest) {
+    // 1. Pre-flight check for Server Configuration
+    const health = checkFirebaseAdminHealth();
+    if (!health.healthy) {
+        console.error("[CRITICAL] Firebase Admin Configuration Error:", health.error);
+        return NextResponse.json(
+            { 
+                error: "SERVER_CONFIG_ERROR", 
+                message: "Cloud database connection failed. Please check your FIREBASE environment variables.",
+                details: health.error 
+            }, 
+            { status: 500 }
+        );
+    }
+
+    if (!process.env.GEMINI_API_KEY) {
+        return NextResponse.json(
+            { error: "AI_CONFIG_ERROR", message: "Gemini API key is missing on the server." },
+            { status: 500 }
+        );
+    }
+
     try {
-        const { tenantId, query } = await req.json();
+        const body = await req.json();
+        const { tenantId, query } = body;
 
         if (!tenantId || !query) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+            return NextResponse.json({ error: "Missing required fields (tenantId or query)" }, { status: 400 });
         }
 
         const answer = await querySpendAnalyst(tenantId, query);
         return NextResponse.json({ answer });
     } catch (error: any) {
         console.error("AI Proxy Error:", error);
+        
+        // Ensure we ALWAYS return JSON
         return NextResponse.json(
-            { error: error.message || "Failed to process AI request" },
+            { 
+                error: "REQUEST_FAILED", 
+                message: error.message || "Failed to process AI request",
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            },
             { status: 500 }
         );
     }

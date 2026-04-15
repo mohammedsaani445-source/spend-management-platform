@@ -4,7 +4,7 @@ import { adminDb } from "./firebaseAdmin";
 import { SpendAnalytics } from "@/types";
 
 /**
- * AI SPEND ANALYST (Ref: Procurify 2025 "Spend Analyst")
+ * AI SPEND ANALYST (Apex Procure 2025 "Spend Analyst")
  * Conversational AI that interprets spend data.
  */
 export const querySpendAnalyst = async (tenantId: string, query: string) => {

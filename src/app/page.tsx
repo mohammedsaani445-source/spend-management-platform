@@ -12,7 +12,7 @@ import {
 import { Logo } from "@/components/common/Logo";
 import { useIntersection } from "@/hooks/useIntersection";
 import ProductTour from "@/components/common/ProductTour";
-import styles from "./Procurify.module.css";
+import styles from "./LandingPage.module.css";
 
 // ─── Tab Data ───
 const PRODUCT_TABS = [
@@ -22,7 +22,7 @@ const PRODUCT_TABS = [
     title: "Simplify intake-to-receive",
     description:
       "Control purchasing with ease — from AI-powered request intake and approval routing to purchase orders and receiving logs — giving you the visibility to cut rogue spend and make better buying decisions.",
-    image: "/feature-purchasing-pro.png",
+    image: "/feature-purchasing-apex-v2.png",
     link: "/features/procurement",
     linkText: "Explore Purchasing",
   },
@@ -32,7 +32,7 @@ const PRODUCT_TABS = [
     title: "Streamline invoice-to-pay",
     description:
       "Move faster and reduce errors by automating your AP workflow, from AI-powered invoice capture to automated three-way matching and seamless payments — freeing up time for strategic tasks.",
-    image: "/feature-analytics-pro.png",
+    image: "/feature-ap-apex-v2.png",
     link: "/features/ap-automation",
     linkText: "Explore AP Automation",
   },
@@ -42,7 +42,7 @@ const PRODUCT_TABS = [
     title: "Smarter expense & card management",
     description:
       "Gain complete visibility and control over employee spending with AI-powered expense reports and configurable corporate spending cards — all in one unified platform.",
-    image: "/feature-assets-pro.png",
+    image: "/feature-expense-apex-v2.png",
     link: "/features/expense-management",
     linkText: "Explore Expense Management",
   },
@@ -183,7 +183,7 @@ export default function LandingPage() {
           }}
         >
           <Image
-            src="/hero-dashboard-pro.png"
+            src="/hero-dashboard-apex-v2.png"
             alt="Apex Procure — Enterprise Procurement Dashboard"
             width={1200}
             height={700}
@@ -408,7 +408,7 @@ export default function LandingPage() {
             }}
           >
             <Image
-              src="/p2p_ultra_hd_v2_1773601464478.png"
+              src="/feature-ap-apex-v2.png"
               alt="Procure-to-Pay Dashboard"
               width={700}
               height={500}
@@ -470,7 +470,7 @@ export default function LandingPage() {
             }}
           >
             <Image
-              src="/ai_ultra_hd_v2_1773601484996.png"
+              src="/ai-analyst-apex-v2.png"
               alt="AI Financial Analyst Dashboard"
               width={700}
               height={500}
@@ -566,7 +566,7 @@ export default function LandingPage() {
             }}
           >
             <Image
-              src="/mobile-mockup.png"
+              src="/mobile-mockup-apex.png"
               alt="Mobile Procurement App"
               width={300}
               height={600}
@@ -590,7 +590,7 @@ export default function LandingPage() {
             Get started with proactive procurement
           </h2>
           <p className={styles.ctaSubtitle}>
-            Book a personalized demo to see how Apex Procure&apos;s AI-powered
+            Book a demo to see how Apex Procure's AI-powered
             platform streamlines the intake-to-pay process.
           </p>
           <div className={styles.ctaBtns}>

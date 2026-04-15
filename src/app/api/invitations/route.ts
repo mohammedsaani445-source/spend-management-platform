@@ -1,13 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { adminAuth, adminDb } from "@/lib/firebaseAdmin";
+import { adminAuth, adminDb, checkFirebaseAdminHealth } from "@/lib/firebaseAdmin";
 import { Resend } from "resend";
 
 const DB_PREFIX = "v2_production";
 const resend = new Resend(process.env.RESEND_API_KEY || "fallback_key");
 
 export async function POST(req: NextRequest) {
-    if (!adminAuth || !adminDb) {
-        return NextResponse.json({ error: "Firebase Admin not initialized" }, { status: 500 });
+    // 1. Pre-flight check for Server Configuration
+    const health = checkFirebaseAdminHealth();
+    if (!health.healthy) {
+        return NextResponse.json(
+            { error: "SERVER_CONFIG_ERROR", message: "Firebase Admin is not configured correctly on the server.", details: health.error }, 
+            { status: 500 }
+        );
     }
 
     try {
@@ -54,7 +59,6 @@ export async function POST(req: NextRequest) {
             userRecord = await adminAuth.getUserByEmail(email);
         } catch (error: any) {
             if (error.code === 'auth/user-not-found') {
-                // Generate a temporary random password
                 const tempPassword = Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10);
                 userRecord = await adminAuth.createUser({
                     email,
@@ -85,24 +89,18 @@ export async function POST(req: NextRequest) {
             tenantId: tenantId
         });
 
-        // 4. Send Invitation Email (Magic Link / Password Reset)
+        // 4. Send Invitation Email
         const actionCodeSettings = {
-            // URL you want to redirect back to. The domain (www.example.com) for this
-            // URL must be in the authorized domains list in the Firebase Console.
-            url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login`,
+            url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://apexprocure.vercel.app'}/login`,
             handleCodeInApp: true,
         };
 
         let resetLink;
         try {
-            console.log("[DEBUG] generating password reset link for", email);
-            console.log("[DEBUG] FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
-            console.log("[DEBUG] FIREBASE_CLIENT_EMAIL exists?", !!process.env.FIREBASE_CLIENT_EMAIL);
-            console.log("[DEBUG] FIREBASE_PRIVATE_KEY exists?", !!process.env.FIREBASE_PRIVATE_KEY);
             resetLink = await adminAuth.generatePasswordResetLink(email, actionCodeSettings);
         } catch (err: any) {
             console.warn("[Dev Mode] Admin SDK could not generate reset link. Using Auth Mock URL.", err.message);
-            resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login?mock_invite=true`;
+            resetLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://apexprocure.vercel.app'}/login?mock_invite=true`;
         }
 
         // Try to send the email via Resend if configured
@@ -129,13 +127,9 @@ export async function POST(req: NextRequest) {
                     `
                 });
                 emailSent = true;
-                console.log(`[SUCCESS] Invitation email sent to ${email}`);
             } catch (emailError) {
                 console.error("[ERROR] Failed to send email via Resend:", emailError);
             }
-        } else {
-            console.log(`[DEV MODE] Resend API key missing or invalid. Invitation generated but NOT sent via email.`);
-            console.log(`[DEV LINK] ${resetLink}`);
         }
 
         return NextResponse.json({
@@ -148,6 +142,13 @@ export async function POST(req: NextRequest) {
 
     } catch (error: any) {
         console.error("Error inviting user:", error);
-        return NextResponse.json({ error: error.message || "Internal server error" }, { status: 500 });
+        return NextResponse.json(
+            { 
+                error: "INVITATION_FAILED", 
+                message: error.message || "Internal server error",
+                details: error.code || undefined 
+            }, 
+            { status: 500 }
+        );
     }
 }
