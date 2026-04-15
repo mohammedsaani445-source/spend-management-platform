@@ -13,27 +13,29 @@ function getAdminApp() {
         return adminApp;
     }
     
-    const projectId = process.env.FIREBASE_PROJECT_ID;
-    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-    let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-    const bucketName = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
+    const rawProjectId = process.env.FIREBASE_PROJECT_ID;
+    const rawClientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+    const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
+    const bucketName = (process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app").replace(/^["']|["']$/g, '').trim();
 
-    if (!projectId || !clientEmail || !privateKey) {
+    if (!rawProjectId || !rawClientEmail || !rawPrivateKey) {
         throw new Error("Firebase configuration environment variables are missing.");
     }
 
     try {
-        // Robust Private Key Sanitization
-        // Remove literal quotes (often added by environment managers), handle escaped newlines, and fix spacing
-        privateKey = privateKey
-            .replace(/^["']|["']$/g, '') // Remove leading/trailing quotes
-            .replace(/\\n/g, '\n')        // Unescape \n characters
-            .replace(/\r\n/g, '\n')       // Normalize Windows newlines
+        // HYPER-SANITIZATION: Strip quotes, trim whitespace, and normalize
+        const sanitize = (val: string) => val.replace(/^["']|["']$/g, '').trim();
+        
+        const projectId = sanitize(rawProjectId);
+        const clientEmail = sanitize(rawClientEmail);
+        let privateKey = rawPrivateKey
+            .replace(/^["']|["']$/g, '') // Remove quotes
+            .replace(/\\n/g, '\n')        // Fix escaped newlines
+            .replace(/\r\n/g, '\n')       // Normalize newlines
             .trim();
 
-        // Only wrap with headers if they are truly missing
+        // Ensure headers are present
         if (!privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
-            console.log("[FirebaseAdmin] Wrapping private key with headers...");
             privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----\n`;
         }
 
@@ -46,6 +48,7 @@ function getAdminApp() {
             storageBucket: bucketName
         });
         
+        console.log(`[FirebaseAdmin] Successfully initialized for project: ${projectId}`);
         return adminApp;
     } catch (error: any) {
         console.error("[FirebaseAdmin] Initialization CRASH:", error.message);
