@@ -28,6 +28,7 @@ function getAdminApp() {
         
         const projectId = sanitize(rawProjectId);
         const clientEmail = sanitize(rawClientEmail);
+        const databaseURL = (process.env.FIREBASE_DATABASE_URL || `https://${projectId}-default-rtdb.firebasedatabase.app`).replace(/^["']|["']$/g, '').trim();
         let privateKey = rawPrivateKey
             .replace(/^["']|["']$/g, '') // Remove quotes
             .replace(/\\n/g, '\n')        // Fix escaped newlines
@@ -45,7 +46,8 @@ function getAdminApp() {
                 clientEmail,
                 privateKey,
             }),
-            storageBucket: bucketName
+            storageBucket: bucketName,
+            databaseURL: databaseURL
         });
         
         console.log(`[FirebaseAdmin] Successfully initialized for project: ${projectId}`);
