@@ -1,13 +1,8 @@
+process.env.GCS_HTTP2_DISABLE = 'true';
 import * as admin from 'firebase-admin';
 
-/**
- * FIREBASE ADMIN SDK (SERVER-SIDE ONLY)
- * Optimized for robustness to prevent hangs during initialization.
- */
-/**
- * FIREBASE ADMIN SDK (SERVER-SIDE ONLY)
- * Optimized for robustness to prevent hangs and "this context" errors in production.
- */
+// FORCE DISABLE HTTP/2 for GCS (Fixes ERR_STREAM_DESTROYED on Vercel)
+
 let adminApp: admin.app.App | null = null;
 
 function getAdminApp() {
@@ -28,12 +23,8 @@ function getAdminApp() {
     }
 
     try {
-        // Sanitization
-        if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-            privateKey = privateKey.substring(1, privateKey.length - 1);
-        }
+        // Robust Private Key Sanitization
         privateKey = privateKey.replace(/\\n/g, '\n').replace(/\r\n/g, '\n').trim();
-        
         if (!privateKey.includes("-----BEGIN")) {
             privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----\n`;
         }
@@ -54,48 +45,14 @@ function getAdminApp() {
     }
 }
 
-/**
- * LAZY PROXY HELPER
- * Ensures services are initialized only when needed, 
- * handles "this" context binding, and maintains singleton identity.
- */
-function createLazyProxy<T>(init: () => T): T {
-    let instance: T | null = null;
-    return new Proxy({} as any, {
-        get(target, prop) {
-            if (!instance) instance = init();
-            const val = (instance as any)[prop];
-            // Handle method binding (crucial for SDKs that use 'this')
-            if (typeof val === 'function') {
-                return val.bind(instance);
-            }
-            return val;
-        },
-        // Handle inherited properties and common checks
-        getOwnPropertyDescriptor(target, prop) {
-            if (!instance) instance = init();
-            return Object.getOwnPropertyDescriptor(instance, prop);
-        },
-        ownKeys() {
-            if (!instance) instance = init();
-            return Reflect.ownKeys(instance as any);
-        }
-    }) as T;
-}
+// STABLE EXPORTED INSTANCES
+// These are standard, direct references initialized once.
+export const adminAuth = getAdminApp().auth();
+export const adminDb = getAdminApp().database();
+export const adminStorage = getAdminApp().storage();
 
-// EXPORTED SERVICES
-// These behave exactly like the real Admin SDK objects but are initialized lazily.
-export const adminDb = createLazyProxy(() => getAdminApp().database());
-export const adminAuth = createLazyProxy(() => getAdminApp().auth());
-export const adminStorage = createLazyProxy(() => getAdminApp().storage());
-
-/**
- * adminBucket: A truly stable Reference
- */
-export const adminBucket = createLazyProxy(() => {
-    const bucketName = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
-    return getAdminApp().storage().bucket(bucketName);
-});
+// Specific Bucket reference for ease of use
+export const adminBucket = adminStorage.bucket(process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app");
 
 // Helper for raw access if needed
 export const getAdminBucket = () => adminBucket;

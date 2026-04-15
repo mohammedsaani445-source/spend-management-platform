@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
         const testFile = bucket.file("diag_connection_test.txt");
         await testFile.save("Connection test at " + results.timestamp, {
             resumable: false,
+            validation: false,
             metadata: { contentType: "text/plain" }
         });
         
