@@ -54,53 +54,50 @@ function getAdminApp() {
     }
 }
 
-// SINGLETON INSTANCES
-let firestore: admin.firestore.Firestore | null = null;
-let auth: admin.auth.Auth | null = null;
-let storage: admin.storage.Storage | null = null;
-let rtdb: admin.database.Database | null = null;
+/**
+ * LAZY PROXY HELPER
+ * Ensures services are initialized only when needed, 
+ * handles "this" context binding, and maintains singleton identity.
+ */
+function createLazyProxy<T>(init: () => T): T {
+    let instance: T | null = null;
+    return new Proxy({} as any, {
+        get(target, prop) {
+            if (!instance) instance = init();
+            const val = (instance as any)[prop];
+            // Handle method binding (crucial for SDKs that use 'this')
+            if (typeof val === 'function') {
+                return val.bind(instance);
+            }
+            return val;
+        },
+        // Handle inherited properties and common checks
+        getOwnPropertyDescriptor(target, prop) {
+            if (!instance) instance = init();
+            return Object.getOwnPropertyDescriptor(instance, prop);
+        },
+        ownKeys() {
+            if (!instance) instance = init();
+            return Reflect.ownKeys(instance as any);
+        }
+    }) as T;
+}
 
-// EXPORTED GETTERS (Preserves backward compatibility with existing code)
-export const adminDb = {
-    get ref() {
-        const app = getAdminApp();
-        if (!rtdb) rtdb = app.database();
-        return rtdb.ref.bind(rtdb);
-    }
-} as any;
-
-export const adminAuth = {
-    getUser: (uid: string) => {
-        if (!auth) auth = getAdminApp().auth();
-        return auth.getUser(uid);
-    },
-    verifyIdToken: (token: string) => {
-        if (!auth) auth = getAdminApp().auth();
-        return auth.verifyIdToken(token);
-    }
-} as any;
-
-export const adminStorage = {
-    bucket: (name?: string) => {
-        if (!storage) storage = getAdminApp().storage();
-        return storage.bucket(name || process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app");
-    }
-} as any;
+// EXPORTED SERVICES
+// These behave exactly like the real Admin SDK objects but are initialized lazily.
+export const adminDb = createLazyProxy(() => getAdminApp().database());
+export const adminAuth = createLazyProxy(() => getAdminApp().auth());
+export const adminStorage = createLazyProxy(() => getAdminApp().storage());
 
 /**
  * adminBucket: A truly stable Reference
- * This is now the actual Bucket object, initialized lazily.
  */
-export const adminBucket = {
-    get name() { return adminStorage.bucket().name; },
-    file: (path: string) => adminStorage.bucket().file(path),
-    getMetadata: () => adminStorage.bucket().getMetadata(),
-};
+export const adminBucket = createLazyProxy(() => {
+    const bucketName = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
+    return getAdminApp().storage().bucket(bucketName);
+});
 
-// Also export a helper to get the raw bucket if needed
-export const getAdminBucket = () => {
-    if (!storage) storage = getAdminApp().storage();
-    return storage.bucket(process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app");
-};
+// Helper for raw access if needed
+export const getAdminBucket = () => adminBucket;
 
 
