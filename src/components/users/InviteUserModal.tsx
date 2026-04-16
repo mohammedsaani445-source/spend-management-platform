@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, UserPlus, Lock, Smartphone, Mail, ArrowRight, ChevronDown, Shield, Zap, QrCode } from 'lucide-react';
+import { X, Copy, Check, UserPlus, Lock, Smartphone, Mail, ArrowRight, ChevronDown, Shield, Zap, QrCode, Send, MessageSquare } from 'lucide-react';
 import { ROLE_CONFIGS } from '@/lib/roles_config';
 import { UserRole } from '@/types';
 import { toast } from 'sonner';
@@ -226,6 +226,22 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
     const shareViaWhatsApp = () => {
         const text = `Hi ${formData.name}, you've been invited to join the platform as a ${ROLE_CONFIGS[formData.role]?.label}.\n\nAccess Link: ${result?.magicLink}\nAccess Code: ${result?.code}\n\nNote: Link expires in ${formData.expiresInHours} hours.`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    const shareViaEmail = () => {
+        const subject = encodeURIComponent("Action Required: Your New Platform Invitation");
+        const body = encodeURIComponent(`Hi ${formData.name},\n\nYou've been invited to join the platform as a ${ROLE_CONFIGS[formData.role]?.label}.\n\nAccess Link: ${result?.magicLink}\nAccess Code: ${result?.code}\n\nNote: This link expires in ${formData.expiresInHours} hours.\n\nRegards,\nAdmin Team`);
+        window.open(`mailto:${formData.email}?subject=${subject}&body=${body}`, '_blank');
+    };
+
+    const shareViaTelegram = () => {
+        const text = `Hi ${formData.name}, you've been invited to join the platform as a ${ROLE_CONFIGS[formData.role]?.label}.\n\nAccess Link: ${result?.magicLink}\nAccess Code: ${result?.code}`;
+        window.open(`https://t.me/share/url?url=${encodeURIComponent(result?.magicLink || '')}&text=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    const shareViaSMS = () => {
+        const text = `Invite for ${formData.name}: ${result?.magicLink} Code: ${result?.code}`;
+        window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
     };
 
     if (!isOpen) return null;
@@ -484,18 +500,44 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({ isOpen, onClose, onIn
                                 </div>
                             </div>
                             
-                            <div style={{ display: 'flex', gap: '1rem' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                                 <button 
                                     onClick={shareViaWhatsApp}
-                                    style={{ flex: 1, height: '48px', borderRadius: '14px', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontWeight: 800, fontSize: '0.875rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    style={{ height: '44px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.2s' }}
                                     onMouseEnter={e => e.currentTarget.style.background = '#e7f9ee'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-2)'}
                                 >
-                                    <Smartphone size={18} style={{ color: '#25D366' }} /> WhatsApp
+                                    <Smartphone size={16} style={{ color: '#25D366' }} /> WhatsApp
                                 </button>
-                                <button onClick={onClose} style={{ flex: 1, height: '48px', borderRadius: '14px', border: 'none', background: 'var(--text-primary)', color: 'white', fontWeight: 900, fontSize: '0.875rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                                    Complete Flow <Check size={18} />
+                                <button 
+                                    onClick={shareViaTelegram}
+                                    style={{ height: '44px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = '#e3f2fd'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-2)'}
+                                >
+                                    <Send size={16} style={{ color: '#0088cc' }} /> Telegram
+                                </button>
+                                <button 
+                                    onClick={shareViaEmail}
+                                    style={{ height: '44px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = '#fdeded'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-2)'}
+                                >
+                                    <Mail size={16} style={{ color: '#ea4335' }} /> Email Direct
+                                </button>
+                                <button 
+                                    onClick={shareViaSMS}
+                                    style={{ height: '44px', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', cursor: 'pointer', transition: 'all 0.2s' }}
+                                    onMouseEnter={e => e.currentTarget.style.background = '#f5f5f5'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'var(--surface-2)'}
+                                >
+                                    <MessageSquare size={16} style={{ color: 'var(--text-secondary)' }} /> SMS Text
                                 </button>
                             </div>
+
+                            <button onClick={onClose} style={{ width: '100%', height: '52px', borderRadius: '16px', border: 'none', background: 'var(--text-primary)', color: 'white', fontWeight: 900, fontSize: '0.875rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: 'var(--shadow-lg)' }}>
+                                Complete Provisioning <Check size={20} />
+                            </button>
                         </div>
                     )}
                 </motion.div>
