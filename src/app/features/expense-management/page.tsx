@@ -42,7 +42,7 @@ const FEATURES = [
       "Custom approval workflows route expense reports to the right approvers by amount, department, or category",
     ],
     exploreUrl: "/features/expense-management/reimbursements",
-    image: "/expense-mobile.png",
+    image: "/apex-expense-mobile.png",
   },
   {
     id: "spending-cards",
@@ -56,7 +56,7 @@ const FEATURES = [
       "Configurable card controls allow you to set limits by merchant category, transaction amount, or time period",
     ],
     exploreUrl: "/features/expense-management/cards",
-    image: "/expense-cards.png",
+    image: "/apex-expense-cards.png",
   },
 ];
 
@@ -145,7 +145,7 @@ export default function ExpenseManagementPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/expense-hero.png"
+          src="/apex-expense-hero.png"
           alt="Apex Procure — Expense Management Dashboard"
           width={1200}
           height={700}

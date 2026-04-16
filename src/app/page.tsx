@@ -22,7 +22,7 @@ const PRODUCT_TABS = [
     title: "Simplify intake-to-receive",
     description:
       "Control purchasing with ease — from AI-powered request intake and approval routing to purchase orders and receiving logs — giving you the visibility to cut rogue spend and make better buying decisions.",
-    image: "/feature-purchasing-apex-v2.png",
+    image: "/apex-feature-purchasing.png",
     link: "/features/procurement",
     linkText: "Explore Purchasing",
   },
@@ -32,7 +32,7 @@ const PRODUCT_TABS = [
     title: "Streamline invoice-to-pay",
     description:
       "Move faster and reduce errors by automating your AP workflow, from AI-powered invoice capture to automated three-way matching and seamless payments — freeing up time for strategic tasks.",
-    image: "/feature-ap-apex-v2.png",
+    image: "/apex-feature-ap.png",
     link: "/features/ap-automation",
     linkText: "Explore AP Automation",
   },
@@ -42,7 +42,7 @@ const PRODUCT_TABS = [
     title: "Smarter expense & card management",
     description:
       "Gain complete visibility and control over employee spending with AI-powered expense reports and configurable corporate spending cards — all in one unified platform.",
-    image: "/feature-expense-apex-v2.png",
+    image: "/apex-feature-expense.png",
     link: "/features/expense-management",
     linkText: "Explore Expense Management",
   },
@@ -183,7 +183,7 @@ export default function LandingPage() {
           }}
         >
           <Image
-            src="/hero-dashboard-apex-v2.png"
+            src="/apex-hero-dashboard.png"
             alt="Apex Procure — Enterprise Procurement Dashboard"
             width={1200}
             height={700}
@@ -408,7 +408,7 @@ export default function LandingPage() {
             }}
           >
             <Image
-              src="/feature-ap-apex-v2.png"
+              src="/apex-feature-ap.png"
               alt="Procure-to-Pay Dashboard"
               width={700}
               height={500}
@@ -470,7 +470,7 @@ export default function LandingPage() {
             }}
           >
             <Image
-              src="/ai-analyst-apex-v2.png"
+              src="/apex-ai-analyst.png"
               alt="AI Financial Analyst Dashboard"
               width={700}
               height={500}

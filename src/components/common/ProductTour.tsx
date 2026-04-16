@@ -16,25 +16,25 @@ const TOUR_STEPS: TourStep[] = [
         tag: "Procure-to-Pay",
         title: "The Requisition Flow",
         description: "Experience the ease of requesting spend. From the first click to the final approval, every step is optimized for speed and clarity.",
-        image: "/apex_tour_p2p_cinematic_1773601842141.png"
+        image: "/apex-feature-purchasing.png"
     },
     {
         tag: "Autonomous AP",
         title: "3-Way Match Perfection",
         description: "Our AI OCR engine automatically matches Purchase Orders, Invoices, and Receipts, eliminating manual data entry and human error.",
-        image: "/apex_tour_matching_cinematic_1773601859432.png"
+        image: "/apex-ap-hero.png"
     },
     {
         tag: "Asset Intelligence",
         title: "Complete Fleet Control",
         description: "Track the health, location, and value of every enterprise asset in real-time with our high-fidelity registry.",
-        image: "/apex_tour_assets_cinematic_1773601874048.png"
+        image: "/apex-inventory-mgmt.png"
     },
     {
         tag: "AI Strategy",
         title: "Apex: Your Financial Brain",
         description: "Engage with Apex AI to uncover savings, flag risks, and get proactive budget insights through a native chat interface.",
-        image: "/apex_tour_ai_cinematic_1773601891009.png"
+        image: "/apex-ai-analyst.png"
     }
 ];
 

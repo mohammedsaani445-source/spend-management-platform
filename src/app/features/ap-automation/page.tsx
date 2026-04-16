@@ -41,7 +41,7 @@ const FEATURES = [
       "Streamline reconciliation with automated two-way and three-way matching",
     ],
     exploreUrl: "/features/ap-automation/invoice-processing",
-    image: "/ap-invoice-capture.png",
+    image: "/apex-ap-invoice-ocr.png",
   },
   {
     id: "bill-management",
@@ -53,7 +53,7 @@ const FEATURES = [
       "Integrate seamlessly with your accounting software or ERP to centralize spend data",
       "Comprehensive audit trail tracks every action for compliance and governance",
     ],
-    image: "/ap-bill-mgmt.png",
+    image: "/apex-ap-bill-mgmt.png",
   },
   {
     id: "payments",
@@ -66,7 +66,7 @@ const FEATURES = [
       "Create bills for items not yet received to make deposit payments to vendors",
     ],
     exploreUrl: "/features/ap-automation/payments",
-    image: "/ap-payments.png",
+    image: "/apex-ap-payments.png",
   },
 ];
 
@@ -159,7 +159,7 @@ export default function APAutomationPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/ap-hero.png"
+          src="/apex-ap-hero.png"
           alt="Apex Procure — AP Automation Dashboard"
           width={1200}
           height={700}
