@@ -157,7 +157,9 @@ export default function AiAnalyst() {
                 data = JSON.parse(responseText);
             } catch (err) {
                 console.error("[SANI] JSON Parse Error. Response was:", responseText);
-                throw new Error("Server returned an invalid format. This usually indicates a backend crash or configuration issue (FIREBASE_PRIVATE_KEY).");
+                const isHtml = responseText.includes("<!DOCTYPE html>") || responseText.includes("<html");
+                const preview = responseText.slice(0, 500);
+                throw new Error(`Server returned an invalid format (${isHtml ? 'HTML' : 'Text'}). ${isHtml ? 'This usually indicates a server-side crash (500 Error).' : 'Raw response starts with: ' + preview}`);
             }
 
             if (!response.ok) {

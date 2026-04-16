@@ -3,44 +3,43 @@ import * as admin from 'firebase-admin';
 
 // FORCE DISABLE HTTP/2 for GCS (Fixes ERR_STREAM_DESTROYED on Vercel)
 
-let adminApp: admin.app.App | null = null;
+const ADMIN_APP_NAME = 'apex-procure-admin';
 
 function getAdminApp() {
-    if (adminApp) return adminApp;
-    
-    if (admin.apps.length > 0) {
-        adminApp = admin.app();
-        return adminApp;
-    }
-    
+    // 1. Check if our named app already exists
+    const existingApp = admin.apps.find(app => app?.name === ADMIN_APP_NAME);
+    if (existingApp) return existingApp;
+
     const rawProjectId = process.env.FIREBASE_PROJECT_ID;
     const rawClientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
-    const bucketName = (process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app").replace(/^["']|["']$/g, '').trim();
+    
+    // THE URL WE VERIFIED AS WORKING
+    const databaseURL = "https://spend-management-platform-default-rtdb.firebaseio.com";
+    const bucketName = "spend-management-platform.firebasestorage.app";
 
     if (!rawProjectId || !rawClientEmail || !rawPrivateKey) {
-        throw new Error("Firebase configuration environment variables are missing.");
+        throw new Error("Firebase configuration environment variables are missing (PID/Email/Key).");
     }
 
     try {
-        // HYPER-SANITIZATION: Strip quotes, trim whitespace, and normalize
         const sanitize = (val: string) => val.replace(/^["']|["']$/g, '').trim();
-        
         const projectId = sanitize(rawProjectId);
         const clientEmail = sanitize(rawClientEmail);
-        const databaseURL = (process.env.FIREBASE_DATABASE_URL || `https://${projectId}-default-rtdb.firebasedatabase.app`).replace(/^["']|["']$/g, '').trim();
+        
         let privateKey = rawPrivateKey
-            .replace(/^["']|["']$/g, '') // Remove quotes
-            .replace(/\\n/g, '\n')        // Fix escaped newlines
-            .replace(/\r\n/g, '\n')       // Normalize newlines
+            .replace(/^["']|["']$/g, '') 
+            .replace(/\\n/g, '\n')        
+            .replace(/\r\n/g, '\n')       
             .trim();
 
-        // Ensure headers are present
         if (!privateKey.includes("-----BEGIN PRIVATE KEY-----")) {
             privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}\n-----END PRIVATE KEY-----\n`;
         }
 
-        adminApp = admin.initializeApp({
+        console.log(`[FirebaseAdmin] Initializing "${ADMIN_APP_NAME}" with URL: ${databaseURL}`);
+
+        return admin.initializeApp({
             credential: admin.credential.cert({
                 projectId,
                 clientEmail,
@@ -48,10 +47,8 @@ function getAdminApp() {
             }),
             storageBucket: bucketName,
             databaseURL: databaseURL
-        });
+        }, ADMIN_APP_NAME);
         
-        console.log(`[FirebaseAdmin] Successfully initialized for project: ${projectId}`);
-        return adminApp;
     } catch (error: any) {
         console.error("[FirebaseAdmin] Initialization CRASH:", error.message);
         throw error;
@@ -109,12 +106,35 @@ export const adminStorage = createLazyProxy(() => getAdminApp().storage());
 /**
  * Health check utility for API routes to safely check if Firebase is ready.
  */
-export const checkFirebaseAdminHealth = () => {
+export const checkFirebaseAdminHealth = async () => {
     try {
-        getAdminApp();
-        return { healthy: true };
-    } catch (error: any) {
-        return { healthy: false, error: error.message };
+        console.log("[FirebaseAdmin] Running health check...");
+        const app = getAdminApp();
+        
+        // Use a timeout for the connection check so we don't hang the API
+        const connectionCheck = new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error("Firebase Database connection timeout (10s)")), 10000);
+            app.database().ref(".info/connected").once("value")
+                .then(snap => {
+                    clearTimeout(timeout);
+                    console.log("[FirebaseAdmin] Connection check result:", snap.val());
+                    resolve(snap.val());
+                })
+                .catch(err => {
+                    clearTimeout(timeout);
+                    reject(err);
+                });
+        });
+
+        await connectionCheck;
+        return { ok: true };
+    } catch (e: any) {
+        console.error("[FirebaseAdmin] Health check error:", e.message);
+        return { 
+            ok: false, 
+            error: e.message,
+            stack: e.stack
+        };
     }
 };
 

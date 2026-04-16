@@ -7,8 +7,8 @@ const resend = new Resend(process.env.RESEND_API_KEY || "fallback_key");
 
 export async function POST(req: NextRequest) {
     // 1. Pre-flight check for Server Configuration
-    const health = checkFirebaseAdminHealth();
-    if (!health.healthy) {
+    const health = await checkFirebaseAdminHealth();
+    if (!health.ok) {
         return NextResponse.json(
             { error: "SERVER_CONFIG_ERROR", message: "Firebase Admin is not configured correctly on the server.", details: health.error }, 
             { status: 500 }
