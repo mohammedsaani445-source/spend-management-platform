@@ -41,7 +41,7 @@ const FEATURES = [
       "Supports parallel approvals (multiple people must approve at once)",
       "Conditional logic branches for complex routing needs",
     ],
-    image: "/approvals-feature.png",
+    image: "/apex-approval-flows.png",
   },
   {
     id: "budget-impact",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Drill down into budget utilization by category or project",
       "Identify potential savings before the commitment is made",
     ],
-    image: "/approvals-feature.png",
+    image: "/apex-budget-tracking.png",
   },
   {
     id: "omnichannel-notifications",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Slack and Microsoft Teams integrations",
       "Automated escalation reminders for delayed approvals",
     ],
-    image: "/approvals-feature.png",
+    image: "/apex-approvals.png",
   },
   {
     id: "mobile-approvals",
@@ -80,7 +80,7 @@ const FEATURES = [
       "Leave comments and request more information effortlessly",
       "Secure biometric authentication for critical approvals",
     ],
-    image: "/approvals-feature.png",
+    image: "/apex-receiving-mobile.png",
   },
   {
     id: "delegated-approvals",
@@ -93,7 +93,7 @@ const FEATURES = [
       "Full audit trail of who approved on behalf of whom",
       "Easy one-click reactivation when you return",
     ],
-    image: "/approvals-feature.png",
+    image: "/apex-approvals.png",
   },
   {
     id: "audit-trails",
@@ -106,7 +106,7 @@ const FEATURES = [
       "Timestamped logs for SOX and external audit compliance",
       "Secure, tamper-proof record keeping in a centralized hub",
     ],
-    image: "/approvals-workflow.png",
+    image: "/apex-contract-tracking.png",
   },
 ];
 
@@ -195,7 +195,7 @@ export default function ApprovalsPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/approvals-feature.png"
+          src="/apex-approvals.png"
           alt="Apex Procure — Approval Workflow Interface"
           width={1200}
           height={700}

@@ -41,7 +41,7 @@ const FEATURES = [
       "Maintain a centralized history of all interactions and transactions",
       "Global search filters make finding preferred vendors effortless",
     ],
-    image: "/procurement-hero-v2.png",
+    image: "/apex-vendor-portal.png",
   },
   {
     id: "vendor-portal",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Real-time visibility into payment status and invoice history",
       "Streamlined communication channel for PO clarifications",
     ],
-    image: "/procurement-hero-v2.png",
+    image: "/apex-vendor-portal.png",
   },
   {
     id: "risk-mitigation",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Standardized risk assessment workflows for onboarding",
       "Flag vendors with recurring performance or quality issues",
     ],
-    image: "/procurement-hero-v2.png",
+    image: "/apex-vendor-portal.png",
   },
 ];
 
@@ -152,7 +152,7 @@ export default function VendorManagementPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/procurement-hero-v2.png" 
+          src="/apex-vendor-portal.png" 
           alt="Apex Procure — Vendor Management Dashboard"
           width={1200}
           height={700}

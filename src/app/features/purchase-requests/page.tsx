@@ -41,7 +41,7 @@ const FEATURES = [
       "Approvers can review and sign off with one tap",
       "Offline mode ensures you can draft requests even without signal",
     ],
-    image: "/purchase-requests-feature.png",
+    image: "/apex-purchase-requests.png",
   },
   {
     id: "notifications",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Notifications for budget breaches or policy violations",
       "Track the full lifecycle from draft to 'Received' status",
     ],
-    image: "/purchase-requests-feature.png",
+    image: "/apex-receiving-mobile.png",
   },
   {
     id: "collaboration",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Audit trail captures all context for later review",
       "Internal-only notes for sensitive budget discussions",
     ],
-    image: "/purchase-requests-feature.png",
+    image: "/apex-ai-analyst.png",
   },
   {
     id: "integrations",
@@ -106,7 +106,7 @@ const FEATURES = [
       "Reduce rogue spend by guiding users to approved items",
       "One-click reordering for business essentials",
     ],
-    image: "/purchase-requests-feature.png",
+    image: "/apex-purchase-orders.png",
   },
 ];
 
@@ -195,7 +195,7 @@ export default function PurchaseRequestsPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/purchase-requests-feature.png"
+          src="/apex-purchase-requests.png"
           alt="Apex Procure — Purchase Requisition Interface"
           width={1200}
           height={700}

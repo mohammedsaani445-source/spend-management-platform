@@ -41,7 +41,7 @@ const FEATURES = [
       "Flags duplicate receipts to prevent overpayment",
       "Supports multi-currency receipts with real-time conversion",
     ],
-    image: "/expense-mobile.png",
+    image: "/apex-expense-mobile.png",
   },
   {
     id: "approval-flows",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Real-time notifications for pending approvals",
       "Mobile approval for managers on the move",
     ],
-    image: "/expense-hero.png",
+    image: "/apex-expense-hero.png",
   },
   {
     id: "policy-compliance",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Require justifications for out-of-policy spend",
       "Configure mandatory fields and receipt requirements",
     ],
-    image: "/expense-cards.png",
+    image: "/apex-expense-cards.png",
   },
 ];
 
@@ -148,7 +148,7 @@ export default function ReimbursementsPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/expense-mobile.png"
+          src="/apex-expense-mobile.png"
           alt="Apex Procure — Mobile Expense Reimbursement"
           width={1200}
           height={700}

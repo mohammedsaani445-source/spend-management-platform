@@ -40,7 +40,7 @@ const FEATURES = [
       "Continuous machine learning improves extraction accuracy over time",
       "Flag potential duplicates and missing information automatically",
     ],
-    image: "/ap-invoice-capture.png",
+    image: "/apex-ap-invoice-ocr.png",
   },
   {
     id: "3-way-matching",
@@ -53,7 +53,7 @@ const FEATURES = [
       "Automatically flag variances for manual review",
       "Reduce the risk of fraud and overpayment by up to 95%",
     ],
-    image: "/ap-bill-mgmt.png",
+    image: "/apex-ap-bill-mgmt.png",
   },
   {
     id: "audit-trail",
@@ -66,7 +66,7 @@ const FEATURES = [
       "Export audit reports for painless end-of-year tax compliance",
       "Role-based access ensures only authorized users see sensitive data",
     ],
-    image: "/ap-bill-mgmt.png",
+    image: "/apex-ap-bill-mgmt.png",
   },
 ];
 
@@ -147,7 +147,7 @@ export default function InvoiceProcessingPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/ap-invoice-capture.png"
+          src="/apex-ap-invoice-ocr.png"
           alt="Apex Procure — AI Invoice Capture Interface"
           width={1200}
           height={700}

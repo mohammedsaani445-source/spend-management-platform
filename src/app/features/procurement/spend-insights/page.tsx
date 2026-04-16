@@ -41,7 +41,7 @@ const FEATURES = [
       "Easy-to-use filters allow for ad-hoc analysis and discovery",
       "Compare spending data across multiple time periods and subsidiaries",
     ],
-    image: "/feature-analytics.png",
+    image: "/apex-spend-analytics.png",
   },
   {
     id: "savings-id",
@@ -152,7 +152,7 @@ export default function SpendInsightsPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/feature-analytics.png" 
+          src="/apex-spend-analytics.png" 
           alt="Apex Procure — Spend Insights & Analytics Dashboard"
           width={1200}
           height={700}

@@ -40,7 +40,7 @@ const FEATURES = [
       "Hold or dispute payments directly from the dashboard",
       "Automatic vendor notification upon successful payment",
     ],
-    image: "/ap-payments.png",
+    image: "/apex-ap-payments.png",
   },
   {
     id: "security-compliance",
@@ -53,7 +53,7 @@ const FEATURES = [
       "Automated OFAC and AML screening for international payments",
       "Detailed audit trails for every disbursement of funds",
     ],
-    image: "/ap-bill-mgmt.png",
+    image: "/apex-ap-bill-mgmt.png",
   },
   {
     id: "erp-sync",
@@ -66,7 +66,7 @@ const FEATURES = [
       "Drill down from payment records to original invoices and POs",
       "Painless reconciliation with automated GL entry creation",
     ],
-    image: "/ap-bill-mgmt.png",
+    image: "/apex-ap-bill-mgmt.png",
   },
 ];
 
@@ -147,7 +147,7 @@ export default function PaymentsPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/ap-payments.png"
+          src="/apex-ap-payments.png"
           alt="Apex Procure — Vendor Payments Interface"
           width={1200}
           height={700}

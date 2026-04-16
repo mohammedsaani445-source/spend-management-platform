@@ -41,7 +41,7 @@ const FEATURES = [
       "Set auto-replenishing budgets for recurring expenses",
       "Track card delivery and activation through a single dashboard",
     ],
-    image: "/expense-cards.png",
+    image: "/apex-expense-cards.png",
   },
   {
     id: "auto-matching",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Automatic matching of receipts to card transactions",
       "Instant coding to your GL and ERP categories",
     ],
-    image: "/expense-mobile.png",
+    image: "/apex-expense-mobile.png",
   },
   {
     id: "visibility",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Detect duplicate subscriptions and redundant spend",
       "Export clean, reconciled data to your accounting system",
     ],
-    image: "/expense-hero.png",
+    image: "/apex-expense-hero.png",
   },
 ];
 
@@ -148,7 +148,7 @@ export default function CardsPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/expense-cards.png"
+          src="/apex-expense-cards.png"
           alt="Apex Procure — Corporate Card Management"
           width={1200}
           height={700}
