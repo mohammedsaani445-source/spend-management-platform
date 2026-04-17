@@ -41,7 +41,7 @@ const FEATURES = [
       "Automated variance analysis flags significant over or under-spending",
       "Visualize spending trends over time to identify seasonal patterns",
     ],
-    image: "/apex-insights-analytics.png",
+    image: "/apex-budget-mgmt-v4-charts.png",
   },
   {
     id: "spend-controls",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Configurable approval overrides for critical or emergency spending",
       "Guide users toward preferred vendors to maximize budget impact",
     ],
-    image: "/apex-budget-mgmt.png",
+    image: "/apex-approvals-v4-workflow.png",
   },
   {
     id: "forecasting",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Consolidate budgets from multiple locations or subsidiaries",
       "Export reports in multiple formats for external analysis",
     ],
-    image: "/apex-ai-analyst.png",
+    image: "/apex-insights-v4-analytics.png",
   },
 ];
 
@@ -152,7 +152,7 @@ export default function BudgetManagementPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/apex-budget-tracking.png" 
+          src="/apex-budget-mgmt-v4-charts.png" 
           alt="Apex Procure — Budget Management Dashboard"
           width={1200}
           height={700}

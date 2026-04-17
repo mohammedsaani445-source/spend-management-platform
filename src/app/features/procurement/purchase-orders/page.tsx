@@ -41,7 +41,7 @@ const FEATURES = [
       "Customizable PO templates to match your brand and requirements",
       "Dynamic approval logic for PO modifications",
     ],
-    image: "/apex-approval-flows.png",
+    image: "/apex-approvals-v4-workflow.png",
   },
   {
     id: "vendor-integration",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Automatic reminders for unacknowledged POs",
       "Centralized history of all PO versions and revisions",
     ],
-    image: "/apex-vendor-portal.png",
+    image: "/apex-vendors-v4-portal.png",
   },
   {
     id: "mobile-po",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Instant push notifications for critical PO updates",
       "Access vendor contact info and history anywhere",
     ],
-    image: "/apex-receiving-mobile.png",
+    image: "/apex-receiving-v4-mobile-v2.png",
   },
 ];
 
@@ -152,7 +152,7 @@ export default function PurchaseOrdersPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/apex-purchase-orders.png"
+          src="/apex-purchase-orders-v4-detail.png"
           alt="Apex Procure — Purchase Order Management Dashboard"
           width={1200}
           height={700}

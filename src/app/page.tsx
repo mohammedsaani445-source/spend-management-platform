@@ -395,7 +395,7 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <Link href="/login" className={styles.featureLink}>
+            <Link href="/features/ap-automation" className={styles.featureLink}>
               Explore P2P Flow <ChevronRight size={16} />
             </Link>
           </div>
@@ -457,7 +457,7 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-            <Link href="/login" className={styles.featureLink}>
+            <Link href="/features/procurement/spend-insights" className={styles.featureLink}>
               Explore Apex AI <ChevronRight size={16} />
             </Link>
           </div>
@@ -550,7 +550,7 @@ export default function LandingPage() {
               ))}
             </div>
             <Link
-              href="/login"
+              href="/features/procurement/receiving-inventory"
               className={styles.btnPrimary}
               style={{ marginTop: "2.5rem" }}
             >
@@ -627,7 +627,7 @@ export default function LandingPage() {
           <div>
             <h4 className={styles.footerColumnTitle}>Platform</h4>
             <Link href="/login" className={styles.footerLink}>Product Overview</Link>
-            <Link href="/login" className={styles.footerLink}>Apex AI</Link>
+            <Link href="/features/procurement/spend-insights" className={styles.footerLink}>Apex AI</Link>
             <Link href="/features/purchase-requests" className={styles.footerLink}>Purchase Requests</Link>
             <Link href="/features/approvals" className={styles.footerLink}>Approvals</Link>
             <Link href="/login" className={styles.footerLink}>Pricing</Link>

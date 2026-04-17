@@ -41,7 +41,7 @@ const FEATURES = [
       "Supports parallel approvals (multiple people must approve at once)",
       "Conditional logic branches for complex routing needs",
     ],
-    image: "/apex-approval-flows.png",
+    image: "/apex-approvals-v4-workflow.png",
   },
   {
     id: "budget-impact",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Drill down into budget utilization by category or project",
       "Identify potential savings before the commitment is made",
     ],
-    image: "/apex-budget-tracking.png",
+    image: "/apex-budget-mgmt-v4-charts.png",
   },
   {
     id: "omnichannel-notifications",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Slack and Microsoft Teams integrations",
       "Automated escalation reminders for delayed approvals",
     ],
-    image: "/apex-approvals.png",
+    image: "/apex-approvals-v4-workflow.png",
   },
   {
     id: "mobile-approvals",
@@ -80,7 +80,7 @@ const FEATURES = [
       "Leave comments and request more information effortlessly",
       "Secure biometric authentication for critical approvals",
     ],
-    image: "/apex-receiving-mobile.png",
+    image: "/apex-receiving-v4-mobile-v2.png",
   },
   {
     id: "delegated-approvals",
@@ -93,7 +93,7 @@ const FEATURES = [
       "Full audit trail of who approved on behalf of whom",
       "Easy one-click reactivation when you return",
     ],
-    image: "/apex-approvals.png",
+    image: "/apex-approvals-v4-workflow.png",
   },
   {
     id: "audit-trails",
@@ -106,7 +106,7 @@ const FEATURES = [
       "Timestamped logs for SOX and external audit compliance",
       "Secure, tamper-proof record keeping in a centralized hub",
     ],
-    image: "/apex-contract-tracking.png",
+    image: "/apex-contracts-v4-tracking.png",
   },
 ];
 
@@ -195,7 +195,7 @@ export default function ApprovalsPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/apex-approvals.png"
+          src="/apex-approvals-v4-workflow.png"
           alt="Apex Procure — Approval Workflow Interface"
           width={1200}
           height={700}

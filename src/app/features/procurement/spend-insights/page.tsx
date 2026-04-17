@@ -41,7 +41,7 @@ const FEATURES = [
       "Easy-to-use filters allow for ad-hoc analysis and discovery",
       "Compare spending data across multiple time periods and subsidiaries",
     ],
-    image: "/apex-spend-analytics.png",
+    image: "/apex-spend-analytics-v4.png",
   },
   {
     id: "savings-id",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Track realized vs. projected savings for procurement initiatives",
       "Benchmarking tools compare your pricing against industry standards",
     ],
-    image: "/feature-analytics.png",
+    image: "/apex-ai-analyst-v4-interactive.png",
   },
   {
     id: "compliance-reporting",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Track diverse supplier spend and sustainability metrics",
       "Customizable report templates for board and executive presentations",
     ],
-    image: "/feature-analytics.png",
+    image: "/apex-compliance-v4.png",
   },
 ];
 
@@ -152,7 +152,7 @@ export default function SpendInsightsPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/apex-spend-analytics.png" 
+          src="/apex-insights-v4-analytics.png" 
           alt="Apex Procure — Spend Insights & Analytics Dashboard"
           width={1200}
           height={700}

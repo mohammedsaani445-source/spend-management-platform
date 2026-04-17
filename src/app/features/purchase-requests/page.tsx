@@ -41,7 +41,7 @@ const FEATURES = [
       "Approvers can review and sign off with one tap",
       "Offline mode ensures you can draft requests even without signal",
     ],
-    image: "/apex-purchase-requests.png",
+    image: "/apex-purchase-requests-v4-ai.png",
   },
   {
     id: "notifications",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Notifications for budget breaches or policy violations",
       "Track the full lifecycle from draft to 'Received' status",
     ],
-    image: "/apex-receiving-mobile.png",
+    image: "/apex-receiving-v4-mobile-v2.png",
   },
   {
     id: "collaboration",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Audit trail captures all context for later review",
       "Internal-only notes for sensitive budget discussions",
     ],
-    image: "/apex-ai-analyst.png",
+    image: "/apex-ai-analyst-v4-interactive.png",
   },
   {
     id: "integrations",
@@ -80,7 +80,7 @@ const FEATURES = [
       "Automatically pull item details into requests",
       "Reduce data entry errors by 95%",
     ],
-    image: "/purchase-requests-feature.png",
+    image: "/apex-vendors-v4-portal.png",
   },
   {
     id: "multi-currency",
@@ -93,7 +93,7 @@ const FEATURES = [
       "Report in your base currency for unified visibility",
       "Local tax compliance and handling",
     ],
-    image: "/purchase-requests-feature.png",
+    image: "/apex-purchase-orders-v4-detail.png",
   },
   {
     id: "catalog",
@@ -106,7 +106,7 @@ const FEATURES = [
       "Reduce rogue spend by guiding users to approved items",
       "One-click reordering for business essentials",
     ],
-    image: "/apex-purchase-orders.png",
+    image: "/apex-insights-v4-analytics.png",
   },
 ];
 
@@ -195,7 +195,7 @@ export default function PurchaseRequestsPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/apex-purchase-requests.png"
+          src="/apex-purchase-requests-v4-ai.png"
           alt="Apex Procure — Purchase Requisition Interface"
           width={1200}
           height={700}

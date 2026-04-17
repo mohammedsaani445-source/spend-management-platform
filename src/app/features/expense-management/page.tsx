@@ -145,7 +145,7 @@ export default function ExpenseManagementPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/apex-expense-hero.png"
+          src="/apex-expense-mgmt-v4-mobile-desktop.png"
           alt="Apex Procure — Expense Management Dashboard"
           width={1200}
           height={700}

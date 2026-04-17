@@ -41,7 +41,7 @@ const FEATURES = [
       "Automatic linking of receipts to purchase orders and invoices",
       "Mobile receiving allows staff to log items directly from the loading dock",
     ],
-    image: "/apex-receiving-mobile.png",
+    image: "/apex-receiving-v4-mobile-v2.png",
   },
   {
     id: "inventory-mgmt",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Comprehensive history of stock movements and consumption",
       "Easy-to-perform inventory counts and reconciliations",
     ],
-    image: "/apex-inventory-mgmt.png",
+    image: "/apex-inventory-v4-stock.png",
   },
   {
     id: "traceability",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Simplified returns management for damaged or incorrect items",
       "Customizable fields for asset tagging and specialized inventory",
     ],
-    image: "/apex-receiving.png",
+    image: "/apex-traceability-v4.png",
   },
 ];
 
@@ -152,7 +152,7 @@ export default function ReceivingInventoryPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/apex-receiving.png" 
+          src="/apex-receiving-mobile-v4.png" 
           alt="Apex Procure — Receiving & Inventory Tracking"
           width={1200}
           height={700}

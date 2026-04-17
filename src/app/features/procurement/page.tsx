@@ -42,7 +42,7 @@ const FEATURES = [
       "Auto-populate requests using AI-powered document parsing",
     ],
     exploreUrl: "/features/purchase-requests",
-    image: "/apex-purchase-requests.png",
+    image: "/apex-purchase-requests-v4-ai.png",
   },
   {
     id: "approvals",
@@ -56,7 +56,7 @@ const FEATURES = [
       "Delegate approvals for pending requests to different approvers for a set period of time",
     ],
     exploreUrl: "/features/approvals",
-    image: "/apex-approval-flows.png",
+    image: "/apex-approvals-v4-workflow.png",
   },
   {
     id: "purchase-orders",
@@ -70,7 +70,7 @@ const FEATURES = [
       "Access and view purchase orders on mobile from anywhere",
     ],
     exploreUrl: "/features/procurement/purchase-orders",
-    image: "/apex-purchase-orders.png",
+    image: "/apex-purchase-orders-v4-detail.png",
   },
   {
     id: "contract-management",
@@ -84,7 +84,7 @@ const FEATURES = [
       "Keep a historical record of changes in an audit log for compliance purposes",
     ],
     exploreUrl: "/features/procurement/contract-management",
-    image: "/apex-contract-tracking.png",
+    image: "/apex-contracts-v4-tracking.png",
   },
   {
     id: "vendor-management",
@@ -98,7 +98,7 @@ const FEATURES = [
       "Portal access lets vendors view POs, update invoices, and manage documentation",
     ],
     exploreUrl: "/features/procurement/vendor-management",
-    image: "/apex-vendor-portal.png",
+    image: "/apex-vendors-v4-portal.png",
   },
   {
     id: "receiving",
@@ -112,7 +112,7 @@ const FEATURES = [
       "Set low-stock alerts and reorder point notifications",
     ],
     exploreUrl: "/features/procurement/receiving-inventory",
-    image: "/apex-receiving-mobile.png",
+    image: "/apex-receiving-v4-mobile-v2.png",
   },
   {
     id: "budget-management",
@@ -126,7 +126,7 @@ const FEATURES = [
       "Roll forward unspent budget or reallocate across departments",
     ],
     exploreUrl: "/features/procurement/budget-management",
-    image: "/apex-budget-tracking.png",
+    image: "/apex-budget-mgmt-v4-charts.png",
   },
   {
     id: "spend-insights",
@@ -140,7 +140,7 @@ const FEATURES = [
       "Export reports in PDF, CSV, or schedule automated delivery",
     ],
     exploreUrl: "/features/procurement/spend-insights",
-    image: "/apex-insights-analytics.png",
+    image: "/apex-insights-v4-analytics.png",
   },
 ];
 
@@ -229,12 +229,13 @@ export default function ProcurementPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/apex-purchase-requests.png"
+          src="/apex-purchasing-module-v4.png"
           alt="Apex Procure — Procurement Dashboard"
           width={1200}
           height={700}
           style={{ width: "100%", height: "auto", display: "block" }}
           priority
+          unoptimized={true}
         />
       </div>
 

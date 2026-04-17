@@ -41,7 +41,7 @@ const FEATURES = [
       "Identify underperforming or underutilized vendor agreements",
       "Auto-flag invoices that exceed contract limits",
     ],
-    image: "/apex-contract-tracking.png", 
+    image: "/apex-contracts-v4-tracking.png", 
   },
   {
     id: "document-management",
@@ -54,7 +54,7 @@ const FEATURES = [
       "Secure access controls based on user roles and departments",
       "Easy search and discovery with smart tagging",
     ],
-    image: "/apex-contract-tracking.png",
+    image: "/apex-contracts-v4-tracking.png",
   },
   {
     id: "audit-history",
@@ -67,7 +67,7 @@ const FEATURES = [
       "Simplified compliance reporting with easy-to-export audit logs",
       "Historical record of previous vendor terms and pricing",
     ],
-    image: "/apex-contract-tracking.png",
+    image: "/apex-contracts-v4-tracking.png",
   },
 ];
 
@@ -152,7 +152,7 @@ export default function ContractManagementPage() {
       {/* HERO IMAGE */}
       <div className={styles.heroVisual}>
         <Image
-          src="/apex-contract-tracking.png" 
+          src="/apex-contracts-v4-tracking.png" 
           alt="Apex Procure — Contract Management Dashboard"
           width={1200}
           height={700}
