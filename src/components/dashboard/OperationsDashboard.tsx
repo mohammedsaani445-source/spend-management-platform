@@ -2,6 +2,7 @@
 
 import { AppUser } from "@/types";
 import SecurityBanner from "@/components/common/SecurityBanner";
+import AiAnalyst from "./AiAnalyst";
 
 interface OperationsDashboardProps {
     user: AppUser;
@@ -53,6 +54,9 @@ export default function OperationsDashboard({ user, stats }: OperationsDashboard
                     </div>
                 </div>
             </div>
+            
+            {/* AI Analyst Expansion */}
+            <AiAnalyst />
         </div>
     );
 }

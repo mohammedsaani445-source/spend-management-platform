@@ -146,7 +146,7 @@ export default function AiAnalyst() {
             const response = await fetch("/api/analyst", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ tenantId: user.tenantId, query: q })
+                body: JSON.stringify({ tenantId: user.tenantId, query: q, role: user.role, department: user.department })
             });
 
             // 1. Safe extraction of text response

@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import { AppUser, PurchaseOrder } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
 import SecurityBanner from "@/components/common/SecurityBanner";
+import AiAnalyst from "./AiAnalyst";
 
 interface ProcurementDashboardProps {
     user: AppUser;
@@ -89,6 +90,9 @@ export default function ProcurementDashboard({ user, stats, pos, currency }: Pro
                 </div>
 
             </div>
+
+            {/* AI Analyst Expansion */}
+            <AiAnalyst />
         </div>
     );
 }

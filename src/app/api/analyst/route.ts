@@ -26,13 +26,13 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { tenantId, query } = body;
+        const { tenantId, query, role, department } = body;
 
         if (!tenantId || !query) {
             return NextResponse.json({ error: "Missing required fields (tenantId or query)" }, { status: 400 });
         }
 
-        const answer = await querySpendAnalyst(tenantId, query);
+        const answer = await querySpendAnalyst(tenantId, query, role, department);
         return NextResponse.json({ answer });
     } catch (error: any) {
         console.error("[SANI ERROR] AI Proxy Fatal Error:", error);

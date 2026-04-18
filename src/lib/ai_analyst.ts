@@ -7,7 +7,7 @@ import { SpendAnalytics } from "@/types";
  * AI SPEND ANALYST (Apex Procure 2025 "Spend Analyst")
  * Conversational AI that interprets spend data.
  */
-export const querySpendAnalyst = async (tenantId: string, query: string) => {
+export const querySpendAnalyst = async (tenantId: string, query: string, role?: string, department?: string) => {
     try {
         const apiKey = process.env.GEMINI_API_KEY;
         if (!apiKey) throw new Error("Gemini API Key missing");
@@ -49,14 +49,33 @@ export const querySpendAnalyst = async (tenantId: string, query: string) => {
             auditRef.limitToLast(20).once('value') // Last 20 actions for immediate context
         ]);
 
+        let budgets = budgetsSnap.exists() ? Object.values(budgetsSnap.val() as any) : [];
+        let invoices = invSnap.exists() ? Object.values(invSnap.val() as any) : [];
+        let vendors = vendorsSnap.exists() ? Object.values(vendorsSnap.val() as any) : [];
+        let tenders = tendersSnap.exists() ? Object.values(tendersSnap.val() as any) : [];
+        let requisitions = reqSnap.exists() ? Object.values(reqSnap.val() as any) : [];
+        let purchaseOrders = poSnap.exists() ? Object.values(poSnap.val() as any) : [];
+        let bills = billsSnap.exists() ? Object.values(billsSnap.val() as any) : [];
+
+        // Scoping Data if user is a Department Head
+        if (role === 'dept_head' || role === 'AUTHORIZED_APPROVER') {
+            if (department) {
+                budgets = budgets.filter((b: any) => b.department === department);
+                invoices = invoices.filter((i: any) => i.department === department);
+                requisitions = requisitions.filter((r: any) => r.department === department);
+                purchaseOrders = purchaseOrders.filter((p: any) => p.department === department);
+                bills = bills.filter((b: any) => b.department === department);
+            }
+        }
+
         const context = {
-            budgets: budgetsSnap.exists() ? Object.values(budgetsSnap.val() as any) : [],
-            invoices: invSnap.exists() ? Object.values(invSnap.val() as any) : [],
-            vendors: vendorsSnap.exists() ? Object.values(vendorsSnap.val() as any) : [],
-            tenders: tendersSnap.exists() ? Object.values(tendersSnap.val() as any) : [],
-            requisitions: reqSnap.exists() ? Object.values(reqSnap.val() as any) : [],
-            purchaseOrders: poSnap.exists() ? Object.values(poSnap.val() as any) : [],
-            bills: billsSnap.exists() ? Object.values(billsSnap.val() as any) : [],
+            budgets,
+            invoices,
+            vendors,
+            tenders,
+            requisitions,
+            purchaseOrders,
+            bills,
             inventory: {
                 skus: skusSnap.exists() ? Object.values(skusSnap.val() as any) : [],
                 stockLevels: stockSnap.exists() ? Object.values(stockSnap.val() as any) : []
@@ -72,7 +91,7 @@ export const querySpendAnalyst = async (tenantId: string, query: string) => {
 
             ### CORE BEHAVIOR:
             1. **Conversational First**: Respond naturally to greetings, small talk, and general questions. Be friendly, expert, and professional.
-            2. **Platform Intelligence**: You have access to every module: Procurement, Payments (Bills/Invoices), Inventory, Bidding, and Budgets.
+            2. **Platform Intelligence**: You have access to modules including Procurement, Payments (Bills/Invoices), Inventory, Bidding, and Budgets based on user scope.
             3. **Low Stock Alerts**:
                - If asked about "low stock", "alerts", or "inventory status", analyze the data.
                - Compare stock levels in \`inventory.stockLevels\` against the \`minStockLevel\` defined in \`inventory.skus\`.
@@ -82,6 +101,12 @@ export const querySpendAnalyst = async (tenantId: string, query: string) => {
             6. **Flexible Formatting**: 
                - Use Markdown. Use tables for data lists. Use bold for key figures.
                - Keep responses concise but thorough.
+
+            ### ROLE-SPECIFIC GUIDELINES:
+            ${role === 'auditor' ? 'You are assisting an Auditor. Ensure your tone is strictly factual and read-only. Do not suggest actions, edits, or operational maneuvers. Stick exclusively to reporting data exactly as it appears in the logs.' : ''}
+            ${(role === 'dept_head' || role === 'AUTHORIZED_APPROVER') ? `You are assisting a Department Head for the ${department} department. Your data context has already been filtered to only include records for this department. Explicitly state that you are analyzing their department's data when appropriate. Do not attempt to summarize company-wide totals outside of their department context.` : ''}
+            ${(role === 'warehouse' || role === 'OPERATIONS_RECEIVER' || role === 'asset_mgr') ? 'You are assisting a Warehouse/Receiving officer. Focus heavily on inventory, assets, receiving status, PO deliveries, and low stock alerts. Avoid deep financial budgeting analysis unless directly related to inventory value.' : ''}
+            ${(role === 'proc_mgr' || role === 'PROCUREMENT_OFFICER' || role === 'STRATEGIC_SOURCER') ? 'You are assisting a Procurement Manager/Officer. Focus on vendor analysis, PO statuses, pending requisitions, and sourcing efficiencies.' : ''}
 
             ### ENVIRONMENT CONTEXT (JSON):
             ${JSON.stringify(context, null, 2)}

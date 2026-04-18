@@ -4,6 +4,7 @@ import { AppUser } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
 import Link from "next/link";
 import SecurityBanner from "@/components/common/SecurityBanner";
+import AiAnalyst from "./AiAnalyst";
 
 interface ApproverDashboardProps {
     user: AppUser;
@@ -74,6 +75,9 @@ export default function ApproverDashboard({ user, stats, currency }: ApproverDas
                     )}
                 </div>
             </div>
+            
+            {/* AI Analyst Expansion */}
+            <AiAnalyst />
         </div>
     );
 }
