@@ -18,7 +18,11 @@ export class SsoService {
 
             console.log(`[SSO] Successfully authenticated user ${result.user.email} via IdP ${providerId}`);
             return result.user;
-        } catch (error) {
+        } catch (error: any) {
+            if (error.code === "auth/popup-closed-by-user") {
+                console.warn("[SSO] User closed authentication popup.");
+                return null;
+            }
             console.error("[SSO] Authentication failed:", error);
             throw error;
         }

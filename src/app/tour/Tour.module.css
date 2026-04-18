@@ -1,0 +1,420 @@
+.container {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text-primary);
+  /* overflow-x: hidden can break position: sticky */
+  position: relative;
+}
+
+
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+
+
+.logoArea {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  transition: all 0.3s ease;
+}
+
+.backBtn:hover {
+  background: var(--brand);
+  color: #fff;
+  transform: translateX(-4px);
+}
+
+.hero {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 5%;
+}
+
+.heroEyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  border-radius: 100px;
+  font-weight: 700;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2rem;
+}
+
+.heroTitle {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  margin-bottom: 1.5rem;
+  max-width: 1000px;
+}
+
+.heroSubtitle {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  color: var(--text-secondary);
+  max-width: 700px;
+  line-height: 1.5;
+  font-weight: 450;
+  margin-bottom: 3rem;
+}
+
+.scrollIndicator {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.mouse {
+  width: 24px;
+  height: 40px;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  position: relative;
+}
+
+.mouseWheel {
+  width: 4px;
+  height: 8px;
+  background: var(--brand);
+  border-radius: 2px;
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: scrollWheel 2s infinite;
+}
+
+@keyframes scrollWheel {
+  0% { transform: translate(-50%, 0); opacity: 1; }
+  100% { transform: translate(-50%, 15px); opacity: 0; }
+}
+
+.section {
+  width: 100%;
+  padding: 0;
+  background: var(--pure-white);
+  position: relative;
+  /* Increased height to ensure last chapter visual stays sticky until fully viewed */
+  height: 1200vh;
+}
+
+
+
+.sectionInner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 100px;
+  padding: 0 5%;
+  /* Force the grid to be the same height as the section */
+  height: 100%;
+  position: relative;
+}
+
+.visualColumn,
+.narrativeColumn {
+  height: 100%;
+}
+
+.stickyVisual {
+  position: sticky;
+  top: 120px;
+  height: calc(100vh - 240px);
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: #f5f5f5;
+}
+
+.visualContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.textContent {
+  display: flex;
+  flex-direction: column;
+  gap: 120vh; /* Increased gap for better centering on long scrolls */
+  padding-bottom: 300vh;
+  padding-top: 50vh;
+}
+
+.chapter {
+  display: flex;
+  flex-direction: column;
+}
+
+.chapterTag {
+  color: var(--brand);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.8125rem;
+  margin-bottom: 1.5rem;
+}
+
+.chapterTitle {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.5rem;
+}
+
+.chapterDesc {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+
+.ctaSection {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  position: relative;
+  z-index: 100; /* Ensure it covers the sticky visual track */
+  padding: 100px 5%;
+}
+
+.ctaCard {
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  border-radius: 48px;
+  padding: 80px;
+  text-align: center;
+  box-shadow: 0 40px 100px -20px rgba(0,0,0,0.1);
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.ctaTitle {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  margin-bottom: 2rem;
+  line-height: 1.1;
+}
+
+.ctaSubtitle {
+  font-size: 1.5rem;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+
+.ctaButtons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+.btnPrimaryLarge {
+  height: 64px;
+  padding: 0 40px;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 20px 40px -10px rgba(232, 87, 42, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btnPrimaryLarge:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 50px -12px rgba(232, 87, 42, 0.5);
+}
+
+.btnSecondaryLarge {
+  height: 64px;
+  padding: 0 40px;
+  background: transparent;
+  color: var(--text-primary);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 1.125rem;
+  transition: all 0.3s ease;
+}
+
+.btnSecondaryLarge:hover {
+  background: #f5f5f5;
+  border-color: var(--text-primary);
+}
+
+.visualOverlay {
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.indicatorTrack {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 100px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: fit-content;
+  margin-bottom: 0.5rem;
+}
+
+.activeNumber {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #fff;
+}
+
+.totalNumber {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.chapterContent {
+  padding: 40px 0;
+}
+
+.chapterStats {
+  margin-top: 3rem;
+  display: flex;
+  gap: 3rem;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--brand);
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.overlayTag {
+  display: inline-flex;
+  padding: 6px 12px;
+  background: var(--brand);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  width: fit-content;
+}
+
+.overlayTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 1024px) {
+  .sectionInner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  
+  .stickyVisual {
+    position: relative;
+    top: 0;
+    height: 400px;
+    margin-bottom: 40px;
+  }
+  
+  .textContent {
+    gap: 80px;
+    padding-bottom: 100px;
+  }
+
+  .visualOverlay {
+    bottom: 20px;
+    left: 20px;
+  }
+}
+
+
+

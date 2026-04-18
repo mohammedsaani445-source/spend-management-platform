@@ -119,6 +119,10 @@ export default function SignupPage() {
 
             router.push("/login?pending=true");
         } catch (err: any) {
+            if (err.code === "auth/popup-closed-by-user") {
+                setIsLoading(false);
+                return;
+            }
             setError("Google signup failed.");
             setIsLoading(false);
         }
@@ -148,7 +152,7 @@ export default function SignupPage() {
                     </p>
                 </div>
                 <div style={{ position: 'relative', zIndex: 10 }}>
-                    <p style={{ color: '#919EAB', fontSize: '0.875rem' }}>
+                    <p style={{ color: '#A3A3A3', fontSize: '0.875rem' }}>
                         Trusted by industry-leading finance teams worldwide.
                     </p>
                 </div>
@@ -180,14 +184,14 @@ export default function SignupPage() {
                                     <label className={styles.label}>Work Email</label>
                                     <div style={{ position: 'relative' }}>
                                         <input type="email" className={styles.input} placeholder="name@company.com" value={email} onChange={e => setEmail(e.target.value)} required />
-                                        <Mail size={18} color="#919EAB" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
+                                        <Mail size={18} color="#A3A3A3" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
                                     </div>
                                 </div>
 
                                 <div style={{ display: 'flex', alignItems: 'center', margin: '1.5rem 0', gap: '1rem' }}>
-                                    <div style={{ flex: 1, height: '1px', background: '#F4F6F8' }} />
-                                    <span style={{ fontSize: '0.75rem', color: '#919EAB', fontWeight: 700 }}>OR SIGN UP WITH</span>
-                                    <div style={{ flex: 1, height: '1px', background: '#F4F6F8' }} />
+                                    <div style={{ flex: 1, height: '1px', background: '#E5E5E5' }} />
+                                    <span style={{ fontSize: '0.75rem', color: '#A3A3A3', fontWeight: 700 }}>OR SIGN UP WITH</span>
+                                    <div style={{ flex: 1, height: '1px', background: '#E5E5E5' }} />
                                 </div>
 
                                 <button className={styles.googleBtn} type="button" onClick={handleGoogleSignup} disabled={isLoading}>
@@ -206,11 +210,11 @@ export default function SignupPage() {
                                     <label className={styles.label}>Full Name</label>
                                     <div style={{ position: 'relative', marginBottom: '1rem' }}>
                                         <input type="text" className={styles.input} placeholder="Full Name" value={fullName} onChange={e => setFullName(e.target.value)} required autoFocus />
-                                        <User size={18} color="#919EAB" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
+                                        <User size={18} color="#A3A3A3" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
                                     </div>
                                     <div style={{ position: 'relative' }}>
                                         <input type="password" className={styles.input} placeholder="Secure Password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
-                                        <Lock size={18} color="#919EAB" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
+                                        <Lock size={18} color="#A3A3A3" style={{ position: 'absolute', right: '1rem', top: '16px' }} />
                                     </div>
                                 </div>
 
@@ -223,13 +227,13 @@ export default function SignupPage() {
                     </form>
 
                     <div style={{ marginTop: '2.5rem', textAlign: 'center' }}>
-                        <p style={{ fontSize: '0.9375rem', color: '#637381' }}>
+                        <p style={{ fontSize: '0.9375rem', color: '#737373' }}>
                             Already have an account? <Link href="/login" style={{ color: '#E8572A', fontWeight: 800 }}>Sign in</Link>
                         </p>
                     </div>
 
                     {!isEmailStep && (
-                        <button onClick={() => setIsEmailStep(true)} style={{ border: 'none', background: 'none', color: '#637381', width: '100%', marginTop: '1.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: 600 }}>
+                        <button onClick={() => setIsEmailStep(true)} style={{ border: 'none', background: 'none', color: '#737373', width: '100%', marginTop: '1.5rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontWeight: 600 }}>
                             <ChevronLeft size={16} /> Use a different email
                         </button>
                     )}

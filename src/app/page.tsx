@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/common/Logo";
 import { useIntersection } from "@/hooks/useIntersection";
-import ProductTour from "@/components/common/ProductTour";
 import styles from "./LandingPage.module.css";
 
 // ─── Tab Data ───
@@ -50,7 +49,6 @@ const PRODUCT_TABS = [
 
 export default function LandingPage() {
   const [scrolled, setScrolled] = useState(false);
-  const [showTour, setShowTour] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -158,19 +156,19 @@ export default function LandingPage() {
 
           <p className={styles.heroSubtitle}>
             Apex Procure redefines the intake-to-pay process with powerful AI
-            workflows and complete spend visibility — all in one platform.
+            workflows and complete procurement visibility — all in one platform.
           </p>
 
           <div className={styles.heroCtas}>
             <Link href="/login" className={styles.btnPrimary}>
               Book a Demo <ArrowRight size={18} />
             </Link>
-            <button
-              onClick={() => setShowTour(true)}
+            <Link
+              href="/tour"
               className={styles.btnSecondary}
             >
               <PlayCircle size={18} /> Take a Tour
-            </button>
+            </Link>
           </div>
         </div>
 
@@ -243,7 +241,7 @@ export default function LandingPage() {
               transition: "all 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s",
             }}
           >
-            Powerful AI for proactive spend control
+            Powerful AI for proactive procurement control
           </h2>
           <p
             className={styles.sectionSubtitle}
@@ -272,8 +270,8 @@ export default function LandingPage() {
             },
             {
               icon: <Brain size={22} />,
-              title: "Make AI-informed spend decisions",
-              text: "Gain full spend visibility and get instant answers to complex questions with an AI-powered Spend Analyst.",
+              title: "Make AI-informed purchasing decisions",
+              text: "Gain full procurement visibility and get instant answers to complex questions with an AI-powered Procurement Analyst.",
             },
           ].map((card, i) => (
             <div
@@ -303,7 +301,7 @@ export default function LandingPage() {
               <Layers size={14} /> Solutions
             </span>
             <h2 className={styles.sectionTitle}>
-              One platform for your entire spend lifecycle
+              One platform for your entire procurement lifecycle
             </h2>
           </div>
 
@@ -439,7 +437,7 @@ export default function LandingPage() {
               <span style={{ color: "#E8572A" }}>autonomous & proactive.</span>
             </h2>
             <p className={styles.featureDescription}>
-              Meet your AI-powered spend analyst. It doesn&apos;t just report numbers
+              Meet your AI-powered procurement analyst. It doesn&apos;t just report numbers
               — it finds savings opportunities, predicts budget breaches, and flags
               risks before they become problems.
             </p>
@@ -528,7 +526,7 @@ export default function LandingPage() {
               <Smartphone size={14} /> Mobile Native
             </span>
             <h2 className={styles.mobileTitle}>
-              Manage business spend remotely
+              Manage business procurement remotely
             </h2>
             <p className={styles.mobileSubtitle}>
               Manage end-to-end procurement workflows on the go with our
@@ -538,7 +536,7 @@ export default function LandingPage() {
             <div className={styles.mobileChecklist}>
               {[
                 "One-tap mobile approvals",
-                "Real-time push spend alerts",
+                "Real-time push procurement alerts",
                 "AI-powered receipt & invoice capture",
               ].map((item, i) => (
                 <div key={i} className={styles.mobileCheckItem}>
@@ -597,12 +595,12 @@ export default function LandingPage() {
             <Link href="/login" className={styles.ctaBtnLight}>
               Book a Demo <ArrowRight size={16} />
             </Link>
-            <button
-              onClick={() => setShowTour(true)}
+            <Link
+              href="/tour"
               className={styles.ctaBtnGhost}
             >
               <PlayCircle size={16} /> Take a Tour
-            </button>
+            </Link>
           </div>
           <p className={styles.ctaDisclaimer}>
             No credit card required · Free 30-day implementation
@@ -619,7 +617,7 @@ export default function LandingPage() {
               <span className={styles.footerBrandName}>Apex Procure</span>
             </div>
             <p className={styles.footerBrandDesc}>
-              The AI-powered procurement, AP, and spend management platform built
+              The AI-powered procurement, AP, and purchasing management platform built
               for growing organizations.
             </p>
           </div>
@@ -663,8 +661,6 @@ export default function LandingPage() {
         </div>
       </footer>
 
-      {/* Product Tour Modal */}
-      {showTour && <ProductTour onClose={() => setShowTour(false)} />}
     </div>
   );
 }

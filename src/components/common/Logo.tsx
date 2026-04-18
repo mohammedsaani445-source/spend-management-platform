@@ -17,7 +17,7 @@ export const Logo: React.FC<LogoProps> = ({
     variant = 'brand'
 }) => {
     const colors = {
-        brand: { primary: "#E8572A", secondary: "#212B36" }, // Coral and Navy
+        brand: { primary: "#E8572A", secondary: "#171717" }, // Coral and Neutral Black
         white: { primary: "#FFFFFF", secondary: "rgba(255,255,255,0.7)" },
         dark: { primary: "#0F172A", secondary: "#334155" }
     };

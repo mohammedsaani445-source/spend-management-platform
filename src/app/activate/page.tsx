@@ -275,7 +275,7 @@ function ActivateContent() {
       </AnimatePresence>
 
       <footer className={styles.footer}>
-        <p className={styles.footer_text}>&copy; 2026 Apex Procure • Forensic Spend Management</p>
+        <p className={styles.footer_text}>&copy; 2026 Apex Procure • Modern Procurement Management</p>
         <div className={styles.footer_links}>
           <a href="#" className={styles.footer_link}>Security Whitepaper</a>
           <a href="#" className={styles.footer_link}>Privacy Policy</a>
@@ -301,7 +301,7 @@ function StageLoading() {
         <Loader2 className="h-10 w-10 animate-spin text-[#1A1A1A]" />
         <div>
           <h2 className={styles.card_title}>Validating Account</h2>
-          <p className={styles.card_subtitle}>Securing forensic procurement vault...</p>
+          <p className={styles.card_subtitle}>Securing enterprise procurement vault...</p>
         </div>
       </div>
     </motion.div>
@@ -350,7 +350,7 @@ function StageVerify({ otp, onChange, onKeyDown, onNext }: any) {
       exit={{ opacity: 0, x: -20 }}
     >
       <div>
-        <h2 className={styles.card_title}>Access Identity</h2>
+        <h2 className={styles.card_title}>Verify Identity</h2>
         <p className={styles.card_subtitle}>Confirm your activation with the 6-digit code shared by admin.</p>
       </div>
       <div className={styles.code_input_group}>
@@ -436,15 +436,13 @@ function StageSuccess({ progress }: { progress: number }) {
         </div>
       </div>
       <div>
-        <h2 className={styles.card_title}>Redemption Complete</h2>
+        <h2 className={styles.card_title}>Activation Successful</h2>
         <p className={styles.card_subtitle}>Your enterprise credentials have been verified and synced.</p>
       </div>
-      <div className="bg-[#F9F9F9] p-4 rounded-xl flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-emerald-100 text-emerald-700 rounded-lg flex items-center justify-center"><TrendingUp size={20} /></div>
-          <div className="text-left"><p className="text-[10px] text-gray-500 uppercase font-bold">Access Tier</p><p className="text-sm font-semibold">Forensic Level 1</p></div>
-        </div>
-        <CheckCircle2 size={18} className="text-emerald-500" />
+      <div className="p-3 rounded-lg border border-[#E5E5E5] group cursor-pointer hover:border-[#E8572A] transition-colors flex items-center gap-3">
+        <div className="w-10 h-10 bg-orange-50 text-[#E8572A] rounded-lg flex items-center justify-center"><TrendingUp size={20} /></div>
+        <div className="text-left"><p className="text-[10px] text-gray-500 uppercase font-bold">Access Tier</p><p className="text-sm font-semibold">Enterprise Intelligence Access</p></div>
+        <CheckCircle2 size={18} className="text-[#E8572A]" />
       </div>
       <div className={styles.redirect_bar}>
         <div className={styles.redirect_progress} style={{ width: `${progress}%` }} />
@@ -455,7 +453,7 @@ function StageSuccess({ progress }: { progress: number }) {
 
 export default function Page() {
   return (
-    <Suspense fallback={<div className="h-screen flex items-center justify-center bg-[#F7F6F3]"><Loader2 className="animate-spin text-gray-400" /></div>}>
+    <Suspense fallback={<div className="h-screen flex items-center justify-center bg-[#F5F5F5]"><Loader2 className="animate-spin text-gray-400" /></div>}>
       <ActivateContent />
     </Suspense>
   );
