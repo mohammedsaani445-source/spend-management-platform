@@ -857,7 +857,7 @@ export interface Expense {
 
 // --- Approval Workflow Configurator (Phase 28+) ---
 
-export type ApprovalPolicyModule = 'requisitions' | 'purchase_orders' | 'invoices' | 'contracts' | 'vendors' | 'tenders' | 'budgets' | 'expenses';
+export type ApprovalPolicyModule = 'requisitions' | 'purchase_orders' | 'invoices' | 'contracts' | 'vendors' | 'tenders' | 'budgets' | 'expenses' | 'payments';
 
 export interface ApprovalPolicyStep {
     id: string;

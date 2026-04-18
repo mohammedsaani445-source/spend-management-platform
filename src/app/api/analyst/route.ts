@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { querySpendAnalyst } from "@/lib/ai_analyst";
 import { checkFirebaseAdminHealth } from "@/lib/firebaseAdmin";
+import { aiGateway } from "@/lib/workflow/aiGateway";
 
 /**
  * SERVER-SIDE AI PROXY
  * This route protects the GEMINI_API_KEY by keeping logic on the server.
+ * Action-type queries are intercepted by the AI Gateway and routed
+ * through the Workflow Engine for approval before execution.
  */
 export async function POST(req: NextRequest) {
     // 1. Pre-flight health check
@@ -26,12 +29,31 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { tenantId, query, role, department } = body;
+        const { tenantId, query, role, department, userId, userName } = body;
 
         if (!tenantId || !query) {
             return NextResponse.json({ error: "Missing required fields (tenantId or query)" }, { status: 400 });
         }
 
+        // Check if the query is an AI-driven action (create PO, approve req, etc.)
+        const actionResult = await aiGateway.intercept({
+            tenantId,
+            query,
+            userId: userId || "ai-system",
+            userName: userName || "SANI AI",
+            role: role || "analyst",
+            department,
+        });
+
+        if (actionResult && actionResult.intercepted) {
+            return NextResponse.json({
+                answer: actionResult.response,
+                workflowRequestId: actionResult.requestId,
+                status: actionResult.status,
+            });
+        }
+
+        // Standard analytical query — no action needed
         const answer = await querySpendAnalyst(tenantId, query, role, department);
         return NextResponse.json({ answer });
     } catch (error: any) {

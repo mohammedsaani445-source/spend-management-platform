@@ -47,7 +47,7 @@ interface ExecutiveDashboardProps {
     onCurrencyChange: (currency: string) => void;
 }
 
-export default function ExecutiveDashboard({ user, stats, pos, currency, onCurrencyChange }: ExecutiveDashboardProps) {
+export default function ExecutiveDashboard({ user, stats = {} as any, pos = [], currency, onCurrencyChange }: ExecutiveDashboardProps) {
     const [greeting, setGreeting] = useState("Good Morning");
     const availableBudget = (stats.budgetUsage.total || 0) - (stats.budgetUsage.used || 0);
     const firstName = (user as any).displayName?.split(' ')[0] || (user as any).name?.split(' ')[0] || 'there';

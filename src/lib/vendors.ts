@@ -7,18 +7,55 @@ import { differenceInDays, parseISO } from "date-fns";
 const getVendorsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/vendors`);
 const getVendorRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/vendors/${id}`);
 
-export const addVendor = async (tenantId: string, vendor: Omit<Vendor, 'id' | 'createdAt'>) => {
+export const addVendor = async (tenantId: string, vendor: Omit<Vendor, 'id' | 'createdAt'>, requester?: { uid: string, name: string }) => {
     try {
+        const { evaluatePolicy, getCurrentStepApprovers } = await import("./approvals");
+        
         const vendorsRef = getVendorsRef(tenantId);
         const newVendorRef = push(vendorsRef);
+        const vendorId = newVendorRef.key;
+
+        // 1. Evaluate Policy (Threshold 0 for Onboarding)
+        const policy = await evaluatePolicy(tenantId, 'vendors', 0, 'USD');
+
+        let status: any = vendor.status || 'ACTIVE';
+        let workflowUpdate: any = {};
+
+        if (policy && policy.steps && policy.steps.length > 0) {
+            status = 'PENDING';
+            const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, requester?.uid || 'system');
+            workflowUpdate = {
+                workflowId: policy.id,
+                currentStepIndex: 0,
+                approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : 'admin',
+                approverName: firstApprovers.length > 0 ? firstApprovers[0].name : 'System Admin',
+                approvalHistory: []
+            };
+        }
 
         await set(newVendorRef, {
             ...vendor,
-            id: newVendorRef.key,
+            id: vendorId,
+            status,
+            ...workflowUpdate,
             createdAt: new Date().toISOString(),
         });
 
-        return newVendorRef.key;
+        // 2. Audit Log
+        if (requester) {
+            const { logAction } = await import("./audit");
+            await logAction({
+                tenantId,
+                actorId: requester.uid,
+                actorName: requester.name,
+                action: 'CREATE',
+                entityType: 'VENDOR',
+                entityId: vendorId!,
+                description: `Registered new vendor: ${vendor.name}. Status: ${status}`
+            });
+        }
+
+        return vendorId;
     } catch (error) {
         console.error("Error adding vendor: ", error);
         throw error;

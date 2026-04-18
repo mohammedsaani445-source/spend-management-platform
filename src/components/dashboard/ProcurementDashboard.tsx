@@ -20,7 +20,7 @@ const cardStyle: React.CSSProperties = {
     padding: '1.5rem',
 };
 
-export default function ProcurementDashboard({ user, stats, pos, currency }: ProcurementDashboardProps) {
+export default function ProcurementDashboard({ user, stats = {} as any, pos = [], currency }: ProcurementDashboardProps) {
 
     return (
         <div style={{ fontFamily: "'Inter', sans-serif", color: 'var(--text-primary)' }}>

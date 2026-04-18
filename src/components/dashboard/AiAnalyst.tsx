@@ -285,7 +285,7 @@ export default function AiAnalyst() {
                 background: 'transparent',
                 scrollBehavior: 'smooth'
             }}>
-                {messages.length === 0 ? (
+                {(messages || []).length === 0 ? (
                     <div style={{ margin: 'auto', textAlign: 'center', maxWidth: '420px', animation: 'fadeIn 0.6s ease-out' }}>
                         <div style={{ 
                             width: '88px', 
@@ -355,7 +355,7 @@ export default function AiAnalyst() {
                         </div>
                     </div>
                 ) : (
-                    messages.map((msg, idx) => (
+                    (messages || []).map((msg, idx) => (
                         <div key={idx} style={{
                             alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                             maxWidth: msg.role === 'analyst' ? '92%' : '80%',
@@ -469,12 +469,12 @@ export default function AiAnalyst() {
                     </div>
                     
                     <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                        {sessions.length === 0 ? (
+                        {(sessions || []).length === 0 ? (
                             <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-disabled)' }}>
                                 No archived sessions found.
                             </div>
                         ) : (
-                            sessions.map(s => (
+                            (sessions || []).map(s => (
                                 <button
                                     key={s.id}
                                     onClick={() => loadSession(s)}

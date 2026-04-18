@@ -3,6 +3,7 @@ import { ref, push, set, get, child, update, query, orderByChild, equalTo, onVal
 import { PurchaseOrder, Requisition, POStatus, AppUser, Tender, Bid, ShippingDetails } from "@/types";
 import { getVendor } from "./vendors";
 import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
+import { WorkflowEngine } from "./workflow/engine";
 
 const getPOsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders`);
 const getPORef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders/${id}`);
@@ -17,32 +18,12 @@ const generatePONumber = async (): Promise<string> => {
 export const createPOFromRequisition = async (tenantId: string, requisition: Requisition, userId: string) => {
     try {
         const poNumber = await generatePONumber();
-        const vendor = await getVendor(tenantId, requisition.vendorId!); // Note: Vendor lookup might need tenant isolation too in complex apps, but keeping simple for now
+        const vendor = await getVendor(tenantId, requisition.vendorId!);
 
         const poRef = getPOsRef(tenantId);
         const newPORef = push(poRef);
 
-        // --- ENTERPRISE WORKFLOW ENGINE ---
-        const workflow = await evaluatePolicy(tenantId, 'purchase_orders', requisition.totalAmount, requisition.currency || 'GHS', requisition.department);
-        let approver = { uid: 'system-admin', name: 'System Administrator', email: 'admin@apexprocure.com' };
-        let initialStatus: POStatus = 'ISSUED';
-        let workflowMetadata = {};
-
-        if (workflow) {
-            initialStatus = 'PENDING';
-            const nextApprovers = await getCurrentStepApprovers(tenantId, workflow, 0, userId);
-            if (nextApprovers.length > 0) {
-                approver = nextApprovers[0];
-            }
-            workflowMetadata = {
-                currentStepIndex: 0,
-                workflowId: workflow.id,
-                approverId: approver.uid,
-                approverName: approver.name,
-                approvalHistory: []
-            };
-        }
-
+        // 1. Save PO as DRAFT first
         const newPO: PurchaseOrder = {
             tenantId,
             poNumber,
@@ -53,15 +34,44 @@ export const createPOFromRequisition = async (tenantId: string, requisition: Req
             items: requisition.items,
             totalAmount: requisition.totalAmount,
             currency: requisition.currency,
-            status: initialStatus,
+            status: 'DRAFT' as POStatus,
             issuedAt: new Date().toISOString() as any,
             issuedBy: userId,
             department: requisition.department,
             expectedDeliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() as any,
-            ...workflowMetadata
         };
 
         await set(newPORef, newPO);
+
+        // 2. Submit to Centralised Workflow Engine
+        const workflowResult = await WorkflowEngine.submit(
+            {
+                module:      "PURCHASE_ORDER",
+                entityId:    newPORef.key!,
+                entityRef:   poNumber,
+                entityTitle: `PO for ${requisition.vendorName}`,
+                amount:      requisition.totalAmount,
+                currency:    requisition.currency || "GHS",
+                department:  requisition.department,
+                source:      "USER",
+            },
+            {
+                userId,
+                userName: "System",
+                orgId:    tenantId,
+                role:     "proc_officer",
+            }
+        );
+
+        // 3. Update PO with workflow result
+        await update(newPORef, {
+            status:           workflowResult.status === 'AUTO_APPROVED' ? 'ISSUED' : 'PENDING',
+            workflowId:       workflowResult.requestId || null,
+            approverId:       workflowResult.nextApprover || null,
+            approverName:     workflowResult.nextRole || null,
+            currentStepIndex: 0,
+            approvalHistory:  [],
+        });
 
         // Update Requisition status
         const reqRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/requisitions/${requisition.id}`);
@@ -350,27 +360,6 @@ export const createPOFromAwardedBid = async (
         const poRef = getPOsRef(tenantId);
         const newPORef = push(poRef);
 
-        // --- ENTERPRISE WORKFLOW ENGINE ---
-        const workflow = await evaluatePolicy(tenantId, 'purchase_orders', bid.amount, bid.currency || 'GHS', actor.department);
-        let approver = { uid: 'system-admin', name: 'System Administrator', email: 'admin@apexprocure.com' };
-        let initialStatus: POStatus = 'ISSUED';
-        let workflowMetadata = {};
-
-        if (workflow && workflow.steps.length > 0) {
-            initialStatus = 'PENDING';
-            const nextApprovers = await getCurrentStepApprovers(tenantId, workflow, 0, actor.uid);
-            if (nextApprovers.length > 0) {
-                approver = nextApprovers[0];
-            }
-            workflowMetadata = {
-                currentStepIndex: 0,
-                workflowId: workflow.id,
-                approverId: approver.uid,
-                approverName: approver.name,
-                approvalHistory: []
-            };
-        }
-
         // Map Tender items or create a generic one if empty
         const items = tender.items && tender.items.length > 0 
             ? tender.items 
@@ -382,27 +371,57 @@ export const createPOFromAwardedBid = async (
                 total: bid.amount
             }];
 
+        // 1. Save PO as DRAFT first
         const newPO: PurchaseOrder = {
             tenantId,
             poNumber,
-            requisitionId: tender.id, // Linking to tender as the "source"
+            requisitionId: tender.id,
             vendorId: bid.vendorId,
             vendorName: bid.vendorName,
             items: items as any,
             totalAmount: bid.amount,
             currency: bid.currency,
-            status: initialStatus,
+            status: 'DRAFT' as POStatus,
             issuedAt: new Date().toISOString() as any,
             issuedBy: actor.uid,
             department: actor.department || 'Procurement',
             locationId: actor.locationId,
             expectedDeliveryDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString() as any,
             issuedByName: actor.displayName,
-            vendorEmail: bid.vendorId, // Placeholder for vendor email if not found, usually we'd fetch it
-            ...workflowMetadata
+            vendorEmail: bid.vendorId,
         };
 
         await set(newPORef, newPO);
+
+        // 2. Submit to Centralised Workflow Engine
+        const workflowResult = await WorkflowEngine.submit(
+            {
+                module:      "PURCHASE_ORDER",
+                entityId:    newPORef.key!,
+                entityRef:   poNumber,
+                entityTitle: `PO for ${bid.vendorName} (Sourcing Award)`,
+                amount:      bid.amount,
+                currency:    bid.currency || "GHS",
+                department:  actor.department || "Procurement",
+                source:      "USER",
+            },
+            {
+                userId:   actor.uid,
+                userName: actor.displayName,
+                orgId:    tenantId,
+                role:     actor.role || "proc_officer",
+            }
+        );
+
+        // 3. Update PO with workflow result
+        await update(newPORef, {
+            status:           workflowResult.status === 'AUTO_APPROVED' ? 'ISSUED' : 'PENDING',
+            workflowId:       workflowResult.requestId || null,
+            approverId:       workflowResult.nextApprover || null,
+            approverName:     workflowResult.nextRole || null,
+            currentStepIndex: 0,
+            approvalHistory:  [],
+        });
 
         return { id: newPORef.key, poNumber };
     } catch (error) {

@@ -6,23 +6,61 @@ import { getSpendAnalytics } from "./analytics";
 const getBudgetsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgets`);
 const getBudgetRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgets/${id}`);
 
-export const createBudget = async (tenantId: string, budget: Omit<Budget, 'id' | 'createdAt'>) => {
+export const createBudget = async (tenantId: string, budget: Omit<Budget, 'id' | 'createdAt'>, requester?: { uid: string, name: string }) => {
     try {
+        const { evaluatePolicy, getCurrentStepApprovers } = await import("./approvals");
+        
         const budgetsRef = getBudgetsRef(tenantId);
         const newBudgetRef = push(budgetsRef);
+        const budgetId = newBudgetRef.key!;
+
+        // 🛡️ Evaluate policy for budget creation
+        const policy = await evaluatePolicy(tenantId, 'budgets', budget.amount, budget.currency || 'USD');
+        
+        let status: any = budget.status || 'ACTIVE';
+        let workflowUpdate: any = {};
+
+        if (policy && policy.steps && policy.steps.length > 0) {
+            status = 'PENDING_APPROVAL';
+            const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, requester?.uid || 'system');
+            workflowUpdate = {
+                workflowId: policy.id,
+                currentStepIndex: 0,
+                approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : 'admin',
+                approverName: firstApprovers.length > 0 ? firstApprovers[0].name : 'System Admin',
+                approvalHistory: []
+            };
+        }
 
         await set(newBudgetRef, {
             ...budget,
+            id: budgetId,
             tenantId,
-            committedAmount: 0, // (Phase 58) Start with zero commitments
-            enforcementLevel: budget.enforcementLevel || 'SOFT', // Default to warning
+            status,
+            ...workflowUpdate,
+            committedAmount: 0, 
+            enforcementLevel: budget.enforcementLevel || 'SOFT', 
             entityId: budget.entityId || 'DEFAULT',
             entityName: budget.entityName || 'Main Entity',
             glCodes: budget.glCodes || [],
             createdAt: new Date().toISOString()
         });
 
-        return newBudgetRef.key;
+        // Audit Log
+        if (requester) {
+            const { logAction } = await import("./audit");
+            await logAction({
+                tenantId,
+                actorId: requester.uid,
+                actorName: requester.name,
+                action: 'CREATE',
+                entityType: 'BUDGET',
+                entityId: budgetId,
+                description: `Created new budget for ${budget.department}. Status: ${status}`
+            });
+        }
+
+        return budgetId;
     } catch (error) {
         console.error("Error creating budget: ", error);
         throw error;

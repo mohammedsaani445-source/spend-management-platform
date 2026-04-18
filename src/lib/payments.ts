@@ -129,10 +129,29 @@ export const processBillPayment = async (
     const paymentDate = scheduledDate || new Date().toISOString().split('T')[0];
     const isScheduled = !!(scheduledDate && new Date(scheduledDate) > new Date());
 
+    // 🛡️ Phase 70: Centralized Approval Policy Evaluation
+    const { evaluatePolicy, getCurrentStepApprovers } = await import("./approvals");
+    const policy = await evaluatePolicy(tenantId, 'payments', totalAmount, currency);
+
     // Create payment run record
     const runsRef = getPaymentRunsRef(tenantId);
     const newRunRef = push(runsRef);
     const runId = newRunRef.key!;
+
+    let status: any = isScheduled ? 'PENDING' : 'COMPLETED';
+    let workflowUpdate: any = {};
+
+    if (policy && policy.steps && policy.steps.length > 0) {
+        status = 'PENDING_APPROVAL';
+        const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, createdBy);
+        workflowUpdate = {
+            workflowId: policy.id,
+            currentStepIndex: 0,
+            approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : 'admin',
+            approverName: firstApprovers.length > 0 ? firstApprovers[0].name : 'System Admin',
+            approvalHistory: []
+        };
+    }
 
     const paymentRun: PaymentRun = {
         id: runId,
@@ -142,18 +161,24 @@ export const processBillPayment = async (
         currency,
         paymentMethod,
         paymentDate,
-        status: isScheduled ? 'PENDING' : 'COMPLETED',
+        status,
+        ...workflowUpdate,
         referenceNumber: refNum,
         createdBy,
         createdByName,
         createdAt: new Date().toISOString(),
-        processedAt: isScheduled ? undefined : new Date().toISOString(),
+        processedAt: status === 'COMPLETED' ? new Date().toISOString() : undefined,
         notes,
     };
 
     await set(newRunRef, paymentRun);
 
-    // Mark all bills as PAID (or SCHEDULED)
+    // 🛡️ If pending approval, STOP HERE. Do not mark bills as paid yet.
+    if (status === 'PENDING_APPROVAL') {
+        return runId;
+    }
+
+    // Mark all bills as PAID (or SCHEDULED) - Direct execution path (no policy or auto-approved)
     const newBillStatus: BillStatus = isScheduled ? 'SCHEDULED' : 'PAID';
 
     for (const bill of bills) {
@@ -224,6 +249,82 @@ export const processBillPayment = async (
     }
 
     return runId;
+};
+
+/**
+ * Finalizes the payment disbursement after approval.
+ * Transitions bills and invoices to PAID status.
+ */
+export const finalizePaymentDisbursement = async (tenantId: string, paymentRunId: string): Promise<void> => {
+    try {
+        const runSnap = await get(ref(db, `${DB_PREFIX}/tenants/${tenantId}/payment_runs/${paymentRunId}`));
+        if (!runSnap.exists()) throw new Error("Payment run not found");
+        
+        const run: PaymentRun = runSnap.val();
+        const { billIds, referenceNumber, paymentMethod, paymentDate, currency, totalAmount } = run;
+
+        const isScheduled = !!(paymentDate && new Date(paymentDate) > new Date());
+        const newBillStatus: BillStatus = isScheduled ? 'SCHEDULED' : 'PAID';
+
+        for (const billId of billIds) {
+            const billSnap = await get(getBillRef(tenantId, billId));
+            if (!billSnap.exists()) continue;
+            const bill: Bill = billSnap.val();
+
+            await update(getBillRef(tenantId, billId), {
+                status: newBillStatus,
+                paymentMethod,
+                paymentDate: isScheduled ? undefined : paymentDate,
+                scheduledDate: isScheduled ? paymentDate : undefined,
+                paymentRef: referenceNumber,
+                paymentRunId,
+            });
+
+            if (!isScheduled) {
+                const invRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices/${bill.invoiceId}`);
+                await update(invRef, { status: 'PAID' });
+                
+                // PO Fulfillment Logic
+                if (bill.poNumber) {
+                    const posRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders`);
+                    const poSnap = await get(posRef);
+                    if (poSnap.exists()) {
+                        const pos = poSnap.val();
+                        const poId = Object.keys(pos).find(key => pos[key].poNumber === bill.poNumber);
+                        if (poId) {
+                            await update(ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders/${poId}`), {
+                                status: 'FULFILLED'
+                            });
+                        }
+                    }
+                }
+
+                // Budget Transition
+                try {
+                    const { transitionCommittedToSpent } = await import("./budgets");
+                    await transitionCommittedToSpent(tenantId, bill.department, Number(bill.amount));
+                } catch (err) {
+                    console.error("[Budget] Transition failed during finalization:", err);
+                }
+            }
+        }
+
+        // Final Audit
+        const { logAction } = await import("./audit");
+        await logAction({
+            tenantId,
+            actorId: 'system',
+            actorName: 'Payment Service',
+            action: 'PAYMENT_PROCESSED',
+            entityType: 'PAYMENT',
+            entityId: paymentRunId,
+            description: `Payment Run ${referenceNumber} finalized after approval. Total: ${currency} ${totalAmount}`
+        });
+
+    } catch (error) {
+        console.error("Error finalizing payment disbursement:", error);
+        throw error;
+    }
 };
 
 /** Void a bill (if unpaid/scheduled). */

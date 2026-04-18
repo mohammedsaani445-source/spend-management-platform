@@ -30,6 +30,7 @@ const MODULES: { value: ApprovalPolicyModule; label: string }[] = [
     { value: 'tenders', label: 'Tenders' },
     { value: 'budgets', label: 'Budgets' },
     { value: 'expenses', label: 'Expenses' },
+    { value: 'payments', label: 'Payments' },
 ];
 
 const DEPARTMENT_OPTIONS = [

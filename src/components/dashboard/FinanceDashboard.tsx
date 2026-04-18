@@ -20,7 +20,7 @@ interface FinanceDashboardProps {
     pos?: PurchaseOrder[];
 }
 
-export default function FinanceDashboard({ user, stats, currency, pos = [] }: FinanceDashboardProps) {
+export default function FinanceDashboard({ user, stats = {} as any, currency, pos = [] }: FinanceDashboardProps) {
 
     // Filter logic for the Match Engine
     const readyForPayment = pos.filter(p => p.isMatched && p.status !== 'FULFILLED' && p.status !== 'CLOSED');

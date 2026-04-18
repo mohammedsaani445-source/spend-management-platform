@@ -11,7 +11,7 @@ export const createBudgetAdjustmentRequest = async (params: Omit<BudgetAdjustmen
     try {
         const adjustmentsRef = getAdjustmentsRef(params.tenantId);
         const newAdjustmentRef = push(adjustmentsRef);
-        
+
         const workflow = await evaluatePolicy(
             params.tenantId,
             'budgets',
@@ -52,17 +52,17 @@ export const createBudgetAdjustmentRequest = async (params: Omit<BudgetAdjustmen
 };
 
 export const processBudgetAdjustment = async (
-    tenantId: string, 
-    adjustmentId: string, 
-    status: 'APPROVED' | 'REJECTED', 
+    tenantId: string,
+    adjustmentId: string,
+    status: 'APPROVED' | 'REJECTED',
     approver: { uid: string, name: string }
 ) => {
     try {
         const adjustmentRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgetAdjustments/${adjustmentId}`);
         const snapshot = await get(adjustmentRef);
-        
+
         if (!snapshot.exists()) throw new Error("Adjustment request not found");
-        
+
         const adjustment = snapshot.val() as BudgetAdjustment;
 
         const updates: any = {
@@ -76,15 +76,15 @@ export const processBudgetAdjustment = async (
             // Apply the actual budget change
             const budgetsRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgets`);
             const budgetsSnap = await get(budgetsRef);
-            
+
             if (budgetsSnap.exists()) {
                 const budgets = budgetsSnap.val();
                 const budgetId = Object.keys(budgets).find(key => budgets[key].department === adjustment.department);
-                
+
                 if (budgetId) {
                     const currentAmount = budgets[budgetId].amount || 0;
                     const newAmount = currentAmount + adjustment.amount;
-                    
+
                     await update(ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgets/${budgetId}`), {
                         amount: newAmount,
                         updatedAt: new Date().toISOString()

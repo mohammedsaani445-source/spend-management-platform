@@ -3,6 +3,7 @@ import { ref, push, set, get, child, update, query, orderByChild, equalTo, onVal
 import { Invoice, InvoiceStatus, AppUser, PurchaseOrder } from "@/types";
 import { performThreeWayMatch } from "./matching";
 import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
+import { WorkflowEngine } from "./workflow/engine";
 
 const getInvoicesRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices`);
 const getInvoiceRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices/${id}`);
@@ -12,39 +13,14 @@ export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id
         const invRef = getInvoicesRef(tenantId);
         const newInvRef = push(invRef);
 
-        let initialStatus: InvoiceStatus = invoice.status || 'PENDING';
-        let workflowMetadata: any = {};
-
-        if (actor) {
-            const workflow = await evaluatePolicy(
-                tenantId,
-                'invoices',
-                invoice.amount,
-                invoice.currency || 'GHS',
-                invoice.department || actor.department || 'Finance'
-            );
-
-            if (workflow) {
-                initialStatus = 'PENDING';
-                const firstStepApprovers = await getCurrentStepApprovers(tenantId, workflow, 0, actor.uid);
-                workflowMetadata = {
-                    workflowId: workflow.id,
-                    currentStepIndex: 0,
-                    approverId: firstStepApprovers.map(a => a.uid),
-                    approverName: firstStepApprovers.map(a => a.name).join(', '),
-                    policyName: workflow.name,
-                    approvalHistory: []
-                };
-            }
-        }
-
+        // 1. Save invoice first
         await set(newInvRef, {
             ...invoice,
             tenantId,
             issueDate: invoice.issueDate instanceof Date ? invoice.issueDate.toISOString() : invoice.issueDate,
             dueDate: invoice.dueDate instanceof Date ? invoice.dueDate.toISOString() : invoice.dueDate,
             createdAt: new Date().toISOString(),
-            status: initialStatus,
+            status: 'DRAFT' as InvoiceStatus,
             department: invoice.department,
             fileName: invoice.fileName || null,
             fileUrl: invoice.fileUrl || null,
@@ -52,10 +28,46 @@ export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id
             hasFraudAlert: invoice.hasFraudAlert || false,
             fraudCheckReason: invoice.fraudCheckReason || null,
             autoExtracted: invoice.autoExtracted || false,
-            ...workflowMetadata
         });
 
         const newId = newInvRef.key;
+
+        // 2. Submit to Centralised Workflow Engine (if actor is provided)
+        if (actor) {
+            const workflowResult = await WorkflowEngine.submit(
+                {
+                    module:      "INVOICE",
+                    entityId:    newId!,
+                    entityRef:   invoice.invoiceNumber || newId!,
+                    entityTitle: `Invoice from ${invoice.vendorName}`,
+                    amount:      invoice.amount,
+                    currency:    invoice.currency || "GHS",
+                    department:  invoice.department || actor.department || "Finance",
+                    source:      "USER",
+                },
+                {
+                    userId:   actor.uid,
+                    userName: actor.displayName || actor.email,
+                    orgId:    tenantId,
+                    role:     actor.role || "finance",
+                }
+            );
+
+            // 3. Update invoice with workflow result
+            const invUpdateRef = getInvoiceRef(tenantId, newId!);
+            await update(invUpdateRef, {
+                status:           workflowResult.status === 'AUTO_APPROVED' ? 'APPROVED' : 'PENDING',
+                workflowId:       workflowResult.requestId || null,
+                approverId:       workflowResult.nextApprover || null,
+                approverName:     workflowResult.nextRole || null,
+                currentStepIndex: 0,
+                approvalHistory:  [],
+            });
+        } else {
+            // No actor — default to PENDING for manual review
+            const invUpdateRef = getInvoiceRef(tenantId, newId!);
+            await update(invUpdateRef, { status: invoice.status || 'PENDING' });
+        }
 
         // 🔔 Notification Trigger (Phase 57)
         try {
@@ -74,7 +86,6 @@ export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id
 
         // Phase 44: Automate 3-way match trigger
         if (invoice.poId) {
-            // Trigger matching logic in background
             performThreeWayMatch(tenantId, invoice.poId).catch(err => 
                 console.error(`[Invoices] Automated Match Failed for PO ${invoice.poId}:`, err)
             );

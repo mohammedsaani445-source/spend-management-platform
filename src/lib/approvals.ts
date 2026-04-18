@@ -9,16 +9,16 @@ import { getExchangeRates, convertCurrency } from "./exchangeRates";
  * Finds the most appropriate active approval policy for an entity.
  */
 export const evaluatePolicy = async (
-    tenantId: string, 
-    module: ApprovalPolicyModule, 
-    amount: number, 
+    tenantId: string,
+    module: ApprovalPolicyModule,
+    amount: number,
     currency: string,
     departmentId?: string
 ): Promise<ApprovalPolicy | null> => {
     try {
         const policies = await getApprovalPolicies(tenantId);
         const rates = await getExchangeRates();
-        
+
         // Logic: 
         // 1. Filter by module and active status
         // 2. Filter by department if scoped
@@ -31,11 +31,11 @@ export const evaluatePolicy = async (
             .filter(p => {
                 // Convert document amount to the policy's currency
                 const convertedAmount = convertCurrency(amount, currency, p.currency || 'GHS', rates);
-                
+
                 // Check if amount sits within policy min/max thresholds
                 if (p.minAmount !== undefined && p.minAmount > 0 && convertedAmount < p.minAmount) return false;
                 if (p.maxAmount !== undefined && p.maxAmount < 999999999 && convertedAmount > p.maxAmount) return false;
-                
+
                 return true;
             })
             .sort((a, b) => {
@@ -58,6 +58,7 @@ export type Workflow = ApprovalPolicy;
  */
 export const getCurrentStepApprovers = async (tenantId: string, workflow: Workflow, stepIndex: number, requesterId: string): Promise<{ uid: string, name: string, email: string }[]> => {
     try {
+        if (!workflow.steps) return [];
         const step = workflow.steps[stepIndex];
         if (!step) return [];
 
@@ -114,7 +115,7 @@ export const getCurrentStepApprovers = async (tenantId: string, workflow: Workfl
                         }
                     }
                 }
-                
+
                 // Fallback: If no department manager found, look for Workspace Admin
                 if (approvers.length === 0) {
                     const usersRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/users`);
@@ -187,13 +188,15 @@ export const processApprovalAction = async (
         // Fetch the active policy
         const policiesRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/approval_policies/${entity.workflowId}`);
         const policySnap = await get(policiesRef);
-        
+
         if (policySnap.exists()) {
             workflow = policySnap.val() as ApprovalPolicy;
-            const step = workflow.steps[entity.currentStepIndex || 0];
-            if (step) {
-                currentStepId = step.id;
-                currentStepName = step.name;
+            if (workflow.steps) {
+                const step = workflow.steps[entity.currentStepIndex || 0];
+                if (step) {
+                    currentStepId = step.id;
+                    currentStepName = step.name;
+                }
             }
         }
     }
@@ -217,7 +220,7 @@ export const processApprovalAction = async (
     // --- CONFLICT OF INTEREST GATE (Logic Gate 3.3) ---
     if (action === 'APPROVE') {
         let requesterId = entity.requesterId || entity.issuedBy || entity.createdBy;
-            
+
         if (actor.uid === requesterId) {
             // Log the blocked attempt
             await logAction({
@@ -242,7 +245,7 @@ export const processApprovalAction = async (
     const getAmount = () => {
         return entity.totalAmount || entity.amount || entity.value || entity.budget || 0;
     };
-    
+
     const requesterIdForNotif = entity.requesterId || entity.issuedBy || entity.createdBy || null;
 
     if (action === 'REJECT') {
@@ -325,19 +328,29 @@ export const processApprovalAction = async (
             description: `Approved stage "${currentStepName}" for ${entityType}.`
         });
 
-        if (!workflow || nextStepIndex >= workflow.steps.length) {
+        if (!workflow || !workflow.steps || nextStepIndex >= workflow.steps.length) {
             if (entityType === 'TENDER') {
                 updates.status = 'AWARDED';
                 // Trigger PO Generation automatically on final award approval
                 const { awardBid } = await import("./sourcing");
-                const { getPurchaseOrderById } = await import("./purchaseOrders");
-                
                 // Note: We need the quoteId. Assuming it's stored in entity.pendingAwardQuoteId
                 if (entity.pendingAwardQuoteId) {
                     await awardBid(tenantId, entityId, entity.pendingAwardQuoteId, actor as any);
                 }
+            } else if (entityType === 'VENDOR' || entityType === 'CONTRACT' || entityType === 'BUDGET') {
+                updates.status = 'ACTIVE';
+            } else if (entityType === 'PAYMENT') {
+                // Determine final state based on date
+                const isScheduled = !!(entity as any).paymentDate && new Date((entity as any).paymentDate) > new Date();
+                updates.status = isScheduled ? 'PENDING' : 'COMPLETED';
+
+                // Side Effect: Trigger Disbursement finalization
+                if (updates.status === 'COMPLETED') {
+                    const { finalizePaymentDisbursement } = await import("./payments");
+                    await finalizePaymentDisbursement(tenantId, entityId);
+                }
             } else {
-                updates.status = entityType === 'CONTRACT' ? 'ACTIVE' : 'APPROVED';
+                updates.status = 'APPROVED';
             }
             if (workflow) updates.currentStepIndex = nextStepIndex; // Marks completion
 
@@ -384,8 +397,9 @@ export const processApprovalAction = async (
 
             // Find next applicable step (handles thresholds)
             let finalNextIndex = nextStepIndex;
-            while (finalNextIndex < workflow.steps.length) {
-                const step = workflow.steps[finalNextIndex];
+            const steps = workflow.steps || [];
+            while (finalNextIndex < steps.length) {
+                const step = steps[finalNextIndex];
                 const amount = getAmount();
 
                 const convertedAmount = convertCurrency(amount, documentCurrency, workflowCurrency, rates);
@@ -399,17 +413,27 @@ export const processApprovalAction = async (
                 finalNextIndex++;
             }
 
-            if (finalNextIndex >= workflow.steps.length) {
+            if (finalNextIndex >= (workflow.steps || []).length) {
                 if (entityType === 'TENDER') {
                     updates.status = 'AWARDED';
                     const { awardBid } = await import("./sourcing");
                     if (entity.pendingAwardQuoteId) {
                         await awardBid(tenantId, entityId, entity.pendingAwardQuoteId, actor as any);
                     }
+                } else if (entityType === 'VENDOR' || entityType === 'CONTRACT' || entityType === 'BUDGET') {
+                    updates.status = 'ACTIVE';
+                } else if (entityType === 'PAYMENT') {
+                    const isScheduled = !!(entity as any).paymentDate && new Date((entity as any).paymentDate) > new Date();
+                    updates.status = isScheduled ? 'PENDING' : 'COMPLETED';
+
+                    if (updates.status === 'COMPLETED') {
+                        const { finalizePaymentDisbursement } = await import("./payments");
+                        await finalizePaymentDisbursement(tenantId, entityId);
+                    }
                 } else {
-                    updates.status = entityType === 'CONTRACT' ? 'ACTIVE' : 'APPROVED';
+                    updates.status = 'APPROVED';
                 }
-                
+
                 // 🔔 Notification Trigger (Final Approval - skipped steps)
                 try {
                     if (requesterIdForNotif) {
@@ -439,7 +463,7 @@ export const processApprovalAction = async (
             } else {
                 updates.currentStepIndex = finalNextIndex;
                 const nextApprovers = await getCurrentStepApprovers(tenantId, workflow, finalNextIndex, requesterIdForNotif || undefined);
-                if (nextApprovers.length > 0) {
+                if (nextApprovers && nextApprovers.length > 0) {
                     updates.approverId = nextApprovers[0].uid;
                     updates.approverName = nextApprovers[0].name;
 

@@ -17,7 +17,7 @@ const cardStyle: React.CSSProperties = {
     boxShadow: 'var(--shadow-xl)'
 };
 
-export default function OperationsDashboard({ user, stats }: OperationsDashboardProps) {
+export default function OperationsDashboard({ user, stats = {} as any }: OperationsDashboardProps) {
     return (
         <div style={{ fontFamily: "'Inter', sans-serif", color: 'var(--text-primary)' }}>
             <SecurityBanner user={user} />

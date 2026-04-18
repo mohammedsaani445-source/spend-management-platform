@@ -110,7 +110,7 @@ export default function ApprovalsPage() {
             if (!user) return;
 
             const { processApprovalAction } = await import("@/lib/approvals");
-            
+
             const entityTypeMap: Record<string, any> = {
                 'REQUISITION': 'REQUISITION',
                 'PURCHASE ORDER': 'PO',
@@ -191,11 +191,11 @@ export default function ApprovalsPage() {
                             {pendingApprovals.map(item => (
                                 <tr key={item.id}>
                                     <td>
-                                        <span style={{ 
-                                            fontSize: '0.7rem', 
-                                            fontWeight: 800, 
-                                            padding: '2px 6px', 
-                                            borderRadius: '4px', 
+                                        <span style={{
+                                            fontSize: '0.7rem',
+                                            fontWeight: 800,
+                                            padding: '2px 6px',
+                                            borderRadius: '4px',
                                             textTransform: 'uppercase',
                                             background: item.entityType === 'REQUISITION' ? '#F2F2F7' : (item.entityType === 'INVOICE' ? '#E5F1FF' : '#FFF0E5'),
                                             color: item.entityType === 'REQUISITION' ? '#3A3A3C' : (item.entityType === 'INVOICE' ? '#007AFF' : '#FF9500'),

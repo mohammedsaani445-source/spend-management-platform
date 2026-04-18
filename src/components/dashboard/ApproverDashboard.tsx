@@ -19,7 +19,7 @@ const cardStyle: React.CSSProperties = {
     padding: '1.5rem',
 };
 
-export default function ApproverDashboard({ user, stats, currency }: ApproverDashboardProps) {
+export default function ApproverDashboard({ user, stats = {} as any, currency }: ApproverDashboardProps) {
     return (
         <div style={{ fontFamily: "'Inter', sans-serif", color: 'var(--text-primary)' }}>
             <SecurityBanner user={user} />

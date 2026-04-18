@@ -8,6 +8,7 @@ import { extractInvoiceDataServer as extractQuoteData } from "./ocr";
 import { canViewEntity } from "./permissions";
 import { getBudgets } from "./budgets";
 import { getSpendAnalytics } from "./analytics";
+import { WorkflowEngine } from "./workflow/engine";
 
 const getRequisitionsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/requisitions`);
 const getRequisitionRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/requisitions/${id}`);
@@ -16,26 +17,8 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
     try {
         const tenantId = requisition.tenantId;
 
-        // --- ENTERPRISE WORKFLOW ENGINE ---
-        const workflow = await evaluatePolicy(tenantId, 'requisitions', requisition.totalAmount, requisition.currency || 'GHS', requisition.departmentId);
-        let approver = { uid: 'system-admin', name: 'System Administrator', email: 'admin@apexprocure.com' };
-
-        if (workflow && workflow.steps.length > 0) {
-            const nextApprovers = await getCurrentStepApprovers(tenantId, workflow, 0, requisition.requesterId);
-            if (nextApprovers.length > 0) {
-                approver = {
-                    uid: nextApprovers[0].uid,
-                    name: nextApprovers[0].name,
-                    email: nextApprovers[0].email
-                };
-            }
-        }
-
-        const reqsRef = getRequisitionsRef(tenantId);
-        const newReqRef = push(reqsRef);
-
         // --- BUDGET CHECK GATE (Phase 58: Strategic Enforcement) ---
-        let status: RequisitionStatus = workflow ? 'PENDING' : 'APPROVED';
+        let budgetStatus: RequisitionStatus | null = null;
         
         try {
             const { validateRequisitionBudget } = await import("./budgets");
@@ -43,7 +26,6 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
             
             if (validation.isOverBudget) {
                 if (validation.enforcementLevel === 'HARD') {
-                    // ❌ CRITICAL GATE: Block submission
                     const { logAction } = await import("./audit");
                     await logAction({
                         tenantId,
@@ -54,18 +36,20 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
                         entityId: 'BLOCKED',
                         description: `Requisition BLOCKED (HARD Enforcement). Amount: ${requisition.totalAmount} exceeds available budget of ${validation.remaining} for ${requisition.department}.`
                     });
-
                     throw new Error(`Budget Exceeded: Your department has ${validation.remaining} ${validation.currency} remaining, which is insufficient for this request (${requisition.totalAmount}).`);
                 } else {
-                    // ⚠️ SOFT GATE: Proceed with flag
-                    status = 'OVER_BUDGET';
+                    budgetStatus = 'OVER_BUDGET';
                     console.warn(`[Budget Gate] Requisition is OVER_BUDGET. Amount: ${requisition.totalAmount}, Remaining: ${validation.remaining}`);
                 }
             }
         } catch (budgetError: any) {
             if (budgetError.message.includes("Budget Exceeded")) throw budgetError;
-            console.error("Budget check failed, defaulting to PENDING", budgetError);
+            console.error("Budget check failed, proceeding to workflow", budgetError);
         }
+
+        // 1. Save requisition as DRAFT first
+        const reqsRef = getRequisitionsRef(tenantId);
+        const newReqRef = push(reqsRef);
 
         const cleanReq = {
             ...requisition,
@@ -74,27 +58,43 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
             currency: requisition.currency || 'USD',
             id: newReqRef.key,
             createdAt: new Date().toISOString(),
-            status,
-            approverId: approver.uid,
-            approverName: approver.name || 'Auto-Approver',
-            workflowId: workflow?.id || null,
-            currentStepIndex: workflow ? 0 : -1,
-            // Attach hierarchy context for isolation
+            status: budgetStatus || 'DRAFT',
             locationId: requisition.locationId || null,
             departmentId: requisition.departmentId || null
         };
 
         await set(newReqRef, cleanReq);
 
-        // Trigger Notification for Approver
-        const { createNotification } = await import("./notifications");
-        await createNotification({
-            tenantId,
-            userId: approver.uid,
-            type: 'APPROVAL_REQUEST',
-            title: 'New Approval Required',
-            message: `${requisition.requesterName} has submitted a new requisition for ${requisition.department}. amount: ${requisition.totalAmount} ${requisition.currency || 'USD'}`,
-            link: '/dashboard/approvals'
+        // 2. Submit to Centralised Workflow Engine
+        // The engine handles: policy matching, request creation,
+        // step records, approver notifications, and audit logging.
+        const workflowResult = await WorkflowEngine.submit(
+            {
+                module:      "REQUISITION",
+                entityId:    newReqRef.key!,
+                entityRef:   cleanReq.id || newReqRef.key!,
+                entityTitle: requisition.description || requisition.department || "Requisition",
+                amount:      requisition.totalAmount,
+                currency:    requisition.currency || "GHS",
+                department:  requisition.department,
+                source:      "USER",
+            },
+            {
+                userId:   requisition.requesterId,
+                userName: requisition.requesterName,
+                orgId:    tenantId,
+                role:     "requester",
+            }
+        );
+
+        // 3. Update requisition with workflow result
+        const statusFromEngine = budgetStatus || workflowResult.status || 'PENDING';
+        await update(newReqRef, {
+            status:           statusFromEngine,
+            workflowId:       workflowResult.requestId || null,
+            approverId:       workflowResult.nextApprover || null,
+            approverName:     workflowResult.nextRole || 'Auto-Approver',
+            currentStepIndex: 0,
         });
 
         return newReqRef.key;

@@ -54,6 +54,16 @@ export const createTenant = async (data: Omit<Tenant, 'id'>): Promise<string> =>
     };
 
     await update(ref(db), updates);
+
+    // Seed default approval policies for the new organization
+    try {
+        const { seedDefaultPolicies } = await import("./workflow/seed");
+        await seedDefaultPolicies(tenantId);
+        console.log(`[Tenant] Default approval policies seeded for ${tenantId}`);
+    } catch (seedError) {
+        console.error("[Tenant] Failed to seed default policies:", seedError);
+    }
+
     return tenantId;
 };
 

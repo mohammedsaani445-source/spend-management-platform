@@ -27,7 +27,7 @@ function StatusBadge({ status }: { status: string }) {
     );
 }
 
-export default function EmployeeDashboard({ user, requisitions }: EmployeeDashboardProps) {
+export default function EmployeeDashboard({ user, requisitions = [] }: EmployeeDashboardProps) {
     const router = useRouter();
     const firstName = (user as any).displayName?.split(' ')[0] || (user as any).name?.split(' ')[0] || 'there';
 

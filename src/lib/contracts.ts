@@ -3,6 +3,7 @@ import { ref, push, set, get, child, update, remove } from "firebase/database";
 import { Contract, ContractStatus } from "@/types";
 import { logAction } from "./audit";
 import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
+import { WorkflowEngine } from "./workflow/engine";
 
 const getContractsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/contracts`);
 const getContractRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/contracts/${id}`);
@@ -13,37 +14,13 @@ export const createContract = async (contract: Omit<Contract, 'id' | 'createdAt'
         const newContractRef = push(contractsRef);
         const now = new Date().toISOString();
 
-        let initialStatus = contract.status || 'ACTIVE';
-        let workflowMetadata: any = {};
-
-        const workflow = await evaluatePolicy(
-            user.tenantId,
-            'contracts',
-            contract.value,
-            contract.currency,
-            user.department || 'Legal'
-        );
-
-        if (workflow) {
-            initialStatus = 'PENDING';
-            const firstStepApprovers = await getCurrentStepApprovers(user.tenantId, workflow, 0, user.uid);
-            workflowMetadata = {
-                workflowId: workflow.id,
-                currentStepIndex: 0,
-                approverId: firstStepApprovers.map(a => a.uid),
-                approverName: firstStepApprovers.map(a => a.name).join(', '),
-                policyName: workflow.name,
-                approvalHistory: []
-            };
-        }
-
+        // 1. Save contract as DRAFT first
         const fullContract: Contract = {
             ...contract,
             id: newContractRef.key!,
-            status: initialStatus,
+            status: 'DRAFT' as any,
             createdAt: new Date(now),
             updatedAt: new Date(now),
-            ...workflowMetadata
         };
 
         await set(newContractRef, {
@@ -52,7 +29,36 @@ export const createContract = async (contract: Omit<Contract, 'id' | 'createdAt'
             endDate: fullContract.endDate.toISOString(),
             createdAt: now,
             updatedAt: now,
-            ...workflowMetadata
+        });
+
+        // 2. Submit to Centralised Workflow Engine
+        const workflowResult = await WorkflowEngine.submit(
+            {
+                module:      "CONTRACT",
+                entityId:    newContractRef.key!,
+                entityRef:   newContractRef.key!,
+                entityTitle: `${contract.type} contract for ${contract.vendorName}`,
+                amount:      contract.value,
+                currency:    contract.currency || "GHS",
+                department:  user.department || "Legal",
+                source:      "USER",
+            },
+            {
+                userId:   user.uid,
+                userName: user.displayName || user.email,
+                orgId:    user.tenantId,
+                role:     user.role || "legal",
+            }
+        );
+
+        // 3. Update contract with workflow result
+        await update(newContractRef, {
+            status:           workflowResult.status === 'AUTO_APPROVED' ? (contract.status || 'ACTIVE') : 'PENDING',
+            workflowId:       workflowResult.requestId || null,
+            approverId:       workflowResult.nextApprover || null,
+            approverName:     workflowResult.nextRole || null,
+            currentStepIndex: 0,
+            approvalHistory:  [],
         });
 
         await logAction({
@@ -64,21 +70,6 @@ export const createContract = async (contract: Omit<Contract, 'id' | 'createdAt'
             entityId: newContractRef.key!,
             description: `Created ${contract.type} contract for ${contract.vendorName}`
         });
-
-        // 🔔 Notification Trigger (Phase 57)
-        try {
-            const { notifyRole } = await import("./notifications");
-            await notifyRole(
-                user.tenantId,
-                'administrator', // Or PROCUREMENT_MANAGER if role exists
-                'SYSTEM',
-                'New Contract Created',
-                `A new ${contract.type} contract has been created for ${contract.vendorName}.`,
-                `/dashboard/contracts`
-            );
-        } catch (err) {
-            console.error("Notify error:", err);
-        }
 
         return newContractRef.key;
     } catch (error) {
