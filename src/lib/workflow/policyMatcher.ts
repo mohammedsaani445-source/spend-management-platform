@@ -46,21 +46,44 @@ async function fetchLegacyPolicies(tenantId: string): Promise<any[]> {
  * Adapt legacy Configurator policy format to Engine Format
  */
 function adaptPolicy(legacyPolicy: any): WorkflowApprovalPolicy {
+  if (!legacyPolicy) {
+    return {
+      id: "fallback",
+      org_id: "unknown",
+      name: "Fallback Policy",
+      description: "",
+      module: "REQUISITION",
+      department_scope: "ALL",
+      amount_min: 0,
+      amount_max: 0,
+      auto_approve: false,
+      auto_approve_limit: 0,
+      active: false,
+      priority: 0,
+      created_by: "system_adapter",
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      steps: [],
+    };
+  }
+
   // Infer defaults since Configurator doesn't always save them
   const amount_min = typeof legacyPolicy.minAmount === "number" ? legacyPolicy.minAmount : 0;
   const amount_max = typeof legacyPolicy.maxAmount === "number" ? legacyPolicy.maxAmount : 999999999;
   
   // Convert roles directly and clean up missing values safely
-  const steps: WorkflowApprovalPolicyStep[] = (legacyPolicy.steps || []).map((s: any, idx: number) => ({
-    id: s.id || `step_${idx}`,
-    policy_id: legacyPolicy.id,
-    step_number: idx + 1,
-    role: s.role || "superuser",
-    role_label: s.name || "Approver",
-    sla_days: s.sla_hours ? Math.ceil(s.sla_hours / 24) : 2,
-    is_required: s.isRequired !== false,
-    is_parallel: s.isParallel === true
-  }));
+  const steps: WorkflowApprovalPolicyStep[] = (legacyPolicy.steps || [])
+    .filter((s: any) => s !== null && typeof s === 'object') // Guard against malformed array elements
+    .map((s: any, idx: number) => ({
+      id: s.id || `step_${idx}`,
+      policy_id: legacyPolicy.id,
+      step_number: s.step_number || (idx + 1),
+      role: s.role || s.approverRole || "superuser",
+      role_label: s.name || s.role_label || "Approver",
+      sla_days: s.sla_hours ? Math.ceil(s.sla_hours / 24) : (s.sla_days || 2),
+      is_required: s.isRequired !== false,
+      is_parallel: s.isParallel === true
+    }));
 
   // Reverse mapping for the module back to Engine
   const engineModuleStr = Object.entries(MODULE_MAP).find(

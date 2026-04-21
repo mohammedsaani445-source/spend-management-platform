@@ -13,6 +13,7 @@ import { AppUser, Invoice, Requisition, PurchaseOrder, Contract, Bid, Tender } f
 export const submitInvoiceToWorkflow = async (tenantId: string, invoice: Omit<Invoice, 'id' | 'createdAt'>, actor: AppUser) => {
     // 1. Create the base record (without engine calls inside)
     const newId = await createBaseInvoice(tenantId, invoice);
+    if (!newId) throw new Error("Failed to initialize invoice record.");
 
     // 2. Submit to Workflow
     const workflowResult = await WorkflowEngine.submit(
@@ -48,6 +49,7 @@ export const submitRequisitionToWorkflow = async (requisition: Omit<Requisition,
 
     // 1. Create base record
     const newReqId = await createBaseRequisition(requisition);
+    if (!newReqId) throw new Error("Failed to initialize requisition record. Check budget limits.");
 
     // 2. Submit to Workflow
     const workflowResult = await WorkflowEngine.submit(
@@ -83,6 +85,7 @@ export const submitPurchaseOrderToWorkflow = async (tenantId: string, tender: Te
     // 1. Create base PO
     const result = await createBasePO(tenantId, tender, bid, actor);
     const poId = result.id;
+    if (!poId) throw new Error("Failed to initialize purchase order record.");
 
     // 2. Submit to Workflow
     const workflowResult = await WorkflowEngine.submit(

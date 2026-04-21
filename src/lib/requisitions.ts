@@ -71,7 +71,7 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
         let finalStatus: RequisitionStatus = budgetStatus || 'PENDING';
         let workflowUpdate: any = {};
 
-        if (policy && policy.steps && policy.steps.length > 0) {
+        if (policy?.steps?.length && policy.steps.length > 0) {
             // Check auto-approve condition
             if ((policy.autoApprove || (policy as any).autoApproveLimit > 0) && requisition.totalAmount <= ((policy as any).autoApproveLimit || 0)) {
                 finalStatus = budgetStatus || ('APPROVED' as RequisitionStatus);
@@ -80,8 +80,8 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
                 workflowUpdate = {
                     workflowId: policy.id,
                     currentStepIndex: 0,
-                    approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : null,
-                    approverName: firstApprovers.length > 0 ? firstApprovers[0].name : null,
+                    approverId: (firstApprovers?.length || 0) > 0 ? firstApprovers[0].uid : null,
+                    approverName: (firstApprovers?.length || 0) > 0 ? firstApprovers[0].name : null,
                     approvalHistory: [],
                 };
             }

@@ -40,21 +40,26 @@ export const notifier = {
   async sendToRole({ orgId, role, type, requestId, message, ...data }: SendToRoleOptions) {
     const users = await (prisma as any).user.findMany({
       where: { org_id: orgId, role: role, status: "ACTIVE" },
-    });
+    }) || [];
 
-    for (const user of users) {
-      await this._createNotification({
-        orgId,
-        requestId,
-        recipientId:   user.id,
-        recipientRole: role,
-        type,
-        message,
-        data,
-      });
+    if (users && Array.isArray(users)) {
+      for (const user of users) {
+        if (user && user.id) {
+          await this._createNotification({
+            orgId,
+            requestId,
+            recipientId:   user.id,
+            recipientRole: role,
+            type,
+            message,
+            data,
+          });
+        }
+      }
     }
 
-    console.log(`[Notifier] Sent "${type}" to ${users.length} user(s) with role "${role}"`);
+    const count = Array.isArray(users) ? users.length : 0;
+    console.log(`[Notifier] Sent "${type}" to ${count} user(s) with role "${role}"`);
   },
 
   // Send notification to a specific user

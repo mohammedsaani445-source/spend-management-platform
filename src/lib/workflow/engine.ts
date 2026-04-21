@@ -93,6 +93,27 @@ async function submit(action: WorkflowAction, context: WorkflowContext): Promise
   }
 
   // ── Step 4: Create the approval request ───────────────────
+  const steps = ((policy as any).steps || []) as WorkflowApprovalPolicyStep[];
+  
+  if (!steps || steps.length === 0) {
+    console.warn(`[WorkflowEngine] Policy "${policy.name}" has no steps. Escalating.`);
+    await notifier.sendToRole({
+      orgId:     context.orgId,
+      role:      "superuser",
+      type:      "ESCALATION",
+      message:   `Approval policy "${policy.name}" was triggered but has no defined steps. Manual review required.`,
+      entityId:  action.entityId,
+      entityRef: action.entityRef,
+    });
+
+    await _updateEntityStatus(action.module, action.entityId, "PENDING_MANUAL_REVIEW");
+
+    return {
+      status:  "NO_STEPS",
+      message: `The matching policy "${policy.name}" has no approval steps defined. Escalated to Platform Superuser.`,
+    };
+  }
+
   const request = await (prisma as any).approvalRequest.create({
     data: {
       org_id:         context.orgId,
@@ -108,22 +129,22 @@ async function submit(action: WorkflowAction, context: WorkflowContext): Promise
       requester_name: context.userName,
       status:         "PENDING",
       current_step:   1,
-      total_steps:    policy.steps?.length || 0,
+      total_steps:    steps.length,
       triggered_by:   action.source || "USER",
       ai_command_id:  action.aiCommandId || null,
     },
   });
 
   // ── Step 5: Create step records ───────────────────────────
-  for (const step of (policy as any).steps) {
+  for (const step of steps) {
     await (prisma as any).approvalStepRecord.create({
       data: {
         org_id:        context.orgId,
         request_id:    request.id,
-        step_number:   step.step_number,
-        approver_role: step.role,
+        step_number:   step.step_number || 1,
+        approver_role: step.role || "superuser",
         status:        step.step_number === 1 ? "ACTIVE" : "WAITING",
-        due_at:        addWorkingDays(new Date(), step.sla_days),
+        due_at:        addWorkingDays(new Date(), step.sla_days || 2),
       },
     });
   }
@@ -132,8 +153,8 @@ async function submit(action: WorkflowAction, context: WorkflowContext): Promise
   await _updateEntityStatus(action.module, action.entityId, "PENDING_APPROVAL");
 
   // ── Step 7: Notify first approver(s) ──────────────────────
-  const firstStep = (policy.steps || []).find((s: any) => s.step_number === 1);
-  if (firstStep) {
+  const firstStep = steps.find((s: any) => s.step_number === 1);
+  if (firstStep && steps.length > 0) {
     await notifier.sendToRole({
       orgId:         context.orgId,
       role:          firstStep.role,
@@ -145,9 +166,9 @@ async function submit(action: WorkflowAction, context: WorkflowContext): Promise
       currency:      action.currency || "GHS",
       requesterName: context.userName,
       stepNumber:    1,
-      totalSteps:    (policy.steps || []).length,
-      dueAt:         addWorkingDays(new Date(), firstStep.sla_days),
-      message:       `${action.entityRef} requires your approval (Step 1 of ${(policy.steps || []).length})`,
+      totalSteps:    steps.length,
+      dueAt:         addWorkingDays(new Date(), firstStep.sla_days || 2),
+      message:       `${action.entityRef} requires your approval (Step 1 of ${steps.length})`,
     });
   }
 
@@ -158,17 +179,17 @@ async function submit(action: WorkflowAction, context: WorkflowContext): Promise
     orgId:    context.orgId,
     entity:   action.module,
     entityId: action.entityId,
-    detail:   `Approval request created. Policy: "${policy.name}". ${(policy.steps || []).length} step(s) required. Triggered by: ${action.source || "USER"}.`,
+    detail:   `Approval request created. Policy: "${policy.name}". ${steps.length} step(s) required. Triggered by: ${action.source || "USER"}.`,
   });
 
   return {
     status:       "PENDING",
     requestId:    request.id,
     policyName:   policy.name,
-    totalSteps:   (policy.steps || []).length,
-    nextApprover: firstStep?.role_label,
-    message:      `Submitted for approval. ${(policy.steps || []).length} step(s) required before this is executed. ${firstStep?.role_label || "Approver"} has been notified.`,
-    aiMessage:    `I have submitted ${action.entityRef} for approval. It requires ${(policy.steps || []).length} approval(s) — first up is the ${firstStep?.role_label || "approver"}. I will notify you once it has been fully approved.`,
+    totalSteps:   steps.length,
+    nextApprover: firstStep?.role_label || "Approver",
+    message:      `Submitted for approval. ${steps.length} step(s) required. ${firstStep?.role_label || "Approver"} notified.`,
+    aiMessage:    `I have submitted ${action.entityRef} for approval. It requires ${steps.length} approval(s) — starting with ${firstStep?.role_label || "the approver"}.`,
   };
 }
 
