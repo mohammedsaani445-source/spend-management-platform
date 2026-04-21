@@ -232,7 +232,8 @@ export default function ApprovalsPage() {
                 selectedType === 'REQUISITION' ? (
                     isFocusView ? (
                         <ApprovalFocusModal
-                            requisition={selectedReq}
+                            entity={selectedReq}
+                            entityType={(selectedReq.entityType === 'PURCHASE ORDER' ? 'purchase_orders' : (selectedReq.entityType.toLowerCase() + 's')) as any}
                             budget={deptBudget}
                             deptSpend={deptSpend}
                             historicalData={historicalData}
@@ -256,7 +257,8 @@ export default function ApprovalsPage() {
                 ) : (
                     /* Fallback for other types - reuse focus modal if compatible or show generic summary */
                     <ApprovalFocusModal
-                        requisition={selectedReq}
+                        entity={selectedReq}
+                        entityType={(selectedReq.entityType === 'PURCHASE ORDER' ? 'purchase_orders' : (selectedReq.entityType.toLowerCase() + 's')) as any}
                         deptSpend={deptSpend}
                         historicalData={historicalData}
                         onClose={() => setSelectedReq(null)}

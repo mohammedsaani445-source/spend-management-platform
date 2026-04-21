@@ -157,7 +157,7 @@ export const processApprovalAction = async (
     params: {
         tenantId: string,
         entityId: string,
-        entityType: 'REQUISITION' | 'PO' | 'INVOICE' | 'CONTRACT' | 'TENDER' | 'BUDGET',
+        entityType: 'REQUISITION' | 'PO' | 'INVOICE' | 'CONTRACT' | 'TENDER' | 'BUDGET' | 'VENDOR' | 'PAYMENT',
         actor: { uid: string, name: string, email: string },
         action: 'APPROVE' | 'REJECT' | 'REVISION_REQUESTED',
         comment?: string
@@ -170,7 +170,9 @@ export const processApprovalAction = async (
         'INVOICE': 'invoices',
         'CONTRACT': 'contracts',
         'TENDER': 'rfps',
-        'BUDGET': 'budgetAdjustments'
+        'BUDGET': 'budgetAdjustments',
+        'VENDOR': 'vendors',
+        'PAYMENT': 'payments'
     };
     const path = pathMap[entityType] || 'requisitions';
     const entityRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/${path}/${entityId}`);

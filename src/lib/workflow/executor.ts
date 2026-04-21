@@ -1,21 +1,21 @@
+import "server-only";
 // ═══════════════════════════════════════════════════════════════
-// FILE: lib/workflow/executor.js
+// FILE: lib/workflow/executor.ts
 // Executes the actual action AFTER all approvals pass
 // ═══════════════════════════════════════════════════════════════
 
-import { prisma }      from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { auditLogger } from "./auditLogger";
+import { ApprovalModule } from "./types";
 
 export const executor = {
-
-  async run(module, entityId, orgId, meta = {}) {
+  async run(module: ApprovalModule, entityId: string, orgId: string, meta: { requestId?: string } = {}) {
     console.log(`[Executor] Running ${module} for entity ${entityId}`);
 
     try {
       let result;
 
       switch (module) {
-
         case "REQUISITION":
           result = await _executeRequisition(entityId, orgId);
           break;
@@ -67,7 +67,7 @@ export const executor = {
 
       return result;
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(`[Executor] Failed to execute ${module} ${entityId}:`, error);
       await auditLogger.log({
         action:   `${module}_EXECUTION_FAILED`,
@@ -85,15 +85,13 @@ export const executor = {
 
 // ── Individual executors ──────────────────────────────────────
 
-async function _executeRequisition(entityId, orgId) {
-  // Mark requisition approved and auto-generate Purchase Order
-  const req = await prisma.requisition.update({
+async function _executeRequisition(entityId: string, orgId: string) {
+  const req = await (prisma as any).requisition.update({
     where: { id: entityId },
     data:  { status: "APPROVED", approved_at: new Date() },
   });
 
-  // Auto-generate PO from approved requisition
-  const po = await prisma.purchaseOrder.create({
+  const po = await (prisma as any).purchaseOrder.create({
     data: {
       org_id:          orgId,
       requisition_id:  entityId,
@@ -113,23 +111,21 @@ async function _executeRequisition(entityId, orgId) {
   return { requisitionStatus: "APPROVED", poGenerated: po.id, poRef: po.po_ref };
 }
 
-async function _executePurchaseOrder(entityId, orgId) {
-  const po = await prisma.purchaseOrder.update({
+async function _executePurchaseOrder(entityId: string, orgId: string) {
+  await (prisma as any).purchaseOrder.update({
     where: { id: entityId },
     data:  { status: "APPROVED", approved_at: new Date() },
   });
-  // TODO: Trigger vendor notification via Supplier Portal
   return { status: "APPROVED", poId: entityId };
 }
 
-async function _executeInvoice(entityId, orgId) {
-  const invoice = await prisma.invoice.update({
+async function _executeInvoice(entityId: string, orgId: string) {
+  const invoice = await (prisma as any).invoice.update({
     where: { id: entityId },
     data:  { status: "APPROVED", approved_at: new Date() },
   });
 
-  // Schedule payment
-  await prisma.payment.create({
+  await (prisma as any).payment.create({
     data: {
       org_id:     orgId,
       invoice_id: entityId,
@@ -145,56 +141,56 @@ async function _executeInvoice(entityId, orgId) {
   return { status: "APPROVED", paymentScheduled: true };
 }
 
-async function _executePayment(entityId, orgId) {
-  await prisma.payment.update({
+async function _executePayment(entityId: string, orgId: string) {
+  await (prisma as any).payment.update({
     where: { id: entityId },
     data:  { status: "PROCESSING", processed_at: new Date() },
   });
   return { status: "PROCESSING" };
 }
 
-async function _executeContract(entityId, orgId) {
-  await prisma.contract.update({
+async function _executeContract(entityId: string, orgId: string) {
+  await (prisma as any).contract.update({
     where: { id: entityId },
     data:  { status: "ACTIVE", activated_at: new Date() },
   });
   return { status: "ACTIVE" };
 }
 
-async function _executeVendorApproval(entityId, orgId) {
-  await prisma.vendor.update({
+async function _executeVendorApproval(entityId: string, orgId: string) {
+  await (prisma as any).vendor.update({
     where: { id: entityId },
     data:  { status: "ACTIVE", approved_at: new Date() },
   });
   return { status: "ACTIVE" };
 }
 
-async function _executeTender(entityId, orgId) {
-  await prisma.tender.update({
+async function _executeTender(entityId: string, orgId: string) {
+  await (prisma as any).tender.update({
     where: { id: entityId },
     data:  { status: "PUBLISHED", published_at: new Date() },
   });
   return { status: "PUBLISHED" };
 }
 
-async function _executeBudgetOverride(entityId, orgId) {
-  await prisma.budgetOverride?.update({
+async function _executeBudgetOverride(entityId: string, orgId: string) {
+  await (prisma as any).budgetOverride?.update({
     where: { id: entityId },
     data:  { status: "APPROVED", approved_at: new Date() },
   });
   return { status: "APPROVED" };
 }
 
-async function _executeAssetDisposal(entityId, orgId) {
-  await prisma.asset.update({
+async function _executeAssetDisposal(entityId: string, orgId: string) {
+  await (prisma as any).asset.update({
     where: { id: entityId },
     data:  { status: "DISPOSED", disposed_at: new Date() },
   });
   return { status: "DISPOSED" };
 }
 
-async function _generateRef(orgId, prefix) {
+async function _generateRef(orgId: string, prefix: string): Promise<string> {
   const year  = new Date().getFullYear();
-  const count = await prisma.approvalRequest.count({ where: { org_id: orgId } });
+  const count = await (prisma as any).approvalRequest.count({ where: { org_id: orgId } });
   return `${prefix}-${year}-${String(count + 1).padStart(4, "0")}`;
 }

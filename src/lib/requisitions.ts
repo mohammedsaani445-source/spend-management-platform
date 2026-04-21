@@ -4,11 +4,11 @@ import { Requisition, RequisitionStatus, AppUser } from "@/types";
 import { evaluatePolicy, getCurrentStepApprovers, processApprovalAction } from "./approvals";
 import { runComplianceCheck } from "./compliance_checker";
 import { PaymentService } from "./payments";
-import { extractInvoiceDataServer as extractQuoteData } from "./ocr";
 import { canViewEntity } from "./permissions";
 import { getBudgets } from "./budgets";
 import { getSpendAnalytics } from "./analytics";
-import { WorkflowEngine } from "./workflow/engine";
+// WorkflowEngine removed to prevent server-side leakage into client components.
+// Use src/lib/workflow/integration.ts for server-side workflow operations.
 
 const getRequisitionsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/requisitions`);
 const getRequisitionRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/requisitions/${id}`);
@@ -65,36 +65,10 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
 
         await set(newReqRef, cleanReq);
 
-        // 2. Submit to Centralised Workflow Engine
-        // The engine handles: policy matching, request creation,
-        // step records, approver notifications, and audit logging.
-        const workflowResult = await WorkflowEngine.submit(
-            {
-                module:      "REQUISITION",
-                entityId:    newReqRef.key!,
-                entityRef:   cleanReq.id || newReqRef.key!,
-                entityTitle: requisition.description || requisition.department || "Requisition",
-                amount:      requisition.totalAmount,
-                currency:    requisition.currency || "GHS",
-                department:  requisition.department,
-                source:      "USER",
-            },
-            {
-                userId:   requisition.requesterId,
-                userName: requisition.requesterName,
-                orgId:    tenantId,
-                role:     "requester",
-            }
-        );
-
-        // 3. Update requisition with workflow result
-        const statusFromEngine = budgetStatus || workflowResult.status || 'PENDING';
+        // 2. Workflow submission moved to integration layer (src/lib/workflow/api_integration.ts)
+        // This ensures the browser doesn't load server-only Firebase Admin SDK.
         await update(newReqRef, {
-            status:           statusFromEngine,
-            workflowId:       workflowResult.requestId || null,
-            approverId:       workflowResult.nextApprover || null,
-            approverName:     workflowResult.nextRole || 'Auto-Approver',
-            currentStepIndex: 0,
+            status: budgetStatus || 'PENDING'
         });
 
         return newReqRef.key;

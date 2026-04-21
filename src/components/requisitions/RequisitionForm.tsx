@@ -152,19 +152,32 @@ export default function RequisitionForm() {
         try {
             const vendor = vendors.find(v => v.id === selectedVendorId);
 
-            await createRequisition({
-                tenantId: user.tenantId,
-                requesterId: user.uid,
-                requesterName: user.displayName || "Unknown",
-                department,
-                vendorId: selectedVendorId,
-                vendorName: vendor?.name || "",
-                items,
-                totalAmount: calculateTotal(),
-                currency,
-                justification,
-                status: 'PENDING'
+            // Use the secure Workflow API instead of direct lib call to prevent build errors
+            const response = await fetch('/api/workflow/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    module: 'REQUISITION',
+                    data: {
+                        tenantId: user.tenantId,
+                        requesterId: user.uid,
+                        requesterName: user.displayName || "Unknown",
+                        department,
+                        vendorId: selectedVendorId,
+                        vendorName: vendor?.name || "",
+                        items,
+                        totalAmount: calculateTotal(),
+                        currency,
+                        justification,
+                        status: 'PENDING'
+                    }
+                })
             });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || 'Failed to submit requisition');
+            }
 
             router.push("/dashboard/requisitions");
         } catch (error: unknown) {

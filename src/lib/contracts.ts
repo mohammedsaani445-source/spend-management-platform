@@ -3,8 +3,6 @@ import { ref, push, set, get, child, update, remove } from "firebase/database";
 import { Contract, ContractStatus } from "@/types";
 import { logAction } from "./audit";
 import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
-import { WorkflowEngine } from "./workflow/engine";
-
 const getContractsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/contracts`);
 const getContractRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/contracts/${id}`);
 
@@ -31,36 +29,9 @@ export const createContract = async (contract: Omit<Contract, 'id' | 'createdAt'
             updatedAt: now,
         });
 
-        // 2. Submit to Centralised Workflow Engine
-        const workflowResult = await WorkflowEngine.submit(
-            {
-                module:      "CONTRACT",
-                entityId:    newContractRef.key!,
-                entityRef:   newContractRef.key!,
-                entityTitle: `${contract.type} contract for ${contract.vendorName}`,
-                amount:      contract.value,
-                currency:    contract.currency || "GHS",
-                department:  user.department || "Legal",
-                source:      "USER",
-            },
-            {
-                userId:   user.uid,
-                userName: user.displayName || user.email,
-                orgId:    user.tenantId,
-                role:     user.role || "legal",
-            }
-        );
-
-        // 3. Update contract with workflow result
-        await update(newContractRef, {
-            status:           workflowResult.status === 'AUTO_APPROVED' ? (contract.status || 'ACTIVE') : 'PENDING',
-            workflowId:       workflowResult.requestId || null,
-            approverId:       workflowResult.nextApprover || null,
-            approverName:     workflowResult.nextRole || null,
-            currentStepIndex: 0,
-            approvalHistory:  [],
-        });
-
+// 2. We skip direct WorkflowEngine calls here because this library is shared with the client.
+        // The calling component or API route should trigger the workflow submission.
+        
         await logAction({
             tenantId: user.tenantId,
             actorId: user.uid,

@@ -1,3 +1,4 @@
+import "server-only";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { adminBucket, adminStorage } from "./firebaseAdmin";
 import crypto from "crypto";

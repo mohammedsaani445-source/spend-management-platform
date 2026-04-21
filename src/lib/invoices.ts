@@ -3,7 +3,8 @@ import { ref, push, set, get, child, update, query, orderByChild, equalTo, onVal
 import { Invoice, InvoiceStatus, AppUser, PurchaseOrder } from "@/types";
 import { performThreeWayMatch } from "./matching";
 import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
-import { WorkflowEngine } from "./workflow/engine";
+// WorkflowEngine removed to prevent server-side leakage into client components.
+// Use src/lib/workflow/integration.ts for server-side workflow operations.
 
 const getInvoicesRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices`);
 const getInvoiceRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices/${id}`);
@@ -32,42 +33,10 @@ export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id
 
         const newId = newInvRef.key;
 
-        // 2. Submit to Centralised Workflow Engine (if actor is provided)
-        if (actor) {
-            const workflowResult = await WorkflowEngine.submit(
-                {
-                    module:      "INVOICE",
-                    entityId:    newId!,
-                    entityRef:   invoice.invoiceNumber || newId!,
-                    entityTitle: `Invoice from ${invoice.vendorName}`,
-                    amount:      invoice.amount,
-                    currency:    invoice.currency || "GHS",
-                    department:  invoice.department || actor.department || "Finance",
-                    source:      "USER",
-                },
-                {
-                    userId:   actor.uid,
-                    userName: actor.displayName || actor.email,
-                    orgId:    tenantId,
-                    role:     actor.role || "finance",
-                }
-            );
-
-            // 3. Update invoice with workflow result
-            const invUpdateRef = getInvoiceRef(tenantId, newId!);
-            await update(invUpdateRef, {
-                status:           workflowResult.status === 'AUTO_APPROVED' ? 'APPROVED' : 'PENDING',
-                workflowId:       workflowResult.requestId || null,
-                approverId:       workflowResult.nextApprover || null,
-                approverName:     workflowResult.nextRole || null,
-                currentStepIndex: 0,
-                approvalHistory:  [],
-            });
-        } else {
-            // No actor — default to PENDING for manual review
-            const invUpdateRef = getInvoiceRef(tenantId, newId!);
-            await update(invUpdateRef, { status: invoice.status || 'PENDING' });
-        }
+        // 2. Workflow submission moved to integration layer (src/lib/workflow/integration.ts)
+        // This ensures the browser doesn't load server-only Firebase Admin SDK.
+        const invUpdateRef = getInvoiceRef(tenantId, newId!);
+        await update(invUpdateRef, { status: invoice.status || 'PENDING' });
 
         // 🔔 Notification Trigger (Phase 57)
         try {

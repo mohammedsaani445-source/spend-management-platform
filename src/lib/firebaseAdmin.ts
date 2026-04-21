@@ -1,3 +1,4 @@
+import "server-only";
 process.env.GCS_HTTP2_DISABLE = 'true';
 import * as admin from 'firebase-admin';
 

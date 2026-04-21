@@ -9,6 +9,7 @@
 // workflow data across tenants.
 // ═══════════════════════════════════════════════════════════════
 
+import "server-only";
 import { DB_PREFIX } from "./firebase";
 import { adminDb } from "./firebaseAdmin";
 
@@ -242,13 +243,14 @@ function _matchesWhere(record: any, where: any): boolean {
     }
 
     if (typeof condition === "object" && !Array.isArray(condition)) {
-      if ("lte" in condition && !(value <= condition.lte)) return false;
-      if ("gte" in condition && !(value >= condition.gte)) return false;
-      if ("lt" in condition && !(value < condition.lt)) return false;
-      if ("gt" in condition && !(value > condition.gt)) return false;
-      if ("in" in condition && !condition.in.includes(value)) return false;
-      if ("not" in condition && value === condition.not) return false;
-      if ("contains" in condition && !String(value).includes(condition.contains)) return false;
+      const condObj = condition as any;
+      if ("lte" in condObj && !(value <= condObj.lte)) return false;
+      if ("gte" in condObj && !(value >= condObj.gte)) return false;
+      if ("lt" in condObj && !(value < condObj.lt)) return false;
+      if ("gt" in condObj && !(value > condObj.gt)) return false;
+      if ("in" in condObj && !condObj.in.includes(value)) return false;
+      if ("not" in condObj && value === condObj.not) return false;
+      if ("contains" in condObj && !String(value).includes(condObj.contains)) return false;
     } else {
       if (value !== condition) return false;
     }

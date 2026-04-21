@@ -1,18 +1,17 @@
-// ═══════════════════════════════════════════════════════════════
-// FILE: lib/workflow/seed.js
-// Seeds the 5 default approval policies on new org creation
-// Call this once when a new org signs up
-// ═══════════════════════════════════════════════════════════════
+import "server-only";
 import { prisma } from "@/lib/prisma";
 
-export async function seedDefaultPolicies(orgId, createdBy) {
+/**
+ * Seeds the default approval policies on new organization creation.
+ */
+export async function seedDefaultPolicies(orgId: string, createdBy: string = 'system') {
   console.log(`[Seed] Creating default approval policies for org ${orgId}`);
 
   const defaults = [
     {
       name:        "Standard Requisition Approval",
-      description: "Default flow for routine requisitions under GHS 10,000",
-      module:      "REQUISITION",
+      description: "Default flow for routine requisitions",
+      module:      "REQUISITION" as const,
       amount_min:  0,
       amount_max:  10000,
       active:      true,
@@ -25,7 +24,7 @@ export async function seedDefaultPolicies(orgId, createdBy) {
     {
       name:        "High-Value PO Approval",
       description: "Multi-level approval for high-value purchase orders",
-      module:      "PURCHASE_ORDER",
+      module:      "PURCHASE_ORDER" as const,
       amount_min:  10000,
       amount_max:  100000,
       active:      true,
@@ -37,8 +36,8 @@ export async function seedDefaultPolicies(orgId, createdBy) {
     },
     {
       name:        "Executive PO Sign-Off",
-      description: "Three-tier sign-off for all orders exceeding GHS 100,000",
-      module:      "PURCHASE_ORDER",
+      description: "Three-tier sign-off for orders exceeding GHS 100,000",
+      module:      "PURCHASE_ORDER" as const,
       amount_min:  100000,
       amount_max:  999999999,
       active:      true,
@@ -51,8 +50,8 @@ export async function seedDefaultPolicies(orgId, createdBy) {
     },
     {
       name:              "Invoice Fast-Track",
-      description:       "Invoices under GHS 1,000 auto-approved after 3-way match passes",
-      module:            "INVOICE",
+      description:       "Auto-approved for amounts below threshold",
+      module:            "INVOICE" as const,
       amount_min:        0,
       amount_max:        5000,
       auto_approve:      true,
@@ -66,10 +65,10 @@ export async function seedDefaultPolicies(orgId, createdBy) {
     {
       name:        "Contract Review & Sign",
       description: "Parallel legal + finance review then executive sign-off",
-      module:      "CONTRACT",
+      module:      "CONTRACT" as const,
       amount_min:  0,
       amount_max:  999999999,
-      active:      false,  // Inactive by default
+      active:      false,
       priority:    1,
       steps: [
         { step_number: 1, role: "proc_mgr",    role_label: "Procurement Manager", sla_days: 3, is_parallel: true },
@@ -80,7 +79,7 @@ export async function seedDefaultPolicies(orgId, createdBy) {
   ];
 
   for (const policy of defaults) {
-    const { steps, ...policyData } = policy;
+    const { steps, ...policyData } = policy as any;
 
     const created = await prisma.approvalPolicy.create({
       data: {
@@ -96,5 +95,5 @@ export async function seedDefaultPolicies(orgId, createdBy) {
     console.log(`[Seed] Created policy: "${created.name}" (${created.id})`);
   }
 
-  console.log(`[Seed] Done — 5 default policies created for org ${orgId}`);
+  console.log(`[Seed] Done — Default policies created for org ${orgId}`);
 }

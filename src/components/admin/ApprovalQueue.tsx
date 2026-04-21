@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { db, DB_PREFIX } from "@/lib/firebase";
 import { ref, onValue, set, remove, get } from "firebase/database";
 import { getAllTenants, Tenant } from "@/lib/tenants";
+import { backfillTenantRegistryAction } from "@/app/actions/tenantActions";
 import { CheckCircle2, XCircle, Building2, User, Mail, Loader2, Search, ArrowRight, ShieldCheck, AlertTriangle } from "lucide-react";
 import styles from "@/app/dashboard/settings/Settings.module.css";
 import RoleSelector from "./RoleSelector";
@@ -68,12 +69,15 @@ export default function ApprovalQueue() {
     };
 
     const handleBackfill = async () => {
-        const { backfillTenantRegistry } = await import("@/lib/tenants");
         setBackfilling(true);
         try {
-            const count = await backfillTenantRegistry();
-            alert(`Successfully synced ${count} workspaces to the registry.`);
-            loadTenants();
+            const result = await backfillTenantRegistryAction();
+            if (result.success) {
+                alert(`Successfully synced ${result.count} workspaces to the registry.`);
+                loadTenants();
+            } else {
+                throw new Error(result.error);
+            }
         } catch (err) {
             console.error("Backfill failed:", err);
             alert("Sync failed. You may not have high-level read permissions on the main /tenants path.");

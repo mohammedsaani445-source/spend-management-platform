@@ -162,3 +162,94 @@ export interface WorkflowApprovalNotification {
   read_at?: string;
   payload?: any;
 }
+
+// ── ENGINE INTERFACES ─────────────────────────────────────────
+
+export interface WorkflowAction {
+  module: ApprovalModule;
+  entityId: string;
+  entityRef: string;
+  entityTitle: string;
+  amount: number;
+  currency: string;
+  department?: string;
+  source?: TriggerSource;
+  aiCommandId?: string;
+}
+
+export interface WorkflowContext {
+  userId: string;
+  userName: string;
+  orgId: string;
+  role: string;
+}
+
+export interface WorkflowSubmitResult {
+  status: string;
+  requestId?: string;
+  policyName?: string;
+  totalSteps?: number;
+  nextApprover?: string;
+  message?: string;
+  aiMessage?: string;
+}
+
+export type ApprovalDecision = "APPROVED" | "REJECTED" | "SKIP" | "ESCALATE";
+
+export interface WorkflowDecideResult {
+  status: string;
+  message: string;
+  nextStep?: number;
+  nextRole?: string;
+  reason?: string;
+  rejectedBy?: string;
+  execResult?: any;
+}
+
+export interface WorkflowGetPendingResult {
+  requestId: string;
+  entityType: ApprovalModule;
+  entityId: string;
+  entityRef: string;
+  entityTitle: string;
+  amount: number;
+  currency: string;
+  requesterName: string;
+  stepNumber: number;
+  totalSteps: number;
+  dueAt: string | Date;
+  isOverdue: boolean;
+  hoursOverdue: number;
+  triggeredBy: TriggerSource;
+  createdAt: string | Date;
+}
+
+export interface WorkflowGetStatusResult {
+  id: string;
+  status: string;
+  entityType: ApprovalModule;
+  entityId: string;
+  entityRef: string;
+  entityTitle: string;
+  amount: number;
+  currency: string;
+  currentStep: number;
+  totalSteps: number;
+  policyName?: string;
+  triggeredBy: TriggerSource;
+  requesterName?: string;
+  createdAt: string | Date;
+  completedAt?: string | Date;
+  rejectReason?: string;
+  steps: {
+    stepNumber: number;
+    role: ApproverRole;
+    status: StepStatus;
+    approverName?: string;
+    actedAt?: string | Date;
+    comment?: string;
+    dueAt: string | Date;
+    isOverdue: boolean;
+  }[];
+}
+

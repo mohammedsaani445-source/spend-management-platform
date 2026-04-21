@@ -8,7 +8,6 @@ import {
     ApprovalPolicyModule,
     Invoice,
     Contract,
-    PaymentProposal
 } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
 import { useScrollLock } from "@/hooks/useScrollLock";

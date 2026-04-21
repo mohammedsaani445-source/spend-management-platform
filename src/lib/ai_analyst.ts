@@ -1,3 +1,4 @@
+import "server-only";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { DB_PREFIX } from "./firebase";
 import { adminDb } from "./firebaseAdmin";

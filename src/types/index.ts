@@ -330,8 +330,15 @@ export interface Budget {
     entityId?: string; // Phase 2: Multi-entity
     entityName?: string;
     glCodes?: string[]; // Allowed GL codes for this budget
-    createdAt?: Date; // Optional as it might be added on creation
+    status?: 'ACTIVE' | 'PENDING_APPROVAL' | 'INACTIVE';
+    createdAt?: Date | string; // Optional as it might be added on creation
     updatedAt?: string;
+    // Approval metadata
+    approverId?: string;
+    approverName?: string;
+    currentStepIndex?: number;
+    workflowId?: string;
+    approvalHistory?: ApprovalHistoryEntry[];
 }
 
 export interface BudgetUtilization {

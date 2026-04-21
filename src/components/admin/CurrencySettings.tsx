@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { CURRENCIES } from "@/lib/currencies";
 import { getExchangeRates, saveManualRate, getManualRates, ExchangeRates } from "@/lib/exchangeRates";
-import { updateTenantCurrency } from "@/lib/tenants";
+import { updateTenantCurrencyAction } from "@/app/actions/tenantActions";
 import { 
     RefreshCw, Save, Coins, AlertCircle, CheckCircle, Info, Shield
 } from "lucide-react";
@@ -45,11 +45,15 @@ export default function CurrencySettings({ tenantId, currentBaseCurrency, onBase
     const handleSaveBase = async () => {
         setIsSaving(true);
         try {
-            await updateTenantCurrency(tenantId, baseCurrency);
-            if (onBaseCurrencyChange) {
-                onBaseCurrencyChange(baseCurrency);
+            const result = await updateTenantCurrencyAction(tenantId, baseCurrency);
+            if (result.success) {
+                if (onBaseCurrencyChange) {
+                    onBaseCurrencyChange(baseCurrency);
+                }
+                setMessage({ text: "Base currency updated successfully.", type: "success" });
+            } else {
+                setMessage({ text: result.error || "Failed to update base currency.", type: "error" });
             }
-            setMessage({ text: "Base currency updated successfully.", type: "success" });
         } catch (error) {
             setMessage({ text: "Failed to update base currency.", type: "error" });
         } finally {

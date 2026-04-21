@@ -3,8 +3,6 @@ import { ref, push, set, get, child, update, query, orderByChild, equalTo, onVal
 import { PurchaseOrder, Requisition, POStatus, AppUser, Tender, Bid, ShippingDetails } from "@/types";
 import { getVendor } from "./vendors";
 import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
-import { WorkflowEngine } from "./workflow/engine";
-
 const getPOsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders`);
 const getPORef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders/${id}`);
 
@@ -43,34 +41,29 @@ export const createPOFromRequisition = async (tenantId: string, requisition: Req
 
         await set(newPORef, newPO);
 
-        // 2. Submit to Centralised Workflow Engine
-        const workflowResult = await WorkflowEngine.submit(
-            {
-                module:      "PURCHASE_ORDER",
-                entityId:    newPORef.key!,
-                entityRef:   poNumber,
-                entityTitle: `PO for ${requisition.vendorName}`,
-                amount:      requisition.totalAmount,
-                currency:    requisition.currency || "GHS",
-                department:  requisition.department,
-                source:      "USER",
-            },
-            {
-                userId,
-                userName: "System",
-                orgId:    tenantId,
-                role:     "proc_officer",
-            }
-        );
+        // 2. Evaluate Policy
+        const policy = await evaluatePolicy(tenantId, 'purchase_orders', requisition.totalAmount, requisition.currency || 'USD');
+        
+        let status: POStatus = 'PENDING';
+        let workflowUpdate: any = {};
 
-        // 3. Update PO with workflow result
+        if (policy && policy.steps && policy.steps.length > 0) {
+            const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, userId);
+            workflowUpdate = {
+                workflowId: policy.id,
+                currentStepIndex: 0,
+                approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : 'admin',
+                approverName: firstApprovers.length > 0 ? firstApprovers[0].name : 'System Admin',
+                approvalHistory: []
+            };
+        } else {
+            status = 'ISSUED'; // Auto-approved if no policy matches
+        }
+
+        // 3. Finalize PO with workflow info
         await update(newPORef, {
-            status:           workflowResult.status === 'AUTO_APPROVED' ? 'ISSUED' : 'PENDING',
-            workflowId:       workflowResult.requestId || null,
-            approverId:       workflowResult.nextApprover || null,
-            approverName:     workflowResult.nextRole || null,
-            currentStepIndex: 0,
-            approvalHistory:  [],
+            status,
+            ...workflowUpdate
         });
 
         // Update Requisition status
@@ -393,36 +386,9 @@ export const createPOFromAwardedBid = async (
 
         await set(newPORef, newPO);
 
-        // 2. Submit to Centralised Workflow Engine
-        const workflowResult = await WorkflowEngine.submit(
-            {
-                module:      "PURCHASE_ORDER",
-                entityId:    newPORef.key!,
-                entityRef:   poNumber,
-                entityTitle: `PO for ${bid.vendorName} (Sourcing Award)`,
-                amount:      bid.amount,
-                currency:    bid.currency || "GHS",
-                department:  actor.department || "Procurement",
-                source:      "USER",
-            },
-            {
-                userId:   actor.uid,
-                userName: actor.displayName,
-                orgId:    tenantId,
-                role:     actor.role || "proc_officer",
-            }
-        );
-
-        // 3. Update PO with workflow result
-        await update(newPORef, {
-            status:           workflowResult.status === 'AUTO_APPROVED' ? 'ISSUED' : 'PENDING',
-            workflowId:       workflowResult.requestId || null,
-            approverId:       workflowResult.nextApprover || null,
-            approverName:     workflowResult.nextRole || null,
-            currentStepIndex: 0,
-            approvalHistory:  [],
-        });
-
+        // 2. We skip direct WorkflowEngine calls here.
+        // The calling component or API route should trigger the workflow submission.
+        
         return { id: newPORef.key, poNumber };
     } catch (error) {
         console.error("[PurchaseOrders] Error creating PO from bid:", error);

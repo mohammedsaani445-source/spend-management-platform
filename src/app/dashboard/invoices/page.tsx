@@ -127,20 +127,47 @@ export default function InvoicesPage() {
                 if (!proceed) return;
             }
 
-            await createInvoice(user.tenantId, {
-                vendorId: selectedPO.vendorId, vendorName: selectedPO.vendorName,
-                poId: selectedPO.id, poNumber: selectedPO.poNumber,
-                invoiceNumber: formData.invoiceNumber, amount: formData.amount,
-                currency: selectedPO.currency,
-                issueDate: new Date(formData.issueDate), dueDate: new Date(formData.dueDate),
-                status: 'PENDING', department: selectedPO.department,
-                fileName: formData.fileName, fileUrl: formData.fileUrl,
-                confidence: formData.confidence || 0,
-                confidenceReasoning: formData.confidenceReasoning || "",
-                hasFraudAlert: formData.hasFraudAlert,
-                fraudCheckReason: formData.fraudCheckReason,
-                autoExtracted: formData.autoExtracted
-            }, user);
+            // Use the secure Workflow API instead of direct lib call to prevent build errors
+            const response = await fetch('/api/workflow/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    module: 'INVOICE',
+                    data: {
+                        vendorId: selectedPO.vendorId, 
+                        vendorName: selectedPO.vendorName,
+                        poId: selectedPO.id, 
+                        poNumber: selectedPO.poNumber,
+                        invoiceNumber: formData.invoiceNumber, 
+                        amount: formData.amount,
+                        currency: selectedPO.currency,
+                        issueDate: new Date(formData.issueDate), 
+                        dueDate: new Date(formData.dueDate),
+                        department: selectedPO.department,
+                        fileName: formData.fileName, 
+                        fileUrl: formData.fileUrl,
+                        confidence: formData.confidence || 0,
+                        confidenceReasoning: formData.confidenceReasoning || "",
+                        hasFraudAlert: formData.hasFraudAlert,
+                        fraudCheckReason: formData.fraudCheckReason,
+                        autoExtracted: formData.autoExtracted,
+                        tenantId: user.tenantId
+                    },
+                    actor: {
+                        uid: user.uid,
+                        displayName: user.displayName,
+                        email: user.email,
+                        role: user.role,
+                        tenantId: user.tenantId,
+                        department: user.department
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || 'Failed to submit invoice');
+            }
             setShowModal(false);
             setFormData({
                 poId: "", invoiceNumber: "", amount: 0, currency: "USD",
