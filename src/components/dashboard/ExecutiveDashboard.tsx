@@ -2,7 +2,7 @@
 
 import { AppUser, DashboardEvent, PurchaseOrder } from "@/types";
 import { formatCurrency } from "@/lib/currencies";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { SpendBarChart, BudgetDonutChart } from "@/components/charts/SimpleCharts";
 import AiAnalyst from "./AiAnalyst";

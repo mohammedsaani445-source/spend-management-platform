@@ -46,7 +46,11 @@ const CONTEXT_CHIPS = [
     { label: "Contracts", status: "Monitored" }
 ];
 
-export default function AiAnalyst() {
+interface AiAnalystProps {
+    analysis?: string;
+}
+
+export default function AiAnalyst({ analysis }: AiAnalystProps = {}) {
     const { user } = useAuth();
     const [query, setQuery] = useState("");
     const [messages, setMessages] = useState<Message[]>([]);
