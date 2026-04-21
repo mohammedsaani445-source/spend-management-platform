@@ -4,7 +4,6 @@
   "private": true,
   "description": "Apex Procure Enterprise - Advanced Spend Management and Procurement Platform",
   "author": "Apex Procure Team",
-  "main": "electron/main.js",
   "build": {
     "appId": "com.apexprocure.desktop",
     "productName": "Apex Procure",
