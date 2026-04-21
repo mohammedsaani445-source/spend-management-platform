@@ -1,18 +1,23 @@
 /* [project]/src/components/layout/Layout.module.css [app-client] (css) */
+:root {
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 80px;
+}
+
 .Layout-module__e_xTDG__appShell {
-  background: #f4f6f8;
+  background: var(--background);
   min-height: 100vh;
   display: flex;
 }
 
 .Layout-module__e_xTDG__sidebar {
-  z-index: 100;
-  background: var(--surface);
-  border-right: 1px solid #dfe3e8;
-  flex-direction: column;
-  width: 260px;
+  width: var(--sidebar-width);
   height: 100vh;
-  transition: width .3s;
+  z-index: var(--z-sidebar);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  flex-direction: column;
+  transition: width .3s cubic-bezier(.4, 0, .2, 1);
   display: flex;
   position: fixed;
   top: 0;
@@ -21,7 +26,7 @@
 }
 
 .Layout-module__e_xTDG__sidebarCollapsed {
-  width: 80px;
+  width: var(--sidebar-collapsed-width);
 }
 
 .Layout-module__e_xTDG__logoContainer {
@@ -35,17 +40,11 @@
 }
 
 .Layout-module__e_xTDG__logoIcon {
-  background: var(--brand);
-  color: #fff;
-  border-radius: 8px;
+  -o-object-fit: contain;
+  object-fit: contain;
   flex-shrink: 0;
-  justify-content: center;
-  align-items: center;
   width: 32px;
   height: 32px;
-  font-size: .875rem;
-  font-weight: 800;
-  display: flex;
 }
 
 .Layout-module__e_xTDG__logoText {
@@ -97,7 +96,7 @@
   border-radius: 0;
   align-items: center;
   gap: .625rem;
-  height: 40px;
+  height: 44px;
   margin: 1px 0;
   padding: 0 1rem;
   font-size: .875rem;
@@ -105,6 +104,16 @@
   text-decoration: none;
   transition: background .15s, color .15s;
   display: flex;
+  position: relative;
+}
+
+.Layout-module__e_xTDG__navLink:after {
+  content: attr(title);
+  visibility: hidden;
+  height: 0;
+  font-weight: 600;
+  display: block;
+  overflow: hidden;
 }
 
 .Layout-module__e_xTDG__navLink:hover {
@@ -203,12 +212,12 @@
 
 .Layout-module__e_xTDG__topbar {
   background: var(--surface);
-  z-index: 50;
+  height: 64px;
+  z-index: var(--z-topbar);
   border-bottom: 1px solid #dfe3e8;
   justify-content: space-between;
   align-items: center;
   gap: 1rem;
-  height: 64px;
   padding: 0 1.5rem;
   display: flex;
   position: sticky;
@@ -390,6 +399,23 @@
   display: flex;
 }
 
+.Layout-module__e_xTDG__mainWrapper {
+  margin-left: var(--sidebar-width);
+  flex-direction: column;
+  flex: 1;
+  height: 100vh;
+  min-height: 100vh;
+  transition: margin-left .3s cubic-bezier(.4, 0, .2, 1);
+  display: flex;
+  overflow: hidden;
+}
+
+.Layout-module__e_xTDG__mainWrapper main {
+  flex: 1;
+  height: 0;
+  overflow-y: auto;
+}
+
 .Layout-module__e_xTDG__pageContent {
   flex: 1;
 }
@@ -503,14 +529,14 @@
 
 .Layout-module__e_xTDG__notificationDropdown {
   -webkit-backdrop-filter: blur(16px);
-  z-index: 500;
+  width: 380px;
+  max-height: 480px;
+  z-index: var(--z-dropdown);
   transform-origin: 100% 0;
   background: #fffffff5;
   border: 1px solid #dfe3e899;
   border-radius: 12px;
   flex-direction: column;
-  width: 380px;
-  max-height: 480px;
   animation: .2s cubic-bezier(.16, 1, .3, 1) forwards Layout-module__e_xTDG__slideDownFade;
   display: flex;
   position: absolute;
@@ -716,11 +742,11 @@
 }
 
 .Layout-module__e_xTDG__userMenuDropdown {
-  z-index: 500;
+  width: 220px;
+  z-index: var(--z-dropdown);
   background: #fff;
   border: 1px solid #dfe3e8;
   border-radius: 12px;
-  width: 220px;
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
@@ -764,20 +790,20 @@
 }
 
 .Layout-module__e_xTDG__drawerBackdrop {
-  z-index: 300;
+  z-index: var(--z-modal-backdrop);
   background: #212b3666;
   position: fixed;
   inset: 0;
 }
 
 .Layout-module__e_xTDG__helpDrawer {
-  z-index: 400;
+  width: 420px;
+  height: 100vh;
+  z-index: var(--z-modal);
   visibility: hidden;
   background: #fff;
   border-left: 1px solid #dfe3e8;
   flex-direction: column;
-  width: 420px;
-  height: 100vh;
   transition: transform .3s cubic-bezier(.4, 0, .2, 1), visibility .3s;
   display: flex;
   position: fixed;
@@ -859,7 +885,7 @@
 .Layout-module__e_xTDG__modalBackdrop {
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
-  z-index: 500;
+  z-index: var(--z-modal-backdrop);
   background: #212b3680;
   justify-content: center;
   align-items: center;
@@ -1090,15 +1116,15 @@
 }
 
 .Layout-module__e_xTDG__mainWrapper {
+  margin-left: var(--sidebar-width);
   flex-direction: column;
   flex: 1;
-  margin-left: 260px;
-  transition: margin-left .3s;
+  transition: margin-left .3s cubic-bezier(.4, 0, .2, 1);
   display: flex;
 }
 
 .Layout-module__e_xTDG__mainWrapperCollapsed {
-  margin-left: 80px;
+  margin-left: var(--sidebar-collapsed-width);
 }
 
 .Layout-module__e_xTDG__mobileMenuToggle {
@@ -1109,7 +1135,7 @@
 }
 
 .Layout-module__e_xTDG__mobileOverlay {
-  z-index: 90;
+  z-index: var(--z-sidebar);
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
   background: #212b3666;
@@ -1127,6 +1153,7 @@
   .Layout-module__e_xTDG__sidebarMobileOpen {
     transform: translateX(0);
     box-shadow: 4px 0 24px #00000026;
+    z-index: var(--z-sidebar) !important;
   }
 
   .Layout-module__e_xTDG__mainWrapper, .Layout-module__e_xTDG__mainWrapperCollapsed {
@@ -1152,6 +1179,39 @@
 
   .Layout-module__e_xTDG__breadcrumbs {
     display: none;
+  }
+
+  .Layout-module__e_xTDG__searchShortcut {
+    display: none !important;
+  }
+
+  .Layout-module__e_xTDG__searchInput {
+    background: #fff;
+    padding-right: 1.25rem !important;
+  }
+
+  .Layout-module__e_xTDG__userInfo {
+    display: none !important;
+  }
+
+  .Layout-module__e_xTDG__topbar {
+    gap: .5rem;
+  }
+
+  .Layout-module__e_xTDG__actions {
+    gap: .25rem;
+  }
+
+  .Layout-module__e_xTDG__notificationDropdown {
+    width: calc(100vw - 2rem);
+    right: -1rem;
+  }
+}
+
+@keyframes Layout-module__e_xTDG__ping {
+  75%, 100% {
+    opacity: 0;
+    transform: scale(2);
   }
 }
 

@@ -1,6 +1,10 @@
 1:"$Sreact.fragment"
-2:I[22016,["/_next/static/chunks/ba43d7792bc2bb8a.js","/_next/static/chunks/9927ab2795c68ae2.js","/_next/static/chunks/135aa1e47e43b074.js"],""]
-3:I[97367,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/0bd6498bda341889.js"],"OutletBoundary"]
-4:"$Sreact.suspense"
-0:{"buildId":"BcQ-TZOYD-NBuobx-Y83E","rsc":["$","$1","c",{"children":[["$","main",null,{"className":"container","style":{"minHeight":"100vh","display":"flex","flexDirection":"column","justifyContent":"center","alignItems":"center","textAlign":"center"},"children":[["$","h1",null,{"style":{"fontSize":"3rem","fontWeight":"bold","marginBottom":"1.5rem","color":"var(--primary)"},"children":"Smart Procurement & Spend Management"}],["$","p",null,{"style":{"fontSize":"1.25rem","color":"var(--text-secondary)","maxWidth":"600px","marginBottom":"2.5rem"},"children":"Automate your entire procure-to-pay lifecycle. Control spend, streamline approvals, and gain real-time visibility."}],["$","div",null,{"style":{"display":"flex","gap":"1rem"},"children":[["$","$L2",null,{"href":"/login","className":"btn btn-primary","style":{"padding":"0.75rem 2rem","fontSize":"1.1rem"},"children":"Login to Platform"}],["$","$L2",null,{"href":"/demo","className":"btn btn-accent","style":{"padding":"0.75rem 2rem","fontSize":"1.1rem"},"children":"Request Demo"}]]}]]}],[["$","script","script-0",{"src":"/_next/static/chunks/135aa1e47e43b074.js","async":true}]],["$","$L3",null,{"children":["$","$4",null,{"name":"Next.MetadataOutlet","children":"$@5"}]}]]}],"loading":null,"isPartial":false}
-5:null
+2:I[347257,["/_next/static/chunks/d96012bcfc98706a.js","/_next/static/chunks/73e3194f06db260e.js"],"ClientPageRoot"]
+3:I[952683,["/_next/static/chunks/378cc388a613bd6b.js","/_next/static/chunks/cc286e413416ddf5.js","/_next/static/chunks/9f4f0528a9a866d6.js","/_next/static/chunks/8d3644a8aaab7174.js","/_next/static/chunks/b4bff5d6ef849eb3.js"],"default"]
+6:I[897367,["/_next/static/chunks/d96012bcfc98706a.js","/_next/static/chunks/73e3194f06db260e.js"],"OutletBoundary"]
+7:"$Sreact.suspense"
+:HL["/_next/static/chunks/732e354c910eca57.css","style"]
+0:{"buildId":"Su6A7qPOR7MTGKBOi3ysd","rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/732e354c910eca57.css","precedence":"next"}],["$","script","script-0",{"src":"/_next/static/chunks/8d3644a8aaab7174.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/b4bff5d6ef849eb3.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"loading":null,"isPartial":false}
+4:{}
+5:"$0:rsc:props:children:0:props:serverProvidedParams:params"
+8:null

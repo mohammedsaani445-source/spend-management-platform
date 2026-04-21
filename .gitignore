@@ -49,3 +49,5 @@ node_modules/
 /playwright/.auth/
 .firebase/
 firebase-key.json
+
+.vercel

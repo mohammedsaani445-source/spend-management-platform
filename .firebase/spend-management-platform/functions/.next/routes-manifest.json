@@ -22,6 +22,70 @@
   },
   "dynamicRoutes": [
     {
+      "page": "/api/v1/invites/[id]",
+      "regex": "^/api/v1/invites/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/invites/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/v1/users/[id]",
+      "regex": "^/api/v1/users/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/users/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/v1/users/[id]/status",
+      "regex": "^/api/v1/users/([^/]+?)/status(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/users/(?<nxtPid>[^/]+?)/status(?:/)?$"
+    },
+    {
+      "page": "/api/workflow/policies/[id]",
+      "regex": "^/api/workflow/policies/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/workflow/policies/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/workflow/status/[requestId]",
+      "regex": "^/api/workflow/status/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPrequestId": "nxtPrequestId"
+      },
+      "namedRegex": "^/api/workflow/status/(?<nxtPrequestId>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/dashboard/sourcing/[id]",
+      "regex": "^/dashboard/sourcing/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/dashboard/sourcing/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/features/[slug]",
+      "regex": "^/features/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/features/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/join/[token]",
+      "regex": "^/join/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPtoken": "nxtPtoken"
+      },
+      "namedRegex": "^/join/(?<nxtPtoken>[^/]+?)(?:/)?$"
+    },
+    {
       "page": "/portal/[token]",
       "regex": "^/portal/([^/]+?)(?:/)?$",
       "routeKeys": {
@@ -44,6 +108,14 @@
         "nxtPid": "nxtPid"
       },
       "namedRegex": "^/public/rfp/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/public/rfq/[id]",
+      "regex": "^/public/rfq/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/public/rfq/(?<nxtPid>[^/]+?)(?:/)?$"
     }
   ],
   "staticRoutes": [
@@ -66,16 +138,52 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/activate",
+      "regex": "^/activate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/activate(?:/)?$"
+    },
+    {
       "page": "/api/admin/reset",
       "regex": "^/api/admin/reset(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/admin/reset(?:/)?$"
     },
     {
+      "page": "/api/analyst",
+      "regex": "^/api/analyst(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/analyst(?:/)?$"
+    },
+    {
       "page": "/api/communications/send-email",
       "regex": "^/api/communications/send\\-email(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/communications/send\\-email(?:/)?$"
+    },
+    {
+      "page": "/api/cron/workflow-sla",
+      "regex": "^/api/cron/workflow\\-sla(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/cron/workflow\\-sla(?:/)?$"
+    },
+    {
+      "page": "/api/debug/firebase",
+      "regex": "^/api/debug/firebase(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/debug/firebase(?:/)?$"
+    },
+    {
+      "page": "/api/diag/firebase",
+      "regex": "^/api/diag/firebase(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/diag/firebase(?:/)?$"
+    },
+    {
+      "page": "/api/diag/storage",
+      "regex": "^/api/diag/storage(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/diag/storage(?:/)?$"
     },
     {
       "page": "/api/erp/sync",
@@ -96,6 +204,54 @@
       "namedRegex": "^/api/invoices/ocr(?:/)?$"
     },
     {
+      "page": "/api/ocr",
+      "regex": "^/api/ocr(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/ocr(?:/)?$"
+    },
+    {
+      "page": "/api/storage-test",
+      "regex": "^/api/storage\\-test(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/storage\\-test(?:/)?$"
+    },
+    {
+      "page": "/api/upload",
+      "regex": "^/api/upload(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/upload(?:/)?$"
+    },
+    {
+      "page": "/api/v1/health",
+      "regex": "^/api/v1/health(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/v1/health(?:/)?$"
+    },
+    {
+      "page": "/api/v1/invites",
+      "regex": "^/api/v1/invites(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/v1/invites(?:/)?$"
+    },
+    {
+      "page": "/api/v1/invites/complete",
+      "regex": "^/api/v1/invites/complete(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/v1/invites/complete(?:/)?$"
+    },
+    {
+      "page": "/api/v1/invites/consume",
+      "regex": "^/api/v1/invites/consume(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/v1/invites/consume(?:/)?$"
+    },
+    {
+      "page": "/api/v1/invites/validate",
+      "regex": "^/api/v1/invites/validate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/v1/invites/validate(?:/)?$"
+    },
+    {
       "page": "/api/v1/po",
       "regex": "^/api/v1/po(?:/)?$",
       "routeKeys": {},
@@ -106,6 +262,48 @@
       "regex": "^/api/v1/requisitions(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/v1/requisitions(?:/)?$"
+    },
+    {
+      "page": "/api/workflow/cancel",
+      "regex": "^/api/workflow/cancel(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/workflow/cancel(?:/)?$"
+    },
+    {
+      "page": "/api/workflow/decide",
+      "regex": "^/api/workflow/decide(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/workflow/decide(?:/)?$"
+    },
+    {
+      "page": "/api/workflow/notifications",
+      "regex": "^/api/workflow/notifications(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/workflow/notifications(?:/)?$"
+    },
+    {
+      "page": "/api/workflow/pending",
+      "regex": "^/api/workflow/pending(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/workflow/pending(?:/)?$"
+    },
+    {
+      "page": "/api/workflow/policies",
+      "regex": "^/api/workflow/policies(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/workflow/policies(?:/)?$"
+    },
+    {
+      "page": "/api/workflow/simulate",
+      "regex": "^/api/workflow/simulate(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/workflow/simulate(?:/)?$"
+    },
+    {
+      "page": "/api/workflow/submit",
+      "regex": "^/api/workflow/submit(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/workflow/submit(?:/)?$"
     },
     {
       "page": "/dashboard",
@@ -192,6 +390,12 @@
       "namedRegex": "^/dashboard/receiving(?:/)?$"
     },
     {
+      "page": "/dashboard/reports",
+      "regex": "^/dashboard/reports(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/reports(?:/)?$"
+    },
+    {
       "page": "/dashboard/requisitions",
       "regex": "^/dashboard/requisitions(?:/)?$",
       "routeKeys": {},
@@ -210,6 +414,12 @@
       "namedRegex": "^/dashboard/settings(?:/)?$"
     },
     {
+      "page": "/dashboard/settings/approvals",
+      "regex": "^/dashboard/settings/approvals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/settings/approvals(?:/)?$"
+    },
+    {
       "page": "/dashboard/sourcing",
       "regex": "^/dashboard/sourcing(?:/)?$",
       "routeKeys": {},
@@ -222,16 +432,118 @@
       "namedRegex": "^/dashboard/support(?:/)?$"
     },
     {
+      "page": "/dashboard/users",
+      "regex": "^/dashboard/users(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard/users(?:/)?$"
+    },
+    {
       "page": "/dashboard/vendors",
       "regex": "^/dashboard/vendors(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/dashboard/vendors(?:/)?$"
     },
     {
-      "page": "/favicon.ico",
-      "regex": "^/favicon\\.ico(?:/)?$",
+      "page": "/features/ap-automation",
+      "regex": "^/features/ap\\-automation(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/favicon\\.ico(?:/)?$"
+      "namedRegex": "^/features/ap\\-automation(?:/)?$"
+    },
+    {
+      "page": "/features/ap-automation/invoice-processing",
+      "regex": "^/features/ap\\-automation/invoice\\-processing(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/ap\\-automation/invoice\\-processing(?:/)?$"
+    },
+    {
+      "page": "/features/ap-automation/payments",
+      "regex": "^/features/ap\\-automation/payments(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/ap\\-automation/payments(?:/)?$"
+    },
+    {
+      "page": "/features/approvals",
+      "regex": "^/features/approvals(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/approvals(?:/)?$"
+    },
+    {
+      "page": "/features/expense-management",
+      "regex": "^/features/expense\\-management(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/expense\\-management(?:/)?$"
+    },
+    {
+      "page": "/features/expense-management/cards",
+      "regex": "^/features/expense\\-management/cards(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/expense\\-management/cards(?:/)?$"
+    },
+    {
+      "page": "/features/expense-management/reimbursements",
+      "regex": "^/features/expense\\-management/reimbursements(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/expense\\-management/reimbursements(?:/)?$"
+    },
+    {
+      "page": "/features/procurement",
+      "regex": "^/features/procurement(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/procurement(?:/)?$"
+    },
+    {
+      "page": "/features/procurement/budget-management",
+      "regex": "^/features/procurement/budget\\-management(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/procurement/budget\\-management(?:/)?$"
+    },
+    {
+      "page": "/features/procurement/contract-management",
+      "regex": "^/features/procurement/contract\\-management(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/procurement/contract\\-management(?:/)?$"
+    },
+    {
+      "page": "/features/procurement/purchase-orders",
+      "regex": "^/features/procurement/purchase\\-orders(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/procurement/purchase\\-orders(?:/)?$"
+    },
+    {
+      "page": "/features/procurement/receiving-inventory",
+      "regex": "^/features/procurement/receiving\\-inventory(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/procurement/receiving\\-inventory(?:/)?$"
+    },
+    {
+      "page": "/features/procurement/spend-insights",
+      "regex": "^/features/procurement/spend\\-insights(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/procurement/spend\\-insights(?:/)?$"
+    },
+    {
+      "page": "/features/procurement/vendor-management",
+      "regex": "^/features/procurement/vendor\\-management(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/procurement/vendor\\-management(?:/)?$"
+    },
+    {
+      "page": "/features/purchase-requests",
+      "regex": "^/features/purchase\\-requests(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/features/purchase\\-requests(?:/)?$"
+    },
+    {
+      "page": "/icon.svg",
+      "regex": "^/icon\\.svg(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/icon\\.svg(?:/)?$"
+    },
+    {
+      "page": "/join",
+      "regex": "^/join(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/join(?:/)?$"
     },
     {
       "page": "/login",
@@ -244,6 +556,18 @@
       "regex": "^/signup(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/signup(?:/)?$"
+    },
+    {
+      "page": "/tour",
+      "regex": "^/tour(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tour(?:/)?$"
+    },
+    {
+      "page": "/variant-b",
+      "regex": "^/variant\\-b(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/variant\\-b(?:/)?$"
     }
   ],
   "dataRoutes": [],

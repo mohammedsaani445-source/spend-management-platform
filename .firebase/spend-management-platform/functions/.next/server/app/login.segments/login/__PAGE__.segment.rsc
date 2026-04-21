@@ -1,9 +1,10 @@
 1:"$Sreact.fragment"
-2:I[47257,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/0bd6498bda341889.js"],"ClientPageRoot"]
-3:I[94542,["/_next/static/chunks/ba43d7792bc2bb8a.js","/_next/static/chunks/9927ab2795c68ae2.js","/_next/static/chunks/2001f3e4222de832.js"],"default"]
-6:I[97367,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/0bd6498bda341889.js"],"OutletBoundary"]
+2:I[347257,["/_next/static/chunks/d96012bcfc98706a.js","/_next/static/chunks/73e3194f06db260e.js"],"ClientPageRoot"]
+3:I[594542,["/_next/static/chunks/378cc388a613bd6b.js","/_next/static/chunks/cc286e413416ddf5.js","/_next/static/chunks/9f4f0528a9a866d6.js","/_next/static/chunks/0c5dda4f80b3dc3b.js","/_next/static/chunks/90507b57b4e6aeff.js"],"default"]
+6:I[897367,["/_next/static/chunks/d96012bcfc98706a.js","/_next/static/chunks/73e3194f06db260e.js"],"OutletBoundary"]
 7:"$Sreact.suspense"
-0:{"buildId":"BcQ-TZOYD-NBuobx-Y83E","rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/_next/static/chunks/2001f3e4222de832.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"loading":null,"isPartial":false}
+:HL["/_next/static/chunks/c80ee2efba34b927.css","style"]
+0:{"buildId":"Su6A7qPOR7MTGKBOi3ysd","rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","link","0",{"rel":"stylesheet","href":"/_next/static/chunks/c80ee2efba34b927.css","precedence":"next"}],["$","script","script-0",{"src":"/_next/static/chunks/0c5dda4f80b3dc3b.js","async":true}],["$","script","script-1",{"src":"/_next/static/chunks/90507b57b4e6aeff.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"loading":null,"isPartial":false}
 4:{}
 5:"$0:rsc:props:children:0:props:serverProvidedParams:params"
 8:null

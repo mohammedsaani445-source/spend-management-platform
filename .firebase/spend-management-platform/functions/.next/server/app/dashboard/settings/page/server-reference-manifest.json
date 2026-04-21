@@ -1,4 +1,20 @@
 {
-  "node": {},
+  "node": {
+    "604703e038046d3834fdcb9c5c6f1fbcf9b2cac469": {
+      "workers": {
+        "app/dashboard/settings/page": {
+          "moduleId": 408670,
+          "async": false,
+          "exportedName": "updateTenantCurrencyAction",
+          "filename": "src/app/actions/tenantActions.ts"
+        }
+      },
+      "layer": {
+        "app/dashboard/settings/page": "action-browser"
+      },
+      "exportedName": "updateTenantCurrencyAction",
+      "filename": "src/app/actions/tenantActions.ts"
+    }
+  },
   "edge": {}
 }
