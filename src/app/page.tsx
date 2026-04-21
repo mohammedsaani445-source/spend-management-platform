@@ -145,7 +145,7 @@ export default function LandingPage() {
         >
           <span className={styles.heroEyebrow}>
             <span className={styles.heroEyebrowDot} />
-            AI-Powered Procurement Platform
+            AI-Powered Procurement Platform • <span style={{ color: '#10b981', fontWeight: 600 }}>Live & Verified</span>
           </span>
 
           <h1 className={styles.heroTitle}>
