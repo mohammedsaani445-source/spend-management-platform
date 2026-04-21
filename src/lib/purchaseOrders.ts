@@ -42,7 +42,7 @@ export const createPOFromRequisition = async (tenantId: string, requisition: Req
         await set(newPORef, newPO);
 
         // 2. Evaluate Policy
-        const policy = await evaluatePolicy(tenantId, 'purchase_orders', requisition.totalAmount, requisition.currency || 'USD');
+        const policy = await evaluatePolicy(tenantId, 'purchase_orders', requisition.totalAmount, requisition.currency || 'USD', requisition.department);
         
         let status: POStatus = 'PENDING';
         let workflowUpdate: any = {};

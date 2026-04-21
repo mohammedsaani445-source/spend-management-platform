@@ -6,6 +6,23 @@ import { ref, get, query, orderByChild, equalTo, update } from "firebase/databas
 import { getExchangeRates, convertCurrency } from "./exchangeRates";
 
 /**
+ * Maps policy step roles (as saved by the UI StepBuilder) to actual
+ * Firebase user roles. The lookup tries each candidate in order and
+ * stops at the first match.
+ */
+const ROLE_MAP: Record<string, string[]> = {
+    'dept_head':      ['WORKSPACE_ADMIN', 'ADMIN', 'DEPARTMENT_HEAD'],
+    'proc_officer':   ['PROCUREMENT_OFFICER', 'PROCUREMENT_MANAGER', 'WORKSPACE_ADMIN'],
+    'proc_mgr':       ['PROCUREMENT_MANAGER', 'WORKSPACE_ADMIN', 'ADMIN'],
+    'finance_mgr':    ['FINANCE_MANAGER', 'WORKSPACE_ADMIN', 'ADMIN'],
+    'ap_officer':     ['FINANCE_SPECIALIST', 'FINANCE_MANAGER', 'WORKSPACE_ADMIN'],
+    'administrator':  ['WORKSPACE_ADMIN', 'ADMIN', 'PLATFORM_SUPERUSER'],
+    'superuser':      ['PLATFORM_SUPERUSER', 'WORKSPACE_ADMIN'],
+    'finance':        ['FINANCE_MANAGER', 'FINANCE_SPECIALIST', 'WORKSPACE_ADMIN'],
+    'legal':          ['LEGAL', 'WORKSPACE_ADMIN', 'ADMIN'],
+};
+
+/**
  * Finds the most appropriate active approval policy for an entity.
  */
 export const evaluatePolicy = async (
@@ -27,7 +44,12 @@ export const evaluatePolicy = async (
         const matchingPolicies = policies
             .filter(p => p.isActive)
             .filter(p => p.module === module)
-            .filter(p => !p.departmentId || p.departmentId === departmentId)
+            .filter(p => {
+                // Support both field names: departmentScope (UI) and departmentId (legacy)
+                const scope = (p as any).departmentScope || p.departmentId;
+                if (!scope || scope === 'All Departments' || scope === 'ALL') return true;
+                return scope === departmentId;
+            })
             .filter(p => {
                 // Convert document amount to the policy's currency
                 const convertedAmount = convertCurrency(amount, currency, p.currency || 'GHS', rates);
@@ -39,8 +61,13 @@ export const evaluatePolicy = async (
                 return true;
             })
             .sort((a, b) => {
-                if (a.departmentId && !b.departmentId) return -1;
-                if (!a.departmentId && b.departmentId) return 1;
+                // Department-specific policies take priority over global ones
+                const aScope = (a as any).departmentScope || a.departmentId;
+                const bScope = (b as any).departmentScope || b.departmentId;
+                const aIsGlobal = !aScope || aScope === 'All Departments' || aScope === 'ALL';
+                const bIsGlobal = !bScope || bScope === 'All Departments' || bScope === 'ALL';
+                if (!aIsGlobal && bIsGlobal) return -1;
+                if (aIsGlobal && !bIsGlobal) return 1;
                 if (b.priority !== a.priority) return b.priority - a.priority;
                 return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
             });
@@ -84,8 +111,11 @@ export const getCurrentStepApprovers = async (tenantId: string, workflow: Workfl
         }
 
         // 2. Role-based (Internal)
-        if (step.approverRole && approvers.length === 0) {
-            if (step.approverRole === 'REPORT_TO_MANAGER') {
+        // Normalize: UI saves step.role, legacy code uses step.approverRole
+        const stepRole = step.approverRole || step.role;
+
+        if (stepRole && approvers.length === 0) {
+            if (stepRole === 'REPORT_TO_MANAGER') {
                 const requesterSnap = await get(ref(db, `${DB_PREFIX}/tenants/${tenantId}/users/${requesterId}`));
                 if (requesterSnap.exists()) {
                     const reqUser = requesterSnap.val() as AppUser;
@@ -97,7 +127,7 @@ export const getCurrentStepApprovers = async (tenantId: string, workflow: Workfl
                         }
                     }
                 }
-            } else if (step.approverRole === 'DEPARTMENT_HEAD') {
+            } else if (stepRole === 'DEPARTMENT_HEAD' || stepRole === 'dept_head') {
                 const requesterSnap = await get(ref(db, `${DB_PREFIX}/tenants/${tenantId}/users/${requesterId}`));
                 if (requesterSnap.exists()) {
                     const reqUser = requesterSnap.val() as AppUser;
@@ -129,12 +159,30 @@ export const getCurrentStepApprovers = async (tenantId: string, workflow: Workfl
                     }
                 }
             } else {
+                // Use ROLE_MAP to translate policy step roles to actual Firebase user roles
                 const usersRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/users`);
-                const q = query(usersRef, orderByChild('role'), equalTo(step.approverRole));
-                const snapshot = await get(q);
-                if (snapshot.exists()) {
-                    const users = Object.values(snapshot.val()) as AppUser[];
-                    users.forEach(u => approvers.push({ uid: u.uid, name: u.displayName, email: u.email }));
+                const rolesToTry = ROLE_MAP[stepRole] || [stepRole];
+
+                for (const candidateRole of rolesToTry) {
+                    const q = query(usersRef, orderByChild('role'), equalTo(candidateRole));
+                    const snapshot = await get(q);
+                    if (snapshot.exists()) {
+                        const users = Object.values(snapshot.val()) as AppUser[];
+                        users.forEach(u => approvers.push({ uid: u.uid, name: u.displayName, email: u.email }));
+                        break; // Found users for this role, stop looking
+                    }
+                }
+
+                // Ultimate fallback: if no users found for any mapped role, try WORKSPACE_ADMIN
+                if (approvers.length === 0) {
+                    const q = query(usersRef, orderByChild('role'), equalTo('WORKSPACE_ADMIN'));
+                    const snapshot = await get(q);
+                    if (snapshot.exists()) {
+                        const users = Object.values(snapshot.val()) as AppUser[];
+                        if (users.length > 0) {
+                            approvers.push({ uid: users[0].uid, name: users[0].displayName, email: users[0].email });
+                        }
+                    }
                 }
             }
         }
@@ -351,6 +399,8 @@ export const processApprovalAction = async (
                     const { finalizePaymentDisbursement } = await import("./payments");
                     await finalizePaymentDisbursement(tenantId, entityId);
                 }
+            } else if (entityType === 'PO') {
+                updates.status = 'ISSUED';
             } else {
                 updates.status = 'APPROVED';
             }

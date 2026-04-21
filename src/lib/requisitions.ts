@@ -65,10 +65,31 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
 
         await set(newReqRef, cleanReq);
 
-        // 2. Workflow submission moved to integration layer (src/lib/workflow/api_integration.ts)
-        // This ensures the browser doesn't load server-only Firebase Admin SDK.
+        // 2. Evaluate approval policy and assign first approver
+        const policy = await evaluatePolicy(tenantId, 'requisitions', requisition.totalAmount, requisition.currency || 'GHS', requisition.department);
+
+        let finalStatus: RequisitionStatus = budgetStatus || 'PENDING';
+        let workflowUpdate: any = {};
+
+        if (policy && policy.steps && policy.steps.length > 0) {
+            // Check auto-approve condition
+            if ((policy.autoApprove || (policy as any).autoApproveLimit > 0) && requisition.totalAmount <= ((policy as any).autoApproveLimit || 0)) {
+                finalStatus = budgetStatus || ('APPROVED' as RequisitionStatus);
+            } else {
+                const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, requisition.requesterId);
+                workflowUpdate = {
+                    workflowId: policy.id,
+                    currentStepIndex: 0,
+                    approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : null,
+                    approverName: firstApprovers.length > 0 ? firstApprovers[0].name : null,
+                    approvalHistory: [],
+                };
+            }
+        }
+
         await update(newReqRef, {
-            status: budgetStatus || 'PENDING'
+            status: finalStatus,
+            ...workflowUpdate,
         });
 
         return newReqRef.key;

@@ -2,12 +2,14 @@ import "server-only";
 // ═══════════════════════════════════════════════════════════════
 // FILE: lib/workflow/policyMatcher.ts
 // ═══════════════════════════════════════════════════════════════
-// FULLY DYNAMIC — reads from DB on every call.
+// UI CONFIGURATOR ADAPTER — bridges the legacy Approval Policies
+// created via the Dashboard Configurator with the new
+// Enterprise Workflow Engine.
 // ═══════════════════════════════════════════════════════════════
 
-import { prisma } from "@/lib/prisma";
-import { seedDefaultPolicies } from "./seed";
-import { ApprovalModule, WorkflowApprovalPolicy } from "./types";
+import { adminDb } from "@/lib/firebaseAdmin";
+import { DB_PREFIX } from "@/lib/firebase";
+import { ApprovalModule, WorkflowApprovalPolicy, WorkflowApprovalPolicyStep } from "./types";
 
 interface MatchOptions {
   orgId: string;
@@ -16,141 +18,184 @@ interface MatchOptions {
   department?: string;
 }
 
+// Map the Engine's MODULE format mapping to the Configurator UI mapping
+const MODULE_MAP: Record<ApprovalModule, string> = {
+  "REQUISITION": "requisitions",
+  "PURCHASE_ORDER": "purchase_orders",
+  "INVOICE": "invoices",
+  "PAYMENT": "payments",
+  "CONTRACT": "contracts",
+  "VENDOR": "vendors",
+  "TENDER": "tenders",
+  "BUDGET_OVERRIDE": "budget_overrides",
+  "ASSET_DISPOSAL": "asset_disposals",
+  "INVENTORY_ADJUSTMENT": "inventory_adjustments",
+};
+
+/**
+ * Fetches all legacy policies from the Configurator UI path
+ */
+async function fetchLegacyPolicies(tenantId: string): Promise<any[]> {
+  const ref = adminDb.ref(`${DB_PREFIX}/tenants/${tenantId}/approval_policies`);
+  const snap = await ref.once('value');
+  if (!snap.exists()) return [];
+  return Object.values(snap.val());
+}
+
+/**
+ * Adapt legacy Configurator policy format to Engine Format
+ */
+function adaptPolicy(legacyPolicy: any): WorkflowApprovalPolicy {
+  // Infer defaults since Configurator doesn't always save them
+  const amount_min = typeof legacyPolicy.minAmount === "number" ? legacyPolicy.minAmount : 0;
+  const amount_max = typeof legacyPolicy.maxAmount === "number" ? legacyPolicy.maxAmount : 999999999;
+  
+  // Convert roles directly and clean up missing values safely
+  const steps: WorkflowApprovalPolicyStep[] = (legacyPolicy.steps || []).map((s: any, idx: number) => ({
+    id: s.id || `step_${idx}`,
+    policy_id: legacyPolicy.id,
+    step_number: idx + 1,
+    role: s.role || "superuser",
+    role_label: s.name || "Approver",
+    sla_days: s.sla_hours ? Math.ceil(s.sla_hours / 24) : 2,
+    is_required: s.isRequired !== false,
+    is_parallel: s.isParallel === true
+  }));
+
+  // Reverse mapping for the module back to Engine
+  const engineModuleStr = Object.entries(MODULE_MAP).find(
+    ([, v]) => v === legacyPolicy.module
+  )?.[0] as ApprovalModule || "REQUISITION";
+
+  return {
+    id: legacyPolicy.id,
+    org_id: legacyPolicy.tenantId,
+    name: legacyPolicy.name || "Adapted Policy",
+    description: legacyPolicy.description || "",
+    module: engineModuleStr,
+    department_scope: legacyPolicy.departmentScope === "All Departments" || !legacyPolicy.departmentScope 
+      ? "ALL" 
+      : legacyPolicy.departmentScope,
+    amount_min,
+    amount_max,
+    auto_approve: !!legacyPolicy.autoApprove,
+    auto_approve_limit: typeof legacyPolicy.autoApproveLimit === "number" ? legacyPolicy.autoApproveLimit : 0,
+    active: legacyPolicy.isActive !== false,
+    priority: legacyPolicy.priority || 0,
+    created_by: "system_adapter",
+    created_at: legacyPolicy.createdAt || new Date().toISOString(),
+    updated_at: legacyPolicy.updatedAt || new Date().toISOString(),
+    steps,
+  };
+}
+
 export const policyMatcher = {
   /**
    * FIND — called by the engine on every submission
    * Returns the single best-matching active policy, or null
    */
   async find({ orgId, module, amount, department }: MatchOptions): Promise<WorkflowApprovalPolicy | null> {
-    // ── Auto-Zero Recovery: Seed defaults if this org has NO policies at all ─────
-    const totalPolicies = await (prisma as any).approvalPolicy.count({ where: { org_id: orgId } });
-    if (totalPolicies === 0) {
-      await seedDefaultPolicies(orgId, "SYSTEM_AUTO");
-    }
+    const legacyPolicies = await fetchLegacyPolicies(orgId);
+    if (legacyPolicies.length === 0) return null;
 
-    // Pull every active policy that could match this action
-    const candidates = await (prisma as any).approvalPolicy.findMany({
-      where: {
-        org_id:     orgId,
-        module:     module,
-        active:     true,
-        amount_min: { lte: amount },
-        amount_max: { gte: amount },
-      },
-      include: {
-        steps: { orderBy: { step_number: "asc" } },
-      },
+    const targetModule = MODULE_MAP[module] || "requisitions";
+
+    // 1. Filter out inactive, wrong module, or out of amount bounds
+    const candidates = legacyPolicies.filter(p => {
+      if (p.isActive === false) return false;
+      if (p.module !== targetModule) return false;
+      
+      const min = typeof p.minAmount === "number" ? p.minAmount : 0;
+      const max = typeof p.maxAmount === "number" ? p.maxAmount : 999999999;
+      
+      // Allow exact equal checking (lte/gte logic)
+      if (amount < min || amount > max) return false;
+      
+      if (department && p.departmentScope && p.departmentScope !== "All Departments" && p.departmentScope !== "ALL") {
+         if (p.departmentScope !== department) return false;
+      }
+      return true;
     });
 
     if (candidates.length === 0) return null;
-    if (candidates.length === 1) return candidates[0];
 
-    // ── Multiple candidates — apply priority rules ──────────
-    return _pickBest(candidates, department);
+    // 2. Pick highest priority
+    candidates.sort((a, b) => (b.priority || 0) - (a.priority || 0));
+    
+    // 3. Adapt and return
+    return adaptPolicy(candidates[0]);
   },
 
   /**
    * SIMULATE — used by the Workflow Simulator on the dashboard
    */
   async simulate({ orgId, module, amount, department }: MatchOptions) {
-    const totalPolicies = await (prisma as any).approvalPolicy.count({ where: { org_id: orgId } });
-    if (totalPolicies === 0) {
-      await seedDefaultPolicies(orgId, "SIMULATOR_AUTO");
-    }
+    const policy = await this.find({ orgId, module, amount, department });
 
-    const allActive = await (prisma as any).approvalPolicy.findMany({
-      where: {
-        org_id:     orgId,
-        module:     module,
-        active:     true,
-        amount_min: { lte: amount },
-        amount_max: { gte: amount },
-      },
-      include: {
-        steps: { orderBy: { step_number: "asc" } },
-      },
-    });
-
-    if (allActive.length === 0) {
+    if (!policy) {
       return {
-        matched:        false,
-        policies:       [],
-        winningPolicy:  null,
-        message: `No active policies match a ${module} for ${amount > 0 ? "GHS " + amount.toLocaleString() : "any amount"}${department ? " in the " + department + " department" : ""}.`,
+        matched: false,
+        policies: [],
+        winningPolicy: null,
+        message: `No active policies match a ${module} for ${amount > 0 ? "GHS " + amount.toLocaleString() : "any amount"}${department ? " in the " + department + " department" : ""}. Please check your Approval Policies settings.`,
       };
     }
 
-    const winner = _pickBest(allActive, department);
-
-    const wouldAutoApprove =
-      winner.auto_approve &&
-      amount <= (winner.auto_approve_limit || 0);
+    const wouldAutoApprove = policy.auto_approve && amount <= (policy.auto_approve_limit || 0);
 
     return {
-      matched:       true,
+      matched: true,
       winningPolicy: {
-        id:               winner.id,
-        name:             winner.name,
-        description:      winner.description,
-        module:           winner.module,
-        amountMin:        winner.amount_min,
-        amountMax:        winner.amount_max,
-        autoApprove:      winner.auto_approve,
-        autoApproveLimit: winner.auto_approve_limit,
+        id: policy.id,
+        name: policy.name,
+        description: policy.description,
+        module: policy.module,
+        amountMin: policy.amount_min,
+        amountMax: policy.amount_max,
+        autoApprove: policy.auto_approve,
+        autoApproveLimit: policy.auto_approve_limit,
         wouldAutoApprove,
-        stepCount:        winner.steps.length,
-        steps:            winner.steps.map((s: any) => ({
+        stepCount: policy.steps?.length || 0,
+        steps: (policy.steps || []).map(s => ({
           stepNumber: s.step_number,
-          role:       s.role,
-          roleLabel:  s.role_label,
-          slaDays:    s.sla_days,
+          role: s.role,
+          roleLabel: s.role_label,
+          slaDays: s.sla_days,
           isParallel: s.is_parallel,
           isRequired: s.is_required,
         })),
       },
-      allMatches: allActive.map((p: any) => ({
-        id:          p.id,
-        name:        p.name,
-        isWinner:    p.id === winner.id,
-        stepCount:   p.steps.length,
-        priority:    p.priority,
-        deptScope:   p.department_scope,
-      })),
+      allMatches: [], // UI adapter simplifies this for now
       message: wouldAutoApprove
-        ? `This transaction would be AUTO-APPROVED — amount GHS ${amount.toLocaleString()} is below the GHS ${winner.auto_approve_limit?.toLocaleString()} threshold.`
-        : `Policy "${winner.name}" would apply — ${winner.steps.length} approval step(s) required.`,
+        ? `This transaction would be AUTO-APPROVED — amount GHS ${amount.toLocaleString()} is below the GHS ${policy.auto_approve_limit?.toLocaleString()} threshold.`
+        : `Policy "${policy.name}" would apply — ${policy.steps?.length || 0} approval step(s) required.`,
     };
   },
 
   /**
-   * GET_ALL — for the Configurator page to load all policies
+   * GET_ALL — for debugging or API checks
    */
   async getAll(orgId: string) {
-    return (prisma as any).approvalPolicy.findMany({
-      where:   { org_id: orgId },
-      include: { steps: { orderBy: { step_number: "asc" } } },
-      orderBy: [{ active: "desc" }, { created_at: "desc" }],
-    });
+    const raw = await fetchLegacyPolicies(orgId);
+    return raw.map(adaptPolicy);
   },
 
   /**
    * CHECK_COVERAGE — gaps in policy setup
    */
   async checkCoverage(orgId: string) {
-    const policies = await (prisma as any).approvalPolicy.findMany({
-      where:   { org_id: orgId, active: true },
-      include: { steps: true },
-    });
+    const allAdapted = await this.getAll(orgId);
+    const activeAdapted = allAdapted.filter(p => p.active);
 
     const modules = [
       "REQUISITION", "PURCHASE_ORDER", "INVOICE",
       "PAYMENT", "CONTRACT", "VENDOR", "TENDER",
-    ];
+    ] as ApprovalModule[];
 
     const report = modules.map(mod => {
-      const matching = policies.filter((p: any) => p.module === mod);
-      const coversZero = matching.some((p: any) => p.amount_min === 0);
-      const coversHigh = matching.some((p: any) => p.amount_max >= 999999999);
+      const matching = activeAdapted.filter(p => p.module === mod);
+      const coversZero = matching.some(p => p.amount_min === 0);
+      const coversHigh = matching.some(p => p.amount_max >= 999999999);
 
       return {
         module:        mod,
@@ -160,48 +205,16 @@ export const policyMatcher = {
         gaps: [
           !coversZero  && "No policy covers small amounts (GHS 0+)",
           !coversHigh  && "No policy covers large amounts (GHS 100,000+)",
-          matching.length === 0 && "No policies at all — actions will escalate to superuser",
+          matching.length === 0 && `No policies configured for ${mod}. Requests will require manual intervention!`,
         ].filter(Boolean),
       };
     });
 
     return {
-      totalActivePolicies: policies.length,
+      totalActivePolicies: activeAdapted.length,
       coverage: report,
       fullyProtected: report.every(r => r.hasCoverage),
       gaps: report.filter(r => r.gaps.length > 0),
     };
   },
 };
-
-/**
- * Private: pick the single best policy from multiple candidates
- */
-function _pickBest(candidates: any[], department?: string): any {
-  if (department) {
-    const deptSpecific = candidates.filter(
-      p => p.department_scope === department
-    );
-    if (deptSpecific.length > 0) {
-      return _highestPriority(deptSpecific);
-    }
-  }
-
-  const allScoped = candidates.filter(p => p.department_scope === "ALL");
-  const pool = allScoped.length > 0 ? allScoped : candidates;
-
-  return _highestPriority(pool);
-}
-
-function _highestPriority(policies: any[]): any {
-  return policies.reduce((best, current) => {
-    if (current.priority > best.priority) return current;
-    if (current.priority < best.priority) return best;
-
-    if (current.amount_min > best.amount_min) return current;
-    if (current.amount_min < best.amount_min) return best;
-
-    if (new Date(current.created_at) > new Date(best.created_at)) return current;
-    return best;
-  });
-}

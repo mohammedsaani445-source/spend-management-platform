@@ -33,10 +33,33 @@ export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id
 
         const newId = newInvRef.key;
 
-        // 2. Workflow submission moved to integration layer (src/lib/workflow/integration.ts)
-        // This ensures the browser doesn't load server-only Firebase Admin SDK.
+        // 2. Evaluate approval policy and assign first approver
+        const policy = await evaluatePolicy(tenantId, 'invoices', invoice.amount, invoice.currency || 'GHS', invoice.department);
+
+        let finalStatus: InvoiceStatus = 'PENDING';
+        let workflowUpdate: any = {};
+
+        if (policy && policy.steps && policy.steps.length > 0) {
+            // Check auto-approve condition
+            if ((policy.autoApprove || (policy as any).autoApproveLimit > 0) && invoice.amount <= ((policy as any).autoApproveLimit || 0)) {
+                finalStatus = 'APPROVED';
+            } else {
+                const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, actor?.uid || 'system');
+                workflowUpdate = {
+                    workflowId: policy.id,
+                    currentStepIndex: 0,
+                    approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : null,
+                    approverName: firstApprovers.length > 0 ? firstApprovers[0].name : null,
+                    approvalHistory: [],
+                };
+            }
+        }
+
         const invUpdateRef = getInvoiceRef(tenantId, newId!);
-        await update(invUpdateRef, { status: invoice.status || 'PENDING' });
+        await update(invUpdateRef, {
+            status: finalStatus,
+            ...workflowUpdate,
+        });
 
         // 🔔 Notification Trigger (Phase 57)
         try {
