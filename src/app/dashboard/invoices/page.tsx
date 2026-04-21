@@ -127,47 +127,28 @@ export default function InvoicesPage() {
                 if (!proceed) return;
             }
 
-            // Use the secure Workflow API instead of direct lib call to prevent build errors
-            const response = await fetch('/api/workflow/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    module: 'INVOICE',
-                    data: {
-                        vendorId: selectedPO.vendorId, 
-                        vendorName: selectedPO.vendorName,
-                        poId: selectedPO.id, 
-                        poNumber: selectedPO.poNumber,
-                        invoiceNumber: formData.invoiceNumber, 
-                        amount: formData.amount,
-                        currency: selectedPO.currency,
-                        issueDate: new Date(formData.issueDate), 
-                        dueDate: new Date(formData.dueDate),
-                        department: selectedPO.department,
-                        fileName: formData.fileName, 
-                        fileUrl: formData.fileUrl,
-                        confidence: formData.confidence || 0,
-                        confidenceReasoning: formData.confidenceReasoning || "",
-                        hasFraudAlert: formData.hasFraudAlert,
-                        fraudCheckReason: formData.fraudCheckReason,
-                        autoExtracted: formData.autoExtracted,
-                        tenantId: user.tenantId
-                    },
-                    actor: {
-                        uid: user.uid,
-                        displayName: user.displayName,
-                        email: user.email,
-                        role: user.role,
-                        tenantId: user.tenantId,
-                        department: user.department
-                    }
-                })
-            });
-
-            if (!response.ok) {
-                const err = await response.json();
-                throw new Error(err.error || 'Failed to submit invoice');
-            }
+            // Use direct creation since workflow engine is removed
+            await createInvoice(user.tenantId, {
+                vendorId: selectedPO.vendorId,
+                vendorName: selectedPO.vendorName,
+                poId: selectedPO.id!,
+                poNumber: selectedPO.poNumber,
+                invoiceNumber: formData.invoiceNumber,
+                amount: formData.amount,
+                currency: selectedPO.currency,
+                issueDate: new Date(formData.issueDate),
+                dueDate: new Date(formData.dueDate),
+                department: selectedPO.department,
+                fileName: formData.fileName,
+                fileUrl: formData.fileUrl,
+                confidence: formData.confidence || 0,
+                confidenceReasoning: formData.confidenceReasoning || "",
+                hasFraudAlert: formData.hasFraudAlert,
+                fraudCheckReason: formData.fraudCheckReason,
+                autoExtracted: formData.autoExtracted,
+                tenantId: user.tenantId,
+                status: 'PENDING'
+            } as any, user);
             setShowModal(false);
             setFormData({
                 poId: "", invoiceNumber: "", amount: 0, currency: "USD",
@@ -194,18 +175,7 @@ export default function InvoicesPage() {
     const handleStatusUpdate = async (id: string, status: InvoiceStatus) => {
         try {
             if (!user) return;
-            if (status === 'APPROVED' || status === 'REJECTED') {
-                 const { processApprovalAction } = await import("@/lib/approvals");
-                 await processApprovalAction({
-                     tenantId: user.tenantId,
-                     entityId: id,
-                     entityType: 'INVOICE',
-                     actor: { uid: user.uid, name: user.displayName, email: user.email },
-                     action: status === 'APPROVED' ? 'APPROVE' : 'REJECT'
-                 });
-            } else {
-                 await updateStatus(user.tenantId, id, status);
-            }
+            await updateStatus(user.tenantId, id, status);
             setSelectedInvoice(null);
         } catch (e: any) { await showError("Error", e.message || "Error updating status"); }
     };

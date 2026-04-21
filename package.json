@@ -2,11 +2,27 @@
   "name": "spend-management-platform",
   "version": "0.1.1",
   "private": true,
+  "description": "Apex Procure Enterprise - Advanced Spend Management and Procurement Platform",
+  "author": "Apex Procure Team",
+  "main": "electron/main.js",
+  "build": {
+    "appId": "com.apexprocure.desktop",
+    "productName": "Apex Procure",
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "desktop": "electron electron/main.js",
+    "desktop:build": "electron-builder build --win"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -38,6 +54,8 @@
     "clsx": "^2.1.1",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3",
     "firebase-tools": "^15.8.0",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.7.0",

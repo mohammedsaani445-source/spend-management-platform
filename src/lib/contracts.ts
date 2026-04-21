@@ -2,7 +2,6 @@ import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, remove } from "firebase/database";
 import { Contract, ContractStatus } from "@/types";
 import { logAction } from "./audit";
-import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
 const getContractsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/contracts`);
 const getContractRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/contracts/${id}`);
 
@@ -12,13 +11,13 @@ export const createContract = async (contract: Omit<Contract, 'id' | 'createdAt'
         const newContractRef = push(contractsRef);
         const now = new Date().toISOString();
 
-        // 1. Save contract as DRAFT first
+        // 1. Save contract as ACTIVE directly
         const fullContract: Contract = {
             ...contract,
             id: newContractRef.key!,
-            status: 'DRAFT' as any,
-            createdAt: new Date(now),
-            updatedAt: new Date(now),
+            status: 'ACTIVE' as ContractStatus,
+            createdAt: now as any,
+            updatedAt: now as any,
         };
 
         await set(newContractRef, {
@@ -29,9 +28,6 @@ export const createContract = async (contract: Omit<Contract, 'id' | 'createdAt'
             updatedAt: now,
         });
 
-// 2. We skip direct WorkflowEngine calls here because this library is shared with the client.
-        // The calling component or API route should trigger the workflow submission.
-        
         await logAction({
             tenantId: user.tenantId,
             actorId: user.uid,

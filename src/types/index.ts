@@ -40,9 +40,9 @@ export interface Notification {
     id: string;
     tenantId: string;
     userId: string;
-    type: 'APPROVAL_REQUEST' | 'PO_ACKNOWLEDGED' | 'PO_OPENED' | 'BUDGET_ALERT' | 'SYSTEM' | 'PO_SHIPPED'
+    type: 'PO_ACKNOWLEDGED' | 'PO_OPENED' | 'BUDGET_ALERT' | 'SYSTEM' | 'PO_SHIPPED'
         | 'PAYMENT_PROCESSED' | 'PAYMENT_SCHEDULED' | 'CONTRACT_EXPIRING' | 'INVOICE_SUBMITTED'
-        | 'APPROVAL_GRANTED' | 'APPROVAL_REJECTED' | 'PAYMENT_FAILED' | 'BILL_VOIDED';
+        | 'PAYMENT_FAILED' | 'BILL_VOIDED' | 'APPROVAL_GRANTED' | 'APPROVAL_REJECTED';
     title: string;
     message: string;
     link?: string;
@@ -213,25 +213,10 @@ export interface Requisition {
     justification: string;
     status: RequisitionStatus;
     createdAt: Date;
-    approverId?: string;
-    approverName?: string;
-    currentStepIndex?: number;
-    workflowId?: string;
-    approvalHistory?: ApprovalHistoryEntry[];
     complianceScore?: number;
     complianceFindings?: string[];
 }
 
-export interface ApprovalHistoryEntry {
-    stepId: string;
-    stepName: string;
-    actorId: string;
-    actorName: string;
-    actorEmail: string;
-    action: 'APPROVE' | 'REJECT' | 'REVISION_REQUESTED';
-    comment?: string;
-    timestamp: string;
-}
 
 export interface DeliveryLog {
     timestamp: string;
@@ -274,9 +259,6 @@ export interface PurchaseOrder {
     invoiceIds?: string[];
     isMatched?: boolean;
     discrepancyNote?: string;
-    approvalHistory?: ApprovalHistoryEntry[];
-    currentStepIndex?: number;
-    workflowId?: string;
     issuedByName?: string;
     shippingAddress?: string;
     createdAt?: string;
@@ -308,12 +290,6 @@ export interface Invoice {
     hasFraudAlert?: boolean;
     fraudCheckReason?: string;
     autoExtracted?: boolean;
-    // Approval metadata
-    approverId?: string;
-    approverName?: string;
-    currentStepIndex?: number;
-    workflowId?: string;
-    approvalHistory?: ApprovalHistoryEntry[];
 }
 
 
@@ -333,12 +309,6 @@ export interface Budget {
     status?: 'ACTIVE' | 'PENDING_APPROVAL' | 'INACTIVE';
     createdAt?: Date | string; // Optional as it might be added on creation
     updatedAt?: string;
-    // Approval metadata
-    approverId?: string;
-    approverName?: string;
-    currentStepIndex?: number;
-    workflowId?: string;
-    approvalHistory?: ApprovalHistoryEntry[];
 }
 
 export interface BudgetUtilization {
@@ -367,10 +337,6 @@ export interface BudgetAdjustment {
     targetDepartment?: string; // For transfers
     reason: string;
     status: BudgetAdjustmentStatus;
-    approverId?: string;
-    approverName?: string;
-    workflowId?: string | null;
-    approvalHistory?: ApprovalHistoryEntry[];
     createdAt: string;
     processedAt?: string;
 }
@@ -438,7 +404,7 @@ export type AuditAction =
 
 export type AuditEntityType = 
     | 'USER' | 'REQUISITION' | 'PURCHASE_ORDER' | 'PO' | 'RECEIPT' | 'INVOICE' 
-    | 'PAYMENT' | 'TENDER' | 'BID' | 'WORKFLOW' | 'BUDGET' | 'VENDOR' | 'CONTRACT' | 'ASSET';
+    | 'PAYMENT' | 'TENDER' | 'BID' | 'BUDGET' | 'VENDOR' | 'CONTRACT' | 'ASSET';
 
 // --- Phase 45: Blind Bidding & Compliance ---
 
@@ -457,12 +423,6 @@ export interface Tender {
     awardedAt?: string;
     poId?: string;
     poNumber?: string;
-    // Approval metadata
-    approverId?: string;
-    approverName?: string;
-    currentStepIndex?: number;
-    workflowId?: string;
-    approvalHistory?: ApprovalHistoryEntry[];
 }
 
 export interface Bid {
@@ -601,12 +561,6 @@ export interface Contract {
     tags?: string[];
     createdAt: Date;
     updatedAt: Date;
-    // Approval metadata
-    approverId?: string;
-    approverName?: string;
-    currentStepIndex?: number;
-    workflowId?: string;
-    approvalHistory?: ApprovalHistoryEntry[];
 }
 
 // Phase 23: Inventory & Warehouse Management
@@ -862,43 +816,3 @@ export interface Expense {
     autoExtracted?: boolean;
 }
 
-// --- Approval Workflow Configurator (Phase 28+) ---
-
-export type ApprovalPolicyModule = 'requisitions' | 'purchase_orders' | 'invoices' | 'contracts' | 'vendors' | 'tenders' | 'budgets' | 'expenses' | 'payments';
-
-export interface ApprovalPolicyStep {
-    id: string;
-    role: UserRole; // Legacy or generic role
-    approverId?: string; // Specific user
-    approverIds?: string[]; // Multiple specific users
-    approverRole?: UserRole | 'REPORT_TO_MANAGER' | 'DEPARTMENT_HEAD'; // Dynamic role
-    name: string;
-    isParallel?: boolean;
-    isRequired?: boolean;
-    requireAll?: boolean; // For parallel: do all need to approve?
-    sla_hours?: number;
-    threshold?: number; // Legacy or generic threshold
-    thresholdMin?: number; // Minimum amount for this step to trigger
-    thresholdMax?: number; // Maximum amount for this step to trigger
-}
-
-export interface ApprovalPolicy {
-    id: string;
-    tenantId: string;
-    module: ApprovalPolicyModule;
-    name: string;
-    description: string;
-    isActive: boolean;
-    autoApproveLimit: number;
-    autoApprove?: boolean;
-    currency: string;
-    steps: ApprovalPolicyStep[];
-    usageCount: number;
-    updatedAt: string;
-    createdAt: string;
-    priority: number; // For overlapping policies
-    departmentId?: string; // Optional scoping
-    departmentScope?: string;
-    minAmount?: number;
-    maxAmount?: number;
-}

@@ -1,30 +1,30 @@
 import { useState, useEffect, useRef } from 'react';
 
-export function useIntersection(options: IntersectionObserverInit = { threshold: 0.1 }) {
+const DEFAULT_OPTIONS: IntersectionObserverInit = { threshold: 0.1 };
+
+export function useIntersection(options: IntersectionObserverInit = DEFAULT_OPTIONS) {
     const [isIntersecting, setIsIntersecting] = useState(false);
     const elementRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
+        const target = elementRef.current;
+        if (!target || isIntersecting) return;
+
         const observer = new IntersectionObserver(([entry]) => {
             if (entry.isIntersecting) {
                 setIsIntersecting(true);
-                // Once it has intersected, we can stop observing if we only want one-time reveal
-                if (elementRef.current) {
-                    observer.unobserve(elementRef.current);
-                }
             }
         }, options);
 
-        if (elementRef.current) {
-            observer.observe(elementRef.current);
-        }
+        observer.observe(target);
 
         return () => {
-            if (elementRef.current) {
-                observer.unobserve(elementRef.current);
+            if (target) {
+                observer.unobserve(target);
             }
+            observer.disconnect();
         };
-    }, [options]);
+    }, [options, isIntersecting]);
 
     return [elementRef, isIntersecting] as const;
 }

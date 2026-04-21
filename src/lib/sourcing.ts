@@ -2,7 +2,6 @@ import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, equalTo, orderByChild } from "firebase/database";
 import { RFP, Quotation, AppUser, PurchaseOrder, Tender, Bid } from "@/types";
 import { logAction } from "./audit";
-import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
 
 const getRFPsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/rfps`);
 const getRFPRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/rfps/${id}`);
@@ -233,7 +232,7 @@ export const awardBid = async (tenantId: string, rfpId: string, quoteId: string,
             })),
             totalAmount: quote.totalAmount,
             currency: quote.currency,
-            status: 'PENDING', // POs generated from sourcing also follow PO policies if any, but usually they are pre-approved. Here we set to PENDING to be safe.
+            status: 'ISSUED', // Unified with the direct PO flow
             createdBy: user.uid,
             createdAt: new Date().toISOString()
         };
@@ -265,49 +264,11 @@ export const awardBid = async (tenantId: string, rfpId: string, quoteId: string,
  */
 export const initiateAwardApproval = async (tenantId: string, rfpId: string, quoteId: string, user: AppUser) => {
     try {
-        const rfpRef = getRFPRef(tenantId, rfpId);
-        const quoteSnap = await get(getQuoteRef(tenantId, quoteId));
-        
-        if (!quoteSnap.exists()) throw new Error("Quote not found");
-        const quote = quoteSnap.val() as Quotation;
-
-        // --- ENTERPRISE POLICY ENGINE ---
-        const policy = await evaluatePolicy(tenantId, 'tenders', quote.totalAmount, quote.currency, user.department || 'Procurement');
-        
-        if (policy && policy.steps.length > 0) {
-            const firstStepApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, user.uid);
-            
-            const updates: any = {
-                status: 'PENDING_AWARD',
-                pendingAwardQuoteId: quoteId,
-                workflowId: policy.id,
-                currentStepIndex: 0,
-                approverId: firstStepApprovers.length > 0 ? firstStepApprovers[0].uid : 'admin',
-                approverName: firstStepApprovers.length > 0 ? firstStepApprovers[0].name : 'System Admin',
-                approvalHistory: []
-            };
-
-            await update(rfpRef, updates);
-
-            // Audit Log
-            await logAction({
-                tenantId,
-                actorId: user.uid,
-                actorName: user.displayName,
-                action: 'UPDATE',
-                entityType: 'REQUISITION',
-                entityId: rfpId,
-                description: `Initiated "Approval to Award" for RFP ${rfpId}. Selected Vendor: ${quote.vendorName}`
-            });
-
-            return { status: 'PENDING_AWARD', approvers: firstStepApprovers };
-        } else {
-            // No policy found, proceed directly to award
-            const poId = await awardBid(tenantId, rfpId, quoteId, user);
-            return { status: 'AWARDED', poId };
-        }
+        // Direct award flow following engine removal
+        const poId = await awardBid(tenantId, rfpId, quoteId, user);
+        return { status: 'AWARDED', poId };
     } catch (error) {
-        console.error("[Sourcing] Error initiating award approval:", error);
+        console.error("[Sourcing] Error initiating award:", error);
         throw error;
     }
 };

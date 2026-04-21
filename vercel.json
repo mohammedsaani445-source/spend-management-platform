@@ -1,8 +1,2 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/workflow-sla",
-      "schedule": "0 0 * * *"
-    }
-  ]
 }

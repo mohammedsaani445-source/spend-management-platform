@@ -15,12 +15,12 @@ function getAdminApp() {
     const rawClientEmail = process.env.FIREBASE_CLIENT_EMAIL;
     const rawPrivateKey = process.env.FIREBASE_PRIVATE_KEY;
     
-    // THE URL WE VERIFIED AS WORKING
-    const databaseURL = "https://spend-management-platform-default-rtdb.firebaseio.com";
-    const bucketName = "spend-management-platform.firebasestorage.app";
+    // Fallback URLs for the prod environment
+    const databaseURL = process.env.FIREBASE_DATABASE_URL || "https://spend-management-platform-default-rtdb.firebaseio.com";
+    const bucketName = process.env.FIREBASE_STORAGE_BUCKET || "spend-management-platform.firebasestorage.app";
 
     if (!rawProjectId || !rawClientEmail || !rawPrivateKey) {
-        throw new Error("Firebase configuration environment variables are missing (PID/Email/Key).");
+        throw new Error(`Firebase configuration environment variables are missing. PID: ${!!rawProjectId}, Email: ${!!rawClientEmail}, Key: ${!!rawPrivateKey}`);
     }
 
     try {

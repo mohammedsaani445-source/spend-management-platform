@@ -152,32 +152,21 @@ export default function RequisitionForm() {
         try {
             const vendor = vendors.find(v => v.id === selectedVendorId);
 
-            // Use the secure Workflow API instead of direct lib call to prevent build errors
-            const response = await fetch('/api/workflow/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    module: 'REQUISITION',
-                    data: {
-                        tenantId: user.tenantId,
-                        requesterId: user.uid,
-                        requesterName: user.displayName || "Unknown",
-                        department,
-                        vendorId: selectedVendorId,
-                        vendorName: vendor?.name || "",
-                        items,
-                        totalAmount: calculateTotal(),
-                        currency,
-                        justification,
-                        status: 'PENDING'
-                    }
-                })
+            // Reverting to direct library call instead of secure Workflow API sincetiered approvals are removed
+            await createRequisition({
+                tenantId: user.tenantId,
+                requesterId: user.uid,
+                requesterName: user.displayName || "Unknown",
+                department,
+                vendorId: selectedVendorId,
+                vendorName: vendor?.name || "",
+                items,
+                totalAmount: calculateTotal(),
+                currency,
+                justification,
+                status: 'PENDING'
             });
 
-            if (!response.ok) {
-                const err = await response.json();
-                throw new Error(err.error || 'Failed to submit requisition');
-            }
 
             router.push("/dashboard/requisitions");
         } catch (error: unknown) {
@@ -312,19 +301,19 @@ export default function RequisitionForm() {
                                             <span>
                                                 Budget Utilization:
                                                 <strong style={{ marginLeft: '0.5rem', color: isOverBudget ? 'var(--error)' : isWarning ? 'var(--warning)' : 'var(--success)' }}>
-                                                    {Math.round(newPercent)}%
+                                                    {Math.round(newPercent || 0)}%
                                                 </strong>
                                             </span>
-                                            <span style={{ color: 'var(--text-secondary)' }}>Limit: {formatCurrency(budgetStatus.budget, budgetStatus.currency)}</span>
+                                            <span style={{ color: 'var(--text-secondary)' }}>Limit: {formatCurrency(budgetStatus?.budget || 0, budgetStatus?.currency || currency)}</span>
                                         </div>
 
                                         {/* Progress Bar */}
                                         <div style={{ height: '10px', width: '100%', backgroundColor: 'var(--border)', borderRadius: '5px', overflow: 'hidden', display: 'flex', marginTop: '0.5rem' }}>
                                             {/* Existing Spend */}
-                                            <div style={{ width: `${Math.min(budgetStatus.percent, 100)}%`, backgroundColor: 'var(--text-disabled)' }} title="Existing Spend"></div>
+                                            <div style={{ width: `${Math.min(budgetStatus?.percent || 0, 100)}%`, backgroundColor: 'var(--text-disabled)' }} title="Existing Spend"></div>
                                             {/* This Request */}
                                             <div style={{
-                                                width: `${Math.min((currentTotal / safeBudget) * 100, 100 - Math.min(budgetStatus.percent, 100))}%`,
+                                                width: `${Math.min((currentTotal / safeBudget) * 100, 100 - Math.min(budgetStatus?.percent || 0, 100))}%`,
                                                 backgroundColor: isOverBudget ? 'var(--error)' : isWarning ? 'var(--warning)' : 'var(--success)',
                                                 transition: 'width 0.3s'
                                             }} title="This Request"></div>

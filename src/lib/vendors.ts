@@ -9,35 +9,16 @@ const getVendorRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/ten
 
 export const addVendor = async (tenantId: string, vendor: Omit<Vendor, 'id' | 'createdAt'>, requester?: { uid: string, name: string }) => {
     try {
-        const { evaluatePolicy, getCurrentStepApprovers } = await import("./approvals");
-        
         const vendorsRef = getVendorsRef(tenantId);
         const newVendorRef = push(vendorsRef);
         const vendorId = newVendorRef.key;
 
-        // 1. Evaluate Policy (Threshold 0 for Onboarding)
-        const policy = await evaluatePolicy(tenantId, 'vendors', 0, 'USD');
-
-        let status: any = vendor.status || 'ACTIVE';
-        let workflowUpdate: any = {};
-
-        if (policy && policy.steps && policy.steps.length > 0) {
-            status = 'PENDING';
-            const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, requester?.uid || 'system');
-            workflowUpdate = {
-                workflowId: policy.id,
-                currentStepIndex: 0,
-                approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : 'admin',
-                approverName: firstApprovers.length > 0 ? firstApprovers[0].name : 'System Admin',
-                approvalHistory: []
-            };
-        }
+        const status = vendor.status || 'ACTIVE';
 
         await set(newVendorRef, {
             ...vendor,
             id: vendorId,
             status,
-            ...workflowUpdate,
             createdAt: new Date().toISOString(),
         });
 

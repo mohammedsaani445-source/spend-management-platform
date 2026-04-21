@@ -24,14 +24,18 @@ export interface SpendSummary {
 }
 
 export const getSpendAnalytics = async (user: AppUser, targetCurrency: string = 'USD'): Promise<SpendSummary> => {
-    const [pos, reqs, budgets, rates] = await Promise.all([
+    const [posData, reqsData, budgetsData, rates] = await Promise.all([
         getPurchaseOrders(user),
         getRequisitions(user),
         getBudgets(user),
         getExchangeRates()
     ]);
 
-    const reqMap = new Map(reqs.map(r => [r.id!, r]));
+    const pos = posData || [];
+    const reqs = reqsData || [];
+    const budgets = budgetsData || [];
+
+    const reqMap = new Map(reqs.filter(r => r?.id).map(r => [r.id!, r]));
 
     const summary: SpendSummary = {
         totalSpend: 0,
@@ -92,9 +96,10 @@ export const getSpendAnalytics = async (user: AppUser, targetCurrency: string = 
                 const itemTotalRaw = Number(item.total) || 0;
                 const itemTotal = convertCurrency(itemTotalRaw, req.currency || 'USD', targetCurrency, rates);
 
-                const category = item.description.toLowerCase().includes('it') ? 'IT Hardware' :
-                    item.description.toLowerCase().includes('office') ? 'Office Supplies' :
-                        item.description.toLowerCase().includes('software') ? 'Software Subs' :
+                const desc = item.description?.toLowerCase() ?? '';
+                const category = desc.includes('it') ? 'IT Hardware' :
+                    desc.includes('office') ? 'Office Supplies' :
+                    desc.includes('software') ? 'Software Subs' :
                             dept;
                 summary.spendByCategory[category] = (summary.spendByCategory[category] || 0) + itemTotal;
             });
@@ -117,9 +122,9 @@ export const getSpendAnalytics = async (user: AppUser, targetCurrency: string = 
         }
 
         // Add to Trend Map
-        const poDate = new Date(po.issuedAt);
+        const poDate = new Date(po.issuedAt || Date.now());
         const poMonth = months[poDate.getMonth()];
-        if (trendMap.has(poMonth)) {
+        if (poMonth && trendMap.has(poMonth)) {
             trendMap.set(poMonth, (trendMap.get(poMonth) || 0) + amount);
         }
 
@@ -161,7 +166,7 @@ export const getSpendAnalytics = async (user: AppUser, targetCurrency: string = 
             id: req.id!,
             type: 'REQUISITION',
             title: 'New Requisition',
-            description: `${req.requesterName} requested ${req.items[0]?.description}`,
+            description: `${req.requesterName} requested ${req.items?.[0]?.description ?? 'items'}`,
             amount: reqAmount,
             currency: targetCurrency,
             timestamp: req.createdAt,
@@ -171,7 +176,11 @@ export const getSpendAnalytics = async (user: AppUser, targetCurrency: string = 
     });
 
     summary.recentTransactions = pos
-        .sort((a, b) => b.issuedAt.getTime() - a.issuedAt.getTime())
+        .sort((a, b) => {
+            const timeA = a.issuedAt instanceof Date ? a.issuedAt.getTime() : new Date(a.issuedAt || 0).getTime();
+            const timeB = b.issuedAt instanceof Date ? b.issuedAt.getTime() : new Date(b.issuedAt || 0).getTime();
+            return timeB - timeA;
+        })
         .map(po => ({
             ...po,
             totalAmount: convertCurrency(po.totalAmount, po.currency || 'USD', targetCurrency, rates),
@@ -179,7 +188,11 @@ export const getSpendAnalytics = async (user: AppUser, targetCurrency: string = 
         }))
         .slice(0, 5);
 
-    summary.activityFeed.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    summary.activityFeed.sort((a, b) => {
+        const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : new Date(a.timestamp || 0).getTime();
+        const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp || 0).getTime();
+        return timeB - timeA;
+    });
 
     return summary;
 };

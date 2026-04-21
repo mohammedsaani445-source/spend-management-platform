@@ -49,8 +49,16 @@ interface ExecutiveDashboardProps {
 
 export default function ExecutiveDashboard({ user, stats = {} as any, pos = [], currency, onCurrencyChange }: ExecutiveDashboardProps) {
     const [greeting, setGreeting] = useState("Good Morning");
-    const availableBudget = (stats.budgetUsage.total || 0) - (stats.budgetUsage.used || 0);
+    const availableBudget = (stats?.budgetUsage?.total || 0) - (stats?.budgetUsage?.used || 0);
     const firstName = (user as any).displayName?.split(' ')[0] || (user as any).name?.split(' ')[0] || 'there';
+
+    const chartData = useMemo(() => {
+        const data = stats?.monthlyData || [];
+        if (data.length === 0) {
+            return [{ label: 'Jan', value: 0 }, { label: 'Feb', value: 0 }, { label: 'Mar', value: 0 }];
+        }
+        return data;
+    }, [stats?.monthlyData]);
 
     useEffect(() => {
         const h = new Date().getHours();
@@ -87,11 +95,6 @@ export default function ExecutiveDashboard({ user, stats = {} as any, pos = [], 
                         </div>
                         <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: 0, letterSpacing: '-0.03em' }}>
                             {firstName}!
-                            {stats.pendingCount > 0 && (
-                                <span style={{ fontSize: '1rem', fontWeight: 500, marginLeft: '1rem', color: 'rgba(255,255,255,0.9)', background: 'rgba(255,255,255,0.15)', padding: '4px 12px', borderRadius: '99px' }}>
-                                    {stats.pendingCount} approvals pending
-                                </span>
-                            )}
                         </h1>
                     </div>
                 </div>
@@ -105,18 +108,6 @@ export default function ExecutiveDashboard({ user, stats = {} as any, pos = [], 
                         <Plus size={18} strokeWidth={3} />
                         New Request
                     </Link>
-                    {stats.pendingCount > 0 && (
-                        <Link href="/dashboard/approvals" style={{
-                            background: 'rgba(255,255,255,0.1)', color: 'white',
-                            fontSize: '0.9375rem', fontWeight: 600, padding: '0.625rem 1.25rem',
-                            borderRadius: '10px', border: '1px solid rgba(255,255,255,0.2)',
-                            textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem',
-                            backdropFilter: 'blur(5px)'
-                        }} className="hover-scale">
-                            Review All
-                            <ChevronRight size={18} />
-                        </Link>
-                    )}
                 </div>
             </div>
 
@@ -131,7 +122,7 @@ export default function ExecutiveDashboard({ user, stats = {} as any, pos = [], 
                             <TrendingUp size={16} color="var(--success)" />
                         </div>
                         <div style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Total Commitment</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '0.25rem', color: 'var(--text-primary)' }}>{formatCurrency(stats.totalSpend, currency)}</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '0.25rem', color: 'var(--text-primary)' }}>{formatCurrency(stats?.totalSpend || 0, currency)}</div>
                     </div>
                 </Link>
 
@@ -141,12 +132,12 @@ export default function ExecutiveDashboard({ user, stats = {} as any, pos = [], 
                             <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'var(--info-soft, rgba(0, 184, 217, 0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--info)' }}>
                                 <Activity size={20} />
                             </div>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: stats.budgetUsage.percent > 90 ? 'var(--error)' : 'var(--success)' }}>
-                                {stats.budgetUsage.percent > 90 ? 'Critical' : 'Stable'}
+                            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: (stats?.budgetUsage?.percent || 0) > 90 ? 'var(--error)' : 'var(--success)' }}>
+                                {(stats?.budgetUsage?.percent || 0) > 90 ? 'Critical' : 'Stable'}
                             </div>
                         </div>
                         <div style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Budget Integrity</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '0.25rem', color: 'var(--text-primary)' }}>{Math.round(stats.budgetUsage.percent)}%</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '0.25rem', color: 'var(--text-primary)' }}>{Math.round(stats?.budgetUsage?.percent || 0)}%</div>
                     </div>
                 </Link>
 
@@ -159,7 +150,7 @@ export default function ExecutiveDashboard({ user, stats = {} as any, pos = [], 
                             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--warning)' }}>Fleet Active</div>
                         </div>
                         <div style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Enterprise Assets</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '0.25rem', color: 'var(--text-primary)' }}>{(stats as any).assetCount || 0} Items</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '0.25rem', color: 'var(--text-primary)' }}>{stats?.assetCount || 0} Items</div>
                     </div>
                 </Link>
 
@@ -169,16 +160,16 @@ export default function ExecutiveDashboard({ user, stats = {} as any, pos = [], 
                             <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)' }}>
                                 <Package size={20} />
                             </div>
-                            {(stats as any).lowStockItems ? (
+                            {stats?.lowStockItems ? (
                                 <div style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--error)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                    <AlertTriangle size={12} /> {(stats as any).lowStockItems} Low
+                                    <AlertTriangle size={12} /> {stats?.lowStockItems} Low
                                 </div>
                             ) : (
                                 <Zap size={16} color="var(--success)" />
                             )}
                         </div>
                         <div style={{ fontSize: '0.65rem', fontWeight: 900, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Inventory Value</div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '0.25rem', color: 'var(--text-primary)' }}>{formatCurrency((stats as any).inventoryValue || 0, currency)}</div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, marginTop: '0.25rem', color: 'var(--text-primary)' }}>{formatCurrency(stats?.inventoryValue || 0, currency)}</div>
                     </div>
                 </Link>
             </div>
@@ -217,14 +208,14 @@ export default function ExecutiveDashboard({ user, stats = {} as any, pos = [], 
                                 </select>
                             </div>
                         </div>
-                        <SpendBarChart data={stats.monthlyData} currency={currency} />
+                        <SpendBarChart data={chartData} currency={currency} />
                     </div>
 
                     {/* Category Breakdown */}
                     <div className="premium-card" style={{ padding: '1.5rem' }}>
                         <h2 style={{ fontSize: '1.125rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.5rem', letterSpacing: '-0.02em' }}>Allocation Dynamics</h2>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                            {stats.spendByCategory && Object.entries(stats.spendByCategory)
+                            {stats?.spendByCategory && Object.entries(stats.spendByCategory)
                                 .sort(([, a], [, b]) => b - a).slice(0, 5)
                                 .map(([cat, amount], i) => {
                                     const COLORS = ['var(--brand)', 'var(--success)', 'var(--info)', 'var(--warning)', 'var(--text-secondary)'];
@@ -247,7 +238,7 @@ export default function ExecutiveDashboard({ user, stats = {} as any, pos = [], 
                                         </div>
                                     );
                                 })}
-                            {(!stats.spendByCategory || Object.keys(stats.spendByCategory).length === 0) && (
+                            {(!stats?.spendByCategory || Object.keys(stats?.spendByCategory || {}).length === 0) && (
                                 <div style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-disabled)', fontSize: '0.9375rem' }}>
                                     <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>📈</div>
                                     Industrial data streams pending initialization...

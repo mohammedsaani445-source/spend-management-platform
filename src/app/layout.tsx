@@ -11,8 +11,15 @@ const dmMono = DM_Mono({ weight: ["400", "500"], subsets: ["latin"], variable: "
 
 
 export const metadata: Metadata = {
-  title: "Apexprocure",
+  title: "Apex Procure",
   description: "Enterprise Procurement & Supply Chain Solution",
+  manifest: "/manifest.webmanifest",
+  applicationName: "Apex Procure",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Apex Procure",
+  },
   icons: {
     icon: [
       { url: "/icon.svg", type: "image/svg+xml" },

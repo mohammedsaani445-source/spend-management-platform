@@ -97,8 +97,8 @@ export default function AiAnalyst() {
     };
 
     const loadSession = (session: ChatSession) => {
-        setMessages(session.messages);
-        setCurrentSessionId(session.id);
+        setMessages(session?.messages || []);
+        setCurrentSessionId(session?.id || null);
         setIsHistoryOpen(false);
     };
 
@@ -121,7 +121,7 @@ export default function AiAnalyst() {
     };
 
     const handleExport = () => {
-        const content = messages.map(m => `[${m.role.toUpperCase()}] ${m.text}`).join('\n\n');
+        const content = (messages || []).map(m => `[${m.role?.toUpperCase()}] ${m.text}`).join('\n\n');
         const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');

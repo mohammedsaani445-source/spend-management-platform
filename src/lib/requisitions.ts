@@ -1,15 +1,11 @@
 import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, orderByChild, equalTo, onValue } from "firebase/database";
 import { Requisition, RequisitionStatus, AppUser } from "@/types";
-import { evaluatePolicy, getCurrentStepApprovers, processApprovalAction } from "./approvals";
 import { runComplianceCheck } from "./compliance_checker";
 import { PaymentService } from "./payments";
 import { canViewEntity } from "./permissions";
 import { getBudgets } from "./budgets";
 import { getSpendAnalytics } from "./analytics";
-// WorkflowEngine removed to prevent server-side leakage into client components.
-// Use src/lib/workflow/integration.ts for server-side workflow operations.
-
 const getRequisitionsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/requisitions`);
 const getRequisitionRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/requisitions/${id}`);
 
@@ -58,39 +54,31 @@ export const createRequisition = async (requisition: Omit<Requisition, 'id' | 'c
             currency: requisition.currency || 'USD',
             id: newReqRef.key,
             createdAt: new Date().toISOString(),
-            status: budgetStatus || 'DRAFT',
+            status: budgetStatus || 'APPROVED',
             locationId: requisition.locationId || null,
             departmentId: requisition.departmentId || null
         };
 
         await set(newReqRef, cleanReq);
 
-        // 2. Evaluate approval policy and assign first approver
-        const policy = await evaluatePolicy(tenantId, 'requisitions', requisition.totalAmount, requisition.currency || 'GHS', requisition.department);
-
-        let finalStatus: RequisitionStatus = budgetStatus || 'PENDING';
-        let workflowUpdate: any = {};
-
-        if (policy?.steps?.length && policy.steps.length > 0) {
-            // Check auto-approve condition
-            if ((policy.autoApprove || (policy as any).autoApproveLimit > 0) && requisition.totalAmount <= ((policy as any).autoApproveLimit || 0)) {
-                finalStatus = budgetStatus || ('APPROVED' as RequisitionStatus);
-            } else {
-                const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, requisition.requesterId);
-                workflowUpdate = {
-                    workflowId: policy.id,
-                    currentStepIndex: 0,
-                    approverId: (firstApprovers?.length || 0) > 0 ? firstApprovers[0].uid : null,
-                    approverName: (firstApprovers?.length || 0) > 0 ? firstApprovers[0].name : null,
-                    approvalHistory: [],
-                };
+        // If newly created and approved, ensure side effects like fund reservation are handled
+        if (cleanReq.status === 'APPROVED') {
+             try {
+                // Trigger post-approval side effects asynchronously 
+                // (usually handled by approveRequisition, but here we do it for direct creation)
+                const { runComplianceCheck } = await import("./compliance_checker");
+                const { reserveFunds } = await import("./budgets");
+                
+                const compliance = await runComplianceCheck(tenantId, cleanReq as any);
+                await update(newReqRef, {
+                    complianceScore: compliance.riskScore,
+                    complianceFindings: compliance.findings
+                });
+                await reserveFunds(tenantId, cleanReq.department, Number(cleanReq.totalAmount));
+            } catch (err) {
+                console.error("[Requisitions] Post-approval side effects failed:", err);
             }
         }
-
-        await update(newReqRef, {
-            status: finalStatus,
-            ...workflowUpdate,
-        });
 
         return newReqRef.key;
     } catch (error) {
@@ -115,9 +103,9 @@ export const subscribeToRequisitions = (user: AppUser, callback: (reqs: Requisit
                 const data = snapshot.val();
                 const reqArray = Object.values(data).map((v: any) => ({
                     ...v,
-                    createdAt: new Date(v.createdAt),
+                    createdAt: v.createdAt ? new Date(v.createdAt) : new Date(),
                 })) as Requisition[];
-                callback(reqArray.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+                callback(reqArray.sort((a, b) => (b.createdAt?.getTime?.() || 0) - (a.createdAt?.getTime?.() || 0)));
             } else {
                 callback([]);
             }
@@ -135,17 +123,16 @@ export const subscribeToRequisitions = (user: AppUser, callback: (reqs: Requisit
             const data = snapshot.val();
             const allReqs = Object.values(data).map((v: any) => ({
                 ...v,
-                createdAt: new Date(v.createdAt),
+                createdAt: v.createdAt ? new Date(v.createdAt) : new Date(),
             })) as Requisition[];
 
             // Filter locally based on user permissions
             const filtered = allReqs.filter(req => {
                 return req.requesterId === user.uid ||
-                    req.approverId === user.uid ||
                     (user.departmentId && req.departmentId === user.departmentId);
             });
 
-            callback(filtered.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()));
+            callback(filtered.sort((a, b) => (b.createdAt?.getTime?.() || 0) - (a.createdAt?.getTime?.() || 0)));
         } else {
             callback([]);
         }
@@ -169,10 +156,9 @@ export const getRequisitions = async (user: AppUser): Promise<Requisition[]> => 
     });
 };
 
-export const updateRequisitionStatus = async (tenantId: string, reqId: string, status: RequisitionStatus, approverId?: string) => {
+export const updateRequisitionStatus = async (tenantId: string, reqId: string, status: RequisitionStatus) => {
     const reqRef = getRequisitionRef(tenantId, reqId);
     const updates: any = { status };
-    if (approverId) updates.approverId = approverId;
 
     await update(reqRef, updates);
 };
@@ -184,50 +170,28 @@ export const approveRequisition = async (tenantId: string, reqId: string) => {
         if (!snapshot.exists()) throw new Error("Requisition not found");
         const req = snapshot.val() as Requisition;
 
-        // 1. Process via Enterprise Engine
-        const updates = await processApprovalAction({
-            tenantId,
-            entityId: reqId,
-            entityType: 'REQUISITION',
-            actor: { uid: 'system', name: 'Auto System', email: 'system@apexprocure.com' }, // In real app, this would be current user
-            action: 'APPROVE'
+        // 1. Simply set to APPROVED
+        const updates = { status: 'APPROVED' as RequisitionStatus };
+
+        // 2. Compliance and Post-Approval Logic
+        const compliance = await runComplianceCheck(tenantId, req);
+        await update(reqRef, {
+            status: 'APPROVED',
+            complianceScore: compliance.riskScore,
+            complianceFindings: compliance.findings
         });
 
-        // 2. Compliance and Post-Approval Logic if finalized
-        if (updates.status === 'APPROVED') {
-            const compliance = await runComplianceCheck(tenantId, req);
-            await update(reqRef, {
-                complianceScore: compliance.riskScore,
-                complianceFindings: compliance.findings
-            });
-
-            // 🛡️ Phase 58: Reserve Funds (Move to Committed)
-            try {
-                const { reserveFunds } = await import("./budgets");
-                await reserveFunds(tenantId, req.department, Number(req.totalAmount));
-            } catch (err) {
-                console.error("[Budget] Fund reservation failed:", err);
-            }
-
-            // Direct Pay on final approval
-            await PaymentService.initiateDirectTransfer(tenantId, req as any);
-            return { final: true, compliance };
+        // 🛡️ Phase 58: Reserve Funds (Move to Committed)
+        try {
+            const { reserveFunds } = await import("./budgets");
+            await reserveFunds(tenantId, req.department, Number(req.totalAmount));
+        } catch (err) {
+            console.error("[Budget] Fund reservation failed:", err);
         }
 
-        // 3. Notification for next approver if still pending
-        if (updates.approverId) {
-            const { createNotification } = await import("./notifications");
-            await createNotification({
-                tenantId,
-                userId: updates.approverId,
-                type: 'APPROVAL_REQUEST',
-                title: 'Tiered Approval Required',
-                message: `Next approval tier for ${req.requesterName}'s request.`,
-                link: '/dashboard/approvals'
-            });
-        }
-
-        return { final: false };
+        // Direct Pay on final approval
+        await PaymentService.initiateDirectTransfer(tenantId, req as any);
+        return { final: true, compliance };
     } catch (error) {
         console.error("Error approving requisition", error);
         throw error;

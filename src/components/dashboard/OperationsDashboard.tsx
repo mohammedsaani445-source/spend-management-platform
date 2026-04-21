@@ -27,20 +27,18 @@ export default function OperationsDashboard({ user, stats = {} as any }: Operati
                 <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Tracking shipments, receipts, and inventory alerts.</p>
             </div>
 
-            <div className="kpi-grid">
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
                 {[
-                    { label: 'Outbound POs', value: stats.activeCount.toString(), sub: 'Awaiting fulfillment', icon: '📤' },
-                    { label: 'Pending Receipts', value: '12', sub: 'Needs entry', icon: '📥' },
-                    { label: 'Stock Alerts', value: '4', sub: 'Below threshold', icon: '⚠️' },
-                    { label: 'Warehouse Capacity', value: '82%', sub: 'Utilization', icon: '🏟️' },
-                ].map(kpi => (
-                    <div className="card" key={kpi.label} style={{ padding: '1.25rem' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                            <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>{kpi.label}</span>
-                            <span>{kpi.icon}</span>
+                    { label: 'Active Tasks', value: stats?.activeCount?.toString() || '0', icon: '⚡', color: 'var(--brand)' },
+                    { label: 'Average Time', value: stats?.avgTime || '0d', icon: '🕒', color: 'var(--success)' },
+                    { label: 'Compliance Rate', value: stats?.complianceRate || '0%', icon: '🛡️', color: 'var(--info)' },
+                ].map(s => (
+                    <div key={s.label} className="card" style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ fontSize: '1.5rem' }}>{s.icon}</div>
+                        <div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: s.color }}>{s.value}</div>
+                            <div style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>{s.label}</div>
                         </div>
-                        <div style={{ fontSize: '1.25rem', fontWeight: 800 }}>{kpi.value}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{kpi.sub}</div>
                     </div>
                 ))}
             </div>

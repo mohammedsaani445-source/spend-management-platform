@@ -2,9 +2,7 @@ import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, orderByChild, equalTo, onValue } from "firebase/database";
 import { Invoice, InvoiceStatus, AppUser, PurchaseOrder } from "@/types";
 import { performThreeWayMatch } from "./matching";
-import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
-// WorkflowEngine removed to prevent server-side leakage into client components.
-// Use src/lib/workflow/integration.ts for server-side workflow operations.
+
 
 const getInvoicesRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices`);
 const getInvoiceRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/invoices/${id}`);
@@ -33,32 +31,9 @@ export const createInvoice = async (tenantId: string, invoice: Omit<Invoice, 'id
 
         const newId = newInvRef.key;
 
-        // 2. Evaluate approval policy and assign first approver
-        const policy = await evaluatePolicy(tenantId, 'invoices', invoice.amount, invoice.currency || 'GHS', invoice.department);
-
-        let finalStatus: InvoiceStatus = 'PENDING';
-        let workflowUpdate: any = {};
-
-        if (policy && policy.steps && policy.steps.length > 0) {
-            // Check auto-approve condition
-            if ((policy.autoApprove || (policy as any).autoApproveLimit > 0) && invoice.amount <= ((policy as any).autoApproveLimit || 0)) {
-                finalStatus = 'APPROVED';
-            } else {
-                const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, actor?.uid || 'system');
-                workflowUpdate = {
-                    workflowId: policy.id,
-                    currentStepIndex: 0,
-                    approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : null,
-                    approverName: firstApprovers.length > 0 ? firstApprovers[0].name : null,
-                    approvalHistory: [],
-                };
-            }
-        }
-
         const invUpdateRef = getInvoiceRef(tenantId, newId!);
         await update(invUpdateRef, {
-            status: finalStatus,
-            ...workflowUpdate,
+            status: 'APPROVED' as InvoiceStatus,
         });
 
         // 🔔 Notification Trigger (Phase 57)

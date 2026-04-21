@@ -2,7 +2,6 @@ import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, orderByChild, equalTo, onValue } from "firebase/database";
 import { PurchaseOrder, Requisition, POStatus, AppUser, Tender, Bid, ShippingDetails } from "@/types";
 import { getVendor } from "./vendors";
-import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
 const getPOsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders`);
 const getPORef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/purchase_orders/${id}`);
 
@@ -41,29 +40,9 @@ export const createPOFromRequisition = async (tenantId: string, requisition: Req
 
         await set(newPORef, newPO);
 
-        // 2. Evaluate Policy
-        const policy = await evaluatePolicy(tenantId, 'purchase_orders', requisition.totalAmount, requisition.currency || 'USD', requisition.department);
-        
-        let status: POStatus = 'PENDING';
-        let workflowUpdate: any = {};
-
-        if (policy && policy.steps && policy.steps.length > 0) {
-            const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, userId);
-            workflowUpdate = {
-                workflowId: policy.id,
-                currentStepIndex: 0,
-                approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : 'admin',
-                approverName: firstApprovers.length > 0 ? firstApprovers[0].name : 'System Admin',
-                approvalHistory: []
-            };
-        } else {
-            status = 'ISSUED'; // Auto-approved if no policy matches
-        }
-
-        // 3. Finalize PO with workflow info
+        // 2. Simply set to ISSUED as it's coming from an approved requisition
         await update(newPORef, {
-            status,
-            ...workflowUpdate
+            status: 'ISSUED'
         });
 
         // Update Requisition status
@@ -99,11 +78,12 @@ export const getHistoricalPrices = async (tenantId: string): Promise<Record<stri
         if (snapshot.exists()) {
             const data = snapshot.val();
             Object.values(data).forEach((po: any) => {
+                if (!po) return;
                 // Only count issued/received/closed orders for benchmarking
-                if (['CANCELLED', 'DRAFT'].includes(po.status)) return;
+                if (['CANCELLED', 'DRAFT'].includes(po.status || '')) return;
 
                 po.items?.forEach((item: any) => {
-                    const desc = item.description.toLowerCase().trim();
+                    const desc = (item?.description || 'Unknown').toLowerCase().trim();
                     const price = Number(item.price);
                     if (isNaN(price)) return;
 
@@ -117,14 +97,17 @@ export const getHistoricalPrices = async (tenantId: string): Promise<Record<stri
 
         const result: Record<string, HistoricalPrice> = {};
         Object.entries(history).forEach(([desc, data]) => {
+            const count = data.prices.length;
+            if (count === 0) return;
+
             const sum = data.prices.reduce((a, b) => a + b, 0);
             result[desc] = {
-                avgPrice: sum / data.prices.length,
+                avgPrice: sum / count,
                 minPrice: Math.min(...data.prices),
                 maxPrice: Math.max(...data.prices),
-                lastPrice: data.prices[data.prices.length - 1],
+                lastPrice: data.prices[count - 1],
                 currency: data.currency,
-                sampleSize: data.prices.length
+                sampleSize: count
             };
         });
 
@@ -152,9 +135,9 @@ export const subscribeToPurchaseOrders = (user: AppUser, callback: (pos: Purchas
                 const pos = Object.entries(data).map(([key, v]: [string, any]) => ({
                     id: key,
                     ...v,
-                    issuedAt: new Date(v.issuedAt),
+                    issuedAt: v.issuedAt ? new Date(v.issuedAt) : new Date(0),
                 })) as PurchaseOrder[];
-                callback(pos.sort((a, b) => b.issuedAt.getTime() - a.issuedAt.getTime()));
+                callback(pos.sort((a, b) => (b.issuedAt?.getTime?.() || 0) - (a.issuedAt?.getTime?.() || 0)));
             } else {
                 callback([]);
             }
@@ -374,7 +357,7 @@ export const createPOFromAwardedBid = async (
             items: items as any,
             totalAmount: bid.amount,
             currency: bid.currency,
-            status: 'DRAFT' as POStatus,
+            status: 'ISSUED' as POStatus,
             issuedAt: new Date().toISOString() as any,
             issuedBy: actor.uid,
             department: actor.department || 'Procurement',
@@ -385,9 +368,6 @@ export const createPOFromAwardedBid = async (
         };
 
         await set(newPORef, newPO);
-
-        // 2. We skip direct WorkflowEngine calls here.
-        // The calling component or API route should trigger the workflow submission.
         
         return { id: newPORef.key, poNumber };
     } catch (error) {

@@ -22,6 +22,10 @@ const cardStyle: React.CSSProperties = {
 
 export default function ProcurementDashboard({ user, stats = {} as any, pos = [], currency }: ProcurementDashboardProps) {
 
+    const activePOs = useMemo(() => 
+        (pos || []).filter(p => !['CANCELLED', 'CLOSED'].includes(p.status ?? '')), 
+    [pos]);
+
     return (
         <div style={{ fontFamily: "'Inter', sans-serif", color: 'var(--text-primary)' }}>
             <SecurityBanner user={user} />
@@ -33,10 +37,10 @@ export default function ProcurementDashboard({ user, stats = {} as any, pos = []
 
             <div className="kpi-grid">
                 {[
-                    { label: 'Active POs', value: pos.filter(p => !['CANCELLED', 'CLOSED'].includes(p.status)).length.toString(), sub: 'In pipeline', color: 'var(--brand)', icon: '📦' },
-                    { label: 'Top Vendor', value: 'Apex Global', sub: 'Primary supplier', color: 'var(--info)', icon: '🏢' },
-                    { label: 'Est. Savings', value: formatCurrency(stats.savings, currency), sub: 'Negotiated value', color: 'var(--success)', icon: '💎' },
-                    { label: 'CO2e Footprint', value: `${Math.round(stats.carbonFootprint?.totalCo2e || 0)}kg`, sub: 'Sustainability index', color: 'var(--warning)', icon: '🌱' },
+                    { label: 'Active POs', value: activePOs.length.toString(), sub: 'In pipeline', color: 'var(--brand)', icon: '📦' },
+                    { label: 'Top Vendor', value: stats?.topVendor || 'Apex Global', sub: 'Primary supplier', color: 'var(--info)', icon: '🏢' },
+                    { label: 'Est. Savings', value: formatCurrency(stats?.savings || 0, currency), sub: 'Negotiated value', color: 'var(--success)', icon: '💎' },
+                    { label: 'CO2e Footprint', value: `${Math.round(stats?.carbonFootprint?.totalCo2e || 0)}kg`, sub: 'Sustainability index', color: 'var(--warning)', icon: '🌱' },
                 ].map(kpi => (
                     <div className="card" key={kpi.label} style={{ padding: '1.25rem' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
@@ -66,24 +70,30 @@ export default function ProcurementDashboard({ user, stats = {} as any, pos = []
                                 </tr>
                             </thead>
                             <tbody>
-                                {pos.filter(p => !['CANCELLED', 'CLOSED'].includes(p.status)).slice(0, 5).map(po => (
-                                    <tr key={po.id}>
-                                        <td style={{ fontWeight: 700, fontSize: '0.8rem' }}>{po.poNumber}</td>
-                                        <td>{po.vendorName}</td>
-                                        <td style={{ fontWeight: 700 }}>{formatCurrency(po.totalAmount, po.currency)}</td>
-                                        <td>
-                                            <span style={{ 
-                                                fontSize: '0.7rem', 
-                                                padding: '2px 8px', 
-                                                borderRadius: 999,
-                                                background: po.status === 'DISCREPANCY_FLAGGED' ? '#fee2e2' : 'var(--brand-soft)',
-                                                color: po.status === 'DISCREPANCY_FLAGGED' ? '#ef4444' : 'var(--brand)'
-                                            }}>
-                                                {po.status}
-                                            </span>
-                                        </td>
+                                {activePOs.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={4} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>No active orders found</td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    activePOs.slice(0, 5).map(po => (
+                                        <tr key={po.id}>
+                                            <td style={{ fontWeight: 700, fontSize: '0.8rem' }}>{po.poNumber}</td>
+                                            <td>{po.vendorName}</td>
+                                            <td style={{ fontWeight: 700 }}>{formatCurrency(po.totalAmount, po.currency)}</td>
+                                            <td>
+                                                <span style={{ 
+                                                    fontSize: '0.7rem', 
+                                                    padding: '2px 8px', 
+                                                    borderRadius: 999,
+                                                    background: po.status === 'DISCREPANCY_FLAGGED' ? '#fee2e2' : 'var(--brand-soft)',
+                                                    color: po.status === 'DISCREPANCY_FLAGGED' ? '#ef4444' : 'var(--brand)'
+                                                }}>
+                                                    {po.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -92,7 +102,7 @@ export default function ProcurementDashboard({ user, stats = {} as any, pos = []
             </div>
 
             {/* AI Analyst Expansion */}
-            <AiAnalyst />
+            <AiAnalyst analysis={stats?.aiInsights} />
         </div>
     );
 }

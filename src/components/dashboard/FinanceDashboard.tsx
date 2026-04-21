@@ -23,9 +23,9 @@ interface FinanceDashboardProps {
 export default function FinanceDashboard({ user, stats = {} as any, currency, pos = [] }: FinanceDashboardProps) {
 
     // Filter logic for the Match Engine
-    const readyForPayment = pos.filter(p => p.isMatched && p.status !== 'FULFILLED' && p.status !== 'CLOSED');
-    const discrepancies = pos.filter(p => p.status === 'DISCREPANCY_FLAGGED');
-    const matchRate = pos.length > 0 ? Math.round((pos.filter(p => p.isMatched).length / pos.length) * 100) : 0;
+    const readyForPayment = (pos || []).filter(p => p && (p as any).isMatched && p.status !== 'FULFILLED' && p.status !== 'CLOSED');
+    const discrepancies = (pos || []).filter(p => p && p.status === 'DISCREPANCY_FLAGGED');
+    const matchRate = (pos || []).length > 0 ? Math.round(((pos || []).filter(p => p && (p as any).isMatched).length / (pos || []).length) * 100) : 0;
 
     return (
         <div style={{ color: '#FFF' }}>
@@ -47,7 +47,7 @@ export default function FinanceDashboard({ user, stats = {} as any, currency, po
             {/* Premium KPI Strip */}
             <div className="kpi-grid" style={{ marginBottom: '2rem' }}>
                 {[
-                    { label: 'Total Budget', value: formatCurrency(stats.budgetUsage.total, currency), sub: 'Corporate Allocation', icon: '🏦', color: '#5C6AC4' },
+                    { label: 'Total Budget', value: formatCurrency(stats?.budgetUsage?.total || 0, currency), sub: 'Corporate Allocation', icon: '🏦', color: '#5C6AC4' },
                     { label: 'Current matched', value: formatCurrency(readyForPayment.reduce((sum, p) => sum + p.totalAmount, 0), currency), sub: `${readyForPayment.length} Verified Bills`, icon: <Zap size={16} />, color: '#00AB55' },
                     { label: 'Variance Risk', value: formatCurrency(discrepancies.reduce((sum, p) => sum + p.totalAmount, 0), currency), sub: `${discrepancies.length} Flagged Matches`, icon: <AlertTriangle size={16} />, color: '#FF4842' },
                     { label: 'Audit Velocity', value: `${matchRate}%`, sub: '3-Way Match Health', icon: <Activity size={16} />, color: '#FFAB00' },
@@ -109,7 +109,7 @@ export default function FinanceDashboard({ user, stats = {} as any, currency, po
 
                     <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '24px', padding: '1.5rem' }}>
                         <h2 style={{ fontSize: '1rem', fontWeight: 900, marginBottom: '1.5rem' }}>Enterprise Spend Trend</h2>
-                        <SpendBarChart data={stats.monthlyData} currency={currency} />
+                        <SpendBarChart data={stats?.monthlyData || []} currency={currency} />
                     </div>
                 </div>
 
@@ -160,9 +160,9 @@ export default function FinanceDashboard({ user, stats = {} as any, currency, po
                         </div>
                         
                         <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                            <BudgetDonutChart total={stats.budgetUsage.total || 1} used={stats.budgetUsage.used || 0} />
+                            <BudgetDonutChart total={stats?.budgetUsage?.total || 1} used={stats?.budgetUsage?.used || 0} />
                             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                                <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>{Math.round(stats.budgetUsage.percent)}%</div>
+                                <div style={{ fontSize: '1.5rem', fontWeight: 900 }}>{Math.round(stats?.budgetUsage?.percent || 0)}%</div>
                                 <div style={{ fontSize: '0.625rem', color: 'rgba(255, 255, 255, 0.3)', fontWeight: 800 }}>CAPACITY</div>
                             </div>
                         </div>
@@ -170,11 +170,11 @@ export default function FinanceDashboard({ user, stats = {} as any, currency, po
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                             <div style={{ padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
                                 <div style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Burn Rate</div>
-                                <div style={{ fontSize: '0.875rem', fontWeight: 900 }}>{formatCurrency(stats.budgetUsage.used, currency)}</div>
+                                <div style={{ fontSize: '0.875rem', fontWeight: 900 }}>{formatCurrency(stats?.budgetUsage?.used || 0, currency)}</div>
                             </div>
                             <div style={{ padding: '0.75rem', background: 'rgba(255, 255, 255, 0.02)', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.05)' }}>
                                 <div style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.4)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Available</div>
-                                <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#00AB55' }}>{formatCurrency(stats.budgetUsage.total - stats.budgetUsage.used, currency)}</div>
+                                <div style={{ fontSize: '0.875rem', fontWeight: 900, color: '#00AB55' }}>{formatCurrency((stats?.budgetUsage?.total || 0) - (stats?.budgetUsage?.used || 0), currency)}</div>
                             </div>
                         </div>
                     </div>

@@ -11,7 +11,6 @@ import EmployeeDashboard from "@/components/dashboard/EmployeeDashboard";
 import FinanceDashboard from "@/components/dashboard/FinanceDashboard";
 import ProcurementDashboard from "@/components/dashboard/ProcurementDashboard";
 import OperationsDashboard from "@/components/dashboard/OperationsDashboard";
-import ApproverDashboard from "@/components/dashboard/ApproverDashboard";
 import { getPurchaseOrders } from "@/lib/purchaseOrders";
 import { getAssets } from "@/lib/assets";
 import { getSKUs, getStockLevels } from "@/lib/inventory";
@@ -154,12 +153,7 @@ export default function Dashboard() {
             return <OperationsDashboard user={user} stats={stats} />;
         }
 
-        // 5. Approver View
-        if (['AUTHORIZED_APPROVER', 'dept_head'].includes(role)) {
-            return <ApproverDashboard user={user} stats={stats} currency={targetCurrency} />;
-        }
-
-        // Default: Employee/Requester View (includes 'requester' and 'STANDARD_REQUESTER')
+        // 5. Default: Employee/Requester View (includes 'requester' and 'STANDARD_REQUESTER')
         return <EmployeeDashboard user={user} requisitions={requisitions} />;
     };
 

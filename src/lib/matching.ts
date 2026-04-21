@@ -34,16 +34,17 @@ export const performThreeWayMatch = async (tenantId: string, poId: string, actor
         let discrepancyNote = "";
 
         // Aggregated Item Stats for Comparison
-        const poItems = po.items;
+        const poItems = po.items || [];
         const itemMatches: Record<number, { ordered: number, received: number, invoiced: number, orderedPrice: number, invoicedPrice: number }> = {};
 
         poItems.forEach((item, index) => {
+            if (!item) return;
             itemMatches[index] = {
-                ordered: item.quantity,
+                ordered: item.quantity || 0,
                 received: 0,
                 invoiced: 0,
-                orderedPrice: item.unitPrice,
-                invoicedPrice: item.unitPrice // default to ordered price
+                orderedPrice: item.unitPrice || 0,
+                invoicedPrice: item.unitPrice || 0 // default to ordered price
             };
         });
 

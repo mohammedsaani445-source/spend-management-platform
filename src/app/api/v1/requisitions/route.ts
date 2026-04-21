@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateApiKey } from "@/lib/apiKey";
-import { getRequisitions } from "@/lib/requisitions";
-import { submitRequisitionToWorkflow } from "@/lib/workflow/integration";
+import { getRequisitions, createRequisition } from "@/lib/requisitions";
 
 export async function GET(req: NextRequest) {
     const authHeader = req.headers.get("x-api-key");
@@ -27,13 +26,13 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const result = await submitRequisitionToWorkflow({
+        const resultId = await createRequisition({
             ...body,
             tenantId: key.tenantId,
             requesterId: `API_${key.id || 'unknown'}`,
             requesterName: `API - ${key.name}`
         });
-        return NextResponse.json({ success: true, id: result.id }, { status: 201 });
+        return NextResponse.json({ success: true, id: resultId }, { status: 201 });
     } catch (error) {
         return NextResponse.json({ error: "Failed to create requisition" }, { status: 400 });
     }

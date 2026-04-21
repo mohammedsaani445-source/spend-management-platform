@@ -31,8 +31,8 @@ export default function EmployeeDashboard({ user, requisitions = [] }: EmployeeD
     const router = useRouter();
     const firstName = (user as any).displayName?.split(' ')[0] || (user as any).name?.split(' ')[0] || 'there';
 
-    const activeRequests = requisitions
-        .filter(r => r.status !== 'REJECTED' && r.status !== 'ORDERED')
+    const activeRequests = (requisitions || [])
+        .filter(r => r && r.status !== 'REJECTED' && r.status !== 'ORDERED')
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 5);
 
@@ -105,10 +105,10 @@ export default function EmployeeDashboard({ user, requisitions = [] }: EmployeeD
             {/* === KPI CARDS === */}
             <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', marginBottom: '1.5rem' }}>
                 {[
-                    { label: 'Total Requests', value: requisitions.length, color: 'var(--brand)', bg: 'var(--brand-soft)' },
-                    { label: 'Pending', value: requisitions.filter(r => r.status === 'PENDING').length, color: 'var(--warning)', bg: 'var(--warning-bg)' },
-                    { label: 'Approved', value: requisitions.filter(r => r.status === 'APPROVED').length, color: 'var(--success)', bg: 'var(--success-soft)' },
-                    { label: 'Ordered', value: requisitions.filter(r => r.status === 'ORDERED').length, color: 'var(--info)', bg: 'var(--info-bg)' },
+                    { label: 'Total Requests', value: (requisitions || []).length, color: 'var(--brand)', bg: 'var(--brand-soft)' },
+                    { label: 'Pending', value: (requisitions || []).filter(r => r?.status === 'PENDING').length, color: 'var(--warning)', bg: 'var(--warning-bg)' },
+                    { label: 'Approved', value: (requisitions || []).filter(r => r?.status === 'APPROVED').length, color: 'var(--success)', bg: 'var(--success-soft)' },
+                    { label: 'Ordered', value: (requisitions || []).filter(r => r?.status === 'ORDERED').length, color: 'var(--info)', bg: 'var(--info-bg)' },
                 ].map(s => (
                     <div key={s.label} className="card" style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                         <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>{s.label}</div>
@@ -175,9 +175,9 @@ export default function EmployeeDashboard({ user, requisitions = [] }: EmployeeD
                     <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: '12px', padding: '1.25rem' }}>
                         <h3 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary)' }}>My Summary</h3>
                         {[
-                            { label: 'Total Requests', value: requisitions.length, color: 'var(--brand)', bg: 'var(--brand-soft)' },
-                            { label: 'Pending', value: requisitions.filter(r => r.status === 'PENDING').length, color: 'var(--warning)', bg: 'var(--warning-bg)' },
-                            { label: 'Approved', value: requisitions.filter(r => r.status === 'APPROVED').length, color: 'var(--success)', bg: 'var(--success-soft)' },
+                            { label: 'Total Requests', value: (requisitions || []).length, color: 'var(--brand)', bg: 'var(--brand-soft)' },
+                            { label: 'Pending', value: (requisitions || []).filter(r => r?.status === 'PENDING').length, color: 'var(--warning)', bg: 'var(--warning-bg)' },
+                            { label: 'Approved', value: (requisitions || []).filter(r => r?.status === 'APPROVED').length, color: 'var(--success)', bg: 'var(--success-soft)' },
                         ].map(s => (
                             <div key={s.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.625rem' }}>
                                 <span style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{s.label}</span>

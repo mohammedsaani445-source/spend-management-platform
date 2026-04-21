@@ -1,7 +1,6 @@
 import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, update } from "firebase/database";
-import { AppUser, ApprovalHistoryEntry, ApprovalPolicy } from "@/types";
-import { evaluatePolicy, getCurrentStepApprovers } from "./approvals";
+import { AppUser } from "@/types";
 import { logAction } from "./audit";
 
 /**
@@ -21,18 +20,15 @@ export interface ExpenseClaim {
     status: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'PAID';
     receiptUrl?: string;
     merchant?: string;
-    workflowId?: string;
-    currentStepIndex?: number;
     approverId?: string;
     approverName?: string;
-    approvalHistory?: ApprovalHistoryEntry[];
     createdAt: string;
 }
 
 const getExpensesRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/expenses`);
 
 /**
- * Creates a new expense claim and initiates its approval workflow.
+ * Creates a new expense claim.
  */
 export const createExpense = async (tenantId: string, claim: Omit<ExpenseClaim, 'id' | 'createdAt' | 'status'>, user: AppUser) => {
     try {
@@ -40,35 +36,11 @@ export const createExpense = async (tenantId: string, claim: Omit<ExpenseClaim, 
         const newClaimRef = push(expensesRef);
         const claimId = newClaimRef.key!;
 
-        // 1. Evaluate Policy
-        const policy = await evaluatePolicy(tenantId, 'expenses', claim.amount, claim.currency, claim.department);
-
-        let status: ExpenseClaim['status'] = 'PENDING';
-        let workflowUpdate: any = {};
-
-        if (policy && policy.steps && policy.steps.length > 0) {
-            const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, user.uid);
-            workflowUpdate = {
-                workflowId: policy.id,
-                currentStepIndex: 0,
-                approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : 'admin',
-                approverName: firstApprovers.length > 0 ? firstApprovers[0].name : 'System Administrator'
-            };
-        } else {
-            // Auto-approve if no policy found (or set to default admin)
-            status = 'APPROVED';
-            workflowUpdate = {
-                approverId: 'admin',
-                approverName: 'System Auto-Approval'
-            };
-        }
-
+        const status: ExpenseClaim['status'] = 'APPROVED';
         const fullClaim: ExpenseClaim = {
             ...claim,
             id: claimId,
             status,
-            ...workflowUpdate,
-            approvalHistory: [],
             createdAt: new Date().toISOString()
         };
 
@@ -85,22 +57,6 @@ export const createExpense = async (tenantId: string, claim: Omit<ExpenseClaim, 
             description: `Created expense claim for ${claim.currency} ${claim.amount}: ${claim.description}`
         });
 
-        // 3. Notify Approvers
-        if (status === 'PENDING' && workflowUpdate.approverId) {
-            try {
-                const { notifyUser } = await import("./notifications");
-                await notifyUser(
-                    tenantId,
-                    workflowUpdate.approverId,
-                    'APPROVAL_REQUEST',
-                    'Expense Approval Required',
-                    `${user.displayName} submitted an expense claim of ${claim.currency} ${claim.amount} for approval.`,
-                    `/dashboard/approvals`
-                );
-            } catch (err) {
-                console.error("Failed to notify approver:", err);
-            }
-        }
 
         return claimId;
     } catch (error) {

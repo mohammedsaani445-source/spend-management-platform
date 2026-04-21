@@ -57,36 +57,24 @@ export default function ContractsPage() {
     const handleApprove = async (id: string) => {
         if (!user) return;
         try {
-            const { processApprovalAction } = await import("@/lib/approvals");
-            await processApprovalAction({
-                tenantId: user.tenantId,
-                entityId: id,
-                entityType: 'CONTRACT',
-                actor: { uid: user.uid, name: user.displayName, email: user.email },
-                action: 'APPROVE'
-            });
-            await showAlert("Contract Approved", "The contract has been approved and is now active.");
+            const { updateContract } = await import("@/lib/contracts");
+            await updateContract(user.tenantId, id, { status: 'ACTIVE' }, user);
+            await showAlert("Contract Approved", "The contract has been activated.");
             loadData();
         } catch (e: any) {
-            await showError("Approval Failed", e.message || "Could not approve contract.");
+            await showError("Approval Failed", e.message || "Could not activate contract.");
         }
     };
 
     const handleReject = async (id: string) => {
         if (!user) return;
         try {
-            const { processApprovalAction } = await import("@/lib/approvals");
-            await processApprovalAction({
-                tenantId: user.tenantId,
-                entityId: id,
-                entityType: 'CONTRACT',
-                actor: { uid: user.uid, name: user.displayName, email: user.email },
-                action: 'REJECT'
-            });
-            await showAlert("Contract Rejected", "The contract has been rejected.");
+            const { updateContract } = await import("@/lib/contracts");
+            await updateContract(user.tenantId, id, { status: 'EXPIRED' }, user);
+            await showAlert("Contract Rejected", "The contract has been set to expired/inactive.");
             loadData();
         } catch (e: any) {
-            await showError("Rejection Failed", e.message || "Could not reject contract.");
+            await showError("Operation Failed", e.message || "Could not update contract.");
         }
     };
 

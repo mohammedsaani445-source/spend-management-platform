@@ -18,7 +18,6 @@ const NAV_GROUPS = [
         label: "Procure",
         items: [
             { name: "Dashboard", href: "/dashboard", icon: <Home size={20} />, exact: true },
-            { name: "Approvals", href: "/dashboard/approvals", icon: <ShieldCheck size={20} /> },
             { name: "Requisitions", href: "/dashboard/requisitions", icon: <ShoppingBag size={20} /> },
             { name: "Purchase Orders", href: "/dashboard/purchase-orders", icon: <FileText size={20} /> },
             { name: "Sourcing (RFQ)", href: "/dashboard/sourcing", icon: <Target size={20} /> },
@@ -55,7 +54,6 @@ const NAV_GROUPS = [
 
 const ADMIN_ITEMS = [
     { name: "Team Management", href: "/dashboard/users", icon: <Users size={20} /> },
-    { name: "Approval Policies", href: "/dashboard/settings/approvals", icon: <ShieldCheck size={20} /> },
     { name: "Integrations", href: "/dashboard/integrations", icon: <Blocks size={20} /> },
 ];
 
@@ -94,7 +92,7 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                         return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Sourcing (RFQ)'].includes(name);
                     case 'AUTHORIZED_APPROVER':
                     case 'dept_head':
-                        return ['Dashboard', 'Approvals', 'Purchase Orders', 'Budgets', 'Sourcing (RFQ)'].includes(name);
+                        return ['Dashboard', 'Purchase Orders', 'Budgets', 'Sourcing (RFQ)'].includes(name);
                     case 'PROCUREMENT_OFFICER':
                     case 'proc_officer':
                         return ['Dashboard', 'Requisitions', 'Purchase Orders', 'Receiving', 'Inventory', 'Vendors', 'Contracts', 'Sourcing (RFQ)'].includes(name);
@@ -109,7 +107,7 @@ export default function Sidebar({ isCollapsed = false, onToggle, isMobileMenuOpe
                         return ['Dashboard', 'Invoices', 'Payments', 'Vendors'].includes(name);
                     case 'FINANCE_MANAGER':
                     case 'finance_mgr':
-                        return ['Dashboard', 'Approvals', 'Invoices', 'Payments', 'Budgets', 'Analytics', 'Reports', 'Sourcing (RFQ)'].includes(name);
+                        return ['Dashboard', 'Invoices', 'Payments', 'Budgets', 'Analytics', 'Reports', 'Sourcing (RFQ)'].includes(name);
                     case 'FINANCE_SPECIALIST':
                         return ['Dashboard', 'Invoices', 'Payments', 'Budgets', 'Vendors', 'Analytics', 'Governance & Audit'].includes(name);
                     case 'DATA_ANALYST':

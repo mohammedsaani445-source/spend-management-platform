@@ -11,7 +11,6 @@ import { Logo } from "../common/Logo";
 
 const ROUTE_TITLES: Record<string, string> = {
     '/dashboard': 'Dashboard',
-    '/dashboard/approvals': 'Approvals',
     '/dashboard/requisitions': 'Purchase Requisitions',
     '/dashboard/purchase-orders': 'Purchase Orders',
     '/dashboard/receiving': 'Receiving',

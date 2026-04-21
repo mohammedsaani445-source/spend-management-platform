@@ -3,7 +3,7 @@ import { ref, push, set, get, update } from "firebase/database";
 import { BudgetAdjustment, AppUser } from "@/types";
 import { logAction } from "./audit";
 import { notifyUser } from "./notifications";
-import { evaluatePolicy } from "./approvals";
+
 
 const getAdjustmentsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgetAdjustments`);
 
@@ -12,23 +12,47 @@ export const createBudgetAdjustmentRequest = async (params: Omit<BudgetAdjustmen
         const adjustmentsRef = getAdjustmentsRef(params.tenantId);
         const newAdjustmentRef = push(adjustmentsRef);
 
-        const workflow = await evaluatePolicy(
-            params.tenantId,
-            'budgets',
-            params.amount,
-            params.currency || 'GHS',
-            params.department
-        );
-
         const adjustment: BudgetAdjustment = {
             ...params,
             id: newAdjustmentRef.key || undefined,
-            status: workflow ? 'PENDING' : 'APPROVED',
-            workflowId: workflow?.id || null,
+            status: 'APPROVED',
             createdAt: new Date().toISOString()
         };
 
         await set(newAdjustmentRef, adjustment);
+
+        // 2. Directly apply budget change (Bypassing Approval Workflow)
+        try {
+            const budgetsRef = ref(db, `${DB_PREFIX}/tenants/${params.tenantId}/budgets`);
+            const budgetsSnap = await get(budgetsRef);
+
+            if (budgetsSnap.exists()) {
+                const budgets = budgetsSnap.val();
+                const budgetId = Object.keys(budgets).find(key => budgets[key].department === params.department);
+
+                if (budgetId) {
+                    const currentAmount = budgets[budgetId].amount || 0;
+                    const newAmount = currentAmount + params.amount;
+
+                    await update(ref(db, `${DB_PREFIX}/tenants/${params.tenantId}/budgets/${budgetId}`), {
+                        amount: newAmount,
+                        updatedAt: new Date().toISOString()
+                    });
+
+                    await logAction({
+                        tenantId: params.tenantId,
+                        actorId: params.requesterId,
+                        actorName: params.requesterName,
+                        action: 'UPDATE',
+                        entityType: 'BUDGET',
+                        entityId: budgetId,
+                        description: `Auto-applied budget ${params.type.toLowerCase()} of ${params.amount} ${params.currency}. New total: ${newAmount}`
+                    });
+                }
+            }
+        } catch (budgetErr) {
+            console.error("[BudgetAdjustments] Failed to auto-apply budget change:", budgetErr);
+        }
 
         await logAction({
             tenantId: params.tenantId,

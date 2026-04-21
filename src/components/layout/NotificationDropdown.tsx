@@ -41,7 +41,6 @@ export default function NotificationDropdown() {
 
     const getIcon = (type: Notification['type']) => {
         switch (type) {
-            case 'APPROVAL_REQUEST': return <FileSignature size={18} color="var(--brand)" />;
             case 'PO_ACKNOWLEDGED': return <CheckCircle2 size={18} color="var(--success, #10b981)" />;
             case 'PO_OPENED': return <Eye size={18} color="var(--info, #3b82f6)" />;
             case 'BUDGET_ALERT': return <AlertTriangle size={18} color="var(--warning, #f59e0b)" />;

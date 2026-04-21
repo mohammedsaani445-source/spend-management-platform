@@ -12,7 +12,6 @@ import { auth } from "@/lib/firebase";
 import { useModal } from "@/context/ModalContext";
 import styles from "@/app/dashboard/settings/Settings.module.css";
 import { useScrollLock } from "@/hooks/useScrollLock";
-import ApprovalQueue from "./ApprovalQueue";
 import {
     Users, Search, Shield, MapPin,
     Building2, UserCog, ChevronDown, ShieldCheck,
@@ -31,7 +30,7 @@ export default function UserManagement() {
     const [filter, setFilter] = useState("");
 
     const ROLES: UserRole[] = ["administrator", "finance_mgr", "proc_mgr", "proc_officer", "dept_head", "requester", "ap_officer", "auditor", "warehouse", "asset_mgr", "ADMIN", "WORKSPACE_ADMIN", "PLATFORM_SUPERUSER"];
-    const [activeSubTab, setActiveSubTab] = useState<'DIRECTORY' | 'REQUESTS'>('DIRECTORY');
+    const [activeSubTab, setActiveSubTab] = useState<'DIRECTORY'>('DIRECTORY');
 
     useEffect(() => {
         if (currentUser) {
@@ -136,25 +135,6 @@ export default function UserManagement() {
                     >
                         <Users size={20} /> User Directory
                     </button>
-                    <button
-                        onClick={() => setActiveSubTab('REQUESTS')}
-                        style={{
-                            padding: '1rem 0',
-                            border: 'none',
-                            background: 'none',
-                            fontSize: '0.9375rem',
-                            fontWeight: 800,
-                            color: activeSubTab === 'REQUESTS' ? 'var(--brand)' : 'var(--text-secondary)',
-                            borderBottom: activeSubTab === 'REQUESTS' ? '2px solid var(--brand)' : '2px solid transparent',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.625rem',
-                            marginBottom: '-1px'
-                        }}
-                    >
-                        <ShieldCheck size={20} /> Access Requests
-                    </button>
                 </div>
 
                 {activeSubTab === 'DIRECTORY' && (
@@ -173,9 +153,7 @@ export default function UserManagement() {
                     </div>
                 )}
             </div>
-            {activeSubTab === 'REQUESTS' ? (
-                <ApprovalQueue />
-            ) : (
+            {activeSubTab === 'DIRECTORY' && (
                 <>
                     <div className={styles.card} style={{ padding: 0, overflow: 'hidden' }}>
                         {filteredUsers.length === 0 ? (

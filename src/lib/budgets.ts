@@ -1,43 +1,24 @@
 import { db, DB_PREFIX } from "./firebase";
 import { ref, push, set, get, child, update, query, orderByChild, equalTo } from "firebase/database";
 import { Budget, AppUser, BudgetEnforcementLevel } from "@/types";
-import { getSpendAnalytics } from "./analytics";
+// Removed top-level import to resolve circular dependency with analytics.ts
 
 const getBudgetsRef = (tenantId: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgets`);
 const getBudgetRef = (tenantId: string, id: string) => ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgets/${id}`);
 
 export const createBudget = async (tenantId: string, budget: Omit<Budget, 'id' | 'createdAt'>, requester?: { uid: string, name: string }) => {
     try {
-        const { evaluatePolicy, getCurrentStepApprovers } = await import("./approvals");
-        
         const budgetsRef = getBudgetsRef(tenantId);
         const newBudgetRef = push(budgetsRef);
         const budgetId = newBudgetRef.key!;
 
-        // 🛡️ Evaluate policy for budget creation
-        const policy = await evaluatePolicy(tenantId, 'budgets', budget.amount, budget.currency || 'USD');
-        
-        let status: any = budget.status || 'ACTIVE';
-        let workflowUpdate: any = {};
-
-        if (policy && policy.steps && policy.steps.length > 0) {
-            status = 'PENDING_APPROVAL';
-            const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, requester?.uid || 'system');
-            workflowUpdate = {
-                workflowId: policy.id,
-                currentStepIndex: 0,
-                approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : 'admin',
-                approverName: firstApprovers.length > 0 ? firstApprovers[0].name : 'System Admin',
-                approvalHistory: []
-            };
-        }
+        const status = budget.status || 'ACTIVE';
 
         await set(newBudgetRef, {
             ...budget,
             id: budgetId,
             tenantId,
             status,
-            ...workflowUpdate,
             committedAmount: 0, 
             enforcementLevel: budget.enforcementLevel || 'SOFT', 
             entityId: budget.entityId || 'DEFAULT',
@@ -117,6 +98,7 @@ export const updateBudget = async (tenantId: string, id: string, budget: Partial
 };
 
 export const getDepartmentBudgetStatus = async (user: AppUser, department: string) => {
+    const { getSpendAnalytics } = await import("./analytics");
     const [budgets, analytics] = await Promise.all([
         getBudgets(user),
         getSpendAnalytics(user)
@@ -125,10 +107,10 @@ export const getDepartmentBudgetStatus = async (user: AppUser, department: strin
     const deptBudget = budgets.find(b => b.department === department);
     if (!deptBudget) return null;
 
-    const spent = analytics.spendByDepartment[department] || 0;
+    const spent = analytics?.spendByDepartment?.[department] || 0;
     const committed = deptBudget.committedAmount || 0;
     const totalUtilization = spent + committed;
-    const remaining = deptBudget.amount - totalUtilization;
+    const remaining = (deptBudget.amount || 0) - totalUtilization;
 
     return {
         budget: deptBudget.amount,
@@ -193,8 +175,9 @@ export const validateRequisitionBudget = async (tenantId: string, department: st
         // field updated via settlement.
         
         // Let's get the status which includes spent
+        const { getSpendAnalytics } = await import("./analytics");
         const analytics = await getSpendAnalytics({ tenantId, department, role: 'ADMIN' } as AppUser);
-        const spent = analytics.spendByDepartment[department] || 0;
+        const spent = analytics?.spendByDepartment?.[department] || 0;
         
         const totalUtilization = spent + committed;
         const remaining = budget.amount - totalUtilization;

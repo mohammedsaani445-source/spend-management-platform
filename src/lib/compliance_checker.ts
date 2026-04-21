@@ -28,8 +28,8 @@ export const runComplianceCheck = async (tenantId: string, entity: Invoice | Req
     const histSnap = await get(query(histRef, limitToLast(30)));
 
     if (histSnap.exists()) {
-        const history = Object.values(histSnap.val() as Record<string, Invoice>);
-        const amounts = history.map(i => i.amount);
+        const history = Object.values(histSnap.val() as Record<string, Invoice>) || [];
+        const amounts = history.map(i => i.amount).filter(a => typeof a === 'number');
 
         if (amounts.length >= 3) {
             const mean = amounts.reduce((a, b) => a + b, 0) / amounts.length;
@@ -45,13 +45,15 @@ export const runComplianceCheck = async (tenantId: string, entity: Invoice | Req
     }
 
     // 3. Budget Stress Check
-    const budgetRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgets`);
-    const budgetSnap = await get(query(budgetRef, orderByChild('department'), equalTo(entity.department)));
-    if (budgetSnap.exists()) {
-        const budgets = Object.values(budgetSnap.val() as Record<string, any>);
-        const activeBudget = budgets[0];
-        if (activeBudget && currentAmount > activeBudget.amount * 0.25) {
-            findings.push(`⚖️ CONCENTRATION RISK: This single request consumes >25% of the ${entity.department} budget.`);
+    if (entity.department) {
+        const budgetRef = ref(db, `${DB_PREFIX}/tenants/${tenantId}/budgets`);
+        const budgetSnap = await get(query(budgetRef, orderByChild('department'), equalTo(entity.department)));
+        if (budgetSnap.exists()) {
+            const budgets = Object.values(budgetSnap.val() as Record<string, any>) || [];
+            const activeBudget = budgets[0];
+            if (activeBudget && activeBudget.amount && currentAmount > activeBudget.amount * 0.25) {
+                findings.push(`⚖️ CONCENTRATION RISK: This single request consumes >25% of the ${entity.department} budget.`);
+            }
         }
     }
 

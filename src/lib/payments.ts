@@ -129,29 +129,14 @@ export const processBillPayment = async (
     const paymentDate = scheduledDate || new Date().toISOString().split('T')[0];
     const isScheduled = !!(scheduledDate && new Date(scheduledDate) > new Date());
 
-    // 🛡️ Phase 70: Centralized Approval Policy Evaluation
-    const { evaluatePolicy, getCurrentStepApprovers } = await import("./approvals");
-    const policy = await evaluatePolicy(tenantId, 'payments', totalAmount, currency);
+
 
     // Create payment run record
     const runsRef = getPaymentRunsRef(tenantId);
     const newRunRef = push(runsRef);
     const runId = newRunRef.key!;
 
-    let status: any = isScheduled ? 'PENDING' : 'COMPLETED';
-    let workflowUpdate: any = {};
-
-    if (policy && policy.steps && policy.steps.length > 0) {
-        status = 'PENDING_APPROVAL';
-        const firstApprovers = await getCurrentStepApprovers(tenantId, policy as any, 0, createdBy);
-        workflowUpdate = {
-            workflowId: policy.id,
-            currentStepIndex: 0,
-            approverId: firstApprovers.length > 0 ? firstApprovers[0].uid : 'admin',
-            approverName: firstApprovers.length > 0 ? firstApprovers[0].name : 'System Admin',
-            approvalHistory: []
-        };
-    }
+    let status: 'PENDING' | 'COMPLETED' = isScheduled ? 'PENDING' : 'COMPLETED';
 
     const paymentRun: PaymentRun = {
         id: runId,
@@ -162,7 +147,6 @@ export const processBillPayment = async (
         paymentMethod,
         paymentDate,
         status,
-        ...workflowUpdate,
         referenceNumber: refNum,
         createdBy,
         createdByName,
@@ -173,10 +157,6 @@ export const processBillPayment = async (
 
     await set(newRunRef, paymentRun);
 
-    // 🛡️ If pending approval, STOP HERE. Do not mark bills as paid yet.
-    if (status === 'PENDING_APPROVAL') {
-        return runId;
-    }
 
     // Mark all bills as PAID (or SCHEDULED) - Direct execution path (no policy or auto-approved)
     const newBillStatus: BillStatus = isScheduled ? 'SCHEDULED' : 'PAID';

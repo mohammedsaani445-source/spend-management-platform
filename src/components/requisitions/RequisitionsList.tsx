@@ -57,7 +57,7 @@ export default function RequisitionsList() {
         return () => unsubscribe();
     }, [user]);
 
-    const filtered = filterStatus === 'ALL' ? requisitions : requisitions.filter(r => r.status === filterStatus);
+    const filtered = filterStatus === 'ALL' ? (requisitions || []) : (requisitions || []).filter(r => r && r.status === filterStatus);
 
     if (loading) return (
         <div className="page-container">
@@ -85,10 +85,10 @@ export default function RequisitionsList() {
             {/* Stat strip */}
             <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
                 {[
-                    { label: 'Total', value: requisitions.length, color: 'var(--brand)', bg: 'var(--brand-soft)' },
-                    { label: 'Pending', value: requisitions.filter(r => r.status === 'PENDING').length, color: 'var(--warning)', bg: 'var(--warning-bg)' },
-                    { label: 'Approved', value: requisitions.filter(r => r.status === 'APPROVED').length, color: 'var(--success)', bg: 'var(--success-soft)' },
-                    { label: 'Rejected', value: requisitions.filter(r => r.status === 'REJECTED').length, color: 'var(--error)', bg: 'var(--error-bg)' },
+                    { label: 'Total', value: (requisitions || []).length, color: 'var(--brand)', bg: 'var(--brand-soft)' },
+                    { label: 'Pending', value: (requisitions || []).filter(r => r && r.status === 'PENDING').length, color: 'var(--warning)', bg: 'var(--warning-bg)' },
+                    { label: 'Approved', value: (requisitions || []).filter(r => r && r.status === 'APPROVED').length, color: 'var(--success)', bg: 'var(--success-soft)' },
+                    { label: 'Rejected', value: (requisitions || []).filter(r => r && r.status === 'REJECTED').length, color: 'var(--error)', bg: 'var(--error-bg)' },
                 ].map(s => (
                     <div key={s.label} style={{
                         background: 'white', border: '1px solid var(--border)', borderRadius: '10px',
@@ -136,28 +136,31 @@ export default function RequisitionsList() {
                             </tr>
                         </thead>
                         <tbody>
-                            {filtered.map(req => (
-                                <tr key={req.id} onClick={() => setSelectedReq(req)} style={{ cursor: 'pointer' }}>
-                                    <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>{req.createdAt.toLocaleDateString()}</td>
-                                    <td>
-                                        <span style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--brand)', fontSize: '0.875rem' }}>
-                                            #{req.id?.slice(-6).toUpperCase()}
-                                        </span>
-                                    </td>
-                                    <td style={{ fontWeight: 500 }}>{req.requesterName}</td>
-                                    <td style={{ color: 'var(--text-secondary)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                        {(req as any).description || '—'}
-                                    </td>
-                                    <td>{req.vendorName || '—'}</td>
-                                    <td>
-                                        <span style={{ fontWeight: 700 }}>{formatCurrency(req.totalAmount, req.currency)}</span>
-                                        {req.complianceScore && req.complianceScore > 20 && (
-                                            <span style={{ marginLeft: '0.5rem', fontSize: '0.7rem', color: 'var(--error)', fontWeight: 700 }} title="Risk detected">🚩</span>
-                                        )}
-                                    </td>
-                                    <td><StatusBadge status={req.status} /></td>
-                                </tr>
-                            ))}
+                                {filtered.map(req => {
+                                    const dateStr = req.createdAt instanceof Date ? req.createdAt.toLocaleDateString() : (typeof req.createdAt === 'number' ? new Date(req.createdAt).toLocaleDateString() : '—');
+                                    return (
+                                        <tr key={req.id || Math.random()} onClick={() => setSelectedReq(req)} style={{ cursor: 'pointer' }}>
+                                            <td style={{ color: 'var(--text-secondary)', fontSize: '0.8125rem' }}>{dateStr}</td>
+                                            <td>
+                                                <span style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--brand)', fontSize: '0.875rem' }}>
+                                                    #{req.id?.slice(-6).toUpperCase()}
+                                                </span>
+                                            </td>
+                                            <td style={{ fontWeight: 500 }}>{req.requesterName}</td>
+                                            <td style={{ color: 'var(--text-secondary)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                                {(req as any).description || '—'}
+                                            </td>
+                                            <td>{req.vendorName || '—'}</td>
+                                            <td>
+                                                <span style={{ fontWeight: 700 }}>{formatCurrency(req.totalAmount, req.currency)}</span>
+                                                {req.complianceScore && req.complianceScore > 20 && (
+                                                    <span style={{ marginLeft: '0.5rem', fontSize: '0.7rem', color: 'var(--error)', fontWeight: 700 }} title="Risk detected">🚩</span>
+                                                )}
+                                            </td>
+                                            <td><StatusBadge status={req.status} /></td>
+                                        </tr>
+                                    );
+                                })}
                         </tbody>
                     </table>
                 </div>
